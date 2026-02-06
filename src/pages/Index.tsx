@@ -64,12 +64,12 @@ const Index = () => {
               alt="Мечтай, твори, дерзай!" 
               className="h-32 w-auto object-contain"
             />
-            <div className="hidden md:flex gap-4">
+            <div className="hidden md:flex gap-2">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setActiveSection(item.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold transition-all ${
+                  className={`flex items-center gap-1 px-3 py-2 rounded-xl font-semibold transition-all ${
                     activeSection === item.id
                       ? "bg-primary text-primary-foreground shadow-lg scale-105"
                       : "text-foreground hover:bg-accent hover:scale-105"

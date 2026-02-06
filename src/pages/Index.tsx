@@ -64,7 +64,7 @@ const Index = () => {
               alt="Мечтай, твори, дерзай!" 
               className="h-32 w-auto object-contain"
             />
-            <div className="hidden md:flex gap-2 ml-[50px] flex-1 justify-end">
+            <div className="hidden md:flex gap-2 ml-[20px] flex-1 justify-end">
               {navItems.map((item) => (
                 <button
                   key={item.id}

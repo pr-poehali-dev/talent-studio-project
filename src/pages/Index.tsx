@@ -57,15 +57,13 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background">
       <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-md">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img 
-                src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/e82b8f7c-a118-41b6-8b0e-c286cb3902bb.png" 
-                alt="Мечтай, твори, дерзай!" 
-                className="h-32 w-auto object-contain"
-              />
-            </div>
-            <div className="hidden md:flex gap-6">
+          <div className="flex items-center justify-between gap-4">
+            <img 
+              src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/e82b8f7c-a118-41b6-8b0e-c286cb3902bb.png" 
+              alt="Мечтай, твори, дерзай!" 
+              className="h-48 w-auto object-contain"
+            />
+            <div className="hidden md:flex gap-4">
               {navItems.map((item) => (
                 <button
                   key={item.id}
@@ -93,7 +91,7 @@ const Index = () => {
                 ✨ Раскрой свой талант!
               </Badge>
             </div>
-            <h2 className="text-5xl md:text-7xl font-heading font-bold mb-6 bg-gradient-to-r from-primary via-info to-success bg-clip-text text-transparent">
+            <h2 className="text-5xl md:text-7xl font-heading font-bold mb-6 text-accent">
               Твори и побеждай!
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">

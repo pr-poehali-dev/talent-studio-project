@@ -91,7 +91,7 @@ const Index = () => {
                 ✨ Раскрой свой талант!
               </Badge>
             </div>
-            <h2 className="text-5xl md:text-7xl font-heading font-bold mb-6 text-accent">
+            <h2 className="text-5xl md:text-7xl font-heading font-bold mb-6" style={{ color: '#E31E24' }}>
               Твори и побеждай!
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">

@@ -62,7 +62,7 @@ const Index = () => {
               <img 
                 src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/e82b8f7c-a118-41b6-8b0e-c286cb3902bb.png" 
                 alt="Мечтай, твори, дерзай!" 
-                className="h-16 w-auto object-contain"
+                className="h-32 w-auto object-contain"
               />
             </div>
             <div className="hidden md:flex gap-6">
@@ -93,7 +93,7 @@ const Index = () => {
                 ✨ Раскрой свой талант!
               </Badge>
             </div>
-            <h2 className="text-5xl md:text-7xl font-heading font-bold mb-6 bg-gradient-to-r from-primary via-secondary to-info bg-clip-text text-transparent">
+            <h2 className="text-5xl md:text-7xl font-heading font-bold mb-6 bg-gradient-to-r from-primary via-info to-success bg-clip-text text-transparent">
               Твори и побеждай!
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
@@ -156,7 +156,7 @@ const Index = () => {
                   key={work.id}
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl"
                 >
-                  <div className="h-56 bg-gradient-to-br from-accent via-info/30 to-success/30 flex items-center justify-center">
+                  <div className="h-56 bg-gradient-to-br from-secondary via-info/30 to-success/30 flex items-center justify-center">
                     <Icon name="Palette" className="text-white" size={60} />
                   </div>
                   <CardContent className="p-6">
@@ -182,7 +182,7 @@ const Index = () => {
             </div>
           </section>
 
-          <section className="mt-16 text-center bg-gradient-to-r from-primary via-secondary to-info rounded-3xl p-12 text-white">
+          <section className="mt-16 text-center bg-gradient-to-r from-primary via-secondary to-success rounded-3xl p-12 text-white">
             <h3 className="text-4xl font-heading font-bold mb-4">Начни свой творческий путь прямо сейчас!</h3>
             <p className="text-lg mb-8 opacity-90">
               Присоединяйся к нашему сообществу юных художников и выигрывай крутые призы!
@@ -405,13 +405,13 @@ const Index = () => {
         </div>
       )}
 
-      <footer className="bg-gradient-to-r from-primary via-secondary to-info text-white py-12 mt-16">
+      <footer className="bg-gradient-to-r from-primary via-secondary to-success text-white py-12 mt-16">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-3 mb-6">
             <img 
               src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/e82b8f7c-a118-41b6-8b0e-c286cb3902bb.png" 
               alt="Мечтай, твори, дерзай!" 
-              className="h-20 w-auto object-contain bg-white rounded-2xl px-3 py-2"
+              className="h-40 w-auto object-contain bg-white rounded-2xl px-3 py-2"
             />
           </div>
           <p className="text-lg opacity-90 mb-6">Студия талантов для юных художников</p>

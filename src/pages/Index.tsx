@@ -59,13 +59,11 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center">
-                <Icon name="Sparkles" className="text-white" size={24} />
-              </div>
-              <div>
-                <h1 className="text-2xl font-heading font-bold text-primary">Мечтай, твори, дерзай!</h1>
-                <p className="text-xs text-muted-foreground">Студия талантов</p>
-              </div>
+              <img 
+                src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/e82b8f7c-a118-41b6-8b0e-c286cb3902bb.png" 
+                alt="Мечтай, твори, дерзай!" 
+                className="h-16 w-auto object-contain"
+              />
             </div>
             <div className="hidden md:flex gap-6">
               {navItems.map((item) => (
@@ -410,10 +408,11 @@ const Index = () => {
       <footer className="bg-gradient-to-r from-primary via-secondary to-info text-white py-12 mt-16">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center">
-              <Icon name="Sparkles" className="text-primary" size={32} />
-            </div>
-            <h3 className="text-3xl font-heading font-bold">Мечтай, твори, дерзай!</h3>
+            <img 
+              src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/e82b8f7c-a118-41b6-8b0e-c286cb3902bb.png" 
+              alt="Мечтай, твори, дерзай!" 
+              className="h-20 w-auto object-contain bg-white rounded-2xl px-3 py-2"
+            />
           </div>
           <p className="text-lg opacity-90 mb-6">Студия талантов для юных художников</p>
           <div className="flex gap-4 justify-center mb-6">

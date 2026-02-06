@@ -57,7 +57,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white">
       <nav className="sticky top-0 z-50 backdrop-blur-md shadow-md" style={{ background: 'linear-gradient(to right, #FEFEFE, #FFFBDB)' }}>
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto pl-[50px] pr-4 py-4">
           <div className="flex items-center">
             <img 
               src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/e82b8f7c-a118-41b6-8b0e-c286cb3902bb.png" 

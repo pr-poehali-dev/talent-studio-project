@@ -55,7 +55,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-md">
+      <nav className="sticky top-0 z-50 backdrop-blur-md shadow-md" style={{ background: 'linear-gradient(to right, #FEFEFE, #FFFBDB, #EF7F1A)' }}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-4">
             <img 

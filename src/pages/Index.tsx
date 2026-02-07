@@ -87,9 +87,6 @@ const Index = () => {
       {activeSection === "home" && (
         <div className="container mx-auto px-4 py-12">
           <section className="text-center mb-16 animate-in fade-in duration-700">
-            <div className="inline-block mb-6">
-              <Badge className="text-lg px-6 py-2 bg-gradient-to-r from-primary to-secondary text-white border-0"></Badge>
-            </div>
             <h2 className="text-5xl md:text-7xl font-heading mb-6 font-bold" style={{ color: '#E31E24' }}>Мечтай, твори, дерзай!</h2>
             <p className="max-w-4xl mx-auto mb-8 py-[3px] text-xl font-normal text-center text-slate-600">Кот Ван Гог и студия талантов "Мечтай, твори, дерзай!" 
 приглашают учащихся и педагогов художественных школ и студий, 

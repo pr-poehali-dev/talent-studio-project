@@ -85,7 +85,7 @@ const Index = () => {
       </nav>
 
       {activeSection === "home" && (
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-[40px] py-12">
           <section className="text-center mb-16 animate-in fade-in duration-700">
             <h2 className="text-5xl md:text-7xl font-heading mb-6 font-bold" style={{ color: '#E31E24' }}>Мечтай, твори, дерзай!</h2>
             <p className="max-w-4xl mx-auto mb-8 py-[3px] text-xl font-normal text-center text-slate-600">Кот Ван Гог и студия талантов "Мечтай, твори, дерзай!" 
@@ -111,25 +111,25 @@ const Index = () => {
 
           <section className="mb-16">
             <h3 className="text-4xl font-heading font-bold text-center mb-8 text-primary">🏆 Активные конкурсы</h3>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-4 gap-6">
               {contests.map((contest) => (
                 <Card
                   key={contest.id}
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"
                 >
-                  <div className="h-48 bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center">
-                    <Icon name="Trophy" className="text-white" size={80} />
+                  <div className="h-32 bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center">
+                    <Icon name="Trophy" className="text-white" size={60} />
                   </div>
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-3">
-                      <h4 className="text-xl font-heading font-bold text-primary">{contest.title}</h4>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="text-lg font-heading font-bold text-primary">{contest.title}</h4>
                       {contest.status === "new" && (
                         <Badge className="bg-success text-success-foreground">Новый!</Badge>
                       )}
                     </div>
-                    <p className="text-muted-foreground mb-2">📌 {contest.category}</p>
-                    <p className="text-sm text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
-                    <div className="flex items-center gap-2 mb-4">
+                    <p className="text-sm text-muted-foreground mb-1">📌 {contest.category}</p>
+                    <p className="text-xs text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
+                    <div className="flex items-center gap-2 mb-3">
                       <Icon name="Users" size={16} className="text-info" />
                       <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
                     </div>

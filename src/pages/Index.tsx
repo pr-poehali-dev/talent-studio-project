@@ -60,6 +60,8 @@ const Index = () => {
     { id: 4, title: "Звездный путь", author: "Ваня, 9 лет", likes: 29, contest: "Космос будущего" },
     { id: 5, title: "Веселый щенок", author: "Катя, 11 лет", likes: 47, contest: "Мой любимый питомец" },
     { id: 6, title: "Планета мечты", author: "Дима, 12 лет", likes: 33, contest: "Космос будущего" },
+    { id: 7, title: "Волшебное дерево", author: "Аня, 8 лет", likes: 51, contest: "Сказочный лес" },
+    { id: 8, title: "Лесные друзья", author: "Петя, 9 лет", likes: 44, contest: "Сказочный лес" },
   ];
 
   return (
@@ -152,30 +154,30 @@ const Index = () => {
 
           <section>
             <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-4 gap-6">
               {galleryWorks.map((work) => (
                 <Card
                   key={work.id}
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl"
                 >
-                  <div className="h-56 bg-gradient-to-br from-secondary via-info/30 to-success/30 flex items-center justify-center">
-                    <Icon name="Palette" className="text-white" size={60} />
+                  <div className="h-40 bg-gradient-to-br from-secondary via-info/30 to-success/30 flex items-center justify-center">
+                    <Icon name="Palette" className="text-white" size={50} />
                   </div>
-                  <CardContent className="p-6">
-                    <h4 className="text-lg font-heading font-bold mb-2">{work.title}</h4>
-                    <p className="text-sm text-muted-foreground mb-2">👤 {work.author}</p>
-                    <p className="text-xs text-muted-foreground mb-4">🏆 {work.contest}</p>
+                  <CardContent className="p-4">
+                    <h4 className="text-base font-heading font-bold mb-1">{work.title}</h4>
+                    <p className="text-xs text-muted-foreground mb-1">👤 {work.author}</p>
+                    <p className="text-xs text-muted-foreground mb-3">🏆 {work.contest}</p>
                     <div className="flex items-center justify-between">
                       <Button
                         variant="ghost"
                         size="sm"
                         className="text-primary hover:text-primary hover:bg-primary/10 rounded-xl"
                       >
-                        <Icon name="Heart" size={18} className="mr-1" />
+                        <Icon name="Heart" size={16} className="mr-1" />
                         {work.likes}
                       </Button>
                       <Button variant="ghost" size="sm" className="rounded-xl">
-                        <Icon name="MessageCircle" size={18} />
+                        <Icon name="MessageCircle" size={16} />
                       </Button>
                     </div>
                   </CardContent>

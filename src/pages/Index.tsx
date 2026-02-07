@@ -92,7 +92,7 @@ const Index = () => {
                 ✨ Раскрой свой талант!
               </Badge>
             </div>
-            <h2 className="text-5xl md:text-7xl font-heading mb-6 font-bold italic" style={{ color: '#E31E24' }}>Мечтай, твори, дерзай!</h2>
+            <h2 className="text-5xl md:text-7xl font-heading mb-6 font-bold" style={{ color: '#E31E24' }}>Мечтай, твори, дерзай!</h2>
             <p className="max-w-4xl mx-auto mb-8 py-[3px] text-xl font-normal text-center text-slate-600">Кот Ван Гог и студия талантов "Мечтай, твори, дерзай!" 
 приглашают учащихся и педагогов художественных школ и студий, 
 художников‑любителей и профессионалов, а также всех,

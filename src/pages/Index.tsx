@@ -120,7 +120,7 @@ const Index = () => {
           </section>
 
           <section className="mb-16">
-            <h3 className="text-4xl font-heading font-bold text-center mb-8 text-primary">🏆 Активные конкурсы</h3>
+            <h3 className="text-4xl font-heading font-bold text-center mb-8 text-primary">🏆 Актуальные конкурсы</h3>
             <div className="grid md:grid-cols-4 gap-6">
               {contests.map((contest) => (
                 <Card

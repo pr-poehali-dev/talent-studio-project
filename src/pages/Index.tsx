@@ -143,7 +143,7 @@ const Index = () => {
                       <Icon name="Users" size={16} className="text-info" />
                       <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
                     </div>
-                    <Button className="w-full rounded-xl bg-secondary hover:bg-secondary/90">
+                    <Button className="w-full rounded-xl bg-primary hover:bg-primary/90">
                       Подать работу
                     </Button>
                   </CardContent>

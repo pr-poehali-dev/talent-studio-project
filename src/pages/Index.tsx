@@ -95,8 +95,8 @@ const Index = () => {
             <h2 className="text-5xl md:text-7xl font-heading font-bold mb-6" style={{ color: '#E31E24' }}>
               Твори и побеждай!
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Участвуй в онлайн-конкурсах изобразительного искусства, делись работами и получай призы!
+            <p className="text-xl text-muted-foreground max-w-4xl mx-auto mb-8">
+              Кот Ван Гог и студия талантов "Мечтай, твори, дерзай!" приглашают учащихся и педагогов художественных школ и студий, художников‑любителей и профессионалов, а также всех, кто любит творить и хочет представить свои работы широкой аудитории к участию в конкурсах изобразительного искусства и творчества!
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Button size="lg" className="text-lg px-8 py-6 rounded-2xl bg-primary hover:bg-primary/90 shadow-xl">

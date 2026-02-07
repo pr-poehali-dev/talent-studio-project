@@ -43,6 +43,14 @@ const Index = () => {
       participants: 156,
       status: "new",
     },
+    {
+      id: 4,
+      title: "Сказочный лес",
+      category: "Графика",
+      deadline: "5 апреля 2026",
+      participants: 73,
+      status: "active",
+    },
   ];
 
   const galleryWorks = [

@@ -58,7 +58,8 @@ const Index = () => {
     {
       id: 1,
       title: "Искусство натюрморта",
-      category: "Рисунок",
+      description: "Раскройте красоту повседневных предметов через натюрморт",
+      rulesLink: "#",
       categoryId: "visual-arts",
       deadline: "15 марта 2026",
       participants: 127,
@@ -69,7 +70,8 @@ const Index = () => {
     {
       id: 2,
       title: "Искусство пейзажа",
-      category: "Акварель",
+      description: "Покажите великолепие природы акварельными красками",
+      rulesLink: "#",
       categoryId: "visual-arts",
       deadline: "22 марта 2026",
       participants: 89,
@@ -80,7 +82,8 @@ const Index = () => {
     {
       id: 3,
       title: "Креативный скетчинг",
-      category: "Живопись",
+      description: "Быстрые зарисовки, полные эмоций и творчества",
+      rulesLink: "#",
       categoryId: "visual-arts",
       deadline: "10 апреля 2026",
       participants: 156,
@@ -91,7 +94,8 @@ const Index = () => {
     {
       id: 4,
       title: "Разноцветные карандаши",
-      category: "Графика",
+      description: "Графические работы, наполненные яркими красками",
+      rulesLink: "#",
       categoryId: "visual-arts",
       deadline: "5 апреля 2026",
       participants: 73,
@@ -102,7 +106,8 @@ const Index = () => {
     {
       id: 5,
       title: "Мастерство керамики",
-      category: "Керамика",
+      description: "Создайте уникальные изделия из глины своими руками",
+      rulesLink: "#",
       categoryId: "decorative-arts",
       deadline: "20 марта 2026",
       participants: 64,
@@ -113,7 +118,8 @@ const Index = () => {
     {
       id: 6,
       title: "Волшебство вышивки",
-      category: "Вышивка",
+      description: "Вышитые узоры, передающие красоту и традиции",
+      rulesLink: "#",
       categoryId: "decorative-arts",
       deadline: "1 апреля 2026",
       participants: 98,
@@ -124,7 +130,8 @@ const Index = () => {
     {
       id: 7,
       title: "Красота родной природы",
-      category: "Пейзаж",
+      description: "Пейзажи, вдохновленные природой родного края",
+      rulesLink: "#",
       categoryId: "nature",
       deadline: "15 апреля 2026",
       participants: 142,
@@ -135,7 +142,8 @@ const Index = () => {
     {
       id: 8,
       title: "Времена года",
-      category: "Живопись",
+      description: "Отразите смену сезонов и их неповторимую атмосферу",
+      rulesLink: "#",
       categoryId: "nature",
       deadline: "25 марта 2026",
       participants: 87,
@@ -146,7 +154,8 @@ const Index = () => {
     {
       id: 9,
       title: "Мир животных",
-      category: "Анималистика",
+      description: "Портреты животных, передающие их характер и грацию",
+      rulesLink: "#",
       categoryId: "animals",
       deadline: "10 апреля 2026",
       participants: 176,
@@ -157,7 +166,8 @@ const Index = () => {
     {
       id: 10,
       title: "Мой любимый питомец",
-      category: "Рисунок",
+      description: "Изобразите своего домашнего любимца с любовью",
+      rulesLink: "#",
       categoryId: "animals",
       deadline: "5 апреля 2026",
       participants: 203,
@@ -168,7 +178,8 @@ const Index = () => {
     {
       id: 11,
       title: "Цветочная фантазия",
-      category: "Акварель",
+      description: "Нежные цветочные композиции в акварельной технике",
+      rulesLink: "#",
       categoryId: "plants",
       deadline: "18 марта 2026",
       participants: 112,
@@ -179,7 +190,8 @@ const Index = () => {
     {
       id: 12,
       title: "Сад чудес",
-      category: "Графика",
+      description: "Волшебные растительные миры в графике",
+      rulesLink: "#",
       categoryId: "plants",
       deadline: "30 марта 2026",
       participants: 95,
@@ -687,13 +699,17 @@ const Index = () => {
                   </div>
                   <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
-                      <div className="flex justify-between items-start mb-3">
+                      <div className="flex justify-between items-start mb-2">
                         <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
                         {contest.status === "new" && (
                           <Badge className="bg-success text-success-foreground">Новый!</Badge>
                         )}
                       </div>
-                      <p className="text-muted-foreground mb-4 text-lg">📌 {contest.category}</p>
+                      <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
+                      <a href={contest.rulesLink} className="text-sm text-secondary hover:underline flex items-center gap-1">
+                        <Icon name="FileText" size={16} />
+                        Положение конкурса
+                      </a>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-secondary hover:bg-secondary/90 px-8"
@@ -743,13 +759,17 @@ const Index = () => {
                   </div>
                   <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
-                      <div className="flex justify-between items-start mb-3">
+                      <div className="flex justify-between items-start mb-2">
                         <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
                         {contest.status === "new" && (
                           <Badge className="bg-success text-success-foreground">Новый!</Badge>
                         )}
                       </div>
-                      <p className="text-muted-foreground mb-4 text-lg">📌 {contest.category}</p>
+                      <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
+                      <a href={contest.rulesLink} className="text-sm text-secondary hover:underline flex items-center gap-1">
+                        <Icon name="FileText" size={16} />
+                        Положение конкурса
+                      </a>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-secondary hover:bg-secondary/90 px-8"
@@ -799,13 +819,17 @@ const Index = () => {
                   </div>
                   <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
-                      <div className="flex justify-between items-start mb-3">
+                      <div className="flex justify-between items-start mb-2">
                         <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
                         {contest.status === "new" && (
                           <Badge className="bg-success text-success-foreground">Новый!</Badge>
                         )}
                       </div>
-                      <p className="text-muted-foreground mb-4 text-lg">📌 {contest.category}</p>
+                      <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
+                      <a href={contest.rulesLink} className="text-sm text-secondary hover:underline flex items-center gap-1">
+                        <Icon name="FileText" size={16} />
+                        Положение конкурса
+                      </a>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-secondary hover:bg-secondary/90 px-8"
@@ -855,13 +879,17 @@ const Index = () => {
                   </div>
                   <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
-                      <div className="flex justify-between items-start mb-3">
+                      <div className="flex justify-between items-start mb-2">
                         <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
                         {contest.status === "new" && (
                           <Badge className="bg-success text-success-foreground">Новый!</Badge>
                         )}
                       </div>
-                      <p className="text-muted-foreground mb-4 text-lg">📌 {contest.category}</p>
+                      <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
+                      <a href={contest.rulesLink} className="text-sm text-secondary hover:underline flex items-center gap-1">
+                        <Icon name="FileText" size={16} />
+                        Положение конкурса
+                      </a>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-secondary hover:bg-secondary/90 px-8"
@@ -911,13 +939,17 @@ const Index = () => {
                   </div>
                   <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
-                      <div className="flex justify-between items-start mb-3">
+                      <div className="flex justify-between items-start mb-2">
                         <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
                         {contest.status === "new" && (
                           <Badge className="bg-success text-success-foreground">Новый!</Badge>
                         )}
                       </div>
-                      <p className="text-muted-foreground mb-4 text-lg">📌 {contest.category}</p>
+                      <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
+                      <a href={contest.rulesLink} className="text-sm text-secondary hover:underline flex items-center gap-1">
+                        <Icon name="FileText" size={16} />
+                        Положение конкурса
+                      </a>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-secondary hover:bg-secondary/90 px-8"

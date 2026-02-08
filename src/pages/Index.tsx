@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/ui/icon";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,21 @@ const Index = () => {
   const [showContestsDropdown, setShowContestsDropdown] = useState(false);
   const [contestFilter, setContestFilter] = useState<string | null>(null);
   const { toast } = useToast();
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setShowContestsDropdown(true);
+  };
+
+  const handleMouseLeave = () => {
+    closeTimeoutRef.current = setTimeout(() => {
+      setShowContestsDropdown(false);
+    }, 150);
+  };
 
   const navItems = [
     { id: "home", label: "Главная", icon: "Home" },
@@ -104,8 +119,8 @@ const Index = () => {
                 <div 
                   key={item.id} 
                   className="relative"
-                  onMouseEnter={() => item.hasDropdown && setShowContestsDropdown(true)}
-                  onMouseLeave={() => item.hasDropdown && setShowContestsDropdown(false)}
+                  onMouseEnter={() => item.hasDropdown && handleMouseEnter()}
+                  onMouseLeave={() => item.hasDropdown && handleMouseLeave()}
                 >
                   <button
                     onClick={() => {
@@ -127,30 +142,36 @@ const Index = () => {
                     )}
                   </button>
                   {item.hasDropdown && showContestsDropdown && (
-                    <div className="absolute top-full mt-2 bg-white rounded-xl shadow-xl border-2 border-gray-100 min-w-[320px] py-2 z-50">
-                      <button
-                        onClick={() => {
-                          setActiveSection("contests");
-                          setContestFilter(null);
-                          setShowContestsDropdown(false);
-                        }}
-                        className="w-full text-left px-4 py-3 hover:bg-accent transition-colors font-medium"
-                      >
-                        Все конкурсы
-                      </button>
-                      {contestCategories.map((category) => (
+                    <div 
+                      className="absolute top-full mt-0 pt-2 bg-transparent z-50"
+                      onMouseEnter={handleMouseEnter}
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      <div className="bg-white rounded-xl shadow-xl border-2 border-gray-100 min-w-[320px] py-2">
                         <button
-                          key={category.id}
                           onClick={() => {
                             setActiveSection("contests");
-                            setContestFilter(category.id);
+                            setContestFilter(null);
                             setShowContestsDropdown(false);
                           }}
-                          className="w-full text-left px-4 py-3 hover:bg-accent transition-colors"
+                          className="w-full text-left px-4 py-3 hover:bg-accent transition-colors font-medium"
                         >
-                          {category.label}
+                          Все конкурсы
                         </button>
-                      ))}
+                        {contestCategories.map((category) => (
+                          <button
+                            key={category.id}
+                            onClick={() => {
+                              setActiveSection("contests");
+                              setContestFilter(category.id);
+                              setShowContestsDropdown(false);
+                            }}
+                            className="w-full text-left px-4 py-3 hover:bg-accent transition-colors"
+                          >
+                            {category.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

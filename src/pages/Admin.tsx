@@ -48,13 +48,13 @@ const Admin = () => {
   const { toast } = useToast();
 
   const categories = [
-    { id: "visual-arts", name: "Изобразительное искусство" },
-    { id: "decorative-arts", name: "Декоративно-прикладное искусство" },
-    { id: "nature", name: "Природа" },
-    { id: "animals", name: "Животные" },
-    { id: "plants", name: "Растения" },
-    { id: "music", name: "Музыка" },
-    { id: "literature", name: "Литература" }
+    { id: "visual-arts", name: "Конкурсы изобразительного искусства" },
+    { id: "decorative-arts", name: "Конкурсы декоративно-прикладного искусства" },
+    { id: "nature", name: "Конкурсы, посвященные теме природы" },
+    { id: "animals", name: "Конкурсы, посвященные теме животных" },
+    { id: "plants", name: "Конкурсы, посвященные теме растений" },
+    { id: "holidays", name: "Конкурсы, посвященные теме праздников" },
+    { id: "thematic", name: "Тематические конкурсы ИЗО и творчества" }
   ];
 
   const loadContests = async () => {

@@ -238,12 +238,7 @@ const Index = () => {
                       <div className="mb-2">
                         <h4 className="text-lg font-heading font-bold text-primary">{contest.title}</h4>
                       </div>
-                      <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{contest.description}</p>
-                      <p className="text-xs text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Icon name="Users" size={16} className="text-info" />
-                        <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
-                      </div>
+                      <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{contest.description}</p>
                       <p className="text-sm font-semibold mb-3" style={{ color: '#FF8C00' }}>💰 {contest.price} ₽</p>
                       <button 
                         onClick={() => {

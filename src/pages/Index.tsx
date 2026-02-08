@@ -993,7 +993,7 @@ const Index = () => {
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl">
           <DialogHeader>
             <DialogTitle className="text-3xl font-heading font-bold text-primary">
-              🎨 Подать работу
+              🎨 Оформление заявки на участие
             </DialogTitle>
             <DialogDescription className="text-base">
               Конкурс: <span className="font-semibold text-primary">{selectedContest}</span>

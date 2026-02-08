@@ -612,8 +612,8 @@ const Index = () => {
               type="submit" 
               className="w-full text-lg py-6 rounded-xl bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
             >
-              <Icon name="Send" className="mr-2" />
-              Подать заявку
+              <Icon name="CreditCard" className="mr-2" />
+              Оплатить и подать заявку
             </Button>
           </form>
         </DialogContent>

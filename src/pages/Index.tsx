@@ -303,17 +303,6 @@ const Index = () => {
               ))}
             </div>
           </section>
-
-          <section className="mt-16 text-center bg-gradient-to-r from-primary via-secondary to-success rounded-3xl p-12 text-white">
-            <h3 className="text-4xl font-heading font-bold mb-4">Начни свой творческий путь прямо сейчас!</h3>
-            <p className="text-lg mb-8 opacity-90">
-              Присоединяйся к нашему сообществу юных художников и выигрывай крутые призы!
-            </p>
-            <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 rounded-2xl">
-              <Icon name="Star" className="mr-2" />
-              Зарегистрироваться
-            </Button>
-          </section>
         </div>
       )}
 

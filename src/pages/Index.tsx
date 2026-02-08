@@ -13,6 +13,7 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState("home");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContest, setSelectedContest] = useState<string>("");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   const navItems = [
@@ -502,9 +503,10 @@ const Index = () => {
               e.preventDefault();
               toast({
                 title: "Заявка отправлена!",
-                description: "Мы свяжемся с вами в ближайшее время.",
+                description: `Ваша работа "${uploadedFile?.name}" успешно отправлена на конкурс!`,
               });
               setIsModalOpen(false);
+              setUploadedFile(null);
             }}
           >
             <div className="space-y-2">
@@ -567,6 +569,27 @@ const Index = () => {
                 required 
                 className="rounded-xl border-2 focus:border-primary"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="workFile" className="text-base font-semibold">Загрузить работу *</Label>
+              <div className="relative">
+                <Input 
+                  id="workFile" 
+                  type="file" 
+                  accept="image/*,.pdf"
+                  required
+                  onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
+                  className="rounded-xl border-2 focus:border-primary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white file:cursor-pointer hover:file:bg-primary/90"
+                />
+              </div>
+              {uploadedFile && (
+                <div className="flex items-center gap-2 p-3 bg-success/10 rounded-xl text-sm">
+                  <Icon name="CheckCircle" className="text-success" size={20} />
+                  <span className="text-success font-semibold">Файл загружен: {uploadedFile.name}</span>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">Форматы: JPG, PNG, PDF (макс. 10 МБ)</p>
             </div>
 
             <div className="space-y-4 pt-2">

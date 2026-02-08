@@ -174,8 +174,9 @@ const Index = () => {
                               setActiveSection(category.id);
                               setShowContestsDropdown(false);
                             }}
-                            className="w-full text-left px-4 py-3 hover:bg-accent transition-colors"
+                            className="w-full text-left px-4 py-3 hover:bg-accent transition-colors flex items-center gap-2"
                           >
+                            <Icon name={category.icon} size={18} className="text-primary" />
                             {category.label}
                           </button>
                         ))}

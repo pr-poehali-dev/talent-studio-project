@@ -646,7 +646,7 @@ const Index = () => {
               >
                 <div className="flex flex-col md:flex-row md:h-64">
                   <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
-                    <Icon name="Palette" className="text-primary" size={80} />
+                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
                   </div>
                   <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
@@ -715,7 +715,7 @@ const Index = () => {
               >
                 <div className="flex flex-col md:flex-row md:h-64">
                   <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
-                    <Icon name="Sparkles" className="text-primary" size={80} />
+                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
                   </div>
                   <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
@@ -784,7 +784,7 @@ const Index = () => {
               >
                 <div className="flex flex-col md:flex-row md:h-64">
                   <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
-                    <Icon name="Trees" className="text-primary" size={80} />
+                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
                   </div>
                   <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
@@ -853,7 +853,7 @@ const Index = () => {
               >
                 <div className="flex flex-col md:flex-row md:h-64">
                   <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
-                    <Icon name="Squirrel" className="text-primary" size={80} />
+                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
                   </div>
                   <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
@@ -922,7 +922,7 @@ const Index = () => {
               >
                 <div className="flex flex-col md:flex-row md:h-64">
                   <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
-                    <Icon name="Flower2" className="text-primary" size={80} />
+                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
                   </div>
                   <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>

@@ -23,6 +23,7 @@ interface Contest {
 }
 
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
+const UPLOAD_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -42,6 +43,8 @@ const Admin = () => {
     diplomaImage: "",
     image: ""
   });
+  const [uploadingRules, setUploadingRules] = useState(false);
+  const [uploadingDiploma, setUploadingDiploma] = useState(false);
   const { toast } = useToast();
 
   const categories = [
@@ -391,33 +394,100 @@ const Admin = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Ссылка на положение</Label>
-              <Input
-                value={formData.rulesLink}
-                onChange={(e) => setFormData({...formData, rulesLink: e.target.value})}
-                placeholder="https://..."
-                className="rounded-xl"
-              />
+              <Label>Положение конкурса (PDF)</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="file"
+                  accept=".pdf"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    
+                    setUploadingRules(true);
+                    try {
+                      const reader = new FileReader();
+                      reader.onload = async () => {
+                        const base64 = reader.result?.toString().split(',')[1];
+                        const response = await fetch(UPLOAD_URL, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            file: base64,
+                            fileName: file.name,
+                            fileType: 'application/pdf',
+                            folder: 'rules'
+                          })
+                        });
+                        const data = await response.json();
+                        setFormData({...formData, rulesLink: data.url});
+                        toast({ title: 'Файл загружен', description: 'Положение конкурса загружено успешно' });
+                      };
+                      reader.readAsDataURL(file);
+                    } catch (error) {
+                      toast({ title: 'Ошибка', description: 'Не удалось загрузить файл', variant: 'destructive' });
+                    } finally {
+                      setUploadingRules(false);
+                    }
+                  }}
+                  disabled={uploadingRules}
+                  className="rounded-xl h-10"
+                />
+                {uploadingRules && <Icon name="Loader2" className="animate-spin" />}
+              </div>
+              {formData.rulesLink && formData.rulesLink !== '#' && (
+                <a href={formData.rulesLink} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1">
+                  <Icon name="ExternalLink" size={14} />
+                  Просмотреть файл
+                </a>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label>URL образца диплома</Label>
-              <Input
-                value={formData.diplomaImage}
-                onChange={(e) => setFormData({...formData, diplomaImage: e.target.value})}
-                placeholder="https://cdn.poehali.dev/..."
-                className="rounded-xl"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>URL изображения</Label>
-              <Input
-                value={formData.image}
-                onChange={(e) => setFormData({...formData, image: e.target.value})}
-                placeholder="https://cdn.poehali.dev/..."
-                className="rounded-xl"
-              />
+              <Label>Образец диплома (изображение)</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    
+                    setUploadingDiploma(true);
+                    try {
+                      const reader = new FileReader();
+                      reader.onload = async () => {
+                        const base64 = reader.result?.toString().split(',')[1];
+                        const response = await fetch(UPLOAD_URL, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            file: base64,
+                            fileName: file.name,
+                            fileType: file.type,
+                            folder: 'diplomas'
+                          })
+                        });
+                        const data = await response.json();
+                        setFormData({...formData, diplomaImage: data.url});
+                        toast({ title: 'Файл загружен', description: 'Образец диплома загружен успешно' });
+                      };
+                      reader.readAsDataURL(file);
+                    } catch (error) {
+                      toast({ title: 'Ошибка', description: 'Не удалось загрузить файл', variant: 'destructive' });
+                    } finally {
+                      setUploadingDiploma(false);
+                    }
+                  }}
+                  disabled={uploadingDiploma}
+                  className="rounded-xl h-10"
+                />
+                {uploadingDiploma && <Icon name="Loader2" className="animate-spin" />}
+              </div>
+              {formData.diplomaImage && (
+                <div className="mt-2">
+                  <img src={formData.diplomaImage} alt="Превью диплома" className="w-32 h-auto rounded-lg border" />
+                </div>
+              )}
             </div>
 
             <Button 

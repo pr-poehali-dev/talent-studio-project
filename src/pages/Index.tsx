@@ -301,32 +301,66 @@ const Index = () => {
       {activeSection === "contests" && (
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🏆 Все конкурсы</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-6 max-w-5xl mx-auto">
             {contests.map((contest) => (
               <Card
                 key={contest.id}
-                className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"
+                className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
               >
-                <div className="h-48 bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center">
-                  <Icon name="Trophy" className="text-white" size={80} />
+                <div className="flex flex-col md:flex-row md:h-64">
+                  <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
+                    <Icon name="Trophy" className="text-primary" size={80} />
+                  </div>
+                  <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
+                        {contest.status === "new" && (
+                          <Badge className="bg-success text-success-foreground">Новый!</Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
+                      <button 
+                        onClick={() => {
+                          if (contest.rulesLink && contest.rulesLink !== '#') {
+                            setPdfUrl(contest.rulesLink);
+                            setIsPdfModalOpen(true);
+                          }
+                        }}
+                        className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1"
+                      >
+                        <Icon name="FileText" size={16} />
+                        Положение конкурса
+                      </button>
+                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
+                    </div>
+                    <Button 
+                      className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
+                      onClick={() => {
+                        setSelectedContest(contest.title);
+                        setIsModalOpen(true);
+                      }}
+                    >
+                      Участвовать
+                    </Button>
+                  </CardContent>
+                  <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
+                    <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
+                    <div 
+                      className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
+                      onClick={() => {
+                        setImagePreview(contest.diplomaImage);
+                        setIsImageModalOpen(true);
+                      }}
+                    >
+                      <img 
+                        src={contest.diplomaImage} 
+                        alt="Образец диплома"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-3">
-                    <h4 className="text-xl font-heading font-bold text-primary">{contest.title}</h4>
-                    {contest.status === "new" && (
-                      <Badge className="bg-success text-success-foreground">Новый!</Badge>
-                    )}
-                  </div>
-                  <p className="text-muted-foreground mb-2">📌 {contest.category}</p>
-                  <p className="text-sm text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Icon name="Users" size={16} className="text-info" />
-                    <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
-                  </div>
-                  <Button className="w-full rounded-xl bg-secondary hover:bg-secondary/90">
-                    Подать работу
-                  </Button>
-                </CardContent>
               </Card>
             ))}
           </div>

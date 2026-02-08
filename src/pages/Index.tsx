@@ -59,6 +59,7 @@ const Index = () => {
       id: 1,
       title: "Искусство натюрморта",
       category: "Рисунок",
+      categoryId: "visual-arts",
       deadline: "15 марта 2026",
       participants: 127,
       status: "active",
@@ -68,6 +69,7 @@ const Index = () => {
       id: 2,
       title: "Искусство пейзажа",
       category: "Акварель",
+      categoryId: "visual-arts",
       deadline: "22 марта 2026",
       participants: 89,
       status: "active",
@@ -77,6 +79,7 @@ const Index = () => {
       id: 3,
       title: "Креативный скетчинг",
       category: "Живопись",
+      categoryId: "visual-arts",
       deadline: "10 апреля 2026",
       participants: 156,
       status: "new",
@@ -86,8 +89,89 @@ const Index = () => {
       id: 4,
       title: "Разноцветные карандаши",
       category: "Графика",
+      categoryId: "visual-arts",
       deadline: "5 апреля 2026",
       participants: 73,
+      status: "active",
+      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/fc222fbf-474a-4d96-8496-24c5edfe83eb.png",
+    },
+    {
+      id: 5,
+      title: "Мастерство керамики",
+      category: "Керамика",
+      categoryId: "decorative-arts",
+      deadline: "20 марта 2026",
+      participants: 64,
+      status: "active",
+      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/4b6a84c1-0d14-4cd0-808d-931cf4717fc6.png",
+    },
+    {
+      id: 6,
+      title: "Волшебство вышивки",
+      category: "Вышивка",
+      categoryId: "decorative-arts",
+      deadline: "1 апреля 2026",
+      participants: 98,
+      status: "new",
+      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c292555b-b350-4398-84d2-4cabd4ba840a.png",
+    },
+    {
+      id: 7,
+      title: "Красота родной природы",
+      category: "Пейзаж",
+      categoryId: "nature",
+      deadline: "15 апреля 2026",
+      participants: 142,
+      status: "active",
+      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/de6860cc-96a4-410b-979a-3824771d6fb6.png",
+    },
+    {
+      id: 8,
+      title: "Времена года",
+      category: "Живопись",
+      categoryId: "nature",
+      deadline: "25 марта 2026",
+      participants: 87,
+      status: "active",
+      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/fc222fbf-474a-4d96-8496-24c5edfe83eb.png",
+    },
+    {
+      id: 9,
+      title: "Мир животных",
+      category: "Анималистика",
+      categoryId: "animals",
+      deadline: "10 апреля 2026",
+      participants: 176,
+      status: "new",
+      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/4b6a84c1-0d14-4cd0-808d-931cf4717fc6.png",
+    },
+    {
+      id: 10,
+      title: "Мой любимый питомец",
+      category: "Рисунок",
+      categoryId: "animals",
+      deadline: "5 апреля 2026",
+      participants: 203,
+      status: "active",
+      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c292555b-b350-4398-84d2-4cabd4ba840a.png",
+    },
+    {
+      id: 11,
+      title: "Цветочная фантазия",
+      category: "Акварель",
+      categoryId: "plants",
+      deadline: "18 марта 2026",
+      participants: 112,
+      status: "active",
+      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/de6860cc-96a4-410b-979a-3824771d6fb6.png",
+    },
+    {
+      id: 12,
+      title: "Сад чудес",
+      category: "Графика",
+      categoryId: "plants",
+      deadline: "30 марта 2026",
+      participants: 95,
       status: "active",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/fc222fbf-474a-4d96-8496-24c5edfe83eb.png",
     },
@@ -162,8 +246,7 @@ const Index = () => {
                           <button
                             key={category.id}
                             onClick={() => {
-                              setActiveSection("contests");
-                              setContestFilter(category.id);
+                              setActiveSection(category.id);
                               setShowContestsDropdown(false);
                             }}
                             className="w-full text-left px-4 py-3 hover:bg-accent transition-colors"
@@ -573,6 +656,211 @@ const Index = () => {
                 Связаться с нами
               </Button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {activeSection === "visual-arts" && (
+        <div className="container mx-auto px-4 py-12">
+          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🎨 Конкурсы изобразительного искусства</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {contests.filter(c => c.categoryId === "visual-arts").map((contest) => (
+              <Card
+                key={contest.id}
+                className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"
+              >
+                <div className="h-48 bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center">
+                  <Icon name="Palette" className="text-white" size={80} />
+                </div>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-3">
+                    <h4 className="text-xl font-heading font-bold text-primary">{contest.title}</h4>
+                    {contest.status === "new" && (
+                      <Badge className="bg-success text-success-foreground">Новый!</Badge>
+                    )}
+                  </div>
+                  <p className="text-muted-foreground mb-2">📌 {contest.category}</p>
+                  <p className="text-sm text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon name="Users" size={16} className="text-info" />
+                    <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
+                  </div>
+                  <Button 
+                    className="w-full rounded-xl bg-secondary hover:bg-secondary/90"
+                    onClick={() => {
+                      setSelectedContest(contest.title);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    Подать работу
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeSection === "decorative-arts" && (
+        <div className="container mx-auto px-4 py-12">
+          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">✨ Конкурсы декоративно-прикладного искусства</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {contests.filter(c => c.categoryId === "decorative-arts").map((contest) => (
+              <Card
+                key={contest.id}
+                className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"
+              >
+                <div className="h-48 bg-gradient-to-br from-secondary via-accent to-success flex items-center justify-center">
+                  <Icon name="Sparkles" className="text-white" size={80} />
+                </div>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-3">
+                    <h4 className="text-xl font-heading font-bold text-primary">{contest.title}</h4>
+                    {contest.status === "new" && (
+                      <Badge className="bg-success text-success-foreground">Новый!</Badge>
+                    )}
+                  </div>
+                  <p className="text-muted-foreground mb-2">📌 {contest.category}</p>
+                  <p className="text-sm text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon name="Users" size={16} className="text-info" />
+                    <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
+                  </div>
+                  <Button 
+                    className="w-full rounded-xl bg-secondary hover:bg-secondary/90"
+                    onClick={() => {
+                      setSelectedContest(contest.title);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    Подать работу
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeSection === "nature" && (
+        <div className="container mx-auto px-4 py-12">
+          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🌿 Конкурсы, посвященные теме природы</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {contests.filter(c => c.categoryId === "nature").map((contest) => (
+              <Card
+                key={contest.id}
+                className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"
+              >
+                <div className="h-48 bg-gradient-to-br from-success via-accent to-info flex items-center justify-center">
+                  <Icon name="Trees" className="text-white" size={80} />
+                </div>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-3">
+                    <h4 className="text-xl font-heading font-bold text-primary">{contest.title}</h4>
+                    {contest.status === "new" && (
+                      <Badge className="bg-success text-success-foreground">Новый!</Badge>
+                    )}
+                  </div>
+                  <p className="text-muted-foreground mb-2">📌 {contest.category}</p>
+                  <p className="text-sm text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon name="Users" size={16} className="text-info" />
+                    <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
+                  </div>
+                  <Button 
+                    className="w-full rounded-xl bg-secondary hover:bg-secondary/90"
+                    onClick={() => {
+                      setSelectedContest(contest.title);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    Подать работу
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeSection === "animals" && (
+        <div className="container mx-auto px-4 py-12">
+          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🐾 Конкурсы, посвященные теме животных</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {contests.filter(c => c.categoryId === "animals").map((contest) => (
+              <Card
+                key={contest.id}
+                className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"
+              >
+                <div className="h-48 bg-gradient-to-br from-info via-primary to-secondary flex items-center justify-center">
+                  <Icon name="Squirrel" className="text-white" size={80} />
+                </div>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-3">
+                    <h4 className="text-xl font-heading font-bold text-primary">{contest.title}</h4>
+                    {contest.status === "new" && (
+                      <Badge className="bg-success text-success-foreground">Новый!</Badge>
+                    )}
+                  </div>
+                  <p className="text-muted-foreground mb-2">📌 {contest.category}</p>
+                  <p className="text-sm text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon name="Users" size={16} className="text-info" />
+                    <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
+                  </div>
+                  <Button 
+                    className="w-full rounded-xl bg-secondary hover:bg-secondary/90"
+                    onClick={() => {
+                      setSelectedContest(contest.title);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    Подать работу
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeSection === "plants" && (
+        <div className="container mx-auto px-4 py-12">
+          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🌸 Конкурсы, посвященные теме растений</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {contests.filter(c => c.categoryId === "plants").map((contest) => (
+              <Card
+                key={contest.id}
+                className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"
+              >
+                <div className="h-48 bg-gradient-to-br from-accent via-success to-secondary flex items-center justify-center">
+                  <Icon name="Flower2" className="text-white" size={80} />
+                </div>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-3">
+                    <h4 className="text-xl font-heading font-bold text-primary">{contest.title}</h4>
+                    {contest.status === "new" && (
+                      <Badge className="bg-success text-success-foreground">Новый!</Badge>
+                    )}
+                  </div>
+                  <p className="text-muted-foreground mb-2">📌 {contest.category}</p>
+                  <p className="text-sm text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon name="Users" size={16} className="text-info" />
+                    <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
+                  </div>
+                  <Button 
+                    className="w-full rounded-xl bg-secondary hover:bg-secondary/90"
+                    onClick={() => {
+                      setSelectedContest(contest.title);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    Подать работу
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       )}

@@ -238,11 +238,26 @@ const Index = () => {
                       <div className="mb-2">
                         <h4 className="text-lg font-heading font-bold text-primary">{contest.title}</h4>
                       </div>
+                      <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{contest.description}</p>
                       <p className="text-xs text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
-                      <div className="flex items-center gap-2 mb-3">
+                      <div className="flex items-center gap-2 mb-2">
                         <Icon name="Users" size={16} className="text-info" />
                         <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
                       </div>
+                      <p className="text-sm font-semibold mb-3" style={{ color: '#FF8C00' }}>💰 {contest.price} ₽</p>
+                      <button 
+                        onClick={() => {
+                          if (contest.rulesLink && contest.rulesLink !== '#') {
+                            setPdfUrl(contest.rulesLink);
+                            setIsPdfModalOpen(true);
+                          }
+                        }}
+                        className="text-xs hover:underline flex items-center gap-1 font-semibold mb-3"
+                        style={{ color: '#FF8C00' }}
+                      >
+                        <Icon name="FileText" size={14} />
+                        Положение конкурса
+                      </button>
                       <Button 
                         className="w-full rounded-xl text-white hover:opacity-90"
                         style={{ backgroundColor: '#FF8C00' }}

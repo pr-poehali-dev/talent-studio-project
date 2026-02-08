@@ -670,8 +670,8 @@ const Index = () => {
                 className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
               >
                 <div className="flex flex-col md:flex-row">
-                  <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center flex-shrink-0">
-                    <Icon name="Palette" className="text-white" size={80} />
+                  <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
+                    <Icon name="Palette" className="text-primary" size={80} />
                   </div>
                   <CardContent className="p-6 flex-1 flex flex-col justify-between">
                     <div>
@@ -715,8 +715,8 @@ const Index = () => {
                 className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
               >
                 <div className="flex flex-col md:flex-row">
-                  <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-secondary via-accent to-success flex items-center justify-center flex-shrink-0">
-                    <Icon name="Sparkles" className="text-white" size={80} />
+                  <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-secondary/20 via-accent/30 to-success/20 flex items-center justify-center flex-shrink-0">
+                    <Icon name="Sparkles" className="text-secondary" size={80} />
                   </div>
                   <CardContent className="p-6 flex-1 flex flex-col justify-between">
                     <div>
@@ -760,8 +760,8 @@ const Index = () => {
                 className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
               >
                 <div className="flex flex-col md:flex-row">
-                  <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-success via-accent to-info flex items-center justify-center flex-shrink-0">
-                    <Icon name="Trees" className="text-white" size={80} />
+                  <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-success/20 via-accent/30 to-info/20 flex items-center justify-center flex-shrink-0">
+                    <Icon name="Trees" className="text-success" size={80} />
                   </div>
                   <CardContent className="p-6 flex-1 flex flex-col justify-between">
                     <div>
@@ -805,8 +805,8 @@ const Index = () => {
                 className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
               >
                 <div className="flex flex-col md:flex-row">
-                  <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-info via-primary to-secondary flex items-center justify-center flex-shrink-0">
-                    <Icon name="Squirrel" className="text-white" size={80} />
+                  <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-info/20 via-primary/30 to-secondary/20 flex items-center justify-center flex-shrink-0">
+                    <Icon name="Squirrel" className="text-info" size={80} />
                   </div>
                   <CardContent className="p-6 flex-1 flex flex-col justify-between">
                     <div>
@@ -850,8 +850,8 @@ const Index = () => {
                 className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
               >
                 <div className="flex flex-col md:flex-row">
-                  <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-accent via-success to-secondary flex items-center justify-center flex-shrink-0">
-                    <Icon name="Flower2" className="text-white" size={80} />
+                  <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-accent/20 via-success/30 to-secondary/20 flex items-center justify-center flex-shrink-0">
+                    <Icon name="Flower2" className="text-accent" size={80} />
                   </div>
                   <CardContent className="p-6 flex-1 flex flex-col justify-between">
                     <div>

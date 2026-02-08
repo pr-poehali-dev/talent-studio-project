@@ -229,7 +229,7 @@ const Index = () => {
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"
                 >
                   <div className="h-40 bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center">
-                    <Icon name="Trophy" className="text-primary" size={60} />
+                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={60} />
                   </div>
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start mb-2">

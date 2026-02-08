@@ -167,7 +167,7 @@ const Index = () => {
                         setIsModalOpen(true);
                       }}
                     >
-                      Подать работу
+                      Участвовать
                     </Button>
                   </CardContent>
                 </Card>

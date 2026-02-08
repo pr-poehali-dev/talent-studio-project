@@ -239,7 +239,7 @@ const Index = () => {
                         <h4 className="text-lg font-heading font-bold text-primary">{contest.title}</h4>
                       </div>
                       <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{contest.description}</p>
-                      <p className="text-sm font-semibold mb-3" style={{ color: '#FF8C00' }}>💰 {contest.price} ₽</p>
+                      <p className="text-sm font-semibold mb-2" style={{ color: '#FF8C00' }}>💰 {contest.price} ₽</p>
                       <button 
                         onClick={() => {
                           if (contest.rulesLink && contest.rulesLink !== '#') {
@@ -247,11 +247,22 @@ const Index = () => {
                             setIsPdfModalOpen(true);
                           }
                         }}
-                        className="text-xs hover:underline flex items-center gap-1 font-semibold mb-3"
+                        className="text-xs hover:underline flex items-center gap-1 font-semibold mb-1"
                         style={{ color: '#FF8C00' }}
                       >
                         <Icon name="FileText" size={14} />
                         Положение конкурса
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setImagePreview(contest.diplomaImage);
+                          setIsImageModalOpen(true);
+                        }}
+                        className="text-xs hover:underline flex items-center gap-1 font-semibold mb-3"
+                        style={{ color: '#FF8C00' }}
+                      >
+                        <Icon name="Award" size={14} />
+                        Образец диплома
                       </button>
                       <Button 
                         className="w-full rounded-xl text-white hover:opacity-90"

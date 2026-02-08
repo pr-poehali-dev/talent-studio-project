@@ -326,18 +326,8 @@ const Index = () => {
                   key={contest.id}
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"
                 >
-                  <div 
-                    className="h-40 overflow-hidden cursor-pointer"
-                    onClick={() => {
-                      setImagePreview(contest.image);
-                      setIsImageModalOpen(true);
-                    }}
-                  >
-                    <img 
-                      src={contest.image} 
-                      alt={contest.title}
-                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                    />
+                  <div className="h-40 bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center">
+                    <Icon name="Trophy" className="text-primary" size={60} />
                   </div>
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start mb-2">
@@ -346,7 +336,6 @@ const Index = () => {
                         <Badge className="bg-success text-success-foreground">Новый!</Badge>
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground mb-1">📌 {contest.category}</p>
                     <p className="text-xs text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
                     <div className="flex items-center gap-2 mb-3">
                       <Icon name="Users" size={16} className="text-info" />

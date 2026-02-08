@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
+import { useSearchParams } from "react-router-dom";
 
 interface Contest {
   id: number;
@@ -26,7 +27,9 @@ interface Contest {
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
 
 const Index = () => {
-  const [activeSection, setActiveSection] = useState("home");
+  const [searchParams] = useSearchParams();
+  const initialSection = searchParams.get('section') || 'home';
+  const [activeSection, setActiveSection] = useState(initialSection);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContest, setSelectedContest] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -51,6 +54,12 @@ const Index = () => {
       }
     };
     loadContests();
+  }, []);
+
+  useEffect(() => {
+    if (window.location.pathname === '/results') {
+      setActiveSection('results');
+    }
   }, []);
 
   const handleMouseEnter = () => {

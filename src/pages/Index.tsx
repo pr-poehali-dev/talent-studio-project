@@ -16,17 +16,27 @@ const Index = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [showContestsDropdown, setShowContestsDropdown] = useState(false);
+  const [contestFilter, setContestFilter] = useState<string | null>(null);
   const { toast } = useToast();
 
   const navItems = [
     { id: "home", label: "Главная", icon: "Home" },
-    { id: "contests", label: "Конкурсы", icon: "Trophy" },
+    { id: "contests", label: "Конкурсы", icon: "Trophy", hasDropdown: true },
     { id: "gallery", label: "Галерея", icon: "Image" },
     { id: "documents", label: "Документы", icon: "FileText" },
     { id: "results", label: "Итоги", icon: "Award" },
     { id: "shop", label: "Магазин", icon: "ShoppingBag" },
     { id: "reviews", label: "Отзывы", icon: "MessageSquare" },
     { id: "about", label: "О нас", icon: "Users" },
+  ];
+
+  const contestCategories = [
+    { id: "visual-arts", label: "Конкурсы изобразительного искусства" },
+    { id: "decorative-arts", label: "Конкурсы декоративно-прикладного искусства" },
+    { id: "nature", label: "Конкурсы, посвященные теме природы" },
+    { id: "animals", label: "Конкурсы, посвященные теме животных" },
+    { id: "plants", label: "Конкурсы, посвященные теме растений" },
   ];
 
   const contests = [
@@ -91,18 +101,56 @@ const Index = () => {
             />
             <div className="hidden md:flex gap-2 ml-[20px] flex-1 justify-end">
               {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveSection(item.id)}
-                  className={`flex items-center gap-1 px-3 py-2 rounded-xl font-semibold transition-all ${
-                    activeSection === item.id
-                      ? "bg-primary text-primary-foreground shadow-lg scale-105"
-                      : "text-foreground hover:bg-accent hover:scale-105"
-                  }`}
-                >
-                  <Icon name={item.icon as any} size={18} />
-                  {item.label}
-                </button>
+                <div key={item.id} className="relative">
+                  <button
+                    onClick={() => {
+                      if (item.hasDropdown) {
+                        setShowContestsDropdown(!showContestsDropdown);
+                      } else {
+                        setActiveSection(item.id);
+                        setShowContestsDropdown(false);
+                      }
+                    }}
+                    className={`flex items-center gap-1 px-3 py-2 rounded-xl font-semibold transition-all ${
+                      activeSection === item.id
+                        ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                        : "text-foreground hover:bg-accent hover:scale-105"
+                    }`}
+                  >
+                    <Icon name={item.icon as any} size={18} />
+                    {item.label}
+                    {item.hasDropdown && (
+                      <Icon name="ChevronDown" size={16} className={`transition-transform ${showContestsDropdown ? 'rotate-180' : ''}`} />
+                    )}
+                  </button>
+                  {item.hasDropdown && showContestsDropdown && (
+                    <div className="absolute top-full mt-2 bg-white rounded-xl shadow-xl border-2 border-gray-100 min-w-[320px] py-2 z-50">
+                      <button
+                        onClick={() => {
+                          setActiveSection("contests");
+                          setContestFilter(null);
+                          setShowContestsDropdown(false);
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-accent transition-colors font-medium"
+                      >
+                        Все конкурсы
+                      </button>
+                      {contestCategories.map((category) => (
+                        <button
+                          key={category.id}
+                          onClick={() => {
+                            setActiveSection("contests");
+                            setContestFilter(category.id);
+                            setShowContestsDropdown(false);
+                          }}
+                          className="w-full text-left px-4 py-3 hover:bg-accent transition-colors"
+                        >
+                          {category.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>

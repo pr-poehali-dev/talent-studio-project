@@ -222,16 +222,17 @@ const Index = () => {
 
           {contests.filter(c => c.status === "new").length > 0 && (
             <section className="mb-16">
-              <h3 className="text-4xl font-heading font-bold text-center mb-8 text-success">✨ Новые конкурсы</h3>
+              <h3 className="text-4xl font-heading font-bold text-center mb-8" style={{ color: '#E31E24' }}>✨ Новые конкурсы</h3>
               <div className="grid md:grid-cols-4 gap-6">
                 {contests.filter(c => c.status === "new").map((contest) => (
                   <Card
                     key={contest.id}
-                    className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-secondary hover:border-secondary rounded-3xl"
+                    className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 rounded-3xl"
+                    style={{ borderColor: '#E31E24' }}
                   >
-                    <div className="h-40 bg-gradient-to-br from-secondary/20 via-primary/30 to-accent/20 flex items-center justify-center relative">
-                      <Icon name={getCategoryIcon(contest.categoryId)} className="text-secondary" size={60} />
-                      <Badge className="absolute top-2 right-2 bg-secondary text-white">Новый!</Badge>
+                    <div className="h-40 bg-gradient-to-br from-red-50 via-red-100 to-red-50 flex items-center justify-center relative">
+                      <Icon name={getCategoryIcon(contest.categoryId)} style={{ color: '#E31E24' }} size={60} />
+                      <Badge className="absolute top-2 right-2 text-white" style={{ backgroundColor: '#E31E24' }}>Новый!</Badge>
                     </div>
                     <CardContent className="p-4">
                       <div className="mb-2">
@@ -243,7 +244,8 @@ const Index = () => {
                         <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
                       </div>
                       <Button 
-                        className="w-full rounded-xl bg-secondary hover:bg-secondary/90 text-white"
+                        className="w-full rounded-xl text-white hover:opacity-90"
+                        style={{ backgroundColor: '#E31E24' }}
                         onClick={() => {
                           setSelectedContest(contest.title);
                           setIsModalOpen(true);

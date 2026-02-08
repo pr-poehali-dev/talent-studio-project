@@ -685,7 +685,7 @@ const Index = () => {
                   <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
                     <Icon name="Palette" className="text-primary" size={80} />
                   </div>
-                  <CardContent className="p-6 flex-1 flex flex-col justify-between">
+                  <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start mb-3">
                         <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
@@ -705,7 +705,7 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
-                  <div className="md:w-48 p-4 flex flex-col items-center justify-center border-l">
+                  <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
                     <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
                     <div 
                       className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
@@ -741,7 +741,7 @@ const Index = () => {
                   <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-secondary/20 via-accent/30 to-success/20 flex items-center justify-center flex-shrink-0">
                     <Icon name="Sparkles" className="text-secondary" size={80} />
                   </div>
-                  <CardContent className="p-6 flex-1 flex flex-col justify-between">
+                  <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start mb-3">
                         <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
@@ -761,7 +761,7 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
-                  <div className="md:w-48 p-4 flex flex-col items-center justify-center border-l">
+                  <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
                     <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
                     <div 
                       className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
@@ -797,7 +797,7 @@ const Index = () => {
                   <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-success/20 via-accent/30 to-info/20 flex items-center justify-center flex-shrink-0">
                     <Icon name="Trees" className="text-success" size={80} />
                   </div>
-                  <CardContent className="p-6 flex-1 flex flex-col justify-between">
+                  <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start mb-3">
                         <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
@@ -817,7 +817,7 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
-                  <div className="md:w-48 p-4 flex flex-col items-center justify-center border-l">
+                  <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
                     <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
                     <div 
                       className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
@@ -853,7 +853,7 @@ const Index = () => {
                   <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-info/20 via-primary/30 to-secondary/20 flex items-center justify-center flex-shrink-0">
                     <Icon name="Squirrel" className="text-info" size={80} />
                   </div>
-                  <CardContent className="p-6 flex-1 flex flex-col justify-between">
+                  <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start mb-3">
                         <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
@@ -873,7 +873,7 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
-                  <div className="md:w-48 p-4 flex flex-col items-center justify-center border-l">
+                  <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
                     <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
                     <div 
                       className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
@@ -909,7 +909,7 @@ const Index = () => {
                   <div className="md:w-64 h-48 md:h-auto bg-gradient-to-br from-accent/20 via-success/30 to-secondary/20 flex items-center justify-center flex-shrink-0">
                     <Icon name="Flower2" className="text-accent" size={80} />
                   </div>
-                  <CardContent className="p-6 flex-1 flex flex-col justify-between">
+                  <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start mb-3">
                         <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
@@ -929,7 +929,7 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
-                  <div className="md:w-48 p-4 flex flex-col items-center justify-center border-l">
+                  <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
                     <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
                     <div 
                       className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"

@@ -220,10 +220,48 @@ const Index = () => {
             </div>
           </section>
 
+          {contests.filter(c => c.status === "new").length > 0 && (
+            <section className="mb-16">
+              <h3 className="text-4xl font-heading font-bold text-center mb-8 text-success">✨ Новые конкурсы</h3>
+              <div className="grid md:grid-cols-4 gap-6">
+                {contests.filter(c => c.status === "new").map((contest) => (
+                  <Card
+                    key={contest.id}
+                    className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-success hover:border-success rounded-3xl"
+                  >
+                    <div className="h-40 bg-gradient-to-br from-success/20 via-primary/30 to-secondary/20 flex items-center justify-center relative">
+                      <Icon name={getCategoryIcon(contest.categoryId)} className="text-success" size={60} />
+                      <Badge className="absolute top-2 right-2 bg-success text-success-foreground">Новый!</Badge>
+                    </div>
+                    <CardContent className="p-4">
+                      <div className="mb-2">
+                        <h4 className="text-lg font-heading font-bold text-primary">{contest.title}</h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Icon name="Users" size={16} className="text-info" />
+                        <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
+                      </div>
+                      <Button 
+                        className="w-full rounded-xl bg-success hover:bg-success/90"
+                        onClick={() => {
+                          setSelectedContest(contest.title);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        Участвовать
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section className="mb-16">
             <h3 className="text-4xl font-heading font-bold text-center mb-8 text-primary">🏆 Актуальные конкурсы</h3>
             <div className="grid md:grid-cols-4 gap-6">
-              {contests.map((contest) => (
+              {contests.filter(c => c.status !== "new").map((contest) => (
                 <Card
                   key={contest.id}
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"

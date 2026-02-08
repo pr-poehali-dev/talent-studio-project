@@ -88,14 +88,19 @@ const Index = () => {
   ];
 
   const contestCategories = [
-    { id: "visual-arts", label: "Конкурсы изобразительного искусства" },
-    { id: "decorative-arts", label: "Конкурсы декоративно-прикладного искусства" },
-    { id: "nature", label: "Конкурсы, посвященные теме природы" },
-    { id: "animals", label: "Конкурсы, посвященные теме животных" },
-    { id: "plants", label: "Конкурсы, посвященные теме растений" },
-    { id: "holidays", label: "Конкурсы, посвященные теме праздников" },
-    { id: "thematic", label: "Тематические конкурсы ИЗО и творчества" },
+    { id: "visual-arts", label: "Конкурсы изобразительного искусства", icon: "Palette" },
+    { id: "decorative-arts", label: "Конкурсы декоративно-прикладного искусства", icon: "Scissors" },
+    { id: "nature", label: "Конкурсы, посвященные теме природы", icon: "TreePine" },
+    { id: "animals", label: "Конкурсы, посвященные теме животных", icon: "PawPrint" },
+    { id: "plants", label: "Конкурсы, посвященные теме растений", icon: "Flower2" },
+    { id: "holidays", label: "Конкурсы, посвященные теме праздников", icon: "PartyPopper" },
+    { id: "thematic", label: "Тематические конкурсы ИЗО и творчества", icon: "Sparkles" },
   ];
+
+  const getCategoryIcon = (categoryId: string) => {
+    const category = contestCategories.find(cat => cat.id === categoryId);
+    return category?.icon || "Trophy";
+  };
 
   const galleryWorks = [
     { id: 1, title: "Рыжий кот", author: "Маша, 8 лет", likes: 42, contest: "Мой любимый питомец", image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/e3c0a763-7712-4036-97ee-60e0bf1f7412.jpg" },
@@ -345,7 +350,7 @@ const Index = () => {
               >
                 <div className="flex flex-col md:flex-row md:h-64">
                   <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
-                    <Icon name="Trophy" className="text-primary" size={80} />
+                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
                   </div>
                   <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
                     <div>

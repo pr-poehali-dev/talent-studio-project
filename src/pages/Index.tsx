@@ -143,7 +143,7 @@ const Index = () => {
                   </button>
                   {item.hasDropdown && showContestsDropdown && (
                     <div 
-                      className="absolute top-full mt-0 pt-2 bg-transparent z-50"
+                      className="absolute top-full mt-0 pt-2 bg-transparent z-50 animate-in fade-in slide-in-from-top-2 duration-200"
                       onMouseEnter={handleMouseEnter}
                       onMouseLeave={handleMouseLeave}
                     >

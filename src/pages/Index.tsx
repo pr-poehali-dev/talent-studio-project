@@ -708,7 +708,7 @@ const Index = () => {
                   <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
                     <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
                     <div 
-                      className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
+                      className="w-full aspect-[3/4] cursor-pointer hover:scale-105 transition-transform"
                       onClick={() => {
                         setImagePreview(contest.diplomaImage);
                         setIsImageModalOpen(true);
@@ -764,7 +764,7 @@ const Index = () => {
                   <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
                     <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
                     <div 
-                      className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
+                      className="w-full aspect-[3/4] cursor-pointer hover:scale-105 transition-transform"
                       onClick={() => {
                         setImagePreview(contest.diplomaImage);
                         setIsImageModalOpen(true);
@@ -820,7 +820,7 @@ const Index = () => {
                   <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
                     <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
                     <div 
-                      className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
+                      className="w-full aspect-[3/4] cursor-pointer hover:scale-105 transition-transform"
                       onClick={() => {
                         setImagePreview(contest.diplomaImage);
                         setIsImageModalOpen(true);
@@ -876,7 +876,7 @@ const Index = () => {
                   <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
                     <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
                     <div 
-                      className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
+                      className="w-full aspect-[3/4] cursor-pointer hover:scale-105 transition-transform"
                       onClick={() => {
                         setImagePreview(contest.diplomaImage);
                         setIsImageModalOpen(true);
@@ -932,7 +932,7 @@ const Index = () => {
                   <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
                     <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
                     <div 
-                      className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
+                      className="w-full aspect-[3/4] cursor-pointer hover:scale-105 transition-transform"
                       onClick={() => {
                         setImagePreview(contest.diplomaImage);
                         setIsImageModalOpen(true);

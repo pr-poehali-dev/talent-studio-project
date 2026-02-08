@@ -309,9 +309,34 @@ const Index = () => {
 
       {activeSection === "contests" && (
         <div className="container mx-auto px-4 py-12">
-          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🏆 Все конкурсы</h2>
+          <h2 className="text-5xl font-heading font-bold text-center mb-8 text-primary">🏆 Все конкурсы</h2>
+          
+          <div className="max-w-5xl mx-auto mb-8">
+            <div className="flex flex-wrap gap-3 justify-center">
+              <Button
+                onClick={() => setContestFilter(null)}
+                variant={contestFilter === null ? "default" : "outline"}
+                className={`rounded-xl ${contestFilter === null ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
+              >
+                Все конкурсы
+              </Button>
+              {contestCategories.map((category) => (
+                <Button
+                  key={category.id}
+                  onClick={() => setContestFilter(category.id)}
+                  variant={contestFilter === category.id ? "default" : "outline"}
+                  className={`rounded-xl ${contestFilter === category.id ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
+                >
+                  {category.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
           <div className="space-y-6 max-w-5xl mx-auto">
-            {contests.map((contest) => (
+            {contests
+              .filter(contest => !contestFilter || contest.categoryId === contestFilter)
+              .map((contest) => (
               <Card
                 key={contest.id}
                 className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"

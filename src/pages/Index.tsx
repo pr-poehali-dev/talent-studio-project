@@ -681,8 +681,8 @@ const Index = () => {
                 key={contest.id}
                 className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
               >
-                <div className="flex flex-col md:flex-row">
-                  <div className="md:w-64 h-48 md:h-64 bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
+                <div className="flex flex-col md:flex-row md:h-64">
+                  <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
                     <Icon name="Palette" className="text-primary" size={80} />
                   </div>
                   <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">

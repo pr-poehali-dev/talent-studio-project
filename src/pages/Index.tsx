@@ -719,7 +719,7 @@ const Index = () => {
                         setIsModalOpen(true);
                       }}
                     >
-                      Подать работу
+                      Участвовать
                     </Button>
                   </CardContent>
                   <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
@@ -780,7 +780,7 @@ const Index = () => {
                         setIsModalOpen(true);
                       }}
                     >
-                      Подать работу
+                      Участвовать
                     </Button>
                   </CardContent>
                   <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
@@ -841,7 +841,7 @@ const Index = () => {
                         setIsModalOpen(true);
                       }}
                     >
-                      Подать работу
+                      Участвовать
                     </Button>
                   </CardContent>
                   <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
@@ -902,7 +902,7 @@ const Index = () => {
                         setIsModalOpen(true);
                       }}
                     >
-                      Подать работу
+                      Участвовать
                     </Button>
                   </CardContent>
                   <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
@@ -963,7 +963,7 @@ const Index = () => {
                         setIsModalOpen(true);
                       }}
                     >
-                      Подать работу
+                      Участвовать
                     </Button>
                   </CardContent>
                   <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">

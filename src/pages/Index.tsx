@@ -101,12 +101,15 @@ const Index = () => {
             />
             <div className="hidden md:flex gap-2 ml-[20px] flex-1 justify-end">
               {navItems.map((item) => (
-                <div key={item.id} className="relative">
+                <div 
+                  key={item.id} 
+                  className="relative"
+                  onMouseEnter={() => item.hasDropdown && setShowContestsDropdown(true)}
+                  onMouseLeave={() => item.hasDropdown && setShowContestsDropdown(false)}
+                >
                   <button
                     onClick={() => {
-                      if (item.hasDropdown) {
-                        setShowContestsDropdown(!showContestsDropdown);
-                      } else {
+                      if (!item.hasDropdown) {
                         setActiveSection(item.id);
                         setShowContestsDropdown(false);
                       }

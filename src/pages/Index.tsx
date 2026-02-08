@@ -64,6 +64,7 @@ const Index = () => {
       participants: 127,
       status: "active",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/4b6a84c1-0d14-4cd0-808d-931cf4717fc6.png",
+      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/48ff83da-4e09-4b07-a560-059b852682d8.png",
     },
     {
       id: 2,
@@ -74,6 +75,7 @@ const Index = () => {
       participants: 89,
       status: "active",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c292555b-b350-4398-84d2-4cabd4ba840a.png",
+      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/30e5847b-04a5-478c-a023-a40545b07c2d.png",
     },
     {
       id: 3,
@@ -84,6 +86,7 @@ const Index = () => {
       participants: 156,
       status: "new",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/de6860cc-96a4-410b-979a-3824771d6fb6.png",
+      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/11b0ba7c-caaa-4e51-9b85-e2de7846f707.png",
     },
     {
       id: 4,
@@ -94,6 +97,7 @@ const Index = () => {
       participants: 73,
       status: "active",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/fc222fbf-474a-4d96-8496-24c5edfe83eb.png",
+      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/48ff83da-4e09-4b07-a560-059b852682d8.png",
     },
     {
       id: 5,
@@ -104,6 +108,7 @@ const Index = () => {
       participants: 64,
       status: "active",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/4b6a84c1-0d14-4cd0-808d-931cf4717fc6.png",
+      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/30e5847b-04a5-478c-a023-a40545b07c2d.png",
     },
     {
       id: 6,
@@ -114,6 +119,7 @@ const Index = () => {
       participants: 98,
       status: "new",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c292555b-b350-4398-84d2-4cabd4ba840a.png",
+      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/11b0ba7c-caaa-4e51-9b85-e2de7846f707.png",
     },
     {
       id: 7,
@@ -124,6 +130,7 @@ const Index = () => {
       participants: 142,
       status: "active",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/de6860cc-96a4-410b-979a-3824771d6fb6.png",
+      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/30e5847b-04a5-478c-a023-a40545b07c2d.png",
     },
     {
       id: 8,
@@ -134,6 +141,7 @@ const Index = () => {
       participants: 87,
       status: "active",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/fc222fbf-474a-4d96-8496-24c5edfe83eb.png",
+      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/48ff83da-4e09-4b07-a560-059b852682d8.png",
     },
     {
       id: 9,
@@ -144,6 +152,7 @@ const Index = () => {
       participants: 176,
       status: "new",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/4b6a84c1-0d14-4cd0-808d-931cf4717fc6.png",
+      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/11b0ba7c-caaa-4e51-9b85-e2de7846f707.png",
     },
     {
       id: 10,
@@ -154,6 +163,7 @@ const Index = () => {
       participants: 203,
       status: "active",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c292555b-b350-4398-84d2-4cabd4ba840a.png",
+      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/48ff83da-4e09-4b07-a560-059b852682d8.png",
     },
     {
       id: 11,
@@ -164,6 +174,7 @@ const Index = () => {
       participants: 112,
       status: "active",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/de6860cc-96a4-410b-979a-3824771d6fb6.png",
+      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/30e5847b-04a5-478c-a023-a40545b07c2d.png",
     },
     {
       id: 12,
@@ -174,6 +185,7 @@ const Index = () => {
       participants: 95,
       status: "active",
       image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/fc222fbf-474a-4d96-8496-24c5edfe83eb.png",
+      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/11b0ba7c-caaa-4e51-9b85-e2de7846f707.png",
     },
   ];
 
@@ -681,12 +693,7 @@ const Index = () => {
                           <Badge className="bg-success text-success-foreground">Новый!</Badge>
                         )}
                       </div>
-                      <p className="text-muted-foreground mb-2 text-lg">📌 {contest.category}</p>
-                      <p className="text-muted-foreground mb-3">⏰ До: {contest.deadline}</p>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Icon name="Users" size={18} className="text-info" />
-                        <span className="text-base font-semibold text-info">{contest.participants} участников</span>
-                      </div>
+                      <p className="text-muted-foreground mb-4 text-lg">📌 {contest.category}</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-secondary hover:bg-secondary/90 px-8"
@@ -698,6 +705,22 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
+                  <div className="md:w-48 p-4 flex flex-col items-center justify-center border-l">
+                    <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
+                    <div 
+                      className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
+                      onClick={() => {
+                        setImagePreview(contest.diplomaImage);
+                        setIsImageModalOpen(true);
+                      }}
+                    >
+                      <img 
+                        src={contest.diplomaImage} 
+                        alt="Образец диплома"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
                 </div>
               </Card>
             ))}
@@ -726,12 +749,7 @@ const Index = () => {
                           <Badge className="bg-success text-success-foreground">Новый!</Badge>
                         )}
                       </div>
-                      <p className="text-muted-foreground mb-2 text-lg">📌 {contest.category}</p>
-                      <p className="text-muted-foreground mb-3">⏰ До: {contest.deadline}</p>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Icon name="Users" size={18} className="text-info" />
-                        <span className="text-base font-semibold text-info">{contest.participants} участников</span>
-                      </div>
+                      <p className="text-muted-foreground mb-4 text-lg">📌 {contest.category}</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-secondary hover:bg-secondary/90 px-8"
@@ -743,6 +761,22 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
+                  <div className="md:w-48 p-4 flex flex-col items-center justify-center border-l">
+                    <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
+                    <div 
+                      className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
+                      onClick={() => {
+                        setImagePreview(contest.diplomaImage);
+                        setIsImageModalOpen(true);
+                      }}
+                    >
+                      <img 
+                        src={contest.diplomaImage} 
+                        alt="Образец диплома"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
                 </div>
               </Card>
             ))}
@@ -771,12 +805,7 @@ const Index = () => {
                           <Badge className="bg-success text-success-foreground">Новый!</Badge>
                         )}
                       </div>
-                      <p className="text-muted-foreground mb-2 text-lg">📌 {contest.category}</p>
-                      <p className="text-muted-foreground mb-3">⏰ До: {contest.deadline}</p>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Icon name="Users" size={18} className="text-info" />
-                        <span className="text-base font-semibold text-info">{contest.participants} участников</span>
-                      </div>
+                      <p className="text-muted-foreground mb-4 text-lg">📌 {contest.category}</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-secondary hover:bg-secondary/90 px-8"
@@ -788,6 +817,22 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
+                  <div className="md:w-48 p-4 flex flex-col items-center justify-center border-l">
+                    <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
+                    <div 
+                      className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
+                      onClick={() => {
+                        setImagePreview(contest.diplomaImage);
+                        setIsImageModalOpen(true);
+                      }}
+                    >
+                      <img 
+                        src={contest.diplomaImage} 
+                        alt="Образец диплома"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
                 </div>
               </Card>
             ))}
@@ -816,12 +861,7 @@ const Index = () => {
                           <Badge className="bg-success text-success-foreground">Новый!</Badge>
                         )}
                       </div>
-                      <p className="text-muted-foreground mb-2 text-lg">📌 {contest.category}</p>
-                      <p className="text-muted-foreground mb-3">⏰ До: {contest.deadline}</p>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Icon name="Users" size={18} className="text-info" />
-                        <span className="text-base font-semibold text-info">{contest.participants} участников</span>
-                      </div>
+                      <p className="text-muted-foreground mb-4 text-lg">📌 {contest.category}</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-secondary hover:bg-secondary/90 px-8"
@@ -833,6 +873,22 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
+                  <div className="md:w-48 p-4 flex flex-col items-center justify-center border-l">
+                    <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
+                    <div 
+                      className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
+                      onClick={() => {
+                        setImagePreview(contest.diplomaImage);
+                        setIsImageModalOpen(true);
+                      }}
+                    >
+                      <img 
+                        src={contest.diplomaImage} 
+                        alt="Образец диплома"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
                 </div>
               </Card>
             ))}
@@ -861,12 +917,7 @@ const Index = () => {
                           <Badge className="bg-success text-success-foreground">Новый!</Badge>
                         )}
                       </div>
-                      <p className="text-muted-foreground mb-2 text-lg">📌 {contest.category}</p>
-                      <p className="text-muted-foreground mb-3">⏰ До: {contest.deadline}</p>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Icon name="Users" size={18} className="text-info" />
-                        <span className="text-base font-semibold text-info">{contest.participants} участников</span>
-                      </div>
+                      <p className="text-muted-foreground mb-4 text-lg">📌 {contest.category}</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-secondary hover:bg-secondary/90 px-8"
@@ -878,6 +929,22 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
+                  <div className="md:w-48 p-4 flex flex-col items-center justify-center border-l">
+                    <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
+                    <div 
+                      className="w-full aspect-[3/4] rounded-lg overflow-hidden shadow-md cursor-pointer hover:scale-105 transition-transform"
+                      onClick={() => {
+                        setImagePreview(contest.diplomaImage);
+                        setIsImageModalOpen(true);
+                      }}
+                    >
+                      <img 
+                        src={contest.diplomaImage} 
+                        alt="Образец диплома"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
                 </div>
               </Card>
             ))}

@@ -335,6 +335,7 @@ const Index = () => {
                   variant={contestFilter === category.id ? "default" : "outline"}
                   className={`rounded-xl ${contestFilter === category.id ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
                 >
+                  <Icon name={category.icon} size={18} className="mr-2" />
                   {category.label}
                 </Button>
               ))}

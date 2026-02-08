@@ -14,6 +14,8 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContest, setSelectedContest] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const { toast } = useToast();
 
   const navItems = [
@@ -140,7 +142,13 @@ const Index = () => {
                   key={contest.id}
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"
                 >
-                  <div className="h-40 overflow-hidden">
+                  <div 
+                    className="h-40 overflow-hidden cursor-pointer"
+                    onClick={() => {
+                      setImagePreview(contest.image);
+                      setIsImageModalOpen(true);
+                    }}
+                  >
                     <img 
                       src={contest.image} 
                       alt={contest.title}
@@ -183,7 +191,13 @@ const Index = () => {
                   key={work.id}
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl"
                 >
-                  <div className="h-48 overflow-hidden">
+                  <div 
+                    className="h-48 overflow-hidden cursor-pointer"
+                    onClick={() => {
+                      setImagePreview(work.image);
+                      setIsImageModalOpen(true);
+                    }}
+                  >
                     <img 
                       src={work.image} 
                       alt={work.title}
@@ -616,6 +630,28 @@ const Index = () => {
               Оплатить и подать заявку
             </Button>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
+        <DialogContent className="sm:max-w-[90vw] max-h-[90vh] p-0 overflow-hidden rounded-3xl">
+          <div className="relative w-full h-full flex items-center justify-center bg-black/95">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 z-10 text-white hover:bg-white/20 rounded-full"
+              onClick={() => setIsImageModalOpen(false)}
+            >
+              <Icon name="X" size={24} />
+            </Button>
+            {imagePreview && (
+              <img 
+                src={imagePreview} 
+                alt="Увеличенное изображение"
+                className="max-w-full max-h-[85vh] object-contain"
+              />
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 

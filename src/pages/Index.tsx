@@ -32,6 +32,8 @@ const Index = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [showContestsDropdown, setShowContestsDropdown] = useState(false);
   const [contestFilter, setContestFilter] = useState<string | null>(null);
   const [contests, setContests] = useState<Contest[]>([]);
@@ -578,10 +580,18 @@ const Index = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1">
+                      <button 
+                        onClick={() => {
+                          if (contest.rulesLink && contest.rulesLink !== '#') {
+                            setPdfUrl(contest.rulesLink);
+                            setIsPdfModalOpen(true);
+                          }
+                        }}
+                        className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1"
+                      >
                         <Icon name="FileText" size={16} />
                         Положение конкурса
-                      </a>
+                      </button>
                       <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
                     </div>
                     <Button 
@@ -639,10 +649,18 @@ const Index = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1">
+                      <button 
+                        onClick={() => {
+                          if (contest.rulesLink && contest.rulesLink !== '#') {
+                            setPdfUrl(contest.rulesLink);
+                            setIsPdfModalOpen(true);
+                          }
+                        }}
+                        className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1"
+                      >
                         <Icon name="FileText" size={16} />
                         Положение конкурса
-                      </a>
+                      </button>
                       <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
                     </div>
                     <Button 
@@ -700,10 +718,18 @@ const Index = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1">
+                      <button 
+                        onClick={() => {
+                          if (contest.rulesLink && contest.rulesLink !== '#') {
+                            setPdfUrl(contest.rulesLink);
+                            setIsPdfModalOpen(true);
+                          }
+                        }}
+                        className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1"
+                      >
                         <Icon name="FileText" size={16} />
                         Положение конкурса
-                      </a>
+                      </button>
                       <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
                     </div>
                     <Button 
@@ -761,10 +787,18 @@ const Index = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1">
+                      <button 
+                        onClick={() => {
+                          if (contest.rulesLink && contest.rulesLink !== '#') {
+                            setPdfUrl(contest.rulesLink);
+                            setIsPdfModalOpen(true);
+                          }
+                        }}
+                        className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1"
+                      >
                         <Icon name="FileText" size={16} />
                         Положение конкурса
-                      </a>
+                      </button>
                       <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
                     </div>
                     <Button 
@@ -822,10 +856,18 @@ const Index = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1">
+                      <button 
+                        onClick={() => {
+                          if (contest.rulesLink && contest.rulesLink !== '#') {
+                            setPdfUrl(contest.rulesLink);
+                            setIsPdfModalOpen(true);
+                          }
+                        }}
+                        className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1"
+                      >
                         <Icon name="FileText" size={16} />
                         Положение конкурса
-                      </a>
+                      </button>
                       <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
                     </div>
                     <Button 
@@ -1010,6 +1052,28 @@ const Index = () => {
                 src={imagePreview} 
                 alt="Увеличенное изображение"
                 className="max-w-full max-h-[85vh] object-contain"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isPdfModalOpen} onOpenChange={setIsPdfModalOpen}>
+        <DialogContent className="sm:max-w-[90vw] sm:max-h-[90vh] p-0 overflow-hidden rounded-3xl">
+          <div className="relative w-full h-[90vh] bg-white">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 z-10 bg-white hover:bg-gray-100 rounded-full shadow-lg"
+              onClick={() => setIsPdfModalOpen(false)}
+            >
+              <Icon name="X" size={24} />
+            </Button>
+            {pdfUrl && (
+              <iframe 
+                src={pdfUrl}
+                className="w-full h-full"
+                title="Положение конкурса"
               />
             )}
           </div>

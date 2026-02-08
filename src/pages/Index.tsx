@@ -2,12 +2,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/ui/icon";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
+
+interface Contest {
+  id: number;
+  title: string;
+  description: string;
+  categoryId: string;
+  deadline: string;
+  price: number;
+  status: string;
+  rulesLink: string;
+  diplomaImage: string;
+  image: string;
+  participants: number;
+}
+
+const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("home");
@@ -18,8 +34,22 @@ const Index = () => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [showContestsDropdown, setShowContestsDropdown] = useState(false);
   const [contestFilter, setContestFilter] = useState<string | null>(null);
+  const [contests, setContests] = useState<Contest[]>([]);
   const { toast } = useToast();
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const loadContests = async () => {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        setContests(data);
+      } catch (error) {
+        console.error('Ошибка загрузки конкурсов:', error);
+      }
+    };
+    loadContests();
+  }, []);
 
   const handleMouseEnter = () => {
     if (closeTimeoutRef.current) {
@@ -52,153 +82,6 @@ const Index = () => {
     { id: "nature", label: "Конкурсы, посвященные теме природы" },
     { id: "animals", label: "Конкурсы, посвященные теме животных" },
     { id: "plants", label: "Конкурсы, посвященные теме растений" },
-  ];
-
-  const contests = [
-    {
-      id: 1,
-      title: "Искусство натюрморта",
-      description: "Раскройте красоту повседневных предметов через натюрморт",
-      rulesLink: "#",
-      categoryId: "visual-arts",
-      deadline: "15 марта 2026",
-      participants: 127,
-      status: "active",
-      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/4b6a84c1-0d14-4cd0-808d-931cf4717fc6.png",
-      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/48ff83da-4e09-4b07-a560-059b852682d8.png",
-    },
-    {
-      id: 2,
-      title: "Искусство пейзажа",
-      description: "Покажите великолепие природы акварельными красками",
-      rulesLink: "#",
-      categoryId: "visual-arts",
-      deadline: "22 марта 2026",
-      participants: 89,
-      status: "active",
-      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c292555b-b350-4398-84d2-4cabd4ba840a.png",
-      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/30e5847b-04a5-478c-a023-a40545b07c2d.png",
-    },
-    {
-      id: 3,
-      title: "Креативный скетчинг",
-      description: "Быстрые зарисовки, полные эмоций и творчества",
-      rulesLink: "#",
-      categoryId: "visual-arts",
-      deadline: "10 апреля 2026",
-      participants: 156,
-      status: "new",
-      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/de6860cc-96a4-410b-979a-3824771d6fb6.png",
-      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/11b0ba7c-caaa-4e51-9b85-e2de7846f707.png",
-    },
-    {
-      id: 4,
-      title: "Разноцветные карандаши",
-      description: "Графические работы, наполненные яркими красками",
-      rulesLink: "#",
-      categoryId: "visual-arts",
-      deadline: "5 апреля 2026",
-      participants: 73,
-      status: "active",
-      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/fc222fbf-474a-4d96-8496-24c5edfe83eb.png",
-      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/48ff83da-4e09-4b07-a560-059b852682d8.png",
-    },
-    {
-      id: 5,
-      title: "Мастерство керамики",
-      description: "Создайте уникальные изделия из глины своими руками",
-      rulesLink: "#",
-      categoryId: "decorative-arts",
-      deadline: "20 марта 2026",
-      participants: 64,
-      status: "active",
-      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/4b6a84c1-0d14-4cd0-808d-931cf4717fc6.png",
-      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/30e5847b-04a5-478c-a023-a40545b07c2d.png",
-    },
-    {
-      id: 6,
-      title: "Волшебство вышивки",
-      description: "Вышитые узоры, передающие красоту и традиции",
-      rulesLink: "#",
-      categoryId: "decorative-arts",
-      deadline: "1 апреля 2026",
-      participants: 98,
-      status: "new",
-      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c292555b-b350-4398-84d2-4cabd4ba840a.png",
-      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/11b0ba7c-caaa-4e51-9b85-e2de7846f707.png",
-    },
-    {
-      id: 7,
-      title: "Красота родной природы",
-      description: "Пейзажи, вдохновленные природой родного края",
-      rulesLink: "#",
-      categoryId: "nature",
-      deadline: "15 апреля 2026",
-      participants: 142,
-      status: "active",
-      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/de6860cc-96a4-410b-979a-3824771d6fb6.png",
-      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/30e5847b-04a5-478c-a023-a40545b07c2d.png",
-    },
-    {
-      id: 8,
-      title: "Времена года",
-      description: "Отразите смену сезонов и их неповторимую атмосферу",
-      rulesLink: "#",
-      categoryId: "nature",
-      deadline: "25 марта 2026",
-      participants: 87,
-      status: "active",
-      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/fc222fbf-474a-4d96-8496-24c5edfe83eb.png",
-      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/48ff83da-4e09-4b07-a560-059b852682d8.png",
-    },
-    {
-      id: 9,
-      title: "Мир животных",
-      description: "Портреты животных, передающие их характер и грацию",
-      rulesLink: "#",
-      categoryId: "animals",
-      deadline: "10 апреля 2026",
-      participants: 176,
-      status: "new",
-      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/4b6a84c1-0d14-4cd0-808d-931cf4717fc6.png",
-      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/11b0ba7c-caaa-4e51-9b85-e2de7846f707.png",
-    },
-    {
-      id: 10,
-      title: "Мой любимый питомец",
-      description: "Изобразите своего домашнего любимца с любовью",
-      rulesLink: "#",
-      categoryId: "animals",
-      deadline: "5 апреля 2026",
-      participants: 203,
-      status: "active",
-      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c292555b-b350-4398-84d2-4cabd4ba840a.png",
-      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/48ff83da-4e09-4b07-a560-059b852682d8.png",
-    },
-    {
-      id: 11,
-      title: "Цветочная фантазия",
-      description: "Нежные цветочные композиции в акварельной технике",
-      rulesLink: "#",
-      categoryId: "plants",
-      deadline: "18 марта 2026",
-      participants: 112,
-      status: "active",
-      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/de6860cc-96a4-410b-979a-3824771d6fb6.png",
-      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/30e5847b-04a5-478c-a023-a40545b07c2d.png",
-    },
-    {
-      id: 12,
-      title: "Сад чудес",
-      description: "Волшебные растительные миры в графике",
-      rulesLink: "#",
-      categoryId: "plants",
-      deadline: "30 марта 2026",
-      participants: 95,
-      status: "active",
-      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/fc222fbf-474a-4d96-8496-24c5edfe83eb.png",
-      diplomaImage: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/11b0ba7c-caaa-4e51-9b85-e2de7846f707.png",
-    },
   ];
 
   const galleryWorks = [
@@ -699,7 +582,7 @@ const Index = () => {
                         <Icon name="FileText" size={16} />
                         Положение конкурса
                       </a>
-                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: 200 ₽</p>
+                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
@@ -760,7 +643,7 @@ const Index = () => {
                         <Icon name="FileText" size={16} />
                         Положение конкурса
                       </a>
-                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: 200 ₽</p>
+                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
@@ -821,7 +704,7 @@ const Index = () => {
                         <Icon name="FileText" size={16} />
                         Положение конкурса
                       </a>
-                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: 200 ₽</p>
+                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
@@ -882,7 +765,7 @@ const Index = () => {
                         <Icon name="FileText" size={16} />
                         Положение конкурса
                       </a>
-                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: 200 ₽</p>
+                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
@@ -943,7 +826,7 @@ const Index = () => {
                         <Icon name="FileText" size={16} />
                         Положение конкурса
                       </a>
-                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: 200 ₽</p>
+                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"

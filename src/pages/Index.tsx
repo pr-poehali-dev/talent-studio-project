@@ -705,10 +705,10 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
-                  <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
-                    <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
+                  <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
+                    <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
                     <div 
-                      className="w-full aspect-[3/4] cursor-pointer hover:scale-105 transition-transform"
+                      className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
                       onClick={() => {
                         setImagePreview(contest.diplomaImage);
                         setIsImageModalOpen(true);
@@ -761,10 +761,10 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
-                  <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
-                    <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
+                  <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
+                    <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
                     <div 
-                      className="w-full aspect-[3/4] cursor-pointer hover:scale-105 transition-transform"
+                      className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
                       onClick={() => {
                         setImagePreview(contest.diplomaImage);
                         setIsImageModalOpen(true);
@@ -817,10 +817,10 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
-                  <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
-                    <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
+                  <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
+                    <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
                     <div 
-                      className="w-full aspect-[3/4] cursor-pointer hover:scale-105 transition-transform"
+                      className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
                       onClick={() => {
                         setImagePreview(contest.diplomaImage);
                         setIsImageModalOpen(true);
@@ -873,10 +873,10 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
-                  <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
-                    <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
+                  <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
+                    <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
                     <div 
-                      className="w-full aspect-[3/4] cursor-pointer hover:scale-105 transition-transform"
+                      className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
                       onClick={() => {
                         setImagePreview(contest.diplomaImage);
                         setIsImageModalOpen(true);
@@ -929,10 +929,10 @@ const Index = () => {
                       Подать работу
                     </Button>
                   </CardContent>
-                  <div className="flex-[0.4] p-4 flex flex-col items-center justify-center border-l">
-                    <p className="text-sm font-semibold text-muted-foreground mb-2 text-center">Образец диплома</p>
+                  <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
+                    <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
                     <div 
-                      className="w-full aspect-[3/4] cursor-pointer hover:scale-105 transition-transform"
+                      className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
                       onClick={() => {
                         setImagePreview(contest.diplomaImage);
                         setIsImageModalOpen(true);

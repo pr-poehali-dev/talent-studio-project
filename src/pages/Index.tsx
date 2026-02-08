@@ -21,35 +21,39 @@ const Index = () => {
   const contests = [
     {
       id: 1,
-      title: "Мой любимый питомец",
+      title: "Искусство натюрморта",
       category: "Рисунок",
       deadline: "15 марта 2026",
       participants: 127,
       status: "active",
+      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/4b6a84c1-0d14-4cd0-808d-931cf4717fc6.png",
     },
     {
       id: 2,
-      title: "Космос будущего",
+      title: "Искусство пейзажа",
       category: "Акварель",
       deadline: "22 марта 2026",
       participants: 89,
       status: "active",
+      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c292555b-b350-4398-84d2-4cabd4ba840a.png",
     },
     {
       id: 3,
-      title: "Весенние цветы",
+      title: "Креативный скетчинг",
       category: "Живопись",
       deadline: "10 апреля 2026",
       participants: 156,
       status: "new",
+      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/de6860cc-96a4-410b-979a-3824771d6fb6.png",
     },
     {
       id: 4,
-      title: "Сказочный лес",
+      title: "Разноцветные карандаши",
       category: "Графика",
       deadline: "5 апреля 2026",
       participants: 73,
       status: "active",
+      image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/fc222fbf-474a-4d96-8496-24c5edfe83eb.png",
     },
   ];
 
@@ -127,8 +131,12 @@ const Index = () => {
                   key={contest.id}
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"
                 >
-                  <div className="h-32 flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: 'url(https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/05ba99a3-adbe-4676-90ff-cbca2df7098a.jpg)' }}>
-                    <Icon name="Palette" className="text-white drop-shadow-lg" size={60} />
+                  <div className="h-40 overflow-hidden">
+                    <img 
+                      src={contest.image} 
+                      alt={contest.title}
+                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                    />
                   </div>
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start mb-2">

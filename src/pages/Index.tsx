@@ -1083,7 +1083,7 @@ const Index = () => {
                   accept="image/*,.pdf"
                   required
                   onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
-                  className="rounded-xl border-2 focus:border-primary file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-primary file:text-white file:text-sm file:cursor-pointer hover:file:bg-primary/90"
+                  className="rounded-xl border-2 focus:border-primary h-10 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-primary file:text-white file:text-sm file:cursor-pointer hover:file:bg-primary/90"
                 />
               </div>
               {uploadedFile && (

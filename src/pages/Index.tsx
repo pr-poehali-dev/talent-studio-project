@@ -119,7 +119,11 @@ const Index = () => {
  кто любит творить и хочет представить свои работы широкой аудитории 
 к участию в конкурсах изобразительного искусства и творчества!</p>
             <div className="flex gap-4 justify-center flex-wrap">
-              <Button size="lg" className="text-lg px-8 py-6 rounded-2xl bg-primary hover:bg-primary/90 shadow-xl">
+              <Button 
+                size="lg" 
+                className="text-lg px-8 py-6 rounded-2xl bg-primary hover:bg-primary/90 shadow-xl"
+                onClick={() => setActiveSection("contests")}
+              >
                 <Icon name="Palette" className="mr-2" />
                 Участвовать в конкурсе
               </Button>
@@ -127,6 +131,7 @@ const Index = () => {
                 size="lg"
                 variant="outline"
                 className="text-lg px-8 py-6 rounded-2xl border-2 border-secondary text-secondary hover:bg-secondary hover:text-white"
+                onClick={() => setActiveSection("gallery")}
               >
                 <Icon name="Image" className="mr-2" />
                 Смотреть галерею

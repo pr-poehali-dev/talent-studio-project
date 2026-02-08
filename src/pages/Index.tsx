@@ -706,10 +706,11 @@ const Index = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold">
+                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1">
                         <Icon name="FileText" size={16} />
                         Положение конкурса
                       </a>
+                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: 200 ₽</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
@@ -766,10 +767,11 @@ const Index = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold">
+                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1">
                         <Icon name="FileText" size={16} />
                         Положение конкурса
                       </a>
+                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: 200 ₽</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
@@ -826,10 +828,11 @@ const Index = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold">
+                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1">
                         <Icon name="FileText" size={16} />
                         Положение конкурса
                       </a>
+                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: 200 ₽</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
@@ -886,10 +889,11 @@ const Index = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold">
+                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1">
                         <Icon name="FileText" size={16} />
                         Положение конкурса
                       </a>
+                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: 200 ₽</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
@@ -946,10 +950,11 @@ const Index = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold">
+                      <a href={contest.rulesLink} className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1">
                         <Icon name="FileText" size={16} />
                         Положение конкурса
                       </a>
+                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: 200 ₽</p>
                     </div>
                     <Button 
                       className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"

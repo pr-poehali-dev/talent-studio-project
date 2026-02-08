@@ -222,17 +222,17 @@ const Index = () => {
 
           {contests.filter(c => c.status === "new").length > 0 && (
             <section className="mb-16">
-              <h3 className="text-4xl font-heading font-bold text-center mb-8" style={{ color: '#E31E24' }}>✨ Новые конкурсы</h3>
+              <h3 className="text-4xl font-heading font-bold text-center mb-8" style={{ color: '#FF8C00' }}>✨ Новые конкурсы</h3>
               <div className="grid md:grid-cols-4 gap-6">
                 {contests.filter(c => c.status === "new").map((contest) => (
                   <Card
                     key={contest.id}
                     className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 rounded-3xl"
-                    style={{ borderColor: '#E31E24' }}
+                    style={{ borderColor: '#FF8C00' }}
                   >
-                    <div className="h-40 bg-gradient-to-br from-red-50 via-red-100 to-red-50 flex items-center justify-center relative">
-                      <Icon name={getCategoryIcon(contest.categoryId)} style={{ color: '#E31E24' }} size={60} />
-                      <Badge className="absolute top-2 right-2 text-white" style={{ backgroundColor: '#E31E24' }}>Новый!</Badge>
+                    <div className="h-40 bg-gradient-to-br from-orange-50 via-orange-100 to-orange-50 flex items-center justify-center relative">
+                      <Icon name={getCategoryIcon(contest.categoryId)} style={{ color: '#FF8C00' }} size={60} />
+                      <Badge className="absolute top-2 right-2 text-white" style={{ backgroundColor: '#FF8C00' }}>Новый!</Badge>
                     </div>
                     <CardContent className="p-4">
                       <div className="mb-2">
@@ -245,7 +245,7 @@ const Index = () => {
                       </div>
                       <Button 
                         className="w-full rounded-xl text-white hover:opacity-90"
-                        style={{ backgroundColor: '#E31E24' }}
+                        style={{ backgroundColor: '#FF8C00' }}
                         onClick={() => {
                           setSelectedContest(contest.title);
                           setIsModalOpen(true);

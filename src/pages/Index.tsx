@@ -3,9 +3,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/ui/icon";
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState("home");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedContest, setSelectedContest] = useState<string>("");
+  const { toast } = useToast();
 
   const navItems = [
     { id: "home", label: "Главная", icon: "Home" },
@@ -151,7 +159,13 @@ const Index = () => {
                       <Icon name="Users" size={16} className="text-info" />
                       <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
                     </div>
-                    <Button className="w-full rounded-xl bg-primary hover:bg-primary/90">
+                    <Button 
+                      className="w-full rounded-xl bg-primary hover:bg-primary/90"
+                      onClick={() => {
+                        setSelectedContest(contest.title);
+                        setIsModalOpen(true);
+                      }}
+                    >
                       Подать работу
                     </Button>
                   </CardContent>
@@ -470,6 +484,117 @@ const Index = () => {
           </div>
         </div>
       )}
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-heading font-bold text-primary">
+              🎨 Подать работу
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              Конкурс: <span className="font-semibold text-primary">{selectedContest}</span>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form 
+            className="space-y-5 mt-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              toast({
+                title: "Заявка отправлена!",
+                description: "Мы свяжемся с вами в ближайшее время.",
+              });
+              setIsModalOpen(false);
+            }}
+          >
+            <div className="space-y-2">
+              <Label htmlFor="fullName" className="text-base font-semibold">ФИО *</Label>
+              <Input 
+                id="fullName" 
+                placeholder="Введите ФИО участника" 
+                required 
+                className="rounded-xl border-2 focus:border-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="age" className="text-base font-semibold">Возраст *</Label>
+              <Input 
+                id="age" 
+                type="number" 
+                min="5" 
+                max="18" 
+                placeholder="Введите возраст" 
+                required 
+                className="rounded-xl border-2 focus:border-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="teacher" className="text-base font-semibold">Педагог</Label>
+              <Input 
+                id="teacher" 
+                placeholder="ФИО педагога (если есть)" 
+                className="rounded-xl border-2 focus:border-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="institution" className="text-base font-semibold">Учреждение</Label>
+              <Input 
+                id="institution" 
+                placeholder="Название школы, студии или учреждения" 
+                className="rounded-xl border-2 focus:border-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="workTitle" className="text-base font-semibold">Название творческой работы *</Label>
+              <Input 
+                id="workTitle" 
+                placeholder="Введите название работы" 
+                required 
+                className="rounded-xl border-2 focus:border-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-base font-semibold">Электронная почта *</Label>
+              <Input 
+                id="email" 
+                type="email" 
+                placeholder="example@mail.ru" 
+                required 
+                className="rounded-xl border-2 focus:border-primary"
+              />
+            </div>
+
+            <div className="space-y-4 pt-2">
+              <div className="flex items-start space-x-3 p-3 bg-accent/10 rounded-xl">
+                <Checkbox id="gallery" required className="mt-1" />
+                <Label htmlFor="gallery" className="text-sm leading-relaxed cursor-pointer">
+                  Согласен на публикацию работы в галерее сайта *
+                </Label>
+              </div>
+
+              <div className="flex items-start space-x-3 p-3 bg-accent/10 rounded-xl">
+                <Checkbox id="terms" required className="mt-1" />
+                <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
+                  Согласен с условиями конкурса и политикой обработки персональных данных *
+                </Label>
+              </div>
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full text-lg py-6 rounded-xl bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
+            >
+              <Icon name="Send" className="mr-2" />
+              Подать заявку
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <footer className="bg-gradient-to-r from-primary via-secondary to-success text-white py-12 mt-16">
         <div className="container mx-auto px-4 text-center">

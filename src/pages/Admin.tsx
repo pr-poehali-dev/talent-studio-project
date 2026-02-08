@@ -52,7 +52,9 @@ const Admin = () => {
     { id: "decorative-arts", name: "Декоративно-прикладное искусство" },
     { id: "nature", name: "Природа" },
     { id: "animals", name: "Животные" },
-    { id: "plants", name: "Растения" }
+    { id: "plants", name: "Растения" },
+    { id: "music", name: "Музыка" },
+    { id: "literature", name: "Литература" }
   ];
 
   const loadContests = async () => {

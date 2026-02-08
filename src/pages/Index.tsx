@@ -227,11 +227,11 @@ const Index = () => {
                 {contests.filter(c => c.status === "new").map((contest) => (
                   <Card
                     key={contest.id}
-                    className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-success hover:border-success rounded-3xl"
+                    className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-secondary hover:border-secondary rounded-3xl"
                   >
-                    <div className="h-40 bg-gradient-to-br from-success/20 via-primary/30 to-secondary/20 flex items-center justify-center relative">
-                      <Icon name={getCategoryIcon(contest.categoryId)} className="text-success" size={60} />
-                      <Badge className="absolute top-2 right-2 bg-success text-success-foreground">Новый!</Badge>
+                    <div className="h-40 bg-gradient-to-br from-secondary/20 via-primary/30 to-accent/20 flex items-center justify-center relative">
+                      <Icon name={getCategoryIcon(contest.categoryId)} className="text-secondary" size={60} />
+                      <Badge className="absolute top-2 right-2 bg-secondary text-white">Новый!</Badge>
                     </div>
                     <CardContent className="p-4">
                       <div className="mb-2">
@@ -243,7 +243,7 @@ const Index = () => {
                         <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
                       </div>
                       <Button 
-                        className="w-full rounded-xl bg-success hover:bg-success/90"
+                        className="w-full rounded-xl bg-secondary hover:bg-secondary/90 text-white"
                         onClick={() => {
                           setSelectedContest(contest.title);
                           setIsModalOpen(true);

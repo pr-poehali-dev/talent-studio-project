@@ -260,44 +260,6 @@ const Index = () => {
             </section>
           )}
 
-          <section className="mb-16">
-            <h3 className="text-4xl font-heading font-bold text-center mb-8 text-primary">🏆 Актуальные конкурсы</h3>
-            <div className="grid md:grid-cols-4 gap-6">
-              {contests.filter(c => c.status !== "new").map((contest) => (
-                <Card
-                  key={contest.id}
-                  className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 border-transparent hover:border-primary rounded-3xl"
-                >
-                  <div className="h-40 bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center">
-                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={60} />
-                  </div>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="text-lg font-heading font-bold text-primary">{contest.title}</h4>
-                      {contest.status === "new" && (
-                        <Badge className="bg-success text-success-foreground">Новый!</Badge>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mb-2">⏰ До: {contest.deadline}</p>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Icon name="Users" size={16} className="text-info" />
-                      <span className="text-sm font-semibold text-info">{contest.participants} участников</span>
-                    </div>
-                    <Button 
-                      className="w-full rounded-xl bg-primary hover:bg-primary/90"
-                      onClick={() => {
-                        setSelectedContest(contest.title);
-                        setIsModalOpen(true);
-                      }}
-                    >
-                      Участвовать
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-
           <section>
             <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
             <div className="grid md:grid-cols-4 gap-6">

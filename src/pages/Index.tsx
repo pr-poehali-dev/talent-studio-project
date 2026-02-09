@@ -25,6 +25,7 @@ interface Contest {
 }
 
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
+const SUBMIT_APPLICATION_URL = "https://functions.poehali.dev/2d352955-9c6c-4bbb-ad1e-944c7ea04d84";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -1011,20 +1012,76 @@ const Index = () => {
           
           <form 
             className="space-y-5 mt-4"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              toast({
-                title: "Заявка отправлена!",
-                description: `Ваша работа "${uploadedFile?.name}" успешно отправлена на конкурс!`,
-              });
-              setIsModalOpen(false);
-              setUploadedFile(null);
+              
+              if (!uploadedFile) {
+                toast({
+                  title: "Ошибка",
+                  description: "Пожалуйста, загрузите файл работы",
+                  variant: "destructive"
+                });
+                return;
+              }
+              
+              const formData = new FormData(e.currentTarget);
+              
+              try {
+                const reader = new FileReader();
+                reader.onload = async () => {
+                  const base64File = reader.result?.toString().split(',')[1];
+                  
+                  const response = await fetch(SUBMIT_APPLICATION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      full_name: formData.get('fullName'),
+                      age: parseInt(formData.get('age') as string),
+                      teacher: formData.get('teacher') || null,
+                      institution: formData.get('institution') || null,
+                      work_title: formData.get('workTitle'),
+                      email: formData.get('email'),
+                      contest_name: selectedContest,
+                      work_file: base64File,
+                      file_name: uploadedFile.name,
+                      file_type: uploadedFile.type
+                    })
+                  });
+                  
+                  const result = await response.json();
+                  
+                  if (response.ok) {
+                    toast({
+                      title: "Заявка отправлена!",
+                      description: `Ваша работа "${uploadedFile.name}" успешно отправлена на конкурс!`,
+                    });
+                    setIsModalOpen(false);
+                    setUploadedFile(null);
+                    e.currentTarget.reset();
+                  } else {
+                    toast({
+                      title: "Ошибка",
+                      description: result.error || "Не удалось отправить заявку",
+                      variant: "destructive"
+                    });
+                  }
+                };
+                
+                reader.readAsDataURL(uploadedFile);
+              } catch (error) {
+                toast({
+                  title: "Ошибка",
+                  description: "Произошла ошибка при отправке заявки",
+                  variant: "destructive"
+                });
+              }
             }}
           >
             <div className="space-y-2">
               <Label htmlFor="fullName" className="text-base font-semibold">ФИО *</Label>
               <Input 
-                id="fullName" 
+                id="fullName"
+                name="fullName"
                 placeholder="Введите ФИО участника" 
                 required 
                 className="rounded-xl border-2 focus:border-primary"
@@ -1034,7 +1091,8 @@ const Index = () => {
             <div className="space-y-2">
               <Label htmlFor="age" className="text-base font-semibold">Возраст *</Label>
               <Input 
-                id="age" 
+                id="age"
+                name="age"
                 type="number" 
                 min="5" 
                 max="18" 
@@ -1047,7 +1105,8 @@ const Index = () => {
             <div className="space-y-2">
               <Label htmlFor="teacher" className="text-base font-semibold">Педагог</Label>
               <Input 
-                id="teacher" 
+                id="teacher"
+                name="teacher"
                 placeholder="ФИО педагога (если есть)" 
                 className="rounded-xl border-2 focus:border-primary"
               />
@@ -1056,7 +1115,8 @@ const Index = () => {
             <div className="space-y-2">
               <Label htmlFor="institution" className="text-base font-semibold">Учреждение</Label>
               <Input 
-                id="institution" 
+                id="institution"
+                name="institution"
                 placeholder="Название школы, студии или учреждения" 
                 className="rounded-xl border-2 focus:border-primary"
               />
@@ -1065,7 +1125,8 @@ const Index = () => {
             <div className="space-y-2">
               <Label htmlFor="workTitle" className="text-base font-semibold">Название творческой работы *</Label>
               <Input 
-                id="workTitle" 
+                id="workTitle"
+                name="workTitle"
                 placeholder="Введите название работы" 
                 required 
                 className="rounded-xl border-2 focus:border-primary"
@@ -1075,7 +1136,8 @@ const Index = () => {
             <div className="space-y-2">
               <Label htmlFor="email" className="text-base font-semibold">Электронная почта *</Label>
               <Input 
-                id="email" 
+                id="email"
+                name="email"
                 type="email" 
                 placeholder="example@mail.ru" 
                 required 

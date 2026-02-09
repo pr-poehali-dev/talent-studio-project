@@ -37,6 +37,7 @@ interface Application {
   result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant' | null;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
 }
 
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
@@ -47,9 +48,10 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const [activeTab, setActiveTab] = useState<'contests' | 'applications'>('contests');
+  const [activeTab, setActiveTab] = useState<'contests' | 'applications' | 'trash'>('contests');
   const [contests, setContests] = useState<Contest[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
+  const [deletedApplications, setDeletedApplications] = useState<Application[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAppModalOpen, setIsAppModalOpen] = useState(false);
   const [editingContest, setEditingContest] = useState<Contest | null>(null);
@@ -112,10 +114,25 @@ const Admin = () => {
     }
   };
 
+  const loadDeletedApplications = async () => {
+    try {
+      const response = await fetch(`${APPLICATIONS_API_URL}?deleted=true`);
+      const data = await response.json();
+      setDeletedApplications(data);
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить корзину",
+        variant: "destructive"
+      });
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       loadContests();
       loadApplications();
+      loadDeletedApplications();
     }
   }, [isAuthenticated]);
 
@@ -227,7 +244,7 @@ const Admin = () => {
   };
 
   const handleDeleteApplication = async (id: number) => {
-    if (!confirm("Удалить эту заявку?")) return;
+    if (!confirm("Переместить заявку в корзину?")) return;
     
     try {
       const response = await fetch(`${APPLICATIONS_API_URL}?id=${id}`, {
@@ -237,14 +254,38 @@ const Admin = () => {
       if (response.ok) {
         toast({
           title: "Успешно",
-          description: "Заявка удалена"
+          description: "Заявка перемещена в корзину"
         });
         loadApplications();
+        loadDeletedApplications();
       }
     } catch (error) {
       toast({
         title: "Ошибка",
         description: "Не удалось удалить заявку",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRestoreApplication = async (id: number) => {
+    try {
+      const response = await fetch(`${APPLICATIONS_API_URL}?id=${id}&restore=true`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Успешно",
+          description: "Заявка восстановлена"
+        });
+        loadApplications();
+        loadDeletedApplications();
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось восстановить заявку",
         variant: "destructive"
       });
     }
@@ -334,6 +375,14 @@ const Admin = () => {
           >
             <Icon name="FileText" className="mr-2" />
             Заявки ({applications.length})
+          </Button>
+          <Button
+            variant={activeTab === 'trash' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('trash')}
+            className="rounded-t-xl rounded-b-none"
+          >
+            <Icon name="Trash2" className="mr-2" />
+            Корзина ({deletedApplications.length})
           </Button>
         </div>
 
@@ -550,6 +599,77 @@ const Admin = () => {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'trash' && (
+          <div>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-heading font-bold text-primary">Корзина</h2>
+              <p className="text-muted-foreground">Удалённые заявки хранятся здесь</p>
+            </div>
+            <div className="grid gap-4">
+              {deletedApplications.length === 0 ? (
+                <Card className="rounded-2xl p-8 text-center">
+                  <Icon name="Trash2" size={48} className="mx-auto text-muted-foreground mb-4" />
+                  <p className="text-lg text-muted-foreground">Корзина пуста</p>
+                </Card>
+              ) : (
+                deletedApplications.map((app) => (
+                  <Card key={app.id} className="rounded-2xl shadow-md opacity-60">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 grid md:grid-cols-3 gap-x-4 gap-y-2">
+                          <div>
+                            <p className="text-xs text-muted-foreground">ФИО</p>
+                            <p className="font-semibold text-sm">{app.full_name}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Возраст</p>
+                            <p className="font-semibold text-sm">{app.age} лет</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Название работы</p>
+                            <p className="font-semibold text-sm">{app.work_title}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Конкурс</p>
+                            <p className="font-semibold text-sm">{app.contest_name}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Email</p>
+                            <p className="font-semibold text-sm">{app.email}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Удалено</p>
+                            <p className="font-semibold text-sm">
+                              {app.deleted_at ? new Date(app.deleted_at).toLocaleString('ru-RU', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              }) : '—'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 ml-4">
+                          <Button
+                            onClick={() => handleRestoreApplication(app.id)}
+                            variant="outline"
+                            size="sm"
+                            className="rounded-xl"
+                          >
+                            <Icon name="RotateCcw" size={16} className="mr-1" />
+                            Восстановить
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
           </div>
         )}

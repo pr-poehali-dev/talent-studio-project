@@ -12,7 +12,7 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type'
             },
             'body': ''
@@ -25,19 +25,49 @@ def handler(event: dict, context) -> dict:
             conn = psycopg2.connect(dsn)
             cursor = conn.cursor()
             
+            query_params = event.get('queryStringParameters', {})
+            show_deleted = query_params.get('deleted') == 'true'
+            
             cursor.execute("""
-                SELECT id, full_name, age, teacher, institution, work_title, 
-                       email, contest_id, contest_name, work_file_url, 
-                       status, result, created_at, updated_at
-                FROM applications
-                ORDER BY created_at DESC
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = 'applications' AND column_name = 'deleted_at'
             """)
+            has_deleted_at = cursor.fetchone() is not None
+            
+            if has_deleted_at:
+                if show_deleted:
+                    cursor.execute("""
+                        SELECT id, full_name, age, teacher, institution, work_title, 
+                               email, contest_id, contest_name, work_file_url, 
+                               status, result, created_at, updated_at, deleted_at
+                        FROM applications
+                        WHERE deleted_at IS NOT NULL
+                        ORDER BY deleted_at DESC
+                    """)
+                else:
+                    cursor.execute("""
+                        SELECT id, full_name, age, teacher, institution, work_title, 
+                               email, contest_id, contest_name, work_file_url, 
+                               status, result, created_at, updated_at, deleted_at
+                        FROM applications
+                        WHERE deleted_at IS NULL
+                        ORDER BY created_at DESC
+                    """)
+            else:
+                cursor.execute("""
+                    SELECT id, full_name, age, teacher, institution, work_title, 
+                           email, contest_id, contest_name, work_file_url, 
+                           status, result, created_at, updated_at
+                    FROM applications
+                    ORDER BY created_at DESC
+                """)
             
             rows = cursor.fetchall()
             
             applications = []
             for row in rows:
-                applications.append({
+                app_data = {
                     'id': row[0],
                     'full_name': row[1],
                     'age': row[2],
@@ -52,7 +82,12 @@ def handler(event: dict, context) -> dict:
                     'result': row[11],
                     'created_at': row[12].isoformat() if row[12] else None,
                     'updated_at': row[13].isoformat() if row[13] else None
-                })
+                }
+                if len(row) > 14:
+                    app_data['deleted_at'] = row[14].isoformat() if row[14] else None
+                else:
+                    app_data['deleted_at'] = None
+                applications.append(app_data)
             
             cursor.close()
             conn.close()
@@ -102,6 +137,52 @@ def handler(event: dict, context) -> dict:
                 body.get('result'),
                 app_id
             ))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'success': True})
+            }
+            
+        except Exception as e:
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': str(e)})
+            }
+    
+    if method == 'DELETE':
+        try:
+            query_params = event.get('queryStringParameters', {})
+            app_id = query_params.get('id')
+            restore = query_params.get('restore') == 'true'
+            
+            if not app_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Missing id'})
+                }
+            
+            conn = psycopg2.connect(dsn)
+            cursor = conn.cursor()
+            
+            if restore:
+                cursor.execute("""
+                    UPDATE applications 
+                    SET deleted_at = NULL, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, (app_id,))
+            else:
+                cursor.execute("""
+                    UPDATE applications 
+                    SET deleted_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, (app_id,))
             
             conn.commit()
             cursor.close()

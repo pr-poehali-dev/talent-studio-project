@@ -474,6 +474,18 @@ const Admin = () => {
                           </div>
                         )}
                         <div>
+                          <p className="text-xs text-muted-foreground">Дата подачи</p>
+                          <p className="font-semibold text-sm">
+                            {app.created_at ? new Date(app.created_at).toLocaleString('ru-RU', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            }) : '—'}
+                          </p>
+                        </div>
+                        <div>
                           <p className="text-xs text-muted-foreground">Работа</p>
                           <button
                             onClick={() => {

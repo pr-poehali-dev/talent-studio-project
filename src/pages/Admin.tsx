@@ -537,6 +537,14 @@ const Admin = () => {
                         >
                           <Icon name="Edit" size={16} />
                         </Button>
+                        <Button
+                          onClick={() => handleDeleteApplication(app.id)}
+                          variant="destructive"
+                          size="sm"
+                          className="rounded-xl"
+                        >
+                          <Icon name="Trash2" size={16} />
+                        </Button>
                       </div>
                     </div>
                   </CardContent>

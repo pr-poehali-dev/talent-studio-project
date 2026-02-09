@@ -375,41 +375,41 @@ const Admin = () => {
             <h2 className="text-3xl font-heading font-bold text-primary mb-8">Заявки на участие</h2>
             <div className="grid gap-4">
               {applications.map((app) => (
-                <Card key={app.id} className="rounded-3xl shadow-lg">
-                  <CardContent className="p-6">
+                <Card key={app.id} className="rounded-2xl shadow-md">
+                  <CardContent className="p-4">
                     <div className="flex justify-between items-start">
-                      <div className="flex-1 grid md:grid-cols-2 gap-4">
+                      <div className="flex-1 grid md:grid-cols-3 gap-x-4 gap-y-2">
                         <div>
-                          <p className="text-sm text-muted-foreground">ФИО</p>
-                          <p className="font-semibold">{app.full_name}</p>
+                          <p className="text-xs text-muted-foreground">ФИО</p>
+                          <p className="font-semibold text-sm">{app.full_name}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Возраст</p>
-                          <p className="font-semibold">{app.age} лет</p>
+                          <p className="text-xs text-muted-foreground">Возраст</p>
+                          <p className="font-semibold text-sm">{app.age} лет</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Название работы</p>
-                          <p className="font-semibold">{app.work_title}</p>
+                          <p className="text-xs text-muted-foreground">Название работы</p>
+                          <p className="font-semibold text-sm">{app.work_title}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Конкурс</p>
-                          <p className="font-semibold">{app.contest_name}</p>
+                          <p className="text-xs text-muted-foreground">Конкурс</p>
+                          <p className="font-semibold text-sm">{app.contest_name}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Педагог</p>
-                          <p className="font-semibold">{app.teacher || '—'}</p>
+                          <p className="text-xs text-muted-foreground">Педагог</p>
+                          <p className="font-semibold text-sm">{app.teacher || '—'}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Учреждение</p>
-                          <p className="font-semibold">{app.institution || '—'}</p>
+                          <p className="text-xs text-muted-foreground">Учреждение</p>
+                          <p className="font-semibold text-sm">{app.institution || '—'}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Email</p>
-                          <p className="font-semibold">{app.email}</p>
+                          <p className="text-xs text-muted-foreground">Email</p>
+                          <p className="font-semibold text-sm">{app.email}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Статус</p>
-                          <span className={`px-3 py-1 rounded-lg text-sm ${
+                          <p className="text-xs text-muted-foreground">Статус</p>
+                          <span className={`px-2 py-0.5 rounded-md text-xs ${
                             app.status === 'new' ? 'bg-success/20 text-success' :
                             app.status === 'viewed' ? 'bg-info/20 text-info' :
                             'bg-primary/20 text-primary'
@@ -420,8 +420,8 @@ const Admin = () => {
                         </div>
                         {app.result && (
                           <div>
-                            <p className="text-sm text-muted-foreground">Результат</p>
-                            <span className="px-3 py-1 rounded-lg text-sm bg-secondary/20">
+                            <p className="text-xs text-muted-foreground">Результат</p>
+                            <span className="px-2 py-0.5 rounded-md text-xs bg-secondary/20">
                               {app.result === 'grand_prix' ? 'Гран-При' :
                                app.result === 'first_degree' ? '1 степень' :
                                app.result === 'second_degree' ? '2 степень' :
@@ -429,16 +429,16 @@ const Admin = () => {
                             </span>
                           </div>
                         )}
-                        <div className="md:col-span-2">
-                          <p className="text-sm text-muted-foreground">Работа</p>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Работа</p>
                           <a 
                             href={app.work_file_url} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-primary hover:underline flex items-center gap-2"
+                            className="text-primary hover:underline flex items-center gap-1 text-xs"
                           >
-                            <Icon name="ExternalLink" size={16} />
-                            Посмотреть работу
+                            <Icon name="ExternalLink" size={14} />
+                            Посмотреть
                           </a>
                         </div>
                       </div>

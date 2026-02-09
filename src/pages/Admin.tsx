@@ -448,6 +448,8 @@ const Admin = () => {
                         <Button
                           onClick={() => {
                             setEditingApplication(app);
+                            setAppStatus(app.status);
+                            setAppResult(app.result || '');
                             setIsAppModalOpen(true);
                           }}
                           variant="outline"
@@ -657,13 +659,7 @@ const Admin = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isAppModalOpen} onOpenChange={(open) => {
-        setIsAppModalOpen(open);
-        if (open && editingApplication) {
-          setAppStatus(editingApplication.status);
-          setAppResult(editingApplication.result || '');
-        }
-      }}>
+      <Dialog open={isAppModalOpen} onOpenChange={setIsAppModalOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-heading font-bold text-primary">

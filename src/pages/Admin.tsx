@@ -854,15 +854,17 @@ const Admin = () => {
 
               <div className="space-y-2">
                 <Label className="text-base font-semibold">Файл работы</Label>
-                <a 
-                  href={editingApplication.work_file_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWorkPreview(editingApplication.work_file_url);
+                    setIsWorkPreviewOpen(true);
+                  }}
                   className="text-primary hover:underline flex items-center gap-2"
                 >
-                  <Icon name="ExternalLink" size={16} />
+                  <Icon name="Eye" size={16} />
                   Посмотреть работу
-                </a>
+                </button>
               </div>
 
               <Button 

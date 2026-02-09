@@ -1288,7 +1288,7 @@ const Index = () => {
               <h3 className="font-heading font-bold text-lg mb-4 text-primary">Реквизиты</h3>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <p className="leading-relaxed">
-                  <span className="font-semibold text-foreground">Самозанятый гражданин</span><br />
+                  <span className="font-semibold text-foreground">Организатор:</span><br />
                   Мозжерина Анна Владимировна
                 </p>
                 <p className="flex items-center gap-2">

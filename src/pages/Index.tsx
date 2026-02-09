@@ -340,18 +340,23 @@ const Index = () => {
                 className={`rounded-xl ${contestFilter === null ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
               >
                 Все конкурсы
+                <Badge className="ml-2" variant="secondary">{contests.length}</Badge>
               </Button>
-              {contestCategories.map((category) => (
-                <Button
-                  key={category.id}
-                  onClick={() => setContestFilter(category.id)}
-                  variant={contestFilter === category.id ? "default" : "outline"}
-                  className={`rounded-xl ${contestFilter === category.id ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
-                >
-                  <Icon name={category.icon} size={18} className="mr-2" />
-                  {category.label}
-                </Button>
-              ))}
+              {contestCategories.map((category) => {
+                const count = contests.filter(c => c.categoryId === category.id).length;
+                return (
+                  <Button
+                    key={category.id}
+                    onClick={() => setContestFilter(category.id)}
+                    variant={contestFilter === category.id ? "default" : "outline"}
+                    className={`rounded-xl ${contestFilter === category.id ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
+                  >
+                    <Icon name={category.icon} size={18} className="mr-2" />
+                    {category.label}
+                    <Badge className="ml-2" variant="secondary">{count}</Badge>
+                  </Button>
+                );
+              })}
             </div>
           </div>
 

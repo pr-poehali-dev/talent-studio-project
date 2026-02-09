@@ -144,7 +144,7 @@ const Index = () => {
                         : "text-foreground hover:bg-accent hover:scale-105"
                     }`}
                   >
-                    <Icon name={item.icon as any} size={18} />
+                    <Icon name={item.icon} size={18} />
                     {item.label}
                     {item.hasDropdown && (
                       <Icon name="ChevronDown" size={16} className={`transition-transform ${showContestsDropdown ? 'rotate-180' : ''}`} />
@@ -171,7 +171,8 @@ const Index = () => {
                           <button
                             key={category.id}
                             onClick={() => {
-                              setActiveSection(category.id);
+                              setActiveSection("contests");
+                              setContestFilter(category.id);
                               setShowContestsDropdown(false);
                             }}
                             className="w-full text-left px-4 py-3 hover:bg-accent transition-colors flex items-center gap-2"
@@ -179,7 +180,7 @@ const Index = () => {
                             <Icon name={category.icon} size={18} className="text-primary" />
                             {category.label}
                           </button>
-                        ))}
+                        ))}                      
                       </div>
                     </div>
                   )}
@@ -475,7 +476,7 @@ const Index = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-info to-success rounded-xl flex items-center justify-center">
-                      <Icon name={doc.icon as any} className="text-white" size={24} />
+                      <Icon name={doc.icon} className="text-white" size={24} />
                     </div>
                     <h3 className="text-xl font-heading font-semibold">{doc.title}</h3>
                   </div>
@@ -536,7 +537,7 @@ const Index = () => {
                 className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl"
               >
                 <div className="h-48 bg-gradient-to-br from-secondary via-primary to-info flex items-center justify-center">
-                  <Icon name={item.icon as any} className="text-white" size={64} />
+                  <Icon name={item.icon} className="text-white" size={64} />
                 </div>
                 <CardContent className="p-6">
                   <h4 className="text-xl font-heading font-bold mb-2">{item.name}</h4>

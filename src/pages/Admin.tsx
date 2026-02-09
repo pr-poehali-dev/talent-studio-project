@@ -289,18 +289,39 @@ const Admin = () => {
       </nav>
 
       <div className="container mx-auto px-4 py-12">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-heading font-bold text-primary">Управление конкурсами</h2>
-          <Button 
-            onClick={handleCreateContest}
-            className="rounded-xl bg-primary hover:bg-primary/90"
+        <div className="flex gap-4 mb-8 border-b">
+          <Button
+            variant={activeTab === 'contests' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('contests')}
+            className="rounded-t-xl rounded-b-none"
           >
-            <Icon name="Plus" className="mr-2" />
-            Создать конкурс
+            <Icon name="Trophy" className="mr-2" />
+            Конкурсы
+          </Button>
+          <Button
+            variant={activeTab === 'applications' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('applications')}
+            className="rounded-t-xl rounded-b-none"
+          >
+            <Icon name="FileText" className="mr-2" />
+            Заявки ({applications.length})
           </Button>
         </div>
 
-        <div className="grid gap-4">
+        {activeTab === 'contests' && (
+          <>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-heading font-bold text-primary">Управление конкурсами</h2>
+              <Button 
+                onClick={handleCreateContest}
+                className="rounded-xl bg-primary hover:bg-primary/90"
+              >
+                <Icon name="Plus" className="mr-2" />
+                Создать конкурс
+              </Button>
+            </div>
+
+            <div className="grid gap-4">
           {contests.map((contest) => (
             <Card key={contest.id} className="rounded-3xl shadow-lg">
               <CardContent className="p-6">
@@ -345,7 +366,102 @@ const Admin = () => {
               </CardContent>
             </Card>
           ))}
-        </div>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'applications' && (
+          <div>
+            <h2 className="text-3xl font-heading font-bold text-primary mb-8">Заявки на участие</h2>
+            <div className="grid gap-4">
+              {applications.map((app) => (
+                <Card key={app.id} className="rounded-3xl shadow-lg">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 grid md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">ФИО</p>
+                          <p className="font-semibold">{app.full_name}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Возраст</p>
+                          <p className="font-semibold">{app.age} лет</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Название работы</p>
+                          <p className="font-semibold">{app.work_title}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Конкурс</p>
+                          <p className="font-semibold">{app.contest_name}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Педагог</p>
+                          <p className="font-semibold">{app.teacher || '—'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Учреждение</p>
+                          <p className="font-semibold">{app.institution || '—'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="font-semibold">{app.email}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Статус</p>
+                          <span className={`px-3 py-1 rounded-lg text-sm ${
+                            app.status === 'new' ? 'bg-success/20 text-success' :
+                            app.status === 'viewed' ? 'bg-info/20 text-info' :
+                            'bg-primary/20 text-primary'
+                          }`}>
+                            {app.status === 'new' ? 'Новая' :
+                             app.status === 'viewed' ? 'Отсмотрена' : 'Отправлена'}
+                          </span>
+                        </div>
+                        {app.result && (
+                          <div>
+                            <p className="text-sm text-muted-foreground">Результат</p>
+                            <span className="px-3 py-1 rounded-lg text-sm bg-secondary/20">
+                              {app.result === 'grand_prix' ? 'Гран-При' :
+                               app.result === 'first_degree' ? '1 степень' :
+                               app.result === 'second_degree' ? '2 степень' :
+                               app.result === 'third_degree' ? '3 степень' : 'Участник'}
+                            </span>
+                          </div>
+                        )}
+                        <div className="md:col-span-2">
+                          <p className="text-sm text-muted-foreground">Работа</p>
+                          <a 
+                            href={app.work_file_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline flex items-center gap-2"
+                          >
+                            <Icon name="ExternalLink" size={16} />
+                            Посмотреть работу
+                          </a>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 ml-4">
+                        <Button
+                          onClick={() => {
+                            setEditingApplication(app);
+                            setIsAppModalOpen(true);
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="rounded-xl"
+                        >
+                          <Icon name="Edit" size={16} />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -536,6 +652,180 @@ const Admin = () => {
               {editingContest ? "Сохранить изменения" : "Создать конкурс"}
             </Button>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isAppModalOpen} onOpenChange={setIsAppModalOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-heading font-bold text-primary">
+              Редактирование заявки
+            </DialogTitle>
+          </DialogHeader>
+          
+          {editingApplication && (
+            <form 
+              className="space-y-5 mt-4"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                
+                try {
+                  const updateData = {
+                    id: editingApplication.id,
+                    full_name: formData.get('fullName') as string,
+                    age: parseInt(formData.get('age') as string),
+                    teacher: formData.get('teacher') as string || null,
+                    institution: formData.get('institution') as string || null,
+                    work_title: formData.get('workTitle') as string,
+                    email: formData.get('email') as string,
+                    status: formData.get('status') as string,
+                    result: formData.get('result') as string || null
+                  };
+                  
+                  const response = await fetch(APPLICATIONS_API_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                  });
+                  
+                  if (response.ok) {
+                    toast({
+                      title: "Успешно",
+                      description: "Заявка обновлена"
+                    });
+                    setIsAppModalOpen(false);
+                    loadApplications();
+                  }
+                } catch (error) {
+                  toast({
+                    title: "Ошибка",
+                    description: "Не удалось обновить заявку",
+                    variant: "destructive"
+                  });
+                }
+              }}
+            >
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-base font-semibold">ФИО *</Label>
+                <Input 
+                  id="fullName"
+                  name="fullName"
+                  defaultValue={editingApplication.full_name}
+                  required 
+                  className="rounded-xl border-2 focus:border-primary"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="age" className="text-base font-semibold">Возраст *</Label>
+                <Input 
+                  id="age"
+                  name="age"
+                  type="number"
+                  min="5"
+                  max="18"
+                  defaultValue={editingApplication.age}
+                  required 
+                  className="rounded-xl border-2 focus:border-primary"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="teacher" className="text-base font-semibold">Педагог</Label>
+                <Input 
+                  id="teacher"
+                  name="teacher"
+                  defaultValue={editingApplication.teacher || ''}
+                  className="rounded-xl border-2 focus:border-primary"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="institution" className="text-base font-semibold">Учреждение</Label>
+                <Input 
+                  id="institution"
+                  name="institution"
+                  defaultValue={editingApplication.institution || ''}
+                  className="rounded-xl border-2 focus:border-primary"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="workTitle" className="text-base font-semibold">Название работы *</Label>
+                <Input 
+                  id="workTitle"
+                  name="workTitle"
+                  defaultValue={editingApplication.work_title}
+                  required 
+                  className="rounded-xl border-2 focus:border-primary"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-base font-semibold">Email *</Label>
+                <Input 
+                  id="email"
+                  name="email"
+                  type="email"
+                  defaultValue={editingApplication.email}
+                  required 
+                  className="rounded-xl border-2 focus:border-primary"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="status" className="text-base font-semibold">Статус *</Label>
+                <Select name="status" defaultValue={editingApplication.status}>
+                  <SelectTrigger className="rounded-xl border-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">Новая</SelectItem>
+                    <SelectItem value="viewed">Отсмотрена</SelectItem>
+                    <SelectItem value="sent">Отправлена</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="result" className="text-base font-semibold">Результат</Label>
+                <Select name="result" defaultValue={editingApplication.result || ''}>
+                  <SelectTrigger className="rounded-xl border-2">
+                    <SelectValue placeholder="Не выбран" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Не выбран</SelectItem>
+                    <SelectItem value="grand_prix">Гран-При</SelectItem>
+                    <SelectItem value="first_degree">1 степень</SelectItem>
+                    <SelectItem value="second_degree">2 степень</SelectItem>
+                    <SelectItem value="third_degree">3 степень</SelectItem>
+                    <SelectItem value="participant">Участник</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">Файл работы</Label>
+                <a 
+                  href={editingApplication.work_file_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline flex items-center gap-2"
+                >
+                  <Icon name="ExternalLink" size={16} />
+                  Посмотреть работу
+                </a>
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full rounded-xl bg-primary hover:bg-primary/90"
+              >
+                Сохранить изменения
+              </Button>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
     </div>

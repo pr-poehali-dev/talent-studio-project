@@ -57,6 +57,8 @@ const Admin = () => {
   const [appStatus, setAppStatus] = useState<'new' | 'viewed' | 'sent'>('new');
   const [appResult, setAppResult] = useState<string | undefined>(undefined);
   const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'viewed' | 'sent'>('all');
+  const [workPreview, setWorkPreview] = useState<string | null>(null);
+  const [isWorkPreviewOpen, setIsWorkPreviewOpen] = useState(false);
   const [formData, setFormData] = useState<Contest>({
     title: "",
     description: "",
@@ -473,15 +475,16 @@ const Admin = () => {
                         )}
                         <div>
                           <p className="text-xs text-muted-foreground">Работа</p>
-                          <a 
-                            href={app.work_file_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline flex items-center gap-1 text-xs"
+                          <button
+                            onClick={() => {
+                              setWorkPreview(app.work_file_url);
+                              setIsWorkPreviewOpen(true);
+                            }}
+                            className="text-primary hover:underline flex items-center gap-1 text-xs cursor-pointer"
                           >
-                            <Icon name="ExternalLink" size={14} />
+                            <Icon name="Eye" size={14} />
                             Посмотреть
-                          </a>
+                          </button>
                         </div>
                       </div>
                       <div className="flex gap-2 ml-4">
@@ -870,6 +873,38 @@ const Admin = () => {
               </Button>
             </form>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isWorkPreviewOpen} onOpenChange={setIsWorkPreviewOpen}>
+        <DialogContent className="sm:max-w-[90vw] max-h-[90vh] p-0 overflow-hidden rounded-3xl">
+          <div className="relative w-full h-full flex items-center justify-center bg-black/95">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 z-10 text-white hover:bg-white/20 rounded-full"
+              onClick={() => setIsWorkPreviewOpen(false)}
+            >
+              <Icon name="X" size={24} />
+            </Button>
+            {workPreview && (
+              <>
+                {workPreview.endsWith('.pdf') ? (
+                  <iframe 
+                    src={workPreview}
+                    className="w-full h-[90vh]"
+                    title="Работа участника"
+                  />
+                ) : (
+                  <img 
+                    src={workPreview} 
+                    alt="Работа участника"
+                    className="max-w-full max-h-[85vh] object-contain"
+                  />
+                )}
+              </>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

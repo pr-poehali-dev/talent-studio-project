@@ -54,6 +54,8 @@ const Admin = () => {
   const [isAppModalOpen, setIsAppModalOpen] = useState(false);
   const [editingContest, setEditingContest] = useState<Contest | null>(null);
   const [editingApplication, setEditingApplication] = useState<Application | null>(null);
+  const [appStatus, setAppStatus] = useState<'new' | 'viewed' | 'sent'>('new');
+  const [appResult, setAppResult] = useState<string>('');
   const [formData, setFormData] = useState<Contest>({
     title: "",
     description: "",
@@ -655,7 +657,13 @@ const Admin = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isAppModalOpen} onOpenChange={setIsAppModalOpen}>
+      <Dialog open={isAppModalOpen} onOpenChange={(open) => {
+        setIsAppModalOpen(open);
+        if (open && editingApplication) {
+          setAppStatus(editingApplication.status);
+          setAppResult(editingApplication.result || '');
+        }
+      }}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-heading font-bold text-primary">
@@ -679,8 +687,8 @@ const Admin = () => {
                     institution: formData.get('institution') as string || null,
                     work_title: formData.get('workTitle') as string,
                     email: formData.get('email') as string,
-                    status: formData.get('status') as string,
-                    result: formData.get('result') as string || null
+                    status: appStatus,
+                    result: appResult || null
                   };
                   
                   const response = await fetch(APPLICATIONS_API_URL, {
@@ -776,7 +784,7 @@ const Admin = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="status" className="text-base font-semibold">Статус *</Label>
-                <Select name="status" defaultValue={editingApplication.status}>
+                <Select value={appStatus} onValueChange={(value: 'new' | 'viewed' | 'sent') => setAppStatus(value)}>
                   <SelectTrigger className="rounded-xl border-2">
                     <SelectValue />
                   </SelectTrigger>
@@ -790,7 +798,7 @@ const Admin = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="result" className="text-base font-semibold">Результат</Label>
-                <Select name="result" defaultValue={editingApplication.result || ''}>
+                <Select value={appResult} onValueChange={setAppResult}>
                   <SelectTrigger className="rounded-xl border-2">
                     <SelectValue placeholder="Не выбран" />
                   </SelectTrigger>

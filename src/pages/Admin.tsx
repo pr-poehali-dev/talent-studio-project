@@ -41,7 +41,7 @@ interface Application {
 
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
 const UPLOAD_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
-const APPLICATIONS_API_URL = "https://functions.poehali.dev/bdd5d0da-4fc3-4f8e-9d5e-b2129ec3c8d0";
+const APPLICATIONS_API_URL = "https://functions.poehali.dev/ff2c7334-750b-418e-8468-152fae1d68ef";
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

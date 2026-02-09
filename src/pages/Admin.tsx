@@ -55,7 +55,7 @@ const Admin = () => {
   const [editingContest, setEditingContest] = useState<Contest | null>(null);
   const [editingApplication, setEditingApplication] = useState<Application | null>(null);
   const [appStatus, setAppStatus] = useState<'new' | 'viewed' | 'sent'>('new');
-  const [appResult, setAppResult] = useState<string>('');
+  const [appResult, setAppResult] = useState<string | undefined>(undefined);
   const [formData, setFormData] = useState<Contest>({
     title: "",
     description: "",
@@ -447,12 +447,10 @@ const Admin = () => {
                       <div className="flex gap-2 ml-4">
                         <Button
                           onClick={() => {
-                            console.log('Opening edit modal for:', app);
                             setEditingApplication(app);
                             setAppStatus(app.status);
-                            setAppResult(app.result || '');
+                            setAppResult(app.result || undefined);
                             setIsAppModalOpen(true);
-                            console.log('Modal state set to true');
                           }}
                           variant="outline"
                           size="sm"
@@ -686,7 +684,7 @@ const Admin = () => {
                     work_title: formData.get('workTitle') as string,
                     email: formData.get('email') as string,
                     status: appStatus,
-                    result: appResult || null
+                    result: appResult && appResult !== 'none' ? appResult : null
                   };
                   
                   const response = await fetch(APPLICATIONS_API_URL, {
@@ -796,12 +794,12 @@ const Admin = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="result" className="text-base font-semibold">Результат</Label>
-                <Select value={appResult} onValueChange={setAppResult}>
+                <Select value={appResult || 'none'} onValueChange={(val) => setAppResult(val === 'none' ? undefined : val)}>
                   <SelectTrigger className="rounded-xl border-2">
                     <SelectValue placeholder="Не выбран" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Не выбран</SelectItem>
+                    <SelectItem value="none">Не выбран</SelectItem>
                     <SelectItem value="grand_prix">Гран-При</SelectItem>
                     <SelectItem value="first_degree">1 степень</SelectItem>
                     <SelectItem value="second_degree">2 степень</SelectItem>

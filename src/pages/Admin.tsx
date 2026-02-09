@@ -22,16 +22,38 @@ interface Contest {
   image: string;
 }
 
+interface Application {
+  id: number;
+  full_name: string;
+  age: number;
+  teacher: string | null;
+  institution: string | null;
+  work_title: string;
+  email: string;
+  contest_id: number | null;
+  contest_name: string;
+  work_file_url: string;
+  status: 'new' | 'viewed' | 'sent';
+  result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant' | null;
+  created_at: string;
+  updated_at: string;
+}
+
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
 const UPLOAD_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
+const APPLICATIONS_API_URL = "https://functions.poehali.dev/bdd5d0da-4fc3-4f8e-9d5e-b2129ec3c8d0";
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [activeTab, setActiveTab] = useState<'contests' | 'applications'>('contests');
   const [contests, setContests] = useState<Contest[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAppModalOpen, setIsAppModalOpen] = useState(false);
   const [editingContest, setEditingContest] = useState<Contest | null>(null);
+  const [editingApplication, setEditingApplication] = useState<Application | null>(null);
   const [formData, setFormData] = useState<Contest>({
     title: "",
     description: "",
@@ -71,9 +93,24 @@ const Admin = () => {
     }
   };
 
+  const loadApplications = async () => {
+    try {
+      const response = await fetch(APPLICATIONS_API_URL);
+      const data = await response.json();
+      setApplications(data);
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить заявки",
+        variant: "destructive"
+      });
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       loadContests();
+      loadApplications();
     }
   }, [isAuthenticated]);
 

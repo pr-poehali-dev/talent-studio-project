@@ -56,6 +56,7 @@ const Admin = () => {
   const [editingApplication, setEditingApplication] = useState<Application | null>(null);
   const [appStatus, setAppStatus] = useState<'new' | 'viewed' | 'sent'>('new');
   const [appResult, setAppResult] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'viewed' | 'sent'>('all');
   const [formData, setFormData] = useState<Contest>({
     title: "",
     description: "",
@@ -374,9 +375,48 @@ const Admin = () => {
 
         {activeTab === 'applications' && (
           <div>
-            <h2 className="text-3xl font-heading font-bold text-primary mb-8">Заявки на участие</h2>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-heading font-bold text-primary">Заявки на участие</h2>
+              <div className="flex gap-2">
+                <Button
+                  variant={statusFilter === 'all' ? 'default' : 'outline'}
+                  onClick={() => setStatusFilter('all')}
+                  className="rounded-xl"
+                  size="sm"
+                >
+                  Все ({applications.length})
+                </Button>
+                <Button
+                  variant={statusFilter === 'new' ? 'default' : 'outline'}
+                  onClick={() => setStatusFilter('new')}
+                  className="rounded-xl"
+                  size="sm"
+                >
+                  <Icon name="Bell" className="mr-1" size={14} />
+                  Новые ({applications.filter(a => a.status === 'new').length})
+                </Button>
+                <Button
+                  variant={statusFilter === 'viewed' ? 'default' : 'outline'}
+                  onClick={() => setStatusFilter('viewed')}
+                  className="rounded-xl"
+                  size="sm"
+                >
+                  <Icon name="Eye" className="mr-1" size={14} />
+                  Отсмотрены ({applications.filter(a => a.status === 'viewed').length})
+                </Button>
+                <Button
+                  variant={statusFilter === 'sent' ? 'default' : 'outline'}
+                  onClick={() => setStatusFilter('sent')}
+                  className="rounded-xl"
+                  size="sm"
+                >
+                  <Icon name="Send" className="mr-1" size={14} />
+                  Отправлены ({applications.filter(a => a.status === 'sent').length})
+                </Button>
+              </div>
+            </div>
             <div className="grid gap-4">
-              {applications.map((app) => (
+              {applications.filter(app => statusFilter === 'all' || app.status === statusFilter).map((app) => (
                 <Card key={app.id} className="rounded-2xl shadow-md">
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start">

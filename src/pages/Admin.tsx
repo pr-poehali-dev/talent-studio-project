@@ -447,10 +447,12 @@ const Admin = () => {
                       <div className="flex gap-2 ml-4">
                         <Button
                           onClick={() => {
+                            console.log('Opening edit modal for:', app);
                             setEditingApplication(app);
                             setAppStatus(app.status);
                             setAppResult(app.result || '');
                             setIsAppModalOpen(true);
+                            console.log('Modal state set to true');
                           }}
                           variant="outline"
                           size="sm"

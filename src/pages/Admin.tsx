@@ -226,6 +226,30 @@ const Admin = () => {
     }
   };
 
+  const handleDeleteApplication = async (id: number) => {
+    if (!confirm("Удалить эту заявку?")) return;
+    
+    try {
+      const response = await fetch(`${APPLICATIONS_API_URL}?id=${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Успешно",
+          description: "Заявка удалена"
+        });
+        loadApplications();
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось удалить заявку",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 flex items-center justify-center p-4">

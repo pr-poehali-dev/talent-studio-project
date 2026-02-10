@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/components/ui/use-toast";
@@ -24,6 +25,7 @@ interface Contest {
   rulesLink: string;
   diplomaImage: string;
   image: string;
+  isPopular?: boolean;
 }
 
 interface Application {
@@ -1121,6 +1123,17 @@ const Admin = () => {
                   <SelectItem value="new">Новый</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="isPopular" 
+                checked={formData.isPopular || false}
+                onCheckedChange={(checked) => setFormData({...formData, isPopular: checked as boolean})}
+              />
+              <Label htmlFor="isPopular" className="cursor-pointer">
+                Популярный конкурс (показывать на главной странице)
+              </Label>
             </div>
 
             <div className="space-y-2">

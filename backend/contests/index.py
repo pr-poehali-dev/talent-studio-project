@@ -33,7 +33,7 @@ def handler(event: dict, context) -> dict:
                     SELECT id, title, description, category_id as "categoryId", 
                            deadline, price, status, rules_file_url as "rulesLink",
                            diploma_sample_url as "diplomaImage", image_url as image,
-                           participants_count as participants
+                           participants_count as participants, is_popular as "isPopular"
                     FROM contests 
                     WHERE category_id = %s
                     ORDER BY deadline ASC
@@ -43,7 +43,7 @@ def handler(event: dict, context) -> dict:
                     SELECT id, title, description, category_id as "categoryId", 
                            deadline, price, status, rules_file_url as "rulesLink",
                            diploma_sample_url as "diplomaImage", image_url as image,
-                           participants_count as participants
+                           participants_count as participants, is_popular as "isPopular"
                     FROM contests 
                     ORDER BY deadline ASC
                 """)
@@ -73,8 +73,8 @@ def handler(event: dict, context) -> dict:
             cur.execute("""
                 INSERT INTO contests 
                 (title, description, category_id, deadline, price, status, 
-                 rules_file_url, diploma_sample_url, image_url)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                 rules_file_url, diploma_sample_url, image_url, is_popular)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             """, (
                 body.get('title'),
@@ -85,7 +85,8 @@ def handler(event: dict, context) -> dict:
                 body.get('status', 'active'),
                 body.get('rulesLink'),
                 body.get('diplomaImage'),
-                body.get('image')
+                body.get('image'),
+                body.get('isPopular', False)
             ))
             
             contest_id = cur.fetchone()['id']
@@ -111,7 +112,7 @@ def handler(event: dict, context) -> dict:
                 UPDATE contests 
                 SET title = %s, description = %s, category_id = %s, deadline = %s,
                     price = %s, status = %s, rules_file_url = %s, 
-                    diploma_sample_url = %s, image_url = %s, updated_at = CURRENT_TIMESTAMP
+                    diploma_sample_url = %s, image_url = %s, is_popular = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
             """, (
                 body.get('title'),
@@ -123,6 +124,7 @@ def handler(event: dict, context) -> dict:
                 body.get('rulesLink'),
                 body.get('diplomaImage'),
                 body.get('image'),
+                body.get('isPopular', False),
                 contest_id
             ))
             

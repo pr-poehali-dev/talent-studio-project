@@ -27,6 +27,7 @@ interface Contest {
   diplomaImage: string;
   image: string;
   participants: number;
+  isPopular?: boolean;
 }
 
 interface PublicResult {
@@ -112,7 +113,7 @@ const Index = () => {
         console.error('Ошибка загрузки работ галереи:', error);
       }
     };
-    if (activeSection === 'gallery') {
+    if (activeSection === 'gallery' || activeSection === 'home') {
       loadGalleryWorks();
     }
   }, [activeSection]);
@@ -372,44 +373,54 @@ const Index = () => {
             </section>
           )}
 
+          <section className="mb-16">
+            <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">⭐ Популярные конкурсы</h3>
+            <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {contests.filter(c => c.isPopular).map((contest) => (
+                <Card
+                  key={contest.id}
+                  className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"
+                  onClick={() => {
+                    setSelectedContest(contest.title);
+                    setIsModalOpen(true);
+                  }}
+                >
+                  <div className="h-56 overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center">
+                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
+                  </div>
+                  <CardContent className="p-6">
+                    <h4 className="text-lg font-heading font-bold mb-2">{contest.title}</h4>
+                    <p className="text-sm text-muted-foreground mb-2">{contest.description}</p>
+                    <p className="text-sm font-semibold text-success">💰 {contest.price} ₽</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+
           <section>
             <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
             <div className="grid md:grid-cols-4 gap-6">
-              {galleryWorks.map((work) => (
+              {galleryWorks.slice(0, 8).map((work) => (
                 <Card
                   key={work.id}
-                  className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl"
+                  className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"
+                  onClick={() => {
+                    setImagePreview(work.work_file_url);
+                    setIsImageModalOpen(true);
+                  }}
                 >
-                  <div 
-                    className="h-48 overflow-hidden cursor-pointer"
-                    onClick={() => {
-                      setImagePreview(work.image);
-                      setIsImageModalOpen(true);
-                    }}
-                  >
+                  <div className="h-48 overflow-hidden">
                     <img 
-                      src={work.image} 
-                      alt={work.title}
+                      src={work.work_file_url} 
+                      alt={work.work_title}
                       className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                     />
                   </div>
                   <CardContent className="p-4">
-                    <h4 className="text-base font-heading font-bold mb-1">{work.title}</h4>
-                    <p className="text-xs text-muted-foreground mb-1">👤 {work.author}</p>
-                    <p className="text-xs text-muted-foreground mb-3">🏆 {work.contest}</p>
-                    <div className="flex items-center justify-between">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-primary hover:text-primary hover:bg-primary/10 rounded-xl"
-                      >
-                        <Icon name="Heart" size={16} className="mr-1" />
-                        {work.likes}
-                      </Button>
-                      <Button variant="ghost" size="sm" className="rounded-xl">
-                        <Icon name="MessageCircle" size={16} />
-                      </Button>
-                    </div>
+                    <h4 className="text-base font-heading font-bold mb-1">{work.work_title}</h4>
+                    <p className="text-xs text-muted-foreground mb-1">👤 {work.full_name}{work.age ? `, ${work.age} лет` : ''}</p>
+                    <p className="text-xs text-muted-foreground">🏆 {work.contest_name}</p>
                   </CardContent>
                 </Card>
               ))}

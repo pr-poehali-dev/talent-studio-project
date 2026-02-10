@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useSearchParams } from "react-router-dom";
 
@@ -22,6 +23,20 @@ interface Contest {
   diplomaImage: string;
   image: string;
   participants: number;
+}
+
+interface PublicResult {
+  id: number;
+  full_name: string;
+  age: number | null;
+  teacher: string | null;
+  institution: string | null;
+  work_title: string;
+  contest_name: string;
+  result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant';
+  work_file_url: string;
+  created_at: string;
+  updated_at: string;
 }
 
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
@@ -41,6 +56,13 @@ const Index = () => {
   const [showContestsDropdown, setShowContestsDropdown] = useState(false);
   const [contestFilter, setContestFilter] = useState<string | null>(null);
   const [contests, setContests] = useState<Contest[]>([]);
+  const [results, setResults] = useState<PublicResult[]>([]);
+  const [filteredResults, setFilteredResults] = useState<PublicResult[]>([]);
+  const [resultFilters, setResultFilters] = useState({
+    contest: '',
+    fullName: '',
+    result: 'all'
+  });
   const { toast } = useToast();
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -62,6 +84,44 @@ const Index = () => {
       setActiveSection('results');
     }
   }, []);
+
+  useEffect(() => {
+    const loadResults = async () => {
+      try {
+        const response = await fetch('https://functions.poehali.dev/181f157e-94db-4c48-b7f6-a9d8f1a6e7b6');
+        const data = await response.json();
+        setResults(data);
+        setFilteredResults(data);
+      } catch (error) {
+        console.error('Ошибка загрузки результатов:', error);
+      }
+    };
+    if (activeSection === 'results') {
+      loadResults();
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
+    let filtered = [...results];
+
+    if (resultFilters.contest) {
+      filtered = filtered.filter(r => 
+        r.contest_name.toLowerCase().includes(resultFilters.contest.toLowerCase())
+      );
+    }
+
+    if (resultFilters.fullName) {
+      filtered = filtered.filter(r => 
+        r.full_name.toLowerCase().includes(resultFilters.fullName.toLowerCase())
+      );
+    }
+
+    if (resultFilters.result !== 'all') {
+      filtered = filtered.filter(r => r.result === resultFilters.result);
+    }
+
+    setFilteredResults(filtered);
+  }, [results, resultFilters]);
 
   const handleMouseEnter = () => {
     if (closeTimeoutRef.current) {
@@ -496,32 +556,119 @@ const Index = () => {
 
       {activeSection === "results" && (
         <div className="container mx-auto px-4 py-12">
-          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-secondary">🏅 Итоги конкурсов</h2>
-          <div className="max-w-4xl mx-auto">
-            <Card className="p-8 rounded-3xl shadow-2xl border-2 border-secondary mb-6">
-              <h3 className="text-3xl font-heading font-bold mb-6 text-center">Конкурс "Зимняя сказка" - Завершен</h3>
-              <div className="space-y-6">
-                {[
-                  { place: "🥇 1 место", name: "Снежная королева", author: "Аня, 11 лет", prize: "Планшет для рисования" },
-                  { place: "🥈 2 место", name: "Снеговик-волшебник", author: "Петя, 9 лет", prize: "Набор красок" },
-                  { place: "🥉 3 место", name: "Морозные узоры", author: "Оля, 10 лет", prize: "Альбом и карандаши" },
-                ].map((winner, index) => (
-                  <Card key={index} className="p-6 bg-gradient-to-r from-accent/20 to-transparent rounded-2xl">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-2xl font-heading font-bold mb-2">{winner.place}</p>
-                        <p className="text-lg font-semibold">{winner.name}</p>
-                        <p className="text-sm text-muted-foreground">👤 {winner.author}</p>
+          <h2 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">Итоги конкурсов</h2>
+          
+          <div className="max-w-7xl mx-auto mb-8 bg-white rounded-lg shadow-sm border p-6">
+            <div className="grid md:grid-cols-3 gap-4">
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Конкурс</Label>
+                <Input
+                  placeholder="Поиск по названию конкурса..."
+                  value={resultFilters.contest}
+                  onChange={(e) => setResultFilters({...resultFilters, contest: e.target.value})}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-medium mb-2 block">ФИО участника</Label>
+                <Input
+                  placeholder="Поиск по ФИО..."
+                  value={resultFilters.fullName}
+                  onChange={(e) => setResultFilters({...resultFilters, fullName: e.target.value})}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Результат</Label>
+                <Select
+                  value={resultFilters.result}
+                  onValueChange={(value) => setResultFilters({...resultFilters, result: value})}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Все результаты</SelectItem>
+                    <SelectItem value="grand_prix">Гран-При</SelectItem>
+                    <SelectItem value="first_degree">Диплом 1 степени</SelectItem>
+                    <SelectItem value="second_degree">Диплом 2 степени</SelectItem>
+                    <SelectItem value="third_degree">Диплом 3 степени</SelectItem>
+                    <SelectItem value="participant">Участник</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          <div className="max-w-7xl mx-auto">
+            {filteredResults.length === 0 ? (
+              <div className="text-center py-16 bg-white rounded-lg shadow-sm border">
+                <p className="text-lg text-muted-foreground">Результаты не найдены</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+                <div className="hidden md:grid md:grid-cols-7 gap-4 p-4 bg-gray-50 border-b font-semibold text-sm">
+                  <div>№</div>
+                  <div>ФИО участника</div>
+                  <div>Возраст</div>
+                  <div>Конкурс</div>
+                  <div>Результат</div>
+                  <div>Педагог</div>
+                  <div>Учреждение</div>
+                </div>
+                
+                <div className="divide-y">
+                  {filteredResults.map((result, index) => (
+                    <div key={result.id} className="grid md:grid-cols-7 gap-4 p-4 hover:bg-gray-50 transition-colors">
+                      <div className="text-sm text-muted-foreground">
+                        <span className="md:hidden font-semibold">№: </span>
+                        {index + 1}
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Приз:</p>
-                        <p className="font-semibold text-primary">{winner.prize}</p>
+                      <div className="text-sm font-medium">
+                        <span className="md:hidden font-semibold text-muted-foreground">ФИО: </span>
+                        {result.full_name}
+                      </div>
+                      <div className="text-sm">
+                        <span className="md:hidden font-semibold text-muted-foreground">Возраст: </span>
+                        {result.age || '—'}
+                      </div>
+                      <div className="text-sm">
+                        <span className="md:hidden font-semibold text-muted-foreground">Конкурс: </span>
+                        {result.contest_name}
+                      </div>
+                      <div className="text-sm">
+                        <span className="md:hidden font-semibold text-muted-foreground">Результат: </span>
+                        <span className={`inline-block px-3 py-1 rounded-md font-semibold text-xs ${
+                          result.result === 'grand_prix' 
+                            ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white' 
+                            : result.result === 'first_degree'
+                            ? 'bg-gradient-to-r from-yellow-300 to-yellow-500 text-white'
+                            : result.result === 'second_degree'
+                            ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-white'
+                            : result.result === 'third_degree'
+                            ? 'bg-gradient-to-r from-orange-300 to-orange-400 text-white'
+                            : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {result.result === 'grand_prix' && 'Гран-При'}
+                          {result.result === 'first_degree' && 'Диплом 1 степени'}
+                          {result.result === 'second_degree' && 'Диплом 2 степени'}
+                          {result.result === 'third_degree' && 'Диплом 3 степени'}
+                          {result.result === 'participant' && 'Участник'}
+                        </span>
+                      </div>
+                      <div className="text-sm">
+                        <span className="md:hidden font-semibold text-muted-foreground">Педагог: </span>
+                        {result.teacher || '—'}
+                      </div>
+                      <div className="text-sm">
+                        <span className="md:hidden font-semibold text-muted-foreground">Учреждение: </span>
+                        {result.institution || '—'}
                       </div>
                     </div>
-                  </Card>
-                ))}
+                  ))}
+                </div>
               </div>
-            </Card>
+            )}
           </div>
         </div>
       )}

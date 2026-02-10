@@ -607,19 +607,20 @@ const Index = () => {
               </div>
             ) : (
               <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                <div className="hidden md:grid md:grid-cols-7 gap-4 p-4 bg-gray-50 border-b font-semibold text-sm">
+                <div className="hidden md:grid md:grid-cols-8 gap-4 p-4 bg-gray-50 border-b font-semibold text-sm">
                   <div>№</div>
                   <div>ФИО участника</div>
                   <div>Возраст</div>
                   <div>Конкурс</div>
                   <div>Результат</div>
+                  <div>Дата участия</div>
                   <div>Педагог</div>
                   <div>Учреждение</div>
                 </div>
                 
                 <div className="divide-y">
                   {filteredResults.map((result, index) => (
-                    <div key={result.id} className="grid md:grid-cols-7 gap-4 p-4 hover:bg-gray-50 transition-colors">
+                    <div key={result.id} className="grid md:grid-cols-8 gap-4 p-4 hover:bg-gray-50 transition-colors">
                       <div className="text-sm text-muted-foreground">
                         <span className="md:hidden font-semibold">№: </span>
                         {index + 1}
@@ -655,6 +656,10 @@ const Index = () => {
                           {result.result === 'third_degree' && 'Диплом 3 степени'}
                           {result.result === 'participant' && 'Участник'}
                         </span>
+                      </div>
+                      <div className="text-sm">
+                        <span className="md:hidden font-semibold text-muted-foreground">Дата участия: </span>
+                        {new Date(result.created_at).toLocaleDateString('ru-RU')}
                       </div>
                       <div className="text-sm">
                         <span className="md:hidden font-semibold text-muted-foreground">Педагог: </span>

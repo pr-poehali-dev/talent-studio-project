@@ -952,6 +952,12 @@ const Admin = () => {
                             <p className="font-semibold text-sm">{result.email}</p>
                           </div>
                           <div>
+                            <p className="text-xs text-muted-foreground">Дата участия</p>
+                            <p className="font-semibold text-sm">
+                              {result.created_at ? new Date(result.created_at).toLocaleDateString('ru-RU') : '—'}
+                            </p>
+                          </div>
+                          <div>
                             <p className="text-xs text-muted-foreground">Работа</p>
                             <button
                               onClick={() => {

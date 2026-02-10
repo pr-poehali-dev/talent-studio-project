@@ -8,8 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import { useSearchParams } from "react-router-dom";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 interface Contest {
   id: number;
@@ -61,7 +65,9 @@ const Index = () => {
   const [resultFilters, setResultFilters] = useState({
     contest: '',
     fullName: '',
-    result: 'all'
+    result: 'all',
+    dateFrom: undefined as Date | undefined,
+    dateTo: undefined as Date | undefined
   });
   const { toast } = useToast();
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -118,6 +124,22 @@ const Index = () => {
 
     if (resultFilters.result !== 'all') {
       filtered = filtered.filter(r => r.result === resultFilters.result);
+    }
+
+    if (resultFilters.dateFrom) {
+      filtered = filtered.filter(r => {
+        const resultDate = new Date(r.created_at);
+        return resultDate >= resultFilters.dateFrom!;
+      });
+    }
+
+    if (resultFilters.dateTo) {
+      filtered = filtered.filter(r => {
+        const resultDate = new Date(r.created_at);
+        const endOfDay = new Date(resultFilters.dateTo!);
+        endOfDay.setHours(23, 59, 59, 999);
+        return resultDate <= endOfDay;
+      });
     }
 
     setFilteredResults(filtered);
@@ -559,7 +581,7 @@ const Index = () => {
           <h2 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">Итоги конкурсов</h2>
           
           <div className="max-w-7xl mx-auto mb-8 bg-white rounded-lg shadow-sm border p-6">
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-5 gap-4">
               <div>
                 <Label className="text-sm font-medium mb-2 block">Конкурс</Label>
                 <Input
@@ -596,6 +618,44 @@ const Index = () => {
                     <SelectItem value="participant">Участник</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Дата от</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-left font-normal">
+                      {resultFilters.dateFrom ? format(resultFilters.dateFrom, 'dd.MM.yyyy', { locale: ru }) : 'Выберите дату'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={resultFilters.dateFrom}
+                      onSelect={(date) => setResultFilters({...resultFilters, dateFrom: date})}
+                      locale={ru}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Дата до</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-left font-normal">
+                      {resultFilters.dateTo ? format(resultFilters.dateTo, 'dd.MM.yyyy', { locale: ru }) : 'Выберите дату'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={resultFilters.dateTo}
+                      onSelect={(date) => setResultFilters({...resultFilters, dateTo: date})}
+                      locale={ru}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </div>

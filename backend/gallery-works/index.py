@@ -31,6 +31,7 @@ def handler(event: dict, context) -> dict:
                     work_title,
                     contest_name,
                     work_file_url,
+                    result,
                     created_at
                 FROM t_p93576920_talent_studio_projec.results
                 WHERE gallery_consent = true 
@@ -48,7 +49,8 @@ def handler(event: dict, context) -> dict:
                     'work_title': row[3],
                     'contest_name': row[4],
                     'work_file_url': row[5],
-                    'created_at': row[6].isoformat() if row[6] else None
+                    'result': row[6],
+                    'created_at': row[7].isoformat() if row[7] else None
                 })
 
             cur.close()

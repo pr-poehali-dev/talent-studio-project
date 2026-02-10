@@ -51,6 +51,7 @@ interface GalleryWork {
   work_title: string;
   contest_name: string;
   work_file_url: string;
+  result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant';
   created_at: string;
 }
 
@@ -401,7 +402,7 @@ const Index = () => {
           <section>
             <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
             <div className="grid md:grid-cols-4 gap-6">
-              {galleryWorks.slice(0, 8).map((work) => (
+              {galleryWorks.filter(w => w.result === 'grand_prix' || w.result === 'first_degree').slice(0, 8).map((work) => (
                 <Card
                   key={work.id}
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"

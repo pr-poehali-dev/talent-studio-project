@@ -542,24 +542,25 @@ const Index = () => {
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">📄 Документы</h2>
           <div className="max-w-3xl mx-auto space-y-4">
-            {[
-              { title: "Положение о конкурсах", icon: "FileText" },
-              { title: "Правила участия", icon: "ScrollText" },
-              { title: "Критерии оценки работ", icon: "ClipboardCheck" },
-              { title: "Политика конфиденциальности", icon: "Shield" },
-            ].map((doc, index) => (
+            {contests
+              .filter(c => c.rulesLink && c.rulesLink !== '#')
+              .map((contest, index) => (
               <Card
                 key={index}
                 className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-x-2 rounded-2xl cursor-pointer"
+                onClick={() => {
+                  setPdfUrl(contest.rulesLink);
+                  setIsPdfModalOpen(true);
+                }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-info to-success rounded-xl flex items-center justify-center">
-                      <Icon name={doc.icon} className="text-white" size={24} />
+                      <Icon name="FileText" className="text-white" size={24} />
                     </div>
-                    <h3 className="text-xl font-heading font-semibold">{doc.title}</h3>
+                    <h3 className="text-xl font-heading font-semibold">{contest.title} - положение</h3>
                   </div>
-                  <Icon name="Download" className="text-info" size={24} />
+                  <Icon name="ExternalLink" className="text-info" size={24} />
                 </div>
               </Card>
             ))}

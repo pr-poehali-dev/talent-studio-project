@@ -648,46 +648,9 @@ const Admin = () => {
           <div>
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-3xl font-heading font-bold text-primary">Заявки на участие</h2>
-              <div className="flex gap-2">
-                <Button
-                  variant={statusFilter === 'all' ? 'default' : 'outline'}
-                  onClick={() => setStatusFilter('all')}
-                  className="rounded-xl"
-                  size="sm"
-                >
-                  Все ({applications.length})
-                </Button>
-                <Button
-                  variant={statusFilter === 'new' ? 'default' : 'outline'}
-                  onClick={() => setStatusFilter('new')}
-                  className="rounded-xl"
-                  size="sm"
-                >
-                  <Icon name="Bell" className="mr-1" size={14} />
-                  Новые ({applications.filter(a => a.status === 'new').length})
-                </Button>
-                <Button
-                  variant={statusFilter === 'viewed' ? 'default' : 'outline'}
-                  onClick={() => setStatusFilter('viewed')}
-                  className="rounded-xl"
-                  size="sm"
-                >
-                  <Icon name="Eye" className="mr-1" size={14} />
-                  Отсмотрены ({applications.filter(a => a.status === 'viewed').length})
-                </Button>
-                <Button
-                  variant={statusFilter === 'sent' ? 'default' : 'outline'}
-                  onClick={() => setStatusFilter('sent')}
-                  className="rounded-xl"
-                  size="sm"
-                >
-                  <Icon name="Send" className="mr-1" size={14} />
-                  Отправлены ({applications.filter(a => a.status === 'sent').length})
-                </Button>
-              </div>
             </div>
             <div className="grid gap-4">
-              {applications.filter(app => statusFilter === 'all' || app.status === statusFilter).map((app) => (
+              {applications.map((app) => (
                 <Card key={app.id} className="rounded-2xl shadow-md">
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start">
@@ -720,17 +683,7 @@ const Admin = () => {
                           <p className="text-xs text-muted-foreground">Email</p>
                           <p className="font-semibold text-sm">{app.email}</p>
                         </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Статус</p>
-                          <span className={`px-2 py-0.5 rounded-md text-xs ${
-                            app.status === 'new' ? 'bg-success/20 text-success' :
-                            app.status === 'viewed' ? 'bg-info/20 text-info' :
-                            'bg-primary/20 text-primary'
-                          }`}>
-                            {app.status === 'new' ? 'Новая' :
-                             app.status === 'viewed' ? 'Отсмотрена' : 'Отправлена'}
-                          </span>
-                        </div>
+
                         {app.result && (
                           <div>
                             <p className="text-xs text-muted-foreground">Результат</p>
@@ -1224,7 +1177,6 @@ const Admin = () => {
                     institution: formData.get('institution') as string || null,
                     work_title: formData.get('workTitle') as string,
                     email: formData.get('email') as string,
-                    status: appStatus,
                     result: appResult && appResult !== 'none' ? appResult : null
                   };
                   
@@ -1317,20 +1269,6 @@ const Admin = () => {
                   required 
                   className="rounded-xl border-2 focus:border-primary"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="status" className="text-base font-semibold">Статус *</Label>
-                <Select value={appStatus} onValueChange={(value: 'new' | 'viewed' | 'sent') => setAppStatus(value)}>
-                  <SelectTrigger className="rounded-xl border-2">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="new">Новая</SelectItem>
-                    <SelectItem value="viewed">Отсмотрена</SelectItem>
-                    <SelectItem value="sent">Отправлена</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="space-y-2">

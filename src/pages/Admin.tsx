@@ -419,6 +419,15 @@ const Admin = () => {
   };
 
   const handleCreateResultFromApplication = async (app: Application) => {
+    if (!app.result) {
+      toast({
+        title: "Результат не указан",
+        description: "Сначала установите результат в заявке",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const response = await fetch(RESULTS_API_URL, {
         method: 'POST',

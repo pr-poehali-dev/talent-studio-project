@@ -909,38 +909,56 @@ const Admin = () => {
                   <Card key={result.id} className="rounded-2xl shadow-md">
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start">
-                        <div className="flex-1 grid md:grid-cols-4 gap-x-4 gap-y-2">
+                        <div className="flex-1 grid md:grid-cols-3 gap-x-4 gap-y-2">
                           <div>
                             <p className="text-xs text-muted-foreground">ФИО</p>
                             <p className="font-semibold text-sm">{result.full_name}</p>
                           </div>
                           <div>
+                            <p className="text-xs text-muted-foreground">Возраст</p>
+                            <p className="font-semibold text-sm">{result.age} лет</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Название работы</p>
+                            <p className="font-semibold text-sm">{result.work_title}</p>
+                          </div>
+                          <div>
                             <p className="text-xs text-muted-foreground">Конкурс</p>
-                            <p className="font-semibold text-sm">{result.contest_name || '—'}</p>
+                            <p className="font-semibold text-sm">{result.contest_name}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Результат</p>
-                            <p className="font-semibold text-sm">{result.result || '—'}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Место</p>
-                            <p className="font-semibold text-sm">{result.place ? `${result.place} место` : '—'}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Баллы</p>
-                            <p className="font-semibold text-sm">{result.score || '—'}</p>
+                            <p className="text-xs text-muted-foreground">Педагог</p>
+                            <p className="font-semibold text-sm">{result.teacher || '—'}</p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Учреждение</p>
                             <p className="font-semibold text-sm">{result.institution || '—'}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Название работы</p>
-                            <p className="font-semibold text-sm">{result.work_title || '—'}</p>
+                            <p className="text-xs text-muted-foreground">Email</p>
+                            <p className="font-semibold text-sm">{result.email}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Email</p>
-                            <p className="font-semibold text-sm">{result.email || '—'}</p>
+                            <p className="text-xs text-muted-foreground">Работа</p>
+                            <button
+                              onClick={() => {
+                                setWorkPreview(result.work_file_url);
+                                setIsWorkPreviewOpen(true);
+                              }}
+                              className="text-primary hover:underline flex items-center gap-1 text-xs cursor-pointer"
+                            >
+                              <Icon name="Eye" size={14} />
+                              Посмотреть
+                            </button>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Результат</p>
+                            <span className="inline-block px-3 py-1 rounded-lg text-sm font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                              {result.result === 'grand_prix' ? '🏆 Гран-При' :
+                               result.result === 'first_degree' ? '🥇 Диплом 1 степени' :
+                               result.result === 'second_degree' ? '🥈 Диплом 2 степени' :
+                               result.result === 'third_degree' ? '🥉 Диплом 3 степени' : '✨ Участник'}
+                            </span>
                           </div>
                         </div>
                         <div className="flex gap-2 ml-4">

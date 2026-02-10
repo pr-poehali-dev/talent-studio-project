@@ -76,6 +76,7 @@ const Admin = () => {
   const [deletedApplications, setDeletedApplications] = useState<Application[]>([]);
   const [results, setResults] = useState<Result[]>([]);
   const [filteredResults, setFilteredResults] = useState<Result[]>([]);
+  const [applicationsWithResults, setApplicationsWithResults] = useState<Set<number>>(new Set());
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
   const [editingResult, setEditingResult] = useState<Result | null>(null);
   const [resultFilters, setResultFilters] = useState({
@@ -164,6 +165,9 @@ const Admin = () => {
       const response = await fetch(RESULTS_API_URL);
       const data = await response.json();
       setResults(data);
+      
+      const appIds = new Set(data.filter((r: Result) => r.application_id).map((r: Result) => r.application_id));
+      setApplicationsWithResults(appIds);
     } catch (error) {
       toast({
         title: "Ошибка",
@@ -760,10 +764,11 @@ const Admin = () => {
                           onClick={() => handleCreateResultFromApplication(app)}
                           variant="default"
                           size="sm"
-                          className="rounded-xl bg-green-600 hover:bg-green-700"
-                          title="Добавить в результаты"
+                          className={`rounded-xl ${applicationsWithResults.has(app.id) ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+                          title={applicationsWithResults.has(app.id) ? "Результат уже создан" : "Добавить в результаты"}
+                          disabled={applicationsWithResults.has(app.id)}
                         >
-                          <Icon name="Award" size={16} />
+                          <Icon name={applicationsWithResults.has(app.id) ? "Check" : "Award"} size={16} />
                         </Button>
                         <Button
                           onClick={() => {

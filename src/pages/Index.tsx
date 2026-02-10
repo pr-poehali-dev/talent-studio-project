@@ -43,8 +43,19 @@ interface PublicResult {
   updated_at: string;
 }
 
+interface GalleryWork {
+  id: number;
+  full_name: string;
+  age: number | null;
+  work_title: string;
+  contest_name: string;
+  work_file_url: string;
+  created_at: string;
+}
+
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
 const SUBMIT_APPLICATION_URL = "https://functions.poehali.dev/2d352955-9c6c-4bbb-ad1e-944c7ea04d84";
+const GALLERY_API_URL = "https://functions.poehali.dev/eddc53e6-7462-4e4b-95fe-3b3ce3e6f95a";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -62,6 +73,7 @@ const Index = () => {
   const [contests, setContests] = useState<Contest[]>([]);
   const [results, setResults] = useState<PublicResult[]>([]);
   const [filteredResults, setFilteredResults] = useState<PublicResult[]>([]);
+  const [galleryWorks, setGalleryWorks] = useState<GalleryWork[]>([]);
   const [resultFilters, setResultFilters] = useState({
     contest: '',
     fullName: '',
@@ -89,6 +101,21 @@ const Index = () => {
       setActiveSection('results');
     }
   }, []);
+
+  useEffect(() => {
+    const loadGalleryWorks = async () => {
+      try {
+        const response = await fetch(GALLERY_API_URL);
+        const data = await response.json();
+        setGalleryWorks(data);
+      } catch (error) {
+        console.error('Ошибка загрузки работ галереи:', error);
+      }
+    };
+    if (activeSection === 'gallery') {
+      loadGalleryWorks();
+    }
+  }, [activeSection]);
 
   useEffect(() => {
     const loadResults = async () => {
@@ -175,17 +202,6 @@ const Index = () => {
     const category = contestCategories.find(cat => cat.id === categoryId);
     return category?.icon || "Trophy";
   };
-
-  const galleryWorks = [
-    { id: 1, title: "Рыжий кот", author: "Маша, 8 лет", likes: 42, contest: "Мой любимый питомец", image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/e3c0a763-7712-4036-97ee-60e0bf1f7412.jpg" },
-    { id: 2, title: "Ракета Мечты", author: "Саша, 10 лет", likes: 38, contest: "Космос будущего", image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/58942009-21fa-42ac-ac84-2e1cf46d931d.jpg" },
-    { id: 3, title: "Золотая рыбка", author: "Лиза, 7 лет", likes: 55, contest: "Мой любимый питомец", image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/215e221d-f05d-4508-b1b7-c6b72843aedb.jpg" },
-    { id: 4, title: "Звездный путь", author: "Ваня, 9 лет", likes: 29, contest: "Космос будущего", image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/957faa08-2a88-45eb-b602-04c9f83f9be7.jpg" },
-    { id: 5, title: "Веселый щенок", author: "Катя, 11 лет", likes: 47, contest: "Мой любимый питомец", image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/83b700ef-37e0-4bbf-85b6-3a9ed5d13fc2.png" },
-    { id: 6, title: "Планета мечты", author: "Дима, 12 лет", likes: 33, contest: "Космос будущего", image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/e3c0a763-7712-4036-97ee-60e0bf1f7412.jpg" },
-    { id: 7, title: "Волшебное дерево", author: "Аня, 8 лет", likes: 51, contest: "Сказочный лес", image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/215e221d-f05d-4508-b1b7-c6b72843aedb.jpg" },
-    { id: 8, title: "Лесные друзья", author: "Петя, 9 лет", likes: 44, contest: "Сказочный лес", image: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/957faa08-2a88-45eb-b602-04c9f83f9be7.jpg" },
-  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -509,28 +525,23 @@ const Index = () => {
             {galleryWorks.map((work) => (
               <Card
                 key={work.id}
-                className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl"
+                className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"
+                onClick={() => {
+                  setImagePreview(work.work_file_url);
+                  setIsImageModalOpen(true);
+                }}
               >
-                <div className="h-56 bg-gradient-to-br from-accent via-info/30 to-success/30 flex items-center justify-center">
-                  <Icon name="Palette" className="text-white" size={60} />
+                <div className="h-56 overflow-hidden">
+                  <img 
+                    src={work.work_file_url} 
+                    alt={work.work_title}
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                  />
                 </div>
                 <CardContent className="p-6">
-                  <h4 className="text-lg font-heading font-bold mb-2">{work.title}</h4>
-                  <p className="text-sm text-muted-foreground mb-2">👤 {work.author}</p>
-                  <p className="text-xs text-muted-foreground mb-4">🏆 {work.contest}</p>
-                  <div className="flex items-center justify-between">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-primary hover:text-primary hover:bg-primary/10 rounded-xl"
-                    >
-                      <Icon name="Heart" size={18} className="mr-1" />
-                      {work.likes}
-                    </Button>
-                    <Button variant="ghost" size="sm" className="rounded-xl">
-                      <Icon name="MessageCircle" size={18} />
-                    </Button>
-                  </div>
+                  <h4 className="text-lg font-heading font-bold mb-2">{work.work_title}</h4>
+                  <p className="text-sm text-muted-foreground mb-2">👤 {work.full_name}{work.age ? `, ${work.age} лет` : ''}</p>
+                  <p className="text-xs text-muted-foreground">🏆 {work.contest_name}</p>
                 </CardContent>
               </Card>
             ))}

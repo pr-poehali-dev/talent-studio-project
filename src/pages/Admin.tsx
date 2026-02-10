@@ -982,14 +982,6 @@ const Admin = () => {
                         </div>
                         <div className="flex gap-2 ml-4">
                           <Button
-                            onClick={() => handleEditResult(result)}
-                            variant="outline"
-                            size="sm"
-                            className="rounded-xl"
-                          >
-                            <Icon name="Edit" size={16} />
-                          </Button>
-                          <Button
                             onClick={() => handleDeleteResult(result.id)}
                             variant="destructive"
                             size="sm"

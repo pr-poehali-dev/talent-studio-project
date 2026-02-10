@@ -2,6 +2,7 @@ import json
 import os
 import uuid
 import requests
+import psycopg2
 from base64 import b64encode
 
 def handler(event: dict, context) -> dict:
@@ -31,13 +32,52 @@ def handler(event: dict, context) -> dict:
             email = body.get('email')
             application_data = body.get('application_data', {})
             
-            if not amount or not description:
+            if not amount or not description or not application_data:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Missing amount or description'}),
+                    'body': json.dumps({'error': 'Missing required fields'}),
                     'isBase64Encoded': False
                 }
+            
+            database_url = os.environ.get('DATABASE_URL')
+            if not database_url:
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Database not configured'}),
+                    'isBase64Encoded': False
+                }
+            
+            conn = psycopg2.connect(database_url)
+            cur = conn.cursor()
+            
+            cur.execute(
+                '''INSERT INTO applications 
+                   (full_name, age, teacher, institution, work_title, email, contest_name, 
+                    work_file, file_name, file_type, gallery_consent, payment_status, created_at)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                   RETURNING id''',
+                (
+                    application_data.get('full_name'),
+                    application_data.get('age'),
+                    application_data.get('teacher'),
+                    application_data.get('institution'),
+                    application_data.get('work_title'),
+                    application_data.get('email'),
+                    application_data.get('contest_name'),
+                    application_data.get('work_file'),
+                    application_data.get('file_name'),
+                    application_data.get('file_type'),
+                    application_data.get('gallery_consent', False),
+                    'pending'
+                )
+            )
+            
+            application_id = cur.fetchone()[0]
+            conn.commit()
+            cur.close()
+            conn.close()
             
             shop_id = os.environ.get('YOOKASSA_SHOP_ID')
             secret_key = os.environ.get('YOOKASSA_SECRET_KEY')
@@ -67,9 +107,7 @@ def handler(event: dict, context) -> dict:
                 "capture": True,
                 "description": description,
                 "metadata": {
-                    "contest_name": contest_name,
-                    "email": email,
-                    "application_data": json.dumps(application_data)
+                    "application_id": str(application_id)
                 }
             }
             

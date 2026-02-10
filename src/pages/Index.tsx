@@ -1323,7 +1323,6 @@ const Index = () => {
                   const paymentResult = await paymentResponse.json();
                   
                   if (paymentResponse.ok && paymentResult.confirmation_url) {
-                    localStorage.setItem('pending_application', JSON.stringify(applicationData));
                     window.location.href = paymentResult.confirmation_url;
                   } else {
                     toast({

@@ -70,7 +70,8 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const [activeTab, setActiveTab] = useState<'contests' | 'applications' | 'trash' | 'results'>('contests');
+  const [activeTab, setActiveTab] = useState<'contests' | 'applications' | 'results'>('contests');
+  const [applicationsSubTab, setApplicationsSubTab] = useState<'active' | 'trash'>('active');
   const [contests, setContests] = useState<Contest[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [deletedApplications, setDeletedApplications] = useState<Application[]>([]);
@@ -564,15 +565,7 @@ const Admin = () => {
             className="rounded-t-xl rounded-b-none"
           >
             <Icon name="FileText" className="mr-2" />
-            Заявки ({applications.length})
-          </Button>
-          <Button
-            variant={activeTab === 'trash' ? 'default' : 'ghost'}
-            onClick={() => setActiveTab('trash')}
-            className="rounded-t-xl rounded-b-none"
-          >
-            <Icon name="Trash2" className="mr-2" />
-            Корзина ({deletedApplications.length})
+            Заявки ({applications.length + deletedApplications.length})
           </Button>
           <Button
             variant={activeTab === 'results' ? 'default' : 'ghost'}
@@ -648,9 +641,30 @@ const Admin = () => {
 
         {activeTab === 'applications' && (
           <div>
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-3xl font-heading font-bold text-primary">Заявки на участие</h2>
             </div>
+            
+            <div className="flex gap-2 mb-6">
+              <Button
+                variant={applicationsSubTab === 'active' ? 'default' : 'outline'}
+                onClick={() => setApplicationsSubTab('active')}
+                className="rounded-xl"
+              >
+                <Icon name="FileText" className="mr-2" size={16} />
+                Активные ({applications.length})
+              </Button>
+              <Button
+                variant={applicationsSubTab === 'trash' ? 'default' : 'outline'}
+                onClick={() => setApplicationsSubTab('trash')}
+                className="rounded-xl"
+              >
+                <Icon name="Trash2" className="mr-2" size={16} />
+                Корзина ({deletedApplications.length})
+              </Button>
+            </div>
+            
+            {applicationsSubTab === 'active' && (
             <div className="grid gap-4">
               {applications.map((app) => (
                 <Card key={`app-${app.id}`} className="rounded-2xl shadow-md">
@@ -770,15 +784,9 @@ const Admin = () => {
                 </Card>
               ))}
             </div>
-          </div>
-        )}
-
-        {activeTab === 'trash' && (
-          <div>
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-heading font-bold text-primary">Корзина</h2>
-              <p className="text-muted-foreground">Удалённые заявки хранятся здесь</p>
-            </div>
+            )}
+            
+            {applicationsSubTab === 'trash' && (
             <div className="grid gap-4">
               {deletedApplications.length === 0 ? (
                 <Card className="rounded-2xl p-8 text-center">
@@ -841,6 +849,7 @@ const Admin = () => {
                 ))
               )}
             </div>
+            )}
           </div>
         )}
 

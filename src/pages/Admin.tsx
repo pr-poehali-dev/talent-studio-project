@@ -5,9 +5,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/components/ui/use-toast";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 interface Contest {
   id?: number;
@@ -85,7 +89,8 @@ const Admin = () => {
   const [resultFilters, setResultFilters] = useState({
     contest_name: '',
     full_name: '',
-    result: 'all'
+    result: 'all',
+    date: undefined as Date | undefined
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAppModalOpen, setIsAppModalOpen] = useState(false);
@@ -206,6 +211,15 @@ const Admin = () => {
 
     if (resultFilters.result !== 'all') {
       filtered = filtered.filter(r => r.result === resultFilters.result);
+    }
+
+    if (resultFilters.date) {
+      filtered = filtered.filter(r => {
+        if (!r.created_at) return false;
+        const resultDate = new Date(r.created_at);
+        const filterDate = new Date(resultFilters.date!);
+        return resultDate.toDateString() === filterDate.toDateString();
+      });
     }
 
     setFilteredResults(filtered);
@@ -870,7 +884,7 @@ const Admin = () => {
 
             <Card className="rounded-2xl shadow-md mb-6 p-6">
               <h3 className="text-lg font-semibold mb-4">Фильтры</h3>
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <Label>Название конкурса</Label>
                   <Input
@@ -907,6 +921,25 @@ const Admin = () => {
                       <SelectItem value="participant">✨ Участник</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Дата участия</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left font-normal rounded-xl">
+                        {resultFilters.date ? format(resultFilters.date, 'dd.MM.yyyy', { locale: ru }) : 'Выберите дату'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={resultFilters.date}
+                        onSelect={(date) => setResultFilters({...resultFilters, date: date})}
+                        locale={ru}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
             </Card>

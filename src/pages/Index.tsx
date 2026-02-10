@@ -607,23 +607,22 @@ const Index = () => {
               </div>
             ) : (
               <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                <div className="hidden md:grid md:grid-cols-8 gap-4 p-4 bg-gray-50 border-b font-semibold text-sm">
-                  <div>№</div>
+                <div className="hidden md:grid gap-4 p-4 bg-gray-50 border-b font-semibold text-sm" style={{gridTemplateColumns: '120px 2fr 60px 1.5fr 1.5fr 1.5fr 2.5fr'}}>
+                  <div>Дата участия</div>
                   <div>ФИО участника</div>
                   <div>Возраст</div>
                   <div>Конкурс</div>
                   <div>Результат</div>
-                  <div>Дата участия</div>
                   <div>Педагог</div>
                   <div>Учреждение</div>
                 </div>
                 
                 <div className="divide-y">
                   {filteredResults.map((result, index) => (
-                    <div key={result.id} className="grid md:grid-cols-8 gap-4 p-4 hover:bg-gray-50 transition-colors">
-                      <div className="text-sm text-muted-foreground">
-                        <span className="md:hidden font-semibold">№: </span>
-                        {index + 1}
+                    <div key={result.id} className="grid gap-4 p-4 hover:bg-gray-50 transition-colors md:grid-cols-[120px_2fr_60px_1.5fr_1.5fr_1.5fr_2.5fr]">
+                      <div className="text-sm">
+                        <span className="md:hidden font-semibold text-muted-foreground">Дата участия: </span>
+                        {new Date(result.created_at).toLocaleDateString('ru-RU')}
                       </div>
                       <div className="text-sm font-medium">
                         <span className="md:hidden font-semibold text-muted-foreground">ФИО: </span>
@@ -656,10 +655,6 @@ const Index = () => {
                           {result.result === 'third_degree' && 'Диплом 3 степени'}
                           {result.result === 'participant' && 'Участник'}
                         </span>
-                      </div>
-                      <div className="text-sm">
-                        <span className="md:hidden font-semibold text-muted-foreground">Дата участия: </span>
-                        {new Date(result.created_at).toLocaleDateString('ru-RU')}
                       </div>
                       <div className="text-sm">
                         <span className="md:hidden font-semibold text-muted-foreground">Педагог: </span>

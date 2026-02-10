@@ -117,8 +117,8 @@ def handler(event: dict, context) -> dict:
                 INSERT INTO results (
                     application_id, full_name, age, teacher, institution,
                     work_title, email, contest_id, contest_name, work_file_url,
-                    result, place, score, diploma_url, notes
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    result, place, score, diploma_url, notes, gallery_consent
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
             ''', (
                 application_id,
@@ -135,7 +135,8 @@ def handler(event: dict, context) -> dict:
                 data.get('place'),
                 data.get('score'),
                 data.get('diploma_url'),
-                data.get('notes')
+                data.get('notes'),
+                data.get('gallery_consent', True)
             ))
             result = cur.fetchone()
             conn.commit()
@@ -171,7 +172,7 @@ def handler(event: dict, context) -> dict:
                     full_name = %s, age = %s, teacher = %s, institution = %s,
                     work_title = %s, email = %s, contest_id = %s, contest_name = %s,
                     work_file_url = %s, result = %s, place = %s, score = %s,
-                    diploma_url = %s, notes = %s, updated_at = CURRENT_TIMESTAMP
+                    diploma_url = %s, notes = %s, gallery_consent = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 RETURNING *
             ''', (
@@ -189,6 +190,7 @@ def handler(event: dict, context) -> dict:
                 data.get('score'),
                 data.get('diploma_url'),
                 data.get('notes'),
+                data.get('gallery_consent', True),
                 result_id
             ))
             result = cur.fetchone()

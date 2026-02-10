@@ -35,6 +35,7 @@ interface Application {
   work_file_url: string;
   status: 'new' | 'viewed' | 'sent';
   result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant' | null;
+  gallery_consent: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -57,6 +58,7 @@ interface Result {
   score: number | null;
   diploma_url: string | null;
   notes: string | null;
+  gallery_consent: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -447,6 +449,7 @@ const Admin = () => {
           contest_name: app.contest_name,
           work_file_url: app.work_file_url,
           result: app.result,
+          gallery_consent: app.gallery_consent,
           place: null,
           score: null,
           diploma_url: null,
@@ -724,6 +727,12 @@ const Admin = () => {
                             Посмотреть
                           </button>
                         </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Публикация в галерее</p>
+                          <span className={`text-sm font-semibold ${app.gallery_consent ? 'text-green-600' : 'text-red-600'}`}>
+                            {app.gallery_consent ? '✓ Согласен' : '✗ Не согласен'}
+                          </span>
+                        </div>
                       </div>
                       <div className="flex gap-2 ml-4">
                         <Button
@@ -962,6 +971,12 @@ const Admin = () => {
                                result.result === 'first_degree' ? '🥇 Диплом 1 степени' :
                                result.result === 'second_degree' ? '🥈 Диплом 2 степени' :
                                result.result === 'third_degree' ? '🥉 Диплом 3 степени' : '✨ Участник'}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Публикация в галерее</p>
+                            <span className={`text-sm font-semibold ${result.gallery_consent ? 'text-green-600' : 'text-red-600'}`}>
+                              {result.gallery_consent ? '✓ Согласен' : '✗ Не согласен'}
                             </span>
                           </div>
                         </div>

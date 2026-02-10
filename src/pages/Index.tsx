@@ -1044,7 +1044,8 @@ const Index = () => {
                       contest_name: selectedContest,
                       work_file: base64File,
                       file_name: uploadedFile.name,
-                      file_type: uploadedFile.type
+                      file_type: uploadedFile.type,
+                      gallery_consent: formData.get('gallery') === 'on'
                     })
                   });
                   
@@ -1168,7 +1169,7 @@ const Index = () => {
 
             <div className="space-y-4 pt-2">
               <div className="flex items-start space-x-3 p-3 bg-accent/10 rounded-xl">
-                <Checkbox id="gallery" required className="mt-1" />
+                <Checkbox id="gallery" name="gallery" required className="mt-1" />
                 <Label htmlFor="gallery" className="text-sm leading-relaxed cursor-pointer">
                   Согласен на публикацию работы в галерее сайта *
                 </Label>

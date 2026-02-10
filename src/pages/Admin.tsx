@@ -683,15 +683,6 @@ const Admin = () => {
                           <p className="text-xs text-muted-foreground">Email</p>
                           <p className="font-semibold text-sm">{app.email}</p>
                         </div>
-
-                        {!app.result && (
-                          <div>
-                            <p className="text-xs text-muted-foreground">Результат</p>
-                            <span className="px-2 py-0.5 rounded-md text-xs bg-gray-200 text-gray-500">
-                              Не выбран
-                            </span>
-                          </div>
-                        )}
                         <div>
                           <p className="text-xs text-muted-foreground">Дата подачи</p>
                           <p className="font-semibold text-sm">
@@ -753,7 +744,7 @@ const Admin = () => {
                       </div>
                     </div>
                     
-                    {app.result && (
+                    {app.result ? (
                       <div className="mt-4 pt-4 border-t">
                         <div className="flex items-start gap-2">
                           <Icon name="Award" size={20} className="text-orange-500 mt-1" />
@@ -766,6 +757,16 @@ const Admin = () => {
                                app.result === 'third_degree' ? '🥉 Диплом 3 степени' : '✨ Участник'}
                             </span>
                           </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-4 pt-4 border-t">
+                        <div className="flex items-center gap-2">
+                          <Icon name="Award" size={16} className="text-gray-400" />
+                          <p className="text-xs text-muted-foreground">Результат:</p>
+                          <span className="px-2 py-0.5 rounded-md text-xs bg-gray-200 text-gray-500">
+                            Не выбран
+                          </span>
                         </div>
                       </div>
                     )}

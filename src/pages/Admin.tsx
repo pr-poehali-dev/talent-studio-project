@@ -444,6 +444,18 @@ const Admin = () => {
           description: "Результат создан из заявки"
         });
         loadResults();
+      } else if (response.status === 409) {
+        toast({
+          title: "Дубликат",
+          description: "Результат из этой заявки уже существует",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось создать результат",
+          variant: "destructive"
+        });
       }
     } catch (error) {
       toast({

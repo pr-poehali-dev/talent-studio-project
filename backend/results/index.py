@@ -97,8 +97,22 @@ def handler(event: dict, context) -> dict:
     
     elif method == 'POST':
         data = json.loads(event.get('body', '{}'))
+        application_id = data.get('application_id')
         
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            if application_id:
+                cur.execute('SELECT id FROM results WHERE application_id = %s', (application_id,))
+                existing = cur.fetchone()
+                
+                if existing:
+                    conn.close()
+                    return {
+                        'statusCode': 409,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Result from this application already exists'}),
+                        'isBase64Encoded': False
+                    }
+            
             cur.execute('''
                 INSERT INTO results (
                     application_id, full_name, age, teacher, institution,
@@ -107,7 +121,7 @@ def handler(event: dict, context) -> dict:
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
             ''', (
-                data.get('application_id'),
+                application_id,
                 data.get('full_name'),
                 data.get('age'),
                 data.get('teacher'),

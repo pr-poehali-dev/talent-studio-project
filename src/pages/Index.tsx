@@ -732,33 +732,61 @@ const Index = () => {
 
       {activeSection === "shop" && (
         <div className="container mx-auto px-4 py-12">
-          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🛍️ Магазин</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { name: "Набор красок", price: "1 200 ₽", icon: "Brush" },
-              { name: "Планшет для рисования", price: "8 500 ₽", icon: "Tablet" },
-              { name: "Альбом премиум", price: "450 ₽", icon: "BookOpen" },
-              { name: "Мольберт детский", price: "3 200 ₽", icon: "Frame" },
-              { name: "Набор кистей", price: "890 ₽", icon: "Paintbrush" },
-              { name: "Акварель professional", price: "2 100 ₽", icon: "Palette" },
-            ].map((item, index) => (
-              <Card
-                key={index}
-                className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl"
-              >
-                <div className="h-48 bg-gradient-to-br from-secondary via-primary to-info flex items-center justify-center">
-                  <Icon name={item.icon} className="text-white" size={64} />
+          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🛍️ Магазин наградной атрибутики</h2>
+          <div className="max-w-4xl mx-auto">
+            <Card className="overflow-hidden rounded-3xl shadow-2xl border-2 border-primary/20">
+              <div className="bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 p-12 text-center">
+                <div className="mb-8">
+                  <Icon name="Award" className="mx-auto text-primary mb-4" size={80} />
                 </div>
-                <CardContent className="p-6">
-                  <h4 className="text-xl font-heading font-bold mb-2">{item.name}</h4>
-                  <p className="text-2xl font-bold text-primary mb-4">{item.price}</p>
-                  <Button className="w-full rounded-xl bg-success hover:bg-success/90">
-                    <Icon name="ShoppingCart" className="mr-2" size={18} />
-                    В корзину
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                <h3 className="text-3xl font-heading font-bold text-primary mb-6">
+                  Скоро открытие!
+                </h3>
+                <div className="max-w-2xl mx-auto space-y-4 text-lg text-muted-foreground leading-relaxed">
+                  <p>
+                    Мы рады сообщить, что в ближайшее время в нашем магазине появится возможность 
+                    заказать <span className="font-semibold text-primary">наградную атрибутику</span> для 
+                    юных победителей!
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-4 mt-8 text-left">
+                    <div className="flex items-start gap-3">
+                      <Icon name="Trophy" className="text-primary flex-shrink-0 mt-1" size={24} />
+                      <div>
+                        <p className="font-semibold text-primary">Кубки и медали</p>
+                        <p className="text-sm text-muted-foreground">Именные награды для настоящих победителей</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Icon name="Award" className="text-primary flex-shrink-0 mt-1" size={24} />
+                      <div>
+                        <p className="font-semibold text-primary">Оригиналы дипломов</p>
+                        <p className="text-sm text-muted-foreground">Красочные дипломы с печатью и подписью</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Icon name="Medal" className="text-primary flex-shrink-0 mt-1" size={24} />
+                      <div>
+                        <p className="font-semibold text-primary">Памятные награды</p>
+                        <p className="text-sm text-muted-foreground">Значки, ленты и другая атрибутика</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Icon name="FileText" className="text-primary flex-shrink-0 mt-1" size={24} />
+                      <div>
+                        <p className="font-semibold text-primary">Благодарственные письма</p>
+                        <p className="text-sm text-muted-foreground">Для педагогов и родителей</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-8 pt-8 border-t border-primary/20">
+                    <p className="text-base">
+                      Следите за обновлениями! Уже совсем скоро вы сможете увековечить достижения 
+                      ваших талантливых детей с помощью качественной наградной продукции.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
       )}

@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Test OPTIONS request",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": "",
+      "bodyMatcher": "exact"
+    },
+    {
+      "name": "Test payment creation with valid data",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "amount": 300,
+        "description": "Оплата участия в конкурсе Зимняя сказка",
+        "contest_name": "Зимняя сказка",
+        "email": "test@example.com",
+        "application_data": {
+          "full_name": "Иванов Иван",
+          "age": 10
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "payment_id": "string",
+        "confirmation_url": "string",
+        "status": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

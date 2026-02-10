@@ -71,6 +71,7 @@ const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2
 const SUBMIT_APPLICATION_URL = "https://functions.poehali.dev/2d352955-9c6c-4bbb-ad1e-944c7ea04d84";
 const GALLERY_API_URL = "https://functions.poehali.dev/eddc53e6-7462-4e4b-95fe-3b3ce3e6f95a";
 const REVIEWS_API_URL = "https://functions.poehali.dev/3daafc39-174c-4669-8e8a-71172a246929";
+const PAYMENT_API_URL = "https://functions.poehali.dev/f40bd7c6-a503-4165-8673-e8091832d07c";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -1286,44 +1287,48 @@ const Index = () => {
               }
               
               const formData = new FormData(e.currentTarget);
+              const contestPrice = contests.find(c => c.title === selectedContest)?.price || 300;
               
               try {
                 const reader = new FileReader();
                 reader.onload = async () => {
                   const base64File = reader.result?.toString().split(',')[1];
                   
-                  const response = await fetch(SUBMIT_APPLICATION_URL, {
+                  const applicationData = {
+                    full_name: formData.get('fullName'),
+                    age: parseInt(formData.get('age') as string),
+                    teacher: formData.get('teacher') || null,
+                    institution: formData.get('institution') || null,
+                    work_title: formData.get('workTitle'),
+                    email: formData.get('email'),
+                    contest_name: selectedContest,
+                    work_file: base64File,
+                    file_name: uploadedFile.name,
+                    file_type: uploadedFile.type,
+                    gallery_consent: formData.get('gallery') === 'on'
+                  };
+                  
+                  const paymentResponse = await fetch(PAYMENT_API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                      full_name: formData.get('fullName'),
-                      age: parseInt(formData.get('age') as string),
-                      teacher: formData.get('teacher') || null,
-                      institution: formData.get('institution') || null,
-                      work_title: formData.get('workTitle'),
-                      email: formData.get('email'),
+                      amount: contestPrice,
+                      description: `Оплата участия в конкурсе "${selectedContest}"`,
                       contest_name: selectedContest,
-                      work_file: base64File,
-                      file_name: uploadedFile.name,
-                      file_type: uploadedFile.type,
-                      gallery_consent: formData.get('gallery') === 'on'
+                      email: formData.get('email'),
+                      application_data: applicationData
                     })
                   });
                   
-                  const result = await response.json();
+                  const paymentResult = await paymentResponse.json();
                   
-                  if (response.ok) {
-                    toast({
-                      title: "Заявка отправлена!",
-                      description: `Ваша работа "${uploadedFile.name}" успешно отправлена на конкурс!`,
-                    });
-                    setIsModalOpen(false);
-                    setUploadedFile(null);
-                    e.currentTarget.reset();
+                  if (paymentResponse.ok && paymentResult.confirmation_url) {
+                    localStorage.setItem('pending_application', JSON.stringify(applicationData));
+                    window.location.href = paymentResult.confirmation_url;
                   } else {
                     toast({
-                      title: "Ошибка",
-                      description: result.error || "Не удалось отправить заявку",
+                      title: "Ошибка оплаты",
+                      description: paymentResult.error || "Не удалось создать платёж",
                       variant: "destructive"
                     });
                   }
@@ -1333,7 +1338,7 @@ const Index = () => {
               } catch (error) {
                 toast({
                   title: "Ошибка",
-                  description: "Произошла ошибка при отправке заявки",
+                  description: "Произошла ошибка при создании платежа",
                   variant: "destructive"
                 });
               }

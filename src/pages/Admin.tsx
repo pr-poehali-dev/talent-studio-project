@@ -743,7 +743,7 @@ const Admin = () => {
                         </Button>
                       </div>
                     </div>
-                    
+                    {/* Result section v2 - moved below buttons */}
                     {app.result ? (
                       <div className="mt-4 pt-4 border-t">
                         <div className="flex items-start gap-2">

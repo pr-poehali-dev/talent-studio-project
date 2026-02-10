@@ -544,6 +544,7 @@ const Index = () => {
           <div className="max-w-3xl mx-auto space-y-4">
             {contests
               .filter(c => c.rulesLink && c.rulesLink !== '#')
+              .sort((a, b) => a.title.localeCompare(b.title, 'ru'))
               .map((contest, index) => (
               <Card
                 key={index}

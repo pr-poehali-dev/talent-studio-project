@@ -752,13 +752,14 @@ const Admin = () => {
                         </Button>
                       </div>
                     </div>
+                    
                     {app.result && (
                       <div className="mt-4 pt-4 border-t">
-                        <div className="flex items-center gap-3">
-                          <Icon name="Award" size={20} className="text-primary" />
+                        <div className="flex items-start gap-2">
+                          <Icon name="Award" size={20} className="text-orange-500 mt-1" />
                           <div>
-                            <p className="text-xs text-muted-foreground mb-1">Результат</p>
-                            <span className="px-4 py-2 rounded-lg text-base font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md">
+                            <p className="text-xs text-muted-foreground mb-2">Результат</p>
+                            <span className="inline-block px-4 py-2 rounded-lg text-base font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md">
                               {app.result === 'grand_prix' ? '🏆 Гран-При' :
                                app.result === 'first_degree' ? '🥇 Диплом 1 степени' :
                                app.result === 'second_degree' ? '🥈 Диплом 2 степени' :

@@ -81,8 +81,8 @@ const Admin = () => {
   const [editingResult, setEditingResult] = useState<Result | null>(null);
   const [resultFilters, setResultFilters] = useState({
     contest_name: '',
-    result: 'all',
-    place: 'all'
+    full_name: '',
+    result: 'all'
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAppModalOpen, setIsAppModalOpen] = useState(false);
@@ -195,12 +195,14 @@ const Admin = () => {
       );
     }
 
-    if (resultFilters.result !== 'all') {
-      filtered = filtered.filter(r => r.result === resultFilters.result);
+    if (resultFilters.full_name) {
+      filtered = filtered.filter(r => 
+        r.full_name?.toLowerCase().includes(resultFilters.full_name.toLowerCase())
+      );
     }
 
-    if (resultFilters.place !== 'all') {
-      filtered = filtered.filter(r => r.place === parseInt(resultFilters.place));
+    if (resultFilters.result !== 'all') {
+      filtered = filtered.filter(r => r.result === resultFilters.result);
     }
 
     setFilteredResults(filtered);
@@ -850,13 +852,22 @@ const Admin = () => {
 
             <Card className="rounded-2xl shadow-md mb-6 p-6">
               <h3 className="text-lg font-semibold mb-4">Фильтры</h3>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Название конкурса</Label>
                   <Input
                     placeholder="Поиск по названию..."
                     value={resultFilters.contest_name}
                     onChange={(e) => setResultFilters({...resultFilters, contest_name: e.target.value})}
+                    className="rounded-xl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>ФИО участника</Label>
+                  <Input
+                    placeholder="Поиск по ФИО..."
+                    value={resultFilters.full_name}
+                    onChange={(e) => setResultFilters({...resultFilters, full_name: e.target.value})}
                     className="rounded-xl"
                   />
                 </div>

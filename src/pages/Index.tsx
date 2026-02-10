@@ -55,9 +55,21 @@ interface GalleryWork {
   created_at: string;
 }
 
+interface Review {
+  id: number;
+  author_name: string;
+  author_role: string | null;
+  rating: number;
+  text: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  published_at: string | null;
+}
+
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
 const SUBMIT_APPLICATION_URL = "https://functions.poehali.dev/2d352955-9c6c-4bbb-ad1e-944c7ea04d84";
 const GALLERY_API_URL = "https://functions.poehali.dev/eddc53e6-7462-4e4b-95fe-3b3ce3e6f95a";
+const REVIEWS_API_URL = "https://functions.poehali.dev/3daafc39-174c-4669-8e8a-71172a246929";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -76,6 +88,8 @@ const Index = () => {
   const [results, setResults] = useState<PublicResult[]>([]);
   const [filteredResults, setFilteredResults] = useState<PublicResult[]>([]);
   const [galleryWorks, setGalleryWorks] = useState<GalleryWork[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [resultFilters, setResultFilters] = useState({
     contest: '',
     fullName: '',
@@ -116,6 +130,21 @@ const Index = () => {
     };
     if (activeSection === 'gallery' || activeSection === 'home') {
       loadGalleryWorks();
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
+    const loadReviews = async () => {
+      try {
+        const response = await fetch(`${REVIEWS_API_URL}?status=approved`);
+        const data = await response.json();
+        setReviews(data);
+      } catch (error) {
+        console.error('Ошибка загрузки отзывов:', error);
+      }
+    };
+    if (activeSection === 'reviews') {
+      loadReviews();
     }
   }, [activeSection]);
 
@@ -794,49 +823,48 @@ const Index = () => {
       {activeSection === "reviews" && (
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">💬 Отзывы</h2>
-          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-6">
-            {[
-              {
-                name: "Мама Маши, 8 лет",
-                text: "Дочка в восторге! Участвовала в конкурсе 'Мой любимый питомец' и заняла 1 место. Теперь рисует еще больше!",
-                rating: 5,
-              },
-              {
-                name: "Папа Саши, 10 лет",
-                text: "Отличная платформа для развития творчества. Саша нашел здесь друзей-художников и постоянно участвует в конкурсах.",
-                rating: 5,
-              },
-              {
-                name: "Мама Лизы, 7 лет",
-                text: "Спасибо за организацию! Лиза получила свой первый приз и теперь мечтает стать настоящим художником.",
-                rating: 5,
-              },
-              {
-                name: "Бабушка Вани, 9 лет",
-                text: "Ваня очень доволен! Здесь честные конкурсы, и каждая работа оценивается по достоинству.",
-                rating: 5,
-              },
-              {
-                name: "Мама Кати, 11 лет",
-                text: "Замечательный проект! Катя развивается, получает обратную связь и радуется каждому новому конкурсу.",
-                rating: 5,
-              },
-              {
-                name: "Папа Димы, 12 лет",
-                text: "Дима участвует уже полгода. За это время его работы стали намного лучше. Рекомендую всем!",
-                rating: 5,
-              },
-            ].map((review, index) => (
-              <Card key={index} className="p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300">
-                <div className="flex items-center gap-2 mb-4">
-                  {[...Array(review.rating)].map((_, i) => (
-                    <Icon key={i} name="Star" className="text-secondary fill-secondary" size={20} />
-                  ))}
-                </div>
-                <p className="text-lg mb-4 italic">"{review.text}"</p>
-                <p className="font-semibold text-primary">{review.name}</p>
+          
+          <div className="max-w-2xl mx-auto mb-12">
+            <Card className="p-8 rounded-3xl shadow-2xl border-2 border-primary/20">
+              <h3 className="text-2xl font-heading font-bold text-primary mb-6 text-center">Оставьте свой отзыв</h3>
+              <p className="text-center text-muted-foreground mb-6">Поделитесь своим мнением о нашей студии. Все отзывы проходят модерацию перед публикацией.</p>
+              <Button 
+                onClick={() => setIsReviewModalOpen(true)}
+                className="w-full rounded-xl bg-primary hover:bg-primary/90 text-lg py-6"
+              >
+                <Icon name="MessageSquare" className="mr-2" />
+                Написать отзыв
+              </Button>
+            </Card>
+          </div>
+
+          <div className="max-w-5xl mx-auto">
+            {reviews.length === 0 ? (
+              <Card className="p-12 rounded-3xl text-center">
+                <Icon name="MessageSquare" size={64} className="mx-auto text-muted-foreground mb-4" />
+                <p className="text-xl text-muted-foreground">Пока нет опубликованных отзывов</p>
+                <p className="text-sm text-muted-foreground mt-2">Станьте первым, кто поделится мнением!</p>
               </Card>
-            ))}
+            ) : (
+              <div className="grid md:grid-cols-2 gap-6">
+                {reviews.map((review) => (
+                  <Card key={review.id} className="p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300">
+                    <div className="flex items-center gap-2 mb-4">
+                      {[...Array(review.rating)].map((_, i) => (
+                        <Icon key={i} name="Star" className="text-secondary fill-secondary" size={20} />
+                      ))}
+                    </div>
+                    <p className="text-lg mb-4 italic">"{review.text}"</p>
+                    <div>
+                      <p className="font-semibold text-primary">{review.author_name}</p>
+                      {review.author_role && (
+                        <p className="text-sm text-muted-foreground">{review.author_role}</p>
+                      )}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1467,6 +1495,120 @@ const Index = () => {
               />
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-heading font-bold text-primary">
+              ✍️ Напишите отзыв
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              Ваш отзыв будет опубликован после проверки модератором
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form 
+            className="space-y-5 mt-4"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              
+              try {
+                const response = await fetch(REVIEWS_API_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    author_name: formData.get('author_name'),
+                    author_role: formData.get('author_role') || null,
+                    rating: parseInt(formData.get('rating') as string),
+                    text: formData.get('text')
+                  })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                  toast({
+                    title: "Отзыв отправлен!",
+                    description: "Ваш отзыв будет опубликован после модерации. Спасибо!",
+                  });
+                  setIsReviewModalOpen(false);
+                  e.currentTarget.reset();
+                } else {
+                  toast({
+                    title: "Ошибка",
+                    description: result.error || "Не удалось отправить отзыв",
+                    variant: "destructive"
+                  });
+                }
+              } catch (error) {
+                toast({
+                  title: "Ошибка",
+                  description: "Произошла ошибка при отправке отзыва",
+                  variant: "destructive"
+                });
+              }
+            }}
+          >
+            <div className="space-y-2">
+              <Label htmlFor="author_name" className="text-base font-semibold">Ваше имя *</Label>
+              <Input 
+                id="author_name"
+                name="author_name"
+                placeholder="Как вас зовут?" 
+                required 
+                className="rounded-xl border-2 focus:border-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="author_role" className="text-base font-semibold">Ваша роль</Label>
+              <Input 
+                id="author_role"
+                name="author_role"
+                placeholder="Например: Мама участника, Педагог, и т.д." 
+                className="rounded-xl border-2 focus:border-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rating" className="text-base font-semibold">Оценка *</Label>
+              <Select name="rating" required>
+                <SelectTrigger className="rounded-xl border-2 focus:border-primary">
+                  <SelectValue placeholder="Выберите оценку" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">⭐⭐⭐⭐⭐ Отлично</SelectItem>
+                  <SelectItem value="4">⭐⭐⭐⭐ Хорошо</SelectItem>
+                  <SelectItem value="3">⭐⭐⭐ Нормально</SelectItem>
+                  <SelectItem value="2">⭐⭐ Плохо</SelectItem>
+                  <SelectItem value="1">⭐ Ужасно</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="text" className="text-base font-semibold">Ваш отзыв *</Label>
+              <Textarea 
+                id="text"
+                name="text"
+                placeholder="Расскажите о вашем опыте участия в конкурсах студии..."
+                required
+                rows={6}
+                className="rounded-xl border-2 focus:border-primary"
+              />
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full text-lg py-6 rounded-xl bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
+            >
+              <Icon name="Send" className="mr-2" />
+              Отправить отзыв
+            </Button>
+          </form>
         </DialogContent>
       </Dialog>
 

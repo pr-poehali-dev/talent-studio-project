@@ -69,22 +69,36 @@ interface Result {
   updated_at: string;
 }
 
+interface Review {
+  id: number;
+  author_name: string;
+  author_role: string | null;
+  rating: number;
+  text: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  updated_at: string;
+  published_at: string | null;
+}
+
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
 const UPLOAD_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
 const RESULTS_API_URL = "https://functions.poehali.dev/e1f9698c-ec8a-4b24-89c2-72bb579d7f9b";
 const APPLICATIONS_API_URL = "https://functions.poehali.dev/ff2c7334-750b-418e-8468-152fae1d68ef";
+const REVIEWS_API_URL = "https://functions.poehali.dev/3daafc39-174c-4669-8e8a-71172a246929";
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const [activeTab, setActiveTab] = useState<'contests' | 'applications' | 'results'>('contests');
+  const [activeTab, setActiveTab] = useState<'contests' | 'applications' | 'results' | 'reviews'>('contests');
   const [applicationsSubTab, setApplicationsSubTab] = useState<'active' | 'trash'>('active');
   const [contests, setContests] = useState<Contest[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [deletedApplications, setDeletedApplications] = useState<Application[]>([]);
   const [results, setResults] = useState<Result[]>([]);
   const [filteredResults, setFilteredResults] = useState<Result[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [applicationsWithResults, setApplicationsWithResults] = useState<Set<number>>(new Set());
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
   const [editingResult, setEditingResult] = useState<Result | null>(null);
@@ -187,12 +201,27 @@ const Admin = () => {
     }
   };
 
+  const loadReviews = async () => {
+    try {
+      const response = await fetch(`${REVIEWS_API_URL}?status=all`);
+      const data = await response.json();
+      setReviews(data);
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить отзывы",
+        variant: "destructive"
+      });
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       loadContests();
       loadApplications();
       loadDeletedApplications();
       loadResults();
+      loadReviews();
     }
   }, [isAuthenticated]);
 
@@ -593,6 +622,14 @@ const Admin = () => {
           >
             <Icon name="Award" className="mr-2" />
             Результаты ({results.length})
+          </Button>
+          <Button
+            variant={activeTab === 'reviews' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('reviews')}
+            className="rounded-t-xl rounded-b-none"
+          >
+            <Icon name="MessageSquare" className="mr-2" />
+            Отзывы ({reviews.length})
           </Button>
         </div>
 
@@ -1024,6 +1061,187 @@ const Admin = () => {
                         <div className="flex gap-2 ml-4">
                           <Button
                             onClick={() => handleDeleteResult(result.id)}
+                            variant="destructive"
+                            size="sm"
+                            className="rounded-xl"
+                          >
+                            <Icon name="Trash2" size={16} />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'reviews' && (
+          <div>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-heading font-bold text-primary">Модерация отзывов</h2>
+            </div>
+
+            <div className="grid gap-4">
+              {reviews.length === 0 ? (
+                <Card className="rounded-2xl p-8 text-center">
+                  <Icon name="MessageSquare" size={48} className="mx-auto text-muted-foreground mb-4" />
+                  <p className="text-lg text-muted-foreground">Отзывов пока нет</p>
+                </Card>
+              ) : (
+                reviews.map((review) => (
+                  <Card key={review.id} className={`rounded-2xl shadow-md ${review.status === 'pending' ? 'border-2 border-orange-400' : review.status === 'approved' ? 'border-2 border-green-400' : 'border-2 border-red-400 opacity-60'}`}>
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-4 mb-4">
+                            <div className="flex items-center gap-1">
+                              {[...Array(review.rating)].map((_, i) => (
+                                <Icon key={i} name="Star" className="text-secondary fill-secondary" size={18} />
+                              ))}
+                            </div>
+                            <span className={`px-3 py-1 rounded-lg text-sm font-bold ${
+                              review.status === 'pending' ? 'bg-orange-100 text-orange-800' :
+                              review.status === 'approved' ? 'bg-green-100 text-green-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {review.status === 'pending' ? '⏳ На модерации' :
+                               review.status === 'approved' ? '✅ Опубликован' : '❌ Отклонен'}
+                            </span>
+                          </div>
+                          
+                          <p className="text-lg mb-4 italic">"{review.text}"</p>
+                          
+                          <div className="grid md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p className="text-xs text-muted-foreground">Автор</p>
+                              <p className="font-semibold">{review.author_name}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Роль</p>
+                              <p className="font-semibold">{review.author_role || '—'}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground">Дата создания</p>
+                              <p className="font-semibold">
+                                {new Date(review.created_at).toLocaleString('ru-RU', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                            {review.published_at && (
+                              <div>
+                                <p className="text-xs text-muted-foreground">Дата публикации</p>
+                                <p className="font-semibold">
+                                  {new Date(review.published_at).toLocaleString('ru-RU', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col gap-2 ml-4">
+                          {review.status === 'pending' && (
+                            <>
+                              <Button
+                                onClick={async () => {
+                                  try {
+                                    const response = await fetch(REVIEWS_API_URL, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ id: review.id, status: 'approved' })
+                                    });
+                                    if (response.ok) {
+                                      toast({ title: 'Успешно', description: 'Отзыв опубликован' });
+                                      loadReviews();
+                                    }
+                                  } catch (error) {
+                                    toast({ title: 'Ошибка', description: 'Не удалось опубликовать отзыв', variant: 'destructive' });
+                                  }
+                                }}
+                                variant="default"
+                                size="sm"
+                                className="rounded-xl bg-green-600 hover:bg-green-700"
+                              >
+                                <Icon name="Check" size={16} className="mr-1" />
+                                Одобрить
+                              </Button>
+                              <Button
+                                onClick={async () => {
+                                  try {
+                                    const response = await fetch(REVIEWS_API_URL, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ id: review.id, status: 'rejected' })
+                                    });
+                                    if (response.ok) {
+                                      toast({ title: 'Успешно', description: 'Отзыв отклонен' });
+                                      loadReviews();
+                                    }
+                                  } catch (error) {
+                                    toast({ title: 'Ошибка', description: 'Не удалось отклонить отзыв', variant: 'destructive' });
+                                  }
+                                }}
+                                variant="outline"
+                                size="sm"
+                                className="rounded-xl"
+                              >
+                                <Icon name="X" size={16} className="mr-1" />
+                                Отклонить
+                              </Button>
+                            </>
+                          )}
+                          {review.status === 'approved' && (
+                            <Button
+                              onClick={async () => {
+                                try {
+                                  const response = await fetch(REVIEWS_API_URL, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ id: review.id, status: 'rejected' })
+                                  });
+                                  if (response.ok) {
+                                    toast({ title: 'Успешно', description: 'Отзыв снят с публикации' });
+                                    loadReviews();
+                                  }
+                                } catch (error) {
+                                  toast({ title: 'Ошибка', description: 'Не удалось снять с публикации', variant: 'destructive' });
+                                }
+                              }}
+                              variant="outline"
+                              size="sm"
+                              className="rounded-xl"
+                            >
+                              <Icon name="EyeOff" size={16} className="mr-1" />
+                              Снять
+                            </Button>
+                          )}
+                          <Button
+                            onClick={async () => {
+                              if (!confirm('Удалить этот отзыв?')) return;
+                              try {
+                                const response = await fetch(`${REVIEWS_API_URL}?id=${review.id}`, {
+                                  method: 'DELETE'
+                                });
+                                if (response.ok) {
+                                  toast({ title: 'Успешно', description: 'Отзыв удален' });
+                                  loadReviews();
+                                }
+                              } catch (error) {
+                                toast({ title: 'Ошибка', description: 'Не удалось удалить отзыв', variant: 'destructive' });
+                              }
+                            }}
                             variant="destructive"
                             size="sm"
                             className="rounded-xl"

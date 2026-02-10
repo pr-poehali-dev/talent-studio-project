@@ -828,7 +828,7 @@ const Index = () => {
           <div className="max-w-2xl mx-auto mb-12">
             <Card className="p-8 rounded-3xl shadow-2xl border-2 border-primary/20">
               <h3 className="text-2xl font-heading font-bold text-primary mb-6 text-center">Оставьте свой отзыв</h3>
-              <p className="text-center text-muted-foreground mb-6">Поделитесь своим мнением о нашей студии. Все отзывы проходят модерацию перед публикацией.</p>
+              <p className="text-center text-muted-foreground mb-6">Поделитесь своим мнением о работе нашей студии. Все отзывы проходят модерацию перед публикацией.</p>
               <Button 
                 onClick={() => setIsReviewModalOpen(true)}
                 className="w-full rounded-xl bg-primary hover:bg-primary/90 text-lg py-6"

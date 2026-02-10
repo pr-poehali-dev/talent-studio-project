@@ -574,6 +574,25 @@ const Index = () => {
           <div className="max-w-7xl mx-auto mb-8 bg-white rounded-lg shadow-sm border p-6">
             <div className="grid md:grid-cols-4 gap-4">
               <div>
+                <Label className="text-sm font-medium mb-2 block">Дата участия</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-left font-normal">
+                      {resultFilters.date ? format(resultFilters.date, 'dd.MM.yyyy', { locale: ru }) : 'Выберите дату'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={resultFilters.date}
+                      onSelect={(date) => setResultFilters({...resultFilters, date: date})}
+                      locale={ru}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div>
                 <Label className="text-sm font-medium mb-2 block">Конкурс</Label>
                 <Input
                   placeholder="Поиск по названию конкурса..."
@@ -609,25 +628,6 @@ const Index = () => {
                     <SelectItem value="participant">Участник</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Дата участия</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left font-normal">
-                      {resultFilters.date ? format(resultFilters.date, 'dd.MM.yyyy', { locale: ru }) : 'Выберите дату'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={resultFilters.date}
-                      onSelect={(date) => setResultFilters({...resultFilters, date: date})}
-                      locale={ru}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
               </div>
             </div>
           </div>

@@ -414,6 +414,46 @@ const Admin = () => {
     }
   };
 
+  const handleCreateResultFromApplication = async (app: Application) => {
+    try {
+      const response = await fetch(RESULTS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          application_id: app.id,
+          full_name: app.full_name,
+          age: app.age,
+          teacher: app.teacher,
+          institution: app.institution,
+          work_title: app.work_title,
+          email: app.email,
+          contest_id: app.contest_id,
+          contest_name: app.contest_name,
+          work_file_url: app.work_file_url,
+          result: app.result,
+          place: null,
+          score: null,
+          diploma_url: null,
+          notes: null
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Успешно",
+          description: "Результат создан из заявки"
+        });
+        loadResults();
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось создать результат",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 flex items-center justify-center p-4">
@@ -704,6 +744,15 @@ const Admin = () => {
                         </div>
                       </div>
                       <div className="flex gap-2 ml-4">
+                        <Button
+                          onClick={() => handleCreateResultFromApplication(app)}
+                          variant="default"
+                          size="sm"
+                          className="rounded-xl bg-green-600 hover:bg-green-700"
+                          title="Добавить в результаты"
+                        >
+                          <Icon name="Award" size={16} />
+                        </Button>
                         <Button
                           onClick={() => {
                             setEditingApplication(app);

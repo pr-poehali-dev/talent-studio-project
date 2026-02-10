@@ -651,7 +651,7 @@ const Admin = () => {
             </div>
             <div className="grid gap-4">
               {applications.map((app) => (
-                <Card key={app.id} className="rounded-2xl shadow-md">
+                <Card key={`app-${app.id}`} className="rounded-2xl shadow-md">
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start">
                       <div className="flex-1 grid md:grid-cols-3 gap-x-4 gap-y-2">

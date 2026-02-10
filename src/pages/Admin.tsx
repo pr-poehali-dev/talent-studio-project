@@ -850,7 +850,7 @@ const Admin = () => {
 
             <Card className="rounded-2xl shadow-md mb-6 p-6">
               <h3 className="text-lg font-semibold mb-4">Фильтры</h3>
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Название конкурса</Label>
                   <Input
@@ -871,27 +871,11 @@ const Admin = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Все результаты</SelectItem>
-                      <SelectItem value="Победитель">Победитель</SelectItem>
-                      <SelectItem value="Призер">Призер</SelectItem>
-                      <SelectItem value="Участник">Участник</SelectItem>
-                      <SelectItem value="Гран-при">Гран-при</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Место</Label>
-                  <Select 
-                    value={resultFilters.place} 
-                    onValueChange={(value) => setResultFilters({...resultFilters, place: value})}
-                  >
-                    <SelectTrigger className="rounded-xl">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Все места</SelectItem>
-                      <SelectItem value="1">1 место</SelectItem>
-                      <SelectItem value="2">2 место</SelectItem>
-                      <SelectItem value="3">3 место</SelectItem>
+                      <SelectItem value="grand_prix">🏆 Гран-При</SelectItem>
+                      <SelectItem value="first_degree">🥇 Диплом 1 степени</SelectItem>
+                      <SelectItem value="second_degree">🥈 Диплом 2 степени</SelectItem>
+                      <SelectItem value="third_degree">🥉 Диплом 3 степени</SelectItem>
+                      <SelectItem value="participant">✨ Участник</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

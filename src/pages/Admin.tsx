@@ -684,14 +684,11 @@ const Admin = () => {
                           <p className="font-semibold text-sm">{app.email}</p>
                         </div>
 
-                        {app.result && (
+                        {!app.result && (
                           <div>
                             <p className="text-xs text-muted-foreground">Результат</p>
-                            <span className="px-2 py-0.5 rounded-md text-xs bg-secondary/20">
-                              {app.result === 'grand_prix' ? 'Гран-При' :
-                               app.result === 'first_degree' ? '1 степень' :
-                               app.result === 'second_degree' ? '2 степень' :
-                               app.result === 'third_degree' ? '3 степень' : 'Участник'}
+                            <span className="px-2 py-0.5 rounded-md text-xs bg-gray-200 text-gray-500">
+                              Не выбран
                             </span>
                           </div>
                         )}
@@ -755,6 +752,22 @@ const Admin = () => {
                         </Button>
                       </div>
                     </div>
+                    {app.result && (
+                      <div className="mt-4 pt-4 border-t">
+                        <div className="flex items-center gap-3">
+                          <Icon name="Award" size={20} className="text-primary" />
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Результат</p>
+                            <span className="px-4 py-2 rounded-lg text-base font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md">
+                              {app.result === 'grand_prix' ? '🏆 Гран-При' :
+                               app.result === 'first_degree' ? '🥇 Диплом 1 степени' :
+                               app.result === 'second_degree' ? '🥈 Диплом 2 степени' :
+                               app.result === 'third_degree' ? '🥉 Диплом 3 степени' : '✨ Участник'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}

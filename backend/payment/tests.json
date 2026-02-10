@@ -19,7 +19,16 @@
         "email": "test@example.com",
         "application_data": {
           "full_name": "Иванов Иван",
-          "age": 10
+          "age": 10,
+          "teacher": "Петрова А.Б.",
+          "institution": "Школа №1",
+          "work_title": "Тестовая работа",
+          "email": "test@example.com",
+          "contest_name": "Зимняя сказка",
+          "work_file": "base64encodedfile",
+          "file_name": "test.jpg",
+          "file_type": "image/jpeg",
+          "gallery_consent": true
         }
       },
       "expectedStatus": 200,

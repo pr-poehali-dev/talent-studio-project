@@ -55,8 +55,8 @@ def handler(event: dict, context) -> dict:
             cur.execute(
                 '''INSERT INTO applications 
                    (full_name, age, teacher, institution, work_title, email, contest_name, 
-                    work_file, file_name, file_type, gallery_consent, payment_status, created_at)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                    work_file, file_name, file_type, gallery_consent, payment_status, work_file_url, created_at)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
                    RETURNING id''',
                 (
                     application_data.get('full_name'),
@@ -70,7 +70,8 @@ def handler(event: dict, context) -> dict:
                     application_data.get('file_name'),
                     application_data.get('file_type'),
                     application_data.get('gallery_consent', False),
-                    'pending'
+                    'pending',
+                    ''
                 )
             )
             

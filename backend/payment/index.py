@@ -3,6 +3,8 @@ import os
 import uuid
 import requests
 import psycopg2
+import boto3
+import base64
 from base64 import b64encode
 
 def handler(event: dict, context) -> dict:
@@ -49,6 +51,36 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
+            work_file_url = ''
+            work_file = application_data.get('work_file')
+            file_name = application_data.get('file_name')
+            file_type = application_data.get('file_type')
+            
+            if work_file and file_name:
+                try:
+                    aws_access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+                    aws_secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+                    
+                    s3 = boto3.client('s3',
+                        endpoint_url='https://bucket.poehali.dev',
+                        aws_access_key_id=aws_access_key,
+                        aws_secret_access_key=aws_secret_key
+                    )
+                    
+                    file_data = base64.b64decode(work_file)
+                    file_key = f'works/{file_name}'
+                    
+                    s3.put_object(
+                        Bucket='files',
+                        Key=file_key,
+                        Body=file_data,
+                        ContentType=file_type
+                    )
+                    
+                    work_file_url = f"https://cdn.poehali.dev/projects/{aws_access_key}/bucket/{file_key}"
+                except Exception as s3_error:
+                    print(f"S3 upload error: {s3_error}")
+            
             conn = psycopg2.connect(database_url)
             cur = conn.cursor()
             
@@ -66,12 +98,12 @@ def handler(event: dict, context) -> dict:
                     application_data.get('work_title'),
                     application_data.get('email'),
                     application_data.get('contest_name'),
-                    application_data.get('work_file'),
-                    application_data.get('file_name'),
-                    application_data.get('file_type'),
+                    work_file,
+                    file_name,
+                    file_type,
                     application_data.get('gallery_consent', False),
                     'pending',
-                    ''
+                    work_file_url
                 )
             )
             

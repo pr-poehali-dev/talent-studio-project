@@ -1809,6 +1809,25 @@ const Admin = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <Dialog open={isWorkPreviewOpen} onOpenChange={setIsWorkPreviewOpen}>
+        <DialogContent className="sm:max-w-[90vw] max-h-[90vh] p-4">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-heading font-bold text-primary">
+              Просмотр работы
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center justify-center">
+            {workPreview && (
+              <img 
+                src={workPreview} 
+                alt="Работа участника" 
+                className="max-w-full max-h-[75vh] object-contain rounded-lg"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

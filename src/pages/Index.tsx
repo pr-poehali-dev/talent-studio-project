@@ -76,6 +76,7 @@ const PAYMENT_API_URL = "https://functions.poehali.dev/f40bd7c6-a503-4165-8673-e
 const Index = () => {
   const [searchParams] = useSearchParams();
   const initialSection = searchParams.get('section') || 'home';
+  const categoryParam = searchParams.get('category');
   const [activeSection, setActiveSection] = useState(initialSection);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContest, setSelectedContest] = useState<string>("");
@@ -85,7 +86,7 @@ const Index = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
   const [showContestsDropdown, setShowContestsDropdown] = useState(false);
-  const [contestFilter, setContestFilter] = useState<string | null>(null);
+  const [contestFilter, setContestFilter] = useState<string | null>(categoryParam);
   const [contests, setContests] = useState<Contest[]>([]);
   const [results, setResults] = useState<PublicResult[]>([]);
   const [filteredResults, setFilteredResults] = useState<PublicResult[]>([]);
@@ -118,7 +119,11 @@ const Index = () => {
     if (window.location.pathname === '/results') {
       setActiveSection('results');
     }
-  }, []);
+    if (categoryParam) {
+      setActiveSection('contests');
+      setContestFilter(categoryParam);
+    }
+  }, [categoryParam]);
 
   useEffect(() => {
     const loadGalleryWorks = async () => {

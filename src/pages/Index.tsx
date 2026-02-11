@@ -435,6 +435,71 @@ const Index = () => {
             </div>
           </section>
 
+          <section className="mb-16">
+            <h3 className="text-4xl font-heading font-bold text-center mb-12 text-primary">🌟 Почему выбирают нас?</h3>
+            <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <Icon name="Award" className="text-white" size={32} />
+                </div>
+                <h4 className="text-xl font-heading font-bold text-center mb-3 text-primary">Официальные дипломы</h4>
+                <p className="text-center text-muted-foreground">
+                  Каждый участник получает красочный диплом в электронном виде — отличное пополнение портфолио! Дипломы соответствуют требованиям для школьных конкурсов и мероприятий.
+                </p>
+              </Card>
+
+              <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-secondary to-accent rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <Icon name="Zap" className="text-white" size={32} />
+                </div>
+                <h4 className="text-xl font-heading font-bold text-center mb-3 text-secondary">Быстрые результаты</h4>
+                <p className="text-center text-muted-foreground">
+                  Итоги конкурсов публикуются в течение 3-5 дней после окончания приема работ. Не нужно ждать месяцами — увидьте результат быстро!
+                </p>
+              </Card>
+
+              <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <Icon name="Trophy" className="text-white" size={32} />
+                </div>
+                <h4 className="text-xl font-heading font-bold text-center mb-3 text-accent">Широкий выбор номинаций</h4>
+                <p className="text-center text-muted-foreground">
+                  Более 50 различных конкурсов по изобразительному искусству, декоративно-прикладному творчеству, тематическим направлениям — каждый найдет что-то своё!
+                </p>
+              </Card>
+
+              <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-success to-info rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <Icon name="Wallet" className="text-white" size={32} />
+                </div>
+                <h4 className="text-xl font-heading font-bold text-center mb-3 text-success">Доступная стоимость</h4>
+                <p className="text-center text-muted-foreground">
+                  Всего от 200 ₽ за участие. Никаких скрытых платежей — стоимость фиксирована и указана заранее.
+                </p>
+              </Card>
+
+              <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-info to-primary rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <Icon name="Users" className="text-white" size={32} />
+                </div>
+                <h4 className="text-xl font-heading font-bold text-center mb-3 text-info">Для всех возрастов</h4>
+                <p className="text-center text-muted-foreground">
+                  Принимаем работы детей, подростков и взрослых. Участвовать могут и учащиеся художественных школ, и любители творчества!
+                </p>
+              </Card>
+
+              <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-success rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <Icon name="Smartphone" className="text-white" size={32} />
+                </div>
+                <h4 className="text-xl font-heading font-bold text-center mb-3 text-primary">Удобная подача работ</h4>
+                <p className="text-center text-muted-foreground">
+                  Заполните простую форму, загрузите фото работы — и готово! Всё онлайн, без поездок и бумажной волокиты.
+                </p>
+              </Card>
+            </div>
+          </section>
+
           <section>
             <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
             <div className="grid md:grid-cols-4 gap-6">

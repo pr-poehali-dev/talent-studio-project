@@ -569,9 +569,7 @@ const Index = () => {
             ) : contestFilter === "decorative-arts" ? (
               <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-decorative-arts">Всероссийские конкурсы декоративно-прикладного искусства</h3>
             ) : contestFilter === "nature" ? (
-              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-nature">
-                Конкурсы о природе ({contests.filter(c => c.categoryId === contestFilter).length})
-              </h3>
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-nature">Всероссийские конкурсы изобразительного и декоративно-прикладного искусства, посвященные теме природы</h3>
             ) : contestFilter === "animals" ? (
               <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-animals">
                 Конкурсы о животных ({contests.filter(c => c.categoryId === contestFilter).length})

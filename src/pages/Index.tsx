@@ -560,12 +560,39 @@ const Index = () => {
           </div>
 
           <div className="mb-6 max-w-5xl mx-auto">
-            <h3 className="text-3xl font-heading font-bold text-center text-primary">
-              {contestFilter === null 
-                ? `Все конкурсы (${contests.length})`
-                : `${contestCategories.find(c => c.id === contestFilter)?.heading} (${contests.filter(c => c.categoryId === contestFilter).length})`
-              }
-            </h3>
+            {contestFilter === null ? (
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-all">
+                Все конкурсы ({contests.length})
+              </h3>
+            ) : contestFilter === "visual-arts" ? (
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-visual-arts">
+                Конкурсы изобразительного искусства ({contests.filter(c => c.categoryId === contestFilter).length})
+              </h3>
+            ) : contestFilter === "decorative-arts" ? (
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-decorative-arts">
+                Конкурсы декоративно-прикладного искусства ({contests.filter(c => c.categoryId === contestFilter).length})
+              </h3>
+            ) : contestFilter === "nature" ? (
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-nature">
+                Конкурсы о природе ({contests.filter(c => c.categoryId === contestFilter).length})
+              </h3>
+            ) : contestFilter === "animals" ? (
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-animals">
+                Конкурсы о животных ({contests.filter(c => c.categoryId === contestFilter).length})
+              </h3>
+            ) : contestFilter === "plants" ? (
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-plants">
+                Конкурсы о растениях ({contests.filter(c => c.categoryId === contestFilter).length})
+              </h3>
+            ) : contestFilter === "holidays" ? (
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-holidays">
+                Праздничные конкурсы ({contests.filter(c => c.categoryId === contestFilter).length})
+              </h3>
+            ) : contestFilter === "thematic" ? (
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-thematic">
+                Тематические конкурсы ({contests.filter(c => c.categoryId === contestFilter).length})
+              </h3>
+            ) : null}
           </div>
 
           <div className="space-y-6 max-w-5xl mx-auto">

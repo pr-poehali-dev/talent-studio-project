@@ -561,9 +561,8 @@ const Index = () => {
 
           <div className="mb-6 max-w-5xl mx-auto">
             {contestFilter === null ? (
-              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-all">
-                Все конкурсы ({contests.length})
-              </h3>
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-all">Всероссийские конкурсы изобразительного и 
+декоративно-прикладного искусства</h3>
             ) : contestFilter === "visual-arts" ? (
               <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-visual-arts">Всероссийские конкурсы изобразительного искусства</h3>
             ) : contestFilter === "decorative-arts" ? (

@@ -559,6 +559,15 @@ const Index = () => {
             </div>
           </div>
 
+          <div className="mb-6 max-w-5xl mx-auto">
+            <h3 className="text-3xl font-heading font-bold text-center text-primary">
+              {contestFilter === null 
+                ? `Все конкурсы (${contests.length})`
+                : `${contestCategories.find(c => c.id === contestFilter)?.label} (${contests.filter(c => c.categoryId === contestFilter).length})`
+              }
+            </h3>
+          </div>
+
           <div className="space-y-6 max-w-5xl mx-auto">
             {contests
               .filter(contest => !contestFilter || contest.categoryId === contestFilter)

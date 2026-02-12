@@ -227,13 +227,13 @@ const Index = () => {
   ];
 
   const contestCategories = [
-    { id: "visual-arts", label: "Конкурсы изобразительного искусства", icon: "Palette" },
-    { id: "decorative-arts", label: "Конкурсы декоративно-прикладного искусства", icon: "Scissors" },
-    { id: "nature", label: "Конкурсы, посвященные теме природы", icon: "TreePine" },
-    { id: "animals", label: "Конкурсы, посвященные теме животных", icon: "PawPrint" },
-    { id: "plants", label: "Конкурсы, посвященные теме растений", icon: "Flower2" },
-    { id: "holidays", label: "Конкурсы, посвященные теме праздников", icon: "PartyPopper" },
-    { id: "thematic", label: "Тематические конкурсы ИЗО и творчества", icon: "Sparkles" },
+    { id: "visual-arts", label: "Конкурсы изобразительного искусства", icon: "Palette", heading: "Конкурсы изобразительного искусства" },
+    { id: "decorative-arts", label: "Конкурсы декоративно-прикладного искусства", icon: "Scissors", heading: "Конкурсы декоративно-прикладного искусства" },
+    { id: "nature", label: "Конкурсы, посвященные теме природы", icon: "TreePine", heading: "Конкурсы о природе" },
+    { id: "animals", label: "Конкурсы, посвященные теме животных", icon: "PawPrint", heading: "Конкурсы о животных" },
+    { id: "plants", label: "Конкурсы, посвященные теме растений", icon: "Flower2", heading: "Конкурсы о растениях" },
+    { id: "holidays", label: "Конкурсы, посвященные теме праздников", icon: "PartyPopper", heading: "Праздничные конкурсы" },
+    { id: "thematic", label: "Тематические конкурсы ИЗО и творчества", icon: "Sparkles", heading: "Тематические конкурсы" },
   ];
 
   const getCategoryIcon = (categoryId: string) => {
@@ -563,7 +563,7 @@ const Index = () => {
             <h3 className="text-3xl font-heading font-bold text-center text-primary">
               {contestFilter === null 
                 ? `Все конкурсы (${contests.length})`
-                : `${contestCategories.find(c => c.id === contestFilter)?.label} (${contests.filter(c => c.categoryId === contestFilter).length})`
+                : `${contestCategories.find(c => c.id === contestFilter)?.heading} (${contests.filter(c => c.categoryId === contestFilter).length})`
               }
             </h3>
           </div>

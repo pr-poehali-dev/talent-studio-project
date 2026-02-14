@@ -485,9 +485,7 @@ const Index = () => {
                   <Icon name="Smartphone" className="text-white" size={32} />
                 </div>
                 <h4 className="text-xl font-heading font-bold text-center mb-3 text-primary">Удобная подача работ</h4>
-                <p className="text-center text-muted-foreground">
-                  Заполните простую форму, загрузите фото работы — и готово! Всё онлайн, без поездок и бумажной волокиты.
-                </p>
+                <p className="text-center text-muted-foreground">Заполните простую форму, загрузите фото работы — и готово! </p>
               </Card>
             </div>
           </section>

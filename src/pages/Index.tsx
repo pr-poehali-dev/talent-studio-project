@@ -449,7 +449,7 @@ const Index = () => {
                   <Icon name="Zap" className="text-white" size={32} />
                 </div>
                 <h4 className="text-xl font-heading font-bold text-center mb-3 text-secondary">Быстрые результаты</h4>
-                <p className="text-center text-muted-foreground">Итоги конкурсов публикуются в течение 1-2 дней после принятия заявки на участие. Не нужно ждать месяцами — увидьте результат быстро!</p>
+                <p className="text-center text-muted-foreground">Итоги конкурсов публикуются в течение 1-2 дней после принятия заявки на участие. </p>
               </Card>
 
               <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">

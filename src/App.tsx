@@ -22,6 +22,11 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/results" element={<Index />} />
           <Route path="/shop" element={<Navigate to="/?section=shop" replace />} />
+          <Route path="/gallery" element={<Navigate to="/?section=gallery" replace />} />
+          <Route path="/documents" element={<Navigate to="/?section=documents" replace />} />
+          <Route path="/reviews" element={<Navigate to="/?section=reviews" replace />} />
+          <Route path="/about" element={<Navigate to="/?section=about" replace />} />
+          <Route path="/contests" element={<Navigate to="/?section=contests" replace />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -21,7 +21,10 @@ def handler(event: dict, context) -> dict:
     
     if method == 'POST':
         try:
-            body = json.loads(event.get('body', '{}'))
+            raw_body = event.get('body', '{}')
+            if event.get('isBase64Encoded'):
+                raw_body = base64.b64decode(raw_body).decode('utf-8')
+            body = json.loads(raw_body)
             
             full_name = body.get('full_name')
             age = body.get('age')
@@ -91,6 +94,8 @@ def handler(event: dict, context) -> dict:
             }
             
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             return {
                 'statusCode': 500,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

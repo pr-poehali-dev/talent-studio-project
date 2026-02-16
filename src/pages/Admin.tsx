@@ -85,6 +85,7 @@ const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2
 const UPLOAD_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
 const RESULTS_API_URL = "https://functions.poehali.dev/e1f9698c-ec8a-4b24-89c2-72bb579d7f9b";
 const APPLICATIONS_API_URL = "https://functions.poehali.dev/ff2c7334-750b-418e-8468-152fae1d68ef";
+const SUBMIT_APPLICATION_URL = "https://functions.poehali.dev/2d352955-9c6c-4bbb-ad1e-944c7ea04d84";
 const REVIEWS_API_URL = "https://functions.poehali.dev/3daafc39-174c-4669-8e8a-71172a246929";
 
 const Admin = () => {
@@ -130,6 +131,10 @@ const Admin = () => {
   });
   const [uploadingRules, setUploadingRules] = useState(false);
   const [uploadingDiploma, setUploadingDiploma] = useState(false);
+  const [isManualAppModalOpen, setIsManualAppModalOpen] = useState(false);
+  const [manualAppFile, setManualAppFile] = useState<File | null>(null);
+  const [manualContestName, setManualContestName] = useState("");
+  const [submittingManualApp, setSubmittingManualApp] = useState(false);
   const { toast } = useToast();
 
   const categories = [
@@ -530,6 +535,58 @@ const Admin = () => {
     }
   };
 
+  const handleManualAppSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualAppFile) {
+      toast({ title: "Ошибка", description: "Загрузите файл работы", variant: "destructive" });
+      return;
+    }
+    if (!manualContestName) {
+      toast({ title: "Ошибка", description: "Выберите конкурс", variant: "destructive" });
+      return;
+    }
+    setSubmittingManualApp(true);
+    try {
+      const formEl = e.currentTarget as HTMLFormElement;
+      const fd = new FormData(formEl);
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64File = reader.result?.toString().split(',')[1];
+        const response = await fetch(SUBMIT_APPLICATION_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            full_name: fd.get('manualFullName'),
+            age: parseInt(fd.get('manualAge') as string),
+            teacher: fd.get('manualTeacher') || null,
+            institution: fd.get('manualInstitution') || null,
+            work_title: fd.get('manualWorkTitle'),
+            email: fd.get('manualEmail'),
+            contest_name: manualContestName,
+            work_file: base64File,
+            file_name: manualAppFile.name,
+            file_type: manualAppFile.type,
+            gallery_consent: fd.get('manualGallery') === 'on'
+          })
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+          toast({ title: "Успешно", description: "Заявка добавлена вручную" });
+          setIsManualAppModalOpen(false);
+          setManualAppFile(null);
+          loadApplications();
+        } else {
+          toast({ title: "Ошибка", description: result.error || "Не удалось создать заявку", variant: "destructive" });
+        }
+        setSubmittingManualApp(false);
+      };
+      reader.readAsDataURL(manualAppFile);
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Произошла ошибка при создании заявки", variant: "destructive" });
+      setSubmittingManualApp(false);
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 flex items-center justify-center p-4">
@@ -699,6 +756,13 @@ const Admin = () => {
           <div>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-3xl font-heading font-bold text-primary">Заявки на участие</h2>
+              <Button
+                onClick={() => { setManualAppFile(null); setManualContestName(""); setIsManualAppModalOpen(true); }}
+                className="rounded-xl bg-primary hover:bg-primary/90"
+              >
+                <Icon name="Plus" className="mr-2" size={16} />
+                Добавить заявку
+              </Button>
             </div>
             
             <div className="flex gap-2 mb-6">
@@ -1826,6 +1890,108 @@ const Admin = () => {
               />
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isManualAppModalOpen} onOpenChange={setIsManualAppModalOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-heading font-bold text-primary">
+              Добавить заявку вручную
+            </DialogTitle>
+          </DialogHeader>
+          
+          <form onSubmit={handleManualAppSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>ФИО участника *</Label>
+              <Input name="manualFullName" placeholder="Введите ФИО участника" required className="rounded-xl" />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Возраст *</Label>
+              <Input name="manualAge" type="number" min="5" max="18" placeholder="Введите возраст" required className="rounded-xl" />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Педагог</Label>
+              <Input name="manualTeacher" placeholder="ФИО педагога (если есть)" className="rounded-xl" />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Учреждение</Label>
+              <Input name="manualInstitution" placeholder="Название школы, студии или учреждения" className="rounded-xl" />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Название творческой работы *</Label>
+              <Input name="manualWorkTitle" placeholder="Введите название работы" required className="rounded-xl" />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Электронная почта *</Label>
+              <Input name="manualEmail" type="email" placeholder="example@mail.ru" required className="rounded-xl" />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Конкурс *</Label>
+              <Select value={manualContestName} onValueChange={setManualContestName}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="Выберите конкурс" />
+                </SelectTrigger>
+                <SelectContent>
+                  {contests.map((c) => (
+                    <SelectItem key={c.id || c.title} value={c.title}>{c.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Загрузить работу *</Label>
+              <Input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => setManualAppFile(e.target.files?.[0] || null)}
+                className="rounded-xl h-10"
+              />
+              {manualAppFile && (
+                <div className="flex items-center gap-2 p-2 bg-green-50 rounded-xl text-sm">
+                  <Icon name="CheckCircle" className="text-green-600" size={16} />
+                  <span className="text-green-700 font-semibold">{manualAppFile.name}</span>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">Форматы: JPG, PNG, PDF (макс. 10 МБ)</p>
+            </div>
+
+            <div className="flex items-center space-x-2 p-3 bg-accent/10 rounded-xl">
+              <Checkbox id="manualGallery" name="manualGallery" />
+              <Label htmlFor="manualGallery" className="text-sm cursor-pointer">
+                Согласие на публикацию работы в галерее сайта
+              </Label>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <Button
+                type="submit"
+                disabled={submittingManualApp}
+                className="flex-1 rounded-xl bg-primary hover:bg-primary/90"
+              >
+                {submittingManualApp ? (
+                  <><Icon name="Loader2" className="mr-2 animate-spin" size={16} />Создание...</>
+                ) : (
+                  <><Icon name="Plus" className="mr-2" size={16} />Создать заявку</>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsManualAppModalOpen(false)}
+                className="flex-1 rounded-xl"
+              >
+                Отмена
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

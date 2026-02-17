@@ -852,6 +852,17 @@ const Admin = () => {
                             {app.gallery_consent ? '✓ Согласен' : '✗ Не согласен'}
                           </span>
                         </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Дата выдачи диплома</p>
+                          <p className="font-semibold text-sm">
+                            {(() => {
+                              const r = results.find(r => r.application_id === app.id);
+                              return r?.diploma_issued_at
+                                ? new Date(r.diploma_issued_at).toLocaleDateString('ru-RU')
+                                : '—';
+                            })()}
+                          </p>
+                        </div>
                       </div>
                       <div className="flex gap-2 ml-4">
                         <Button

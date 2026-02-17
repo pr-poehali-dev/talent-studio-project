@@ -41,6 +41,7 @@ interface PublicResult {
   contest_name: string;
   result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant';
   work_file_url: string;
+  diploma_issued_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -192,7 +193,8 @@ const Index = () => {
 
     if (resultFilters.date) {
       filtered = filtered.filter(r => {
-        const resultDate = new Date(r.created_at);
+        if (!r.diploma_issued_at) return false;
+        const resultDate = new Date(r.diploma_issued_at);
         const filterDate = new Date(resultFilters.date!);
         return resultDate.toDateString() === filterDate.toDateString();
       });
@@ -711,7 +713,7 @@ const Index = () => {
           <div className="max-w-7xl mx-auto mb-8 bg-white rounded-lg shadow-sm border p-6">
             <div className="grid md:grid-cols-4 gap-4">
               <div>
-                <Label className="text-sm font-medium mb-2 block">Дата участия</Label>
+                <Label className="text-sm font-medium mb-2 block">Дата выдачи диплома</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-start text-left font-normal">
@@ -777,7 +779,7 @@ const Index = () => {
             ) : (
               <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
                 <div className="hidden md:grid gap-4 p-4 bg-gray-50 border-b font-semibold text-sm" style={{gridTemplateColumns: '120px 2fr 60px 1.5fr 1.5fr 1.5fr 2.5fr'}}>
-                  <div>Дата участия</div>
+                  <div>Дата выдачи диплома</div>
                   <div>ФИО участника</div>
                   <div>Возраст</div>
                   <div>Конкурс</div>
@@ -790,8 +792,8 @@ const Index = () => {
                   {filteredResults.map((result, index) => (
                     <div key={result.id} className="grid gap-4 p-4 hover:bg-gray-50 transition-colors md:grid-cols-[120px_2fr_60px_1.5fr_1.5fr_1.5fr_2.5fr]">
                       <div className="text-sm">
-                        <span className="md:hidden font-semibold text-muted-foreground">Дата участия: </span>
-                        {new Date(result.created_at).toLocaleDateString('ru-RU')}
+                        <span className="md:hidden font-semibold text-muted-foreground">Дата выдачи диплома: </span>
+                        {result.diploma_issued_at ? new Date(result.diploma_issued_at).toLocaleDateString('ru-RU') : '—'}
                       </div>
                       <div className="text-sm font-medium">
                         <span className="md:hidden font-semibold text-muted-foreground">ФИО: </span>

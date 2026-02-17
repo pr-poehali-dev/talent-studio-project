@@ -36,7 +36,7 @@ def handler(event: dict, context) -> dict:
                 SELECT 
                     id, full_name, age, teacher, institution,
                     work_title, contest_name, result, work_file_url,
-                    created_at, updated_at
+                    diploma_issued_at, created_at, updated_at
                 FROM results 
                 WHERE gallery_consent = true
                 ORDER BY created_at DESC
@@ -44,6 +44,7 @@ def handler(event: dict, context) -> dict:
             results = cur.fetchall()
             
             for result in results:
+                result['diploma_issued_at'] = result['diploma_issued_at'].isoformat() if result.get('diploma_issued_at') else None
                 result['created_at'] = result['created_at'].isoformat() if result.get('created_at') else None
                 result['updated_at'] = result['updated_at'].isoformat() if result.get('updated_at') else None
             

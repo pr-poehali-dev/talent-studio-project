@@ -25,7 +25,7 @@
           "work_title": "Тестовая работа",
           "email": "test@example.com",
           "contest_name": "Зимняя сказка",
-          "work_file": "base64encodedfile",
+          "work_file": "dGVzdGZpbGVjb250ZW50",
           "file_name": "test.jpg",
           "file_type": "image/jpeg",
           "gallery_consent": true

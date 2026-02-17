@@ -2,13 +2,12 @@ import json
 import os
 import uuid
 import requests
-import psycopg2
 import boto3
 import base64
 from base64 import b64encode
 
 def handler(event: dict, context) -> dict:
-    '''API для создания платежа через ЮКассу'''
+    '''API для создания платежа через ЮКассу. Заявка сохраняется в БД только после успешной оплаты (через webhook).'''
     
     method = event.get('httpMethod', 'GET')
     
@@ -42,14 +41,14 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            database_url = os.environ.get('DATABASE_URL')
-            if not database_url:
-                return {
-                    'statusCode': 500,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Database not configured'}),
-                    'isBase64Encoded': False
-                }
+            aws_access_key = os.environ.get('AWS_ACCESS_KEY_ID')
+            aws_secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+            
+            s3 = boto3.client('s3',
+                endpoint_url='https://bucket.poehali.dev',
+                aws_access_key_id=aws_access_key,
+                aws_secret_access_key=aws_secret_key
+            )
             
             work_file_url = ''
             work_file = application_data.get('work_file')
@@ -57,60 +56,40 @@ def handler(event: dict, context) -> dict:
             file_type = application_data.get('file_type')
             
             if work_file and file_name:
-                try:
-                    aws_access_key = os.environ.get('AWS_ACCESS_KEY_ID')
-                    aws_secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-                    
-                    s3 = boto3.client('s3',
-                        endpoint_url='https://bucket.poehali.dev',
-                        aws_access_key_id=aws_access_key,
-                        aws_secret_access_key=aws_secret_key
-                    )
-                    
-                    file_data = base64.b64decode(work_file)
-                    file_key = f'works/{file_name}'
-                    
-                    s3.put_object(
-                        Bucket='files',
-                        Key=file_key,
-                        Body=file_data,
-                        ContentType=file_type
-                    )
-                    
-                    work_file_url = f"https://cdn.poehali.dev/projects/{aws_access_key}/bucket/{file_key}"
-                except Exception as s3_error:
-                    print(f"S3 upload error: {s3_error}")
-            
-            conn = psycopg2.connect(database_url)
-            cur = conn.cursor()
-            
-            cur.execute(
-                '''INSERT INTO applications 
-                   (full_name, age, teacher, institution, work_title, email, contest_name, 
-                    work_file, file_name, file_type, gallery_consent, payment_status, work_file_url, created_at)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
-                   RETURNING id''',
-                (
-                    application_data.get('full_name'),
-                    application_data.get('age'),
-                    application_data.get('teacher'),
-                    application_data.get('institution'),
-                    application_data.get('work_title'),
-                    application_data.get('email'),
-                    application_data.get('contest_name'),
-                    work_file,
-                    file_name,
-                    file_type,
-                    application_data.get('gallery_consent', False),
-                    'pending',
-                    work_file_url
+                file_data = base64.b64decode(work_file)
+                file_key = f'works/{uuid.uuid4()}_{file_name}'
+                
+                s3.put_object(
+                    Bucket='files',
+                    Key=file_key,
+                    Body=file_data,
+                    ContentType=file_type
                 )
-            )
+                
+                work_file_url = f"https://cdn.poehali.dev/projects/{aws_access_key}/bucket/{file_key}"
             
-            application_id = cur.fetchone()[0]
-            conn.commit()
-            cur.close()
-            conn.close()
+            pending_id = str(uuid.uuid4())
+            
+            pending_data = {
+                'full_name': application_data.get('full_name'),
+                'age': application_data.get('age'),
+                'teacher': application_data.get('teacher'),
+                'institution': application_data.get('institution'),
+                'work_title': application_data.get('work_title'),
+                'email': application_data.get('email'),
+                'contest_name': application_data.get('contest_name'),
+                'file_name': file_name,
+                'file_type': file_type,
+                'gallery_consent': application_data.get('gallery_consent', False),
+                'work_file_url': work_file_url
+            }
+            
+            s3.put_object(
+                Bucket='files',
+                Key=f'pending_applications/{pending_id}.json',
+                Body=json.dumps(pending_data, ensure_ascii=False),
+                ContentType='application/json'
+            )
             
             shop_id = os.environ.get('YOOKASSA_SHOP_ID')
             secret_key = os.environ.get('YOOKASSA_SECRET_KEY')
@@ -140,7 +119,7 @@ def handler(event: dict, context) -> dict:
                 "capture": True,
                 "description": description,
                 "metadata": {
-                    "application_id": str(application_id)
+                    "pending_id": pending_id
                 }
             }
             
@@ -169,15 +148,6 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             else:
-                try:
-                    cleanup_conn = psycopg2.connect(database_url)
-                    cleanup_cur = cleanup_conn.cursor()
-                    cleanup_cur.execute('DELETE FROM applications WHERE id = %s', (application_id,))
-                    cleanup_conn.commit()
-                    cleanup_cur.close()
-                    cleanup_conn.close()
-                except Exception:
-                    pass
                 return {
                     'statusCode': response.status_code,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -186,16 +156,6 @@ def handler(event: dict, context) -> dict:
                 }
                 
         except Exception as e:
-            if 'application_id' in dir() and 'database_url' in dir():
-                try:
-                    cleanup_conn = psycopg2.connect(database_url)
-                    cleanup_cur = cleanup_conn.cursor()
-                    cleanup_cur.execute('DELETE FROM applications WHERE id = %s', (application_id,))
-                    cleanup_conn.commit()
-                    cleanup_cur.close()
-                    cleanup_conn.close()
-                except Exception:
-                    pass
             return {
                 'statusCode': 500,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

@@ -9,22 +9,20 @@
       "bodyMatcher": "exact"
     },
     {
-      "name": "Test payment.succeeded webhook",
+      "name": "Test ignored event type",
       "method": "POST",
       "path": "/",
       "body": {
-        "event": "payment.succeeded",
+        "event": "payment.canceled",
         "object": {
           "id": "test-payment-id",
-          "status": "succeeded",
-          "metadata": {
-            "application_id": "1"
-          }
+          "status": "canceled",
+          "metadata": {}
         }
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "status": "string"
+        "status": "ignored"
       },
       "bodyMatcher": "partial"
     }

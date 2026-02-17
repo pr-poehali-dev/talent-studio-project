@@ -225,8 +225,8 @@ const Index = () => {
     { id: "results", label: "Итоги", icon: "Award" },
     { id: "shop", label: "Магазин", icon: "ShoppingBag" },
     { id: "reviews", label: "Отзывы", icon: "MessageSquare" },
-    { id: "about", label: "О нас", icon: "Users" },
     { id: "designer", label: "Услуги дизайнера", icon: "PenTool" },
+    { id: "about", label: "О нас", icon: "Users" },
   ];
 
   const contestCategories = [

@@ -1038,7 +1038,7 @@ const Index = () => {
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
                 <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                  <div className="h-48 overflow-hidden">
+                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => { setImagePreview("https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/7f67c92e-7c9f-4693-9b5c-92d2659ee74a.jpg"); setIsImageModalOpen(true); }}>
                     <img 
                       src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/7f67c92e-7c9f-4693-9b5c-92d2659ee74a.jpg" 
                       alt="Афиши и анонсы" 
@@ -1059,7 +1059,7 @@ const Index = () => {
                 </Card>
 
                 <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                  <div className="h-48 overflow-hidden">
+                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => { setImagePreview("https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/0759c799-d612-4cdf-9c5f-89383ed43558.jpg"); setIsImageModalOpen(true); }}>
                     <img 
                       src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/0759c799-d612-4cdf-9c5f-89383ed43558.jpg" 
                       alt="Дипломы и грамоты" 
@@ -1080,7 +1080,7 @@ const Index = () => {
                 </Card>
 
                 <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                  <div className="h-48 overflow-hidden">
+                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => { setImagePreview("https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/1d0a1cce-ff11-4433-a55c-79a222878f38.jpg"); setIsImageModalOpen(true); }}>
                     <img 
                       src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/1d0a1cce-ff11-4433-a55c-79a222878f38.jpg" 
                       alt="Благодарственные письма" 

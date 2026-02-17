@@ -169,6 +169,15 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             else:
+                try:
+                    cleanup_conn = psycopg2.connect(database_url)
+                    cleanup_cur = cleanup_conn.cursor()
+                    cleanup_cur.execute('DELETE FROM applications WHERE id = %s', (application_id,))
+                    cleanup_conn.commit()
+                    cleanup_cur.close()
+                    cleanup_conn.close()
+                except Exception:
+                    pass
                 return {
                     'statusCode': response.status_code,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -177,6 +186,16 @@ def handler(event: dict, context) -> dict:
                 }
                 
         except Exception as e:
+            if 'application_id' in dir() and 'database_url' in dir():
+                try:
+                    cleanup_conn = psycopg2.connect(database_url)
+                    cleanup_cur = cleanup_conn.cursor()
+                    cleanup_cur.execute('DELETE FROM applications WHERE id = %s', (application_id,))
+                    cleanup_conn.commit()
+                    cleanup_cur.close()
+                    cleanup_conn.close()
+                except Exception:
+                    pass
             return {
                 'statusCode': 500,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

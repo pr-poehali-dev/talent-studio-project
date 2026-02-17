@@ -86,6 +86,7 @@ const Index = () => {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [applicationFormUrl, setApplicationFormUrl] = useState<string | null>(null);
   const [showContestsDropdown, setShowContestsDropdown] = useState(false);
   const [contestFilter, setContestFilter] = useState<string | null>(categoryParam);
   const [contests, setContests] = useState<Contest[]>([]);
@@ -124,6 +125,8 @@ const Index = () => {
       setActiveSection('contests');
       setContestFilter(categoryParam);
     }
+    const savedFormUrl = localStorage.getItem('applicationFormUrl');
+    if (savedFormUrl) setApplicationFormUrl(savedFormUrl);
   }, [categoryParam]);
 
   useEffect(() => {
@@ -680,6 +683,28 @@ const Index = () => {
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">📄 Документы</h2>
           <div className="max-w-3xl mx-auto space-y-4">
+            {applicationFormUrl && (
+              <Card
+                className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-x-2 rounded-2xl cursor-pointer border-2 border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5 mb-6"
+                onClick={() => {
+                  setPdfUrl(applicationFormUrl);
+                  setIsPdfModalOpen(true);
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
+                      <Icon name="ClipboardList" className="text-white" size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-heading font-semibold">Лист подачи заявки</h3>
+                      <p className="text-sm text-muted-foreground">Бланк заявки для участия в конкурсе</p>
+                    </div>
+                  </div>
+                  <Icon name="ExternalLink" className="text-primary" size={24} />
+                </div>
+              </Card>
+            )}
             {contests
               .filter(c => c.rulesLink && c.rulesLink !== '#')
               .sort((a, b) => a.title.localeCompare(b.title, 'ru'))

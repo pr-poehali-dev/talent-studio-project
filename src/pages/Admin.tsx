@@ -854,7 +854,7 @@ const Admin = () => {
                           </span>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Дата выдачи диплома</p>
+                          <p className="text-xs text-muted-foreground">Дата вручения</p>
                           <p className="font-semibold text-sm">
                             {app.diploma_issued_at
                               ? new Date(app.diploma_issued_at).toLocaleDateString('ru-RU')
@@ -1134,7 +1134,7 @@ const Admin = () => {
                           </div>
                           {result.diploma_issued_at && (
                             <div>
-                              <p className="text-xs text-muted-foreground">Дата выдачи диплома</p>
+                              <p className="text-xs text-muted-foreground">Дата вручения</p>
                               <p className="font-semibold text-sm">{new Date(result.diploma_issued_at).toLocaleDateString('ru-RU')}</p>
                             </div>
                           )}
@@ -1680,7 +1680,7 @@ const Admin = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="diplomaIssuedAt" className="text-base font-semibold">Дата выдачи диплома</Label>
+                <Label htmlFor="diplomaIssuedAt" className="text-base font-semibold">Дата вручения</Label>
                 <Input
                   id="diplomaIssuedAt"
                   name="diplomaIssuedAt"
@@ -1874,7 +1874,7 @@ const Admin = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Дата выдачи диплома</Label>
+                <Label>Дата вручения</Label>
                 <Input
                   type="date"
                   value={editingResult.diploma_issued_at || ''}

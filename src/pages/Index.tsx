@@ -1040,7 +1040,7 @@ const Index = () => {
                 <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                   <div className="h-48 overflow-hidden">
                     <img 
-                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/files/0ae55feb-0c72-4aab-a935-80c4df26cb39.jpg" 
+                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/7f67c92e-7c9f-4693-9b5c-92d2659ee74a.jpg" 
                       alt="Афиши и анонсы" 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -1061,7 +1061,7 @@ const Index = () => {
                 <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                   <div className="h-48 overflow-hidden">
                     <img 
-                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/files/de434b59-56cd-4ec9-94e0-b7f200f1ceb0.jpg" 
+                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/0759c799-d612-4cdf-9c5f-89383ed43558.jpg" 
                       alt="Дипломы и грамоты" 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -1082,7 +1082,7 @@ const Index = () => {
                 <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                   <div className="h-48 overflow-hidden">
                     <img 
-                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/files/7e7f4212-0ced-4677-8bf2-b4456154b12b.jpg" 
+                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/1d0a1cce-ff11-4433-a55c-79a222878f38.jpg" 
                       alt="Благодарственные письма" 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />

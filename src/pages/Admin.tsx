@@ -42,6 +42,7 @@ interface Application {
   status: 'new' | 'viewed' | 'sent';
   result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant' | null;
   gallery_consent: boolean;
+  diploma_issued_at: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -855,12 +856,9 @@ const Admin = () => {
                         <div>
                           <p className="text-xs text-muted-foreground">Дата выдачи диплома</p>
                           <p className="font-semibold text-sm">
-                            {(() => {
-                              const r = results.find(r => r.application_id === app.id);
-                              return r?.diploma_issued_at
-                                ? new Date(r.diploma_issued_at).toLocaleDateString('ru-RU')
-                                : '—';
-                            })()}
+                            {app.diploma_issued_at
+                              ? new Date(app.diploma_issued_at).toLocaleDateString('ru-RU')
+                              : '—'}
                           </p>
                         </div>
                       </div>
@@ -1560,6 +1558,7 @@ const Admin = () => {
                 const formData = new FormData(e.currentTarget);
                 
                 try {
+                  const diplomaDate = formData.get('diplomaIssuedAt') as string;
                   const updateData = {
                     id: editingApplication.id,
                     full_name: formData.get('fullName') as string,
@@ -1568,7 +1567,8 @@ const Admin = () => {
                     institution: formData.get('institution') as string || null,
                     work_title: formData.get('workTitle') as string,
                     email: formData.get('email') as string,
-                    result: appResult && appResult !== 'none' ? appResult : null
+                    result: appResult && appResult !== 'none' ? appResult : null,
+                    diploma_issued_at: diplomaDate || null
                   };
                   
                   const response = await fetch(APPLICATIONS_API_URL, {
@@ -1677,6 +1677,17 @@ const Admin = () => {
                     <SelectItem value="participant">Участник</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="diplomaIssuedAt" className="text-base font-semibold">Дата выдачи диплома</Label>
+                <Input
+                  id="diplomaIssuedAt"
+                  name="diplomaIssuedAt"
+                  type="date"
+                  defaultValue={editingApplication.diploma_issued_at || ''}
+                  className="rounded-xl border-2 focus:border-primary"
+                />
               </div>
 
               <div className="space-y-2">

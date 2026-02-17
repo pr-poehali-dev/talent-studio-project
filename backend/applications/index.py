@@ -40,7 +40,7 @@ def handler(event: dict, context) -> dict:
                     cursor.execute("""
                         SELECT id, full_name, age, teacher, institution, work_title, 
                                email, contest_id, contest_name, work_file_url, 
-                               status, result, gallery_consent, created_at, updated_at, deleted_at
+                               status, result, gallery_consent, created_at, updated_at, deleted_at, diploma_issued_at
                         FROM applications
                         WHERE deleted_at IS NOT NULL
                         ORDER BY deleted_at DESC
@@ -49,7 +49,7 @@ def handler(event: dict, context) -> dict:
                     cursor.execute("""
                         SELECT id, full_name, age, teacher, institution, work_title, 
                                email, contest_id, contest_name, work_file_url, 
-                               status, result, gallery_consent, created_at, updated_at, deleted_at
+                               status, result, gallery_consent, created_at, updated_at, deleted_at, diploma_issued_at
                         FROM applications
                         WHERE deleted_at IS NULL
                         ORDER BY created_at DESC
@@ -83,12 +83,10 @@ def handler(event: dict, context) -> dict:
                         'result': row[11],
                         'gallery_consent': row[12],
                         'created_at': row[13].isoformat() if row[13] else None,
-                        'updated_at': row[14].isoformat() if row[14] else None
+                        'updated_at': row[14].isoformat() if row[14] else None,
+                        'deleted_at': row[15].isoformat() if row[15] else None,
+                        'diploma_issued_at': row[16].isoformat() if len(row) > 16 and row[16] else None
                     }
-                    if len(row) > 15:
-                        app_data['deleted_at'] = row[15].isoformat() if row[15] else None
-                    else:
-                        app_data['deleted_at'] = None
                 else:
                     app_data = {
                         'id': row[0],
@@ -145,7 +143,7 @@ def handler(event: dict, context) -> dict:
                 UPDATE applications 
                 SET full_name = %s, age = %s, teacher = %s, institution = %s,
                     work_title = %s, email = %s, status = %s, result = %s,
-                    updated_at = CURRENT_TIMESTAMP
+                    diploma_issued_at = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
             """, (
                 body.get('full_name'),
@@ -156,6 +154,7 @@ def handler(event: dict, context) -> dict:
                 body.get('email'),
                 body.get('status'),
                 body.get('result'),
+                body.get('diploma_issued_at'),
                 app_id
             ))
             

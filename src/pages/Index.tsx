@@ -1190,9 +1190,15 @@ const Index = () => {
                     </Button>
                   </a>
                   <a href="https://vk.com/studio.talantov" target="_blank" rel="noopener noreferrer">
-                    <Button size="lg" variant="outline" className="text-lg px-8 py-6 rounded-2xl border-white/30 text-white hover:bg-white/10">
+                    <Button size="lg" className="text-lg px-8 py-6 rounded-2xl bg-[#0077FF] hover:bg-[#0066DD] text-white shadow-xl">
                       <Icon name="MessageCircle" className="mr-2" size={20} />
                       Написать в ВК
+                    </Button>
+                  </a>
+                  <a href="tel:+79082433179">
+                    <Button size="lg" variant="outline" className="text-lg px-8 py-6 rounded-2xl border-white/30 text-white hover:bg-white/10">
+                      <Icon name="Phone" className="mr-2" size={20} />
+                      Позвонить
                     </Button>
                   </a>
                 </div>

@@ -73,8 +73,8 @@ def handler(event: dict, context) -> dict:
             
             cursor.execute("""
                 INSERT INTO applications 
-                (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, status, gallery_consent)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'new', %s)
+                (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, status, gallery_consent, payment_status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'new', %s, 'paid')
                 RETURNING id
             """, (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, gallery_consent))
             

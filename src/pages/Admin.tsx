@@ -506,7 +506,7 @@ const Admin = () => {
           score: null,
           diploma_url: null,
           notes: null,
-          diploma_issued_at: null
+          diploma_issued_at: app.diploma_issued_at || null
         })
       });
 

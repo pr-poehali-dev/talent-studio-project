@@ -1358,13 +1358,13 @@ const Admin = () => {
                 Лист подачи заявки
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Загрузите PDF-файл листа подачи заявки. Он будет отображаться в разделе «Документы» на сайте.
+                Загрузите файл листа подачи заявки (DOCX, DOC или PDF). Он будет доступен для скачивания в разделе «Документы» на сайте.
               </p>
               <div className="space-y-3">
                 <div className="flex gap-2">
                   <Input
                     type="file"
-                    accept=".pdf"
+                    accept=".docx,.doc,.pdf"
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
@@ -1379,7 +1379,7 @@ const Admin = () => {
                             body: JSON.stringify({
                               file: base64,
                               fileName: file.name,
-                              fileType: 'application/pdf',
+                              fileType: file.type || 'application/octet-stream',
                               folder: 'application-forms'
                             })
                           });

@@ -65,6 +65,7 @@ interface Result {
   diploma_url: string | null;
   notes: string | null;
   gallery_consent: boolean;
+  diploma_issued_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -503,7 +504,8 @@ const Admin = () => {
           place: null,
           score: null,
           diploma_url: null,
-          notes: null
+          notes: null,
+          diploma_issued_at: null
         })
       });
 
@@ -1121,6 +1123,12 @@ const Admin = () => {
                               {result.gallery_consent ? '✓ Согласен' : '✗ Не согласен'}
                             </span>
                           </div>
+                          {result.diploma_issued_at && (
+                            <div>
+                              <p className="text-xs text-muted-foreground">Дата выдачи диплома</p>
+                              <p className="font-semibold text-sm">{new Date(result.diploma_issued_at).toLocaleDateString('ru-RU')}</p>
+                            </div>
+                          )}
                         </div>
                         <div className="flex gap-2 ml-4">
                           <Button
@@ -1839,6 +1847,16 @@ const Admin = () => {
                 <Input
                   value={editingResult.diploma_url || ''}
                   onChange={(e) => setEditingResult({...editingResult, diploma_url: e.target.value})}
+                  className="rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Дата выдачи диплома</Label>
+                <Input
+                  type="date"
+                  value={editingResult.diploma_issued_at || ''}
+                  onChange={(e) => setEditingResult({...editingResult, diploma_issued_at: e.target.value || null})}
                   className="rounded-xl"
                 />
               </div>

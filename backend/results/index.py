@@ -37,6 +37,7 @@ def handler(event: dict, context) -> dict:
                     result['created_at'] = result['created_at'].isoformat() if result.get('created_at') else None
                     result['updated_at'] = result['updated_at'].isoformat() if result.get('updated_at') else None
                     result['score'] = float(result['score']) if result.get('score') else None
+                    result['diploma_issued_at'] = result['diploma_issued_at'].isoformat() if result.get('diploma_issued_at') else None
                     
                     return {
                         'statusCode': 200,
@@ -87,6 +88,7 @@ def handler(event: dict, context) -> dict:
                 res['created_at'] = res['created_at'].isoformat() if res.get('created_at') else None
                 res['updated_at'] = res['updated_at'].isoformat() if res.get('updated_at') else None
                 res['score'] = float(res['score']) if res.get('score') else None
+                res['diploma_issued_at'] = res['diploma_issued_at'].isoformat() if res.get('diploma_issued_at') else None
             
             return {
                 'statusCode': 200,
@@ -117,8 +119,8 @@ def handler(event: dict, context) -> dict:
                 INSERT INTO results (
                     application_id, full_name, age, teacher, institution,
                     work_title, email, contest_id, contest_name, work_file_url,
-                    result, place, score, diploma_url, notes, gallery_consent
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    result, place, score, diploma_url, notes, gallery_consent, diploma_issued_at
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
             ''', (
                 application_id,
@@ -136,7 +138,8 @@ def handler(event: dict, context) -> dict:
                 data.get('score'),
                 data.get('diploma_url'),
                 data.get('notes'),
-                data.get('gallery_consent', True)
+                data.get('gallery_consent', True),
+                data.get('diploma_issued_at')
             ))
             result = cur.fetchone()
             conn.commit()
@@ -145,6 +148,7 @@ def handler(event: dict, context) -> dict:
             result['created_at'] = result['created_at'].isoformat() if result.get('created_at') else None
             result['updated_at'] = result['updated_at'].isoformat() if result.get('updated_at') else None
             result['score'] = float(result['score']) if result.get('score') else None
+            result['diploma_issued_at'] = result['diploma_issued_at'].isoformat() if result.get('diploma_issued_at') else None
             
             return {
                 'statusCode': 201,
@@ -172,7 +176,8 @@ def handler(event: dict, context) -> dict:
                     full_name = %s, age = %s, teacher = %s, institution = %s,
                     work_title = %s, email = %s, contest_id = %s, contest_name = %s,
                     work_file_url = %s, result = %s, place = %s, score = %s,
-                    diploma_url = %s, notes = %s, gallery_consent = %s, updated_at = CURRENT_TIMESTAMP
+                    diploma_url = %s, notes = %s, gallery_consent = %s,
+                    diploma_issued_at = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 RETURNING *
             ''', (
@@ -191,6 +196,7 @@ def handler(event: dict, context) -> dict:
                 data.get('diploma_url'),
                 data.get('notes'),
                 data.get('gallery_consent', True),
+                data.get('diploma_issued_at'),
                 result_id
             ))
             result = cur.fetchone()
@@ -201,6 +207,7 @@ def handler(event: dict, context) -> dict:
                 result['created_at'] = result['created_at'].isoformat() if result.get('created_at') else None
                 result['updated_at'] = result['updated_at'].isoformat() if result.get('updated_at') else None
                 result['score'] = float(result['score']) if result.get('score') else None
+                result['diploma_issued_at'] = result['diploma_issued_at'].isoformat() if result.get('diploma_issued_at') else None
                 
                 return {
                     'statusCode': 200,

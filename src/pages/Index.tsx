@@ -1099,6 +1099,48 @@ const Index = () => {
                     </p>
                   </CardContent>
                 </Card>
+
+                <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => { setImagePreview("https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c7540fd7-567e-45e1-b1c5-b48bdda48180.jpg"); setIsImageModalOpen(true); }}>
+                    <img 
+                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c7540fd7-567e-45e1-b1c5-b48bdda48180.jpg" 
+                      alt="Программки" 
+                      className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-xl bg-info/20 flex items-center justify-center">
+                        <Icon name="BookOpen" size={20} className="text-info" />
+                      </div>
+                      <h3 className="text-xl font-heading font-bold">Программки</h3>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Красочные программки для концертов, фестивалей и творческих вечеров. Удобный формат с расписанием выступлений, информацией об участниках и организаторах.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => { setImagePreview("https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/66a65365-9ded-4574-b8d8-27565e077116.jpg"); setIsImageModalOpen(true); }}>
+                    <img 
+                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/66a65365-9ded-4574-b8d8-27565e077116.jpg" 
+                      alt="Сертификаты" 
+                      className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-xl bg-success/20 flex items-center justify-center">
+                        <Icon name="BadgeCheck" size={20} className="text-success" />
+                      </div>
+                      <h3 className="text-xl font-heading font-bold">Сертификаты</h3>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Профессиональные сертификаты для участников мастер-классов, семинаров и курсов повышения квалификации. Солидное оформление с логотипами организаций.
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
 
               <div className="bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-3xl p-8 md:p-12 mb-20">

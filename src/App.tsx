@@ -27,6 +27,7 @@ const App = () => (
           <Route path="/reviews" element={<Navigate to="/?section=reviews" replace />} />
           <Route path="/about" element={<Navigate to="/?section=about" replace />} />
           <Route path="/contests" element={<Navigate to="/?section=contests" replace />} />
+          <Route path="/designer" element={<Navigate to="/?section=designer" replace />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

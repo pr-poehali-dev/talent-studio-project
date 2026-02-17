@@ -226,6 +226,7 @@ const Index = () => {
     { id: "shop", label: "Магазин", icon: "ShoppingBag" },
     { id: "reviews", label: "Отзывы", icon: "MessageSquare" },
     { id: "about", label: "О нас", icon: "Users" },
+    { id: "designer", label: "Услуги дизайнера", icon: "PenTool" },
   ];
 
   const contestCategories = [
@@ -999,6 +1000,208 @@ const Index = () => {
         </div>
       )}
 
+      {activeSection === "designer" && (
+        <div className="min-h-screen">
+          <div className="relative overflow-hidden py-20" style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)' }}>
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-10 left-10 w-72 h-72 bg-primary rounded-full blur-3xl"></div>
+              <div className="absolute bottom-10 right-10 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-accent rounded-full blur-3xl"></div>
+            </div>
+            <div className="container mx-auto px-4 relative z-10">
+              <div className="max-w-4xl mx-auto text-center">
+                <Badge className="mb-6 bg-primary/20 text-primary border-primary/30 text-sm px-4 py-1">
+                  <Icon name="PenTool" size={16} className="mr-2" />
+                  Профессиональный дизайн
+                </Badge>
+                <h1 className="text-4xl md:text-6xl font-heading font-bold text-white mb-6 leading-tight">
+                  Услуги дизайнера
+                </h1>
+                <p className="text-xl md:text-2xl text-gray-300 mb-4 leading-relaxed">
+                  Нужна яркая афиша или официальный диплом для мероприятия?
+                </p>
+                <p className="text-lg text-gray-400 max-w-3xl mx-auto">
+                  Разработаем дизайн анонсов, афиш, грамот, дипломов и благодарственных писем под ваши задачи. Для музыкальных школ, концертных залов, домов культуры и творческих организаций.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="container mx-auto px-4 py-16">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-4">Что мы создаём</h2>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Предоставляем услуги по созданию дизайн-макетов официальной и рекламной полиграфии для мероприятий любого масштаба
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+                <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <div className="h-48 overflow-hidden">
+                    <img 
+                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/files/0ae55feb-0c72-4aab-a935-80c4df26cb39.jpg" 
+                      alt="Афиши и анонсы" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <Icon name="Megaphone" size={20} className="text-primary" />
+                      </div>
+                      <h3 className="text-xl font-heading font-bold">Афиши и анонсы</h3>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Яркие, привлекающие внимание афиши для концертов, фестивалей, отчётных выступлений и творческих вечеров. Анонсы мероприятий для социальных сетей и печати.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <div className="h-48 overflow-hidden">
+                    <img 
+                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/files/de434b59-56cd-4ec9-94e0-b7f200f1ceb0.jpg" 
+                      alt="Дипломы и грамоты" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center">
+                        <Icon name="Award" size={20} className="text-secondary" />
+                      </div>
+                      <h3 className="text-xl font-heading font-bold">Дипломы и грамоты</h3>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Официальные дипломы лауреатов, почётные грамоты для победителей конкурсов и участников мероприятий. Индивидуальный дизайн с учётом фирменного стиля вашей организации.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <div className="h-48 overflow-hidden">
+                    <img 
+                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/files/7e7f4212-0ced-4677-8bf2-b4456154b12b.jpg" 
+                      alt="Благодарственные письма" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
+                        <Icon name="Heart" size={20} className="text-accent" />
+                      </div>
+                      <h3 className="text-xl font-heading font-bold">Благодарственные письма</h3>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Элегантные благодарственные письма для педагогов, спонсоров, партнёров и организаторов. Торжественное оформление, подчёркивающее значимость вклада каждого.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-3xl p-8 md:p-12 mb-20">
+                <h2 className="text-3xl font-heading font-bold text-center mb-12">Для кого наши услуги</h2>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="flex items-start gap-4 bg-white/80 rounded-2xl p-6 shadow-sm">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Icon name="Music" size={24} className="text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-heading font-bold text-lg mb-1">Музыкальные школы</h3>
+                      <p className="text-muted-foreground">Афиши отчётных концертов, дипломы выпускников, грамоты для конкурсантов</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 bg-white/80 rounded-2xl p-6 shadow-sm">
+                    <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                      <Icon name="Building2" size={24} className="text-secondary" />
+                    </div>
+                    <div>
+                      <h3 className="font-heading font-bold text-lg mb-1">Концертные залы</h3>
+                      <p className="text-muted-foreground">Программки, плакаты, пригласительные билеты для концертов и представлений</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 bg-white/80 rounded-2xl p-6 shadow-sm">
+                    <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center flex-shrink-0">
+                      <Icon name="Landmark" size={24} className="text-accent" />
+                    </div>
+                    <div>
+                      <h3 className="font-heading font-bold text-lg mb-1">Дома культуры и творчества</h3>
+                      <p className="text-muted-foreground">Рекламные материалы для кружков, секций, фестивалей и праздничных мероприятий</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 bg-white/80 rounded-2xl p-6 shadow-sm">
+                    <div className="w-12 h-12 rounded-xl bg-info/20 flex items-center justify-center flex-shrink-0">
+                      <Icon name="GraduationCap" size={24} className="text-info" />
+                    </div>
+                    <div>
+                      <h3 className="font-heading font-bold text-lg mb-1">Образовательные учреждения</h3>
+                      <p className="text-muted-foreground">Дипломы олимпиад, благодарности педагогам, оформление школьных мероприятий</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-20">
+                <h2 className="text-3xl font-heading font-bold text-center mb-12">Почему выбирают нас</h2>
+                <div className="grid md:grid-cols-4 gap-6">
+                  <div className="text-center p-6">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <Icon name="Palette" size={32} className="text-primary" />
+                    </div>
+                    <h3 className="font-heading font-bold mb-2">Уникальный дизайн</h3>
+                    <p className="text-sm text-muted-foreground">Каждый макет создаётся индивидуально, никаких шаблонных решений</p>
+                  </div>
+                  <div className="text-center p-6">
+                    <div className="w-16 h-16 rounded-2xl bg-secondary/20 flex items-center justify-center mx-auto mb-4">
+                      <Icon name="Clock" size={32} className="text-secondary" />
+                    </div>
+                    <h3 className="font-heading font-bold mb-2">Быстрые сроки</h3>
+                    <p className="text-sm text-muted-foreground">Готовый макет от 1 рабочего дня. Срочные заказы — в день обращения</p>
+                  </div>
+                  <div className="text-center p-6">
+                    <div className="w-16 h-16 rounded-2xl bg-accent/20 flex items-center justify-center mx-auto mb-4">
+                      <Icon name="RefreshCw" size={32} className="text-accent" />
+                    </div>
+                    <h3 className="font-heading font-bold mb-2">Правки включены</h3>
+                    <p className="text-sm text-muted-foreground">Вносим корректировки до полного согласования результата</p>
+                  </div>
+                  <div className="text-center p-6">
+                    <div className="w-16 h-16 rounded-2xl bg-success/20 flex items-center justify-center mx-auto mb-4">
+                      <Icon name="FileCheck" size={32} className="text-success" />
+                    </div>
+                    <h3 className="font-heading font-bold mb-2">Готово к печати</h3>
+                    <p className="text-sm text-muted-foreground">Передаём файлы в форматах для типографии и цифрового использования</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-[#1a1a2e] to-[#0f3460] rounded-3xl p-8 md:p-12 text-center text-white">
+                <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4">Готовы обсудить ваш проект?</h2>
+                <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+                  Свяжитесь с нами — расскажите о вашем мероприятии, и мы предложим лучшее решение по дизайну полиграфии
+                </p>
+                <div className="flex flex-wrap gap-4 justify-center">
+                  <a href="mailto:studio-talantov@yandex.ru">
+                    <Button size="lg" className="text-lg px-8 py-6 rounded-2xl bg-primary hover:bg-primary/90 shadow-xl">
+                      <Icon name="Mail" className="mr-2" size={20} />
+                      Написать на почту
+                    </Button>
+                  </a>
+                  <a href="tel:+79082433179">
+                    <Button size="lg" variant="outline" className="text-lg px-8 py-6 rounded-2xl border-white/30 text-white hover:bg-white/10">
+                      <Icon name="Phone" className="mr-2" size={20} />
+                      Позвонить
+                    </Button>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeSection === "visual-arts" && (
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🎨 Конкурсы изобразительного искусства</h2>
@@ -1767,6 +1970,13 @@ const Index = () => {
                 >
                   <Icon name="Info" size={16} />
                   О нас
+                </button>
+                <button
+                  onClick={() => setActiveSection('designer')}
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left"
+                >
+                  <Icon name="PenTool" size={16} />
+                  Услуги дизайнера
                 </button>
               </nav>
             </div>

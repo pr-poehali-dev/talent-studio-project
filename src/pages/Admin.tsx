@@ -89,6 +89,7 @@ const RESULTS_API_URL = "https://functions.poehali.dev/e1f9698c-ec8a-4b24-89c2-7
 const APPLICATIONS_API_URL = "https://functions.poehali.dev/ff2c7334-750b-418e-8468-152fae1d68ef";
 const SUBMIT_APPLICATION_URL = "https://functions.poehali.dev/2d352955-9c6c-4bbb-ad1e-944c7ea04d84";
 const REVIEWS_API_URL = "https://functions.poehali.dev/3daafc39-174c-4669-8e8a-71172a246929";
+const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -134,7 +135,7 @@ const Admin = () => {
   const [uploadingRules, setUploadingRules] = useState(false);
   const [uploadingDiploma, setUploadingDiploma] = useState(false);
   const [uploadingAppForm, setUploadingAppForm] = useState(false);
-  const [applicationFormUrl, setApplicationFormUrl] = useState<string>(localStorage.getItem('applicationFormUrl') || '');
+  const [applicationFormUrl, setApplicationFormUrl] = useState<string>('');
   const [isManualAppModalOpen, setIsManualAppModalOpen] = useState(false);
   const [manualAppFile, setManualAppFile] = useState<File | null>(null);
   const [manualContestName, setManualContestName] = useState("");
@@ -224,6 +225,18 @@ const Admin = () => {
     }
   };
 
+  const loadSettings = async () => {
+    try {
+      const response = await fetch(SETTINGS_API_URL);
+      const data = await response.json();
+      if (data.application_form_url) {
+        setApplicationFormUrl(data.application_form_url);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки настроек:', error);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       loadContests();
@@ -231,6 +244,7 @@ const Admin = () => {
       loadDeletedApplications();
       loadResults();
       loadReviews();
+      loadSettings();
     }
   }, [isAuthenticated]);
 
@@ -1385,7 +1399,11 @@ const Admin = () => {
                           });
                           const data = await response.json();
                           setApplicationFormUrl(data.url);
-                          localStorage.setItem('applicationFormUrl', data.url);
+                          await fetch(SETTINGS_API_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ key: 'application_form_url', value: data.url })
+                          });
                           toast({ title: 'Файл загружен', description: 'Лист подачи заявки успешно загружен' });
                         };
                         reader.readAsDataURL(file);
@@ -1411,9 +1429,13 @@ const Admin = () => {
                       variant="ghost"
                       size="sm"
                       className="ml-auto text-destructive hover:text-destructive"
-                      onClick={() => {
+                      onClick={async () => {
                         setApplicationFormUrl('');
-                        localStorage.removeItem('applicationFormUrl');
+                        await fetch(SETTINGS_API_URL, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ key: 'application_form_url', value: '' })
+                        });
                         toast({ title: 'Удалено', description: 'Ссылка на лист подачи заявки удалена' });
                       }}
                     >

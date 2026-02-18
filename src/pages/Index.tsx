@@ -73,6 +73,7 @@ const SUBMIT_APPLICATION_URL = "https://functions.poehali.dev/2d352955-9c6c-4bbb
 const GALLERY_API_URL = "https://functions.poehali.dev/eddc53e6-7462-4e4b-95fe-3b3ce3e6f95a";
 const REVIEWS_API_URL = "https://functions.poehali.dev/3daafc39-174c-4669-8e8a-71172a246929";
 const PAYMENT_API_URL = "https://functions.poehali.dev/f40bd7c6-a503-4165-8673-e8091832d07c";
+const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -125,9 +126,22 @@ const Index = () => {
       setActiveSection('contests');
       setContestFilter(categoryParam);
     }
-    const savedFormUrl = localStorage.getItem('applicationFormUrl');
-    if (savedFormUrl) setApplicationFormUrl(savedFormUrl);
   }, [categoryParam]);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await fetch(SETTINGS_API_URL);
+        const data = await response.json();
+        if (data.application_form_url) {
+          setApplicationFormUrl(data.application_form_url);
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки настроек:', error);
+      }
+    };
+    loadSettings();
+  }, []);
 
   useEffect(() => {
     const loadGalleryWorks = async () => {

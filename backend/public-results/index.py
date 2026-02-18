@@ -4,7 +4,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 def handler(event: dict, context) -> dict:
-    '''Публичный API для получения результатов конкурсов (только с согласием на публикацию)'''
+    '''Публичный API для получения результатов конкурсов (все результаты, gallery_consent влияет только на галерею)'''
     method = event.get('httpMethod', 'GET')
     
     if method == 'OPTIONS':
@@ -35,10 +35,9 @@ def handler(event: dict, context) -> dict:
             cur.execute('''
                 SELECT 
                     id, full_name, age, teacher, institution,
-                    work_title, contest_name, result, work_file_url,
+                    work_title, contest_name, result,
                     diploma_issued_at, created_at, updated_at
                 FROM results 
-                WHERE gallery_consent = true
                 ORDER BY created_at DESC
             ''')
             results = cur.fetchall()

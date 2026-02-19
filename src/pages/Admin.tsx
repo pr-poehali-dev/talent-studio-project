@@ -1611,7 +1611,6 @@ const Admin = () => {
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    
                     setUploadingRules(true);
                     try {
                       const base64 = await new Promise<string>((resolve, reject) => {
@@ -1620,17 +1619,22 @@ const Admin = () => {
                         reader.onerror = reject;
                         reader.readAsDataURL(file);
                       });
+                      const uploadId = crypto.randomUUID();
                       const response = await fetch(UPLOAD_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                          file: base64,
+                          chunk: base64,
+                          chunkIndex: 0,
+                          totalChunks: 1,
                           fileName: file.name,
                           fileType: 'application/pdf',
-                          folder: 'rules'
+                          folder: 'rules',
+                          uploadId
                         })
                       });
                       const data = await response.json();
+                      if (!data.url) throw new Error(data.error || 'Нет URL');
                       setFormData(prev => ({...prev, rulesLink: data.url}));
                       toast({ title: 'Файл загружен', description: 'Положение конкурса загружено успешно' });
                     } catch (error) {
@@ -1661,7 +1665,6 @@ const Admin = () => {
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    
                     setUploadingDiploma(true);
                     try {
                       const base64 = await new Promise<string>((resolve, reject) => {
@@ -1670,17 +1673,22 @@ const Admin = () => {
                         reader.onerror = reject;
                         reader.readAsDataURL(file);
                       });
+                      const uploadId = crypto.randomUUID();
                       const response = await fetch(UPLOAD_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                          file: base64,
+                          chunk: base64,
+                          chunkIndex: 0,
+                          totalChunks: 1,
                           fileName: file.name,
                           fileType: file.type,
-                          folder: 'diplomas'
+                          folder: 'diplomas',
+                          uploadId
                         })
                       });
                       const data = await response.json();
+                      if (!data.url) throw new Error(data.error || 'Нет URL');
                       setFormData(prev => ({...prev, diplomaImage: data.url}));
                       toast({ title: 'Файл загружен', description: 'Образец диплома загружен успешно' });
                     } catch (error) {

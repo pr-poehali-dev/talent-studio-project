@@ -140,6 +140,7 @@ const Admin = () => {
   const [manualAppFile, setManualAppFile] = useState<File | null>(null);
   const [manualContestName, setManualContestName] = useState("");
   const [submittingManualApp, setSubmittingManualApp] = useState(false);
+  const [manualAppUploadProgress, setManualAppUploadProgress] = useState(0);
   const { toast } = useToast();
 
   const categories = [
@@ -565,44 +566,101 @@ const Admin = () => {
       return;
     }
     setSubmittingManualApp(true);
+    setManualAppUploadProgress(5);
+    
     try {
       const formEl = e.currentTarget as HTMLFormElement;
       const fd = new FormData(formEl);
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64File = reader.result?.toString().split(',')[1];
-        const response = await fetch(SUBMIT_APPLICATION_URL, {
+      
+      const CHUNK_SIZE = 2 * 1024 * 1024;
+      const totalChunks = Math.ceil(manualAppFile.size / CHUNK_SIZE);
+      let uploadId = '';
+      let file_url = '';
+
+      for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+        const start = chunkIndex * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, manualAppFile.size);
+        const chunk = manualAppFile.slice(start, end);
+
+        const chunkBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = reader.result as string;
+            resolve(result.split(',')[1]);
+          };
+          reader.onerror = () => reject(new Error('Ошибка чтения файла'));
+          reader.readAsDataURL(chunk);
+        });
+
+        const chunkProgress = 5 + Math.round((chunkIndex / totalChunks) * 45);
+        setManualAppUploadProgress(chunkProgress);
+
+        const uploadResponse = await fetch(UPLOAD_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            full_name: fd.get('manualFullName'),
-            age: parseInt(fd.get('manualAge') as string),
-            teacher: fd.get('manualTeacher') || null,
-            institution: fd.get('manualInstitution') || null,
-            work_title: fd.get('manualWorkTitle'),
-            email: fd.get('manualEmail'),
-            contest_name: manualContestName,
-            work_file: base64File,
-            file_name: manualAppFile.name,
-            file_type: manualAppFile.type,
-            gallery_consent: fd.get('manualGallery') === 'on'
+            chunk: chunkBase64,
+            chunkIndex,
+            totalChunks,
+            fileName: manualAppFile.name,
+            fileType: manualAppFile.type,
+            folder: 'works',
+            uploadId: uploadId || undefined
           })
         });
-        const result = await response.json();
-        if (response.ok && result.success) {
-          toast({ title: "Успешно", description: "Заявка добавлена вручную" });
-          setIsManualAppModalOpen(false);
-          setManualAppFile(null);
-          loadApplications();
-        } else {
-          toast({ title: "Ошибка", description: result.error || "Не удалось создать заявку", variant: "destructive" });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Не удалось загрузить файл');
         }
-        setSubmittingManualApp(false);
-      };
-      reader.readAsDataURL(manualAppFile);
-    } catch (error) {
-      toast({ title: "Ошибка", description: "Произошла ошибка при создании заявки", variant: "destructive" });
+
+        const result = await uploadResponse.json();
+        
+        if (!uploadId) {
+          uploadId = result.uploadId;
+        }
+
+        if (result.complete) {
+          file_url = result.url;
+        }
+      }
+
+      setManualAppUploadProgress(60);
+
+      const response = await fetch(SUBMIT_APPLICATION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: fd.get('manualFullName'),
+          age: parseInt(fd.get('manualAge') as string),
+          teacher: fd.get('manualTeacher') || null,
+          institution: fd.get('manualInstitution') || null,
+          work_title: fd.get('manualWorkTitle'),
+          email: fd.get('manualEmail'),
+          contest_name: manualContestName,
+          work_file_url: file_url,
+          gallery_consent: fd.get('manualGallery') === 'on'
+        })
+      });
+      
+      setManualAppUploadProgress(90);
+      
+      const result = await response.json();
+      if (response.ok && result.success) {
+        setManualAppUploadProgress(100);
+        toast({ title: "Успешно", description: "Заявка добавлена вручную" });
+        setIsManualAppModalOpen(false);
+        setManualAppFile(null);
+        setManualAppUploadProgress(0);
+        loadApplications();
+      } else {
+        toast({ title: "Ошибка", description: result.error || "Не удалось создать заявку", variant: "destructive" });
+      }
       setSubmittingManualApp(false);
+    } catch (error) {
+      console.error('Ошибка при создании заявки:', error);
+      toast({ title: "Ошибка", description: error instanceof Error ? error.message : "Произошла ошибка при создании заявки", variant: "destructive" });
+      setSubmittingManualApp(false);
+      setManualAppUploadProgress(0);
     }
   };
 
@@ -2100,16 +2158,48 @@ const Admin = () => {
               <Input
                 type="file"
                 accept="image/*,.pdf"
-                onChange={(e) => setManualAppFile(e.target.files?.[0] || null)}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const maxSize = 15 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                      toast({
+                        title: "Файл слишком большой",
+                        description: `Максимальный размер файла — 15 МБ. Ваш файл: ${(file.size / 1024 / 1024).toFixed(1)} МБ`,
+                        variant: "destructive"
+                      });
+                      e.target.value = '';
+                      setManualAppFile(null);
+                      return;
+                    }
+                    setManualAppFile(file);
+                  } else {
+                    setManualAppFile(null);
+                  }
+                }}
                 className="rounded-xl h-10"
               />
-              {manualAppFile && (
+              {manualAppFile && !submittingManualApp && (
                 <div className="flex items-center gap-2 p-2 bg-green-50 rounded-xl text-sm">
                   <Icon name="CheckCircle" className="text-green-600" size={16} />
-                  <span className="text-green-700 font-semibold">{manualAppFile.name}</span>
+                  <span className="text-green-700 font-semibold">{manualAppFile.name} ({(manualAppFile.size / 1024 / 1024).toFixed(1)} МБ)</span>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">Форматы: JPG, PNG, PDF (макс. 10 МБ)</p>
+              {submittingManualApp && manualAppUploadProgress > 0 && (
+                <div className="space-y-2 p-3 bg-primary/10 rounded-xl">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-semibold text-primary">Загрузка файла...</span>
+                    <span className="text-primary">{manualAppUploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <div 
+                      className="bg-primary h-2.5 rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${manualAppUploadProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">Форматы: JPG, PNG, PDF (макс. 15 МБ)</p>
             </div>
 
             <div className="flex items-center space-x-2 p-3 bg-accent/10 rounded-xl">
@@ -2123,10 +2213,13 @@ const Admin = () => {
               <Button
                 type="submit"
                 disabled={submittingManualApp}
-                className="flex-1 rounded-xl bg-primary hover:bg-primary/90"
+                className="flex-1 rounded-xl bg-primary hover:bg-primary/90 disabled:opacity-50"
               >
                 {submittingManualApp ? (
-                  <><Icon name="Loader2" className="mr-2 animate-spin" size={16} />Создание...</>
+                  <>
+                    <Icon name="Loader2" className="mr-2 animate-spin" size={16} />
+                    {manualAppUploadProgress < 60 ? `Загрузка ${manualAppUploadProgress}%` : 'Создание заявки...'}
+                  </>
                 ) : (
                   <><Icon name="Plus" className="mr-2" size={16} />Создать заявку</>
                 )}

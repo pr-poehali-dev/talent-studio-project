@@ -1665,35 +1665,57 @@ const Index = () => {
                 setIsUploading(true);
                 setUploadProgress(10);
 
-                const fileBase64 = await new Promise<string>((resolve, reject) => {
-                  const reader = new FileReader();
-                  reader.onload = () => {
-                    const result = reader.result as string;
-                    resolve(result.split(',')[1]);
-                  };
-                  reader.onerror = () => reject(new Error('Ошибка чтения файла'));
-                  reader.readAsDataURL(uploadedFile);
-                });
+                const CHUNK_SIZE = 2 * 1024 * 1024;
+                const totalChunks = Math.ceil(uploadedFile.size / CHUNK_SIZE);
+                let uploadId = '';
+                let file_url = '';
 
-                setUploadProgress(30);
+                for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+                  const start = chunkIndex * CHUNK_SIZE;
+                  const end = Math.min(start + CHUNK_SIZE, uploadedFile.size);
+                  const chunk = uploadedFile.slice(start, end);
 
-                const uploadResponse = await fetch("https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b", {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    file: fileBase64,
-                    fileName: uploadedFile.name,
-                    fileType: uploadedFile.type,
-                    folder: 'works'
-                  })
-                });
+                  const chunkBase64 = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      const result = reader.result as string;
+                      resolve(result.split(',')[1]);
+                    };
+                    reader.onerror = () => reject(new Error('Ошибка чтения файла'));
+                    reader.readAsDataURL(chunk);
+                  });
 
-                if (!uploadResponse.ok) {
-                  throw new Error('Не удалось загрузить файл');
+                  const chunkProgress = 10 + Math.round((chunkIndex / totalChunks) * 70);
+                  setUploadProgress(chunkProgress);
+
+                  const uploadResponse = await fetch("https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      chunk: chunkBase64,
+                      chunkIndex,
+                      totalChunks,
+                      fileName: uploadedFile.name,
+                      fileType: uploadedFile.type,
+                      folder: 'works',
+                      uploadId: uploadId || undefined
+                    })
+                  });
+
+                  if (!uploadResponse.ok) {
+                    throw new Error('Не удалось загрузить файл');
+                  }
+
+                  const result = await uploadResponse.json();
+                  
+                  if (!uploadId) {
+                    uploadId = result.uploadId;
+                  }
+
+                  if (result.complete) {
+                    file_url = result.url;
+                  }
                 }
-
-                setUploadProgress(70);
-                const { url: file_url } = await uploadResponse.json();
 
                 setUploadProgress(85);
 

@@ -1923,6 +1923,30 @@ const Index = () => {
                 </>
               )}
             </Button>
+
+            <div className="mt-4 p-4 bg-accent/10 rounded-xl border border-accent/20">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Если у Вас возникли проблемы с подачей заявки, Вы можете отправить пакет документов (
+                {applicationFormUrl ? (
+                  <a 
+                    href={applicationFormUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    заполненный лист подачи заявки
+                  </a>
+                ) : (
+                  <span className="font-semibold">заполненный лист подачи заявки</span>
+                )}, квитанцию об оплате орг. взноса, фото работы) на электронную почту{' '}
+                <a 
+                  href="mailto:studio-talantov@yandex.ru" 
+                  className="text-primary hover:underline font-semibold"
+                >
+                  studio-talantov@yandex.ru
+                </a>
+              </p>
+            </div>
           </form>
         </DialogContent>
       </Dialog>

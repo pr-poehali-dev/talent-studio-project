@@ -1614,24 +1614,25 @@ const Admin = () => {
                     
                     setUploadingRules(true);
                     try {
-                      const reader = new FileReader();
-                      reader.onload = async () => {
-                        const base64 = reader.result?.toString().split(',')[1];
-                        const response = await fetch(UPLOAD_URL, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            file: base64,
-                            fileName: file.name,
-                            fileType: 'application/pdf',
-                            folder: 'rules'
-                          })
-                        });
-                        const data = await response.json();
-                        setFormData({...formData, rulesLink: data.url});
-                        toast({ title: 'Файл загружен', description: 'Положение конкурса загружено успешно' });
-                      };
-                      reader.readAsDataURL(file);
+                      const base64 = await new Promise<string>((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result?.toString().split(',')[1] || '');
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                      });
+                      const response = await fetch(UPLOAD_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          file: base64,
+                          fileName: file.name,
+                          fileType: 'application/pdf',
+                          folder: 'rules'
+                        })
+                      });
+                      const data = await response.json();
+                      setFormData(prev => ({...prev, rulesLink: data.url}));
+                      toast({ title: 'Файл загружен', description: 'Положение конкурса загружено успешно' });
                     } catch (error) {
                       toast({ title: 'Ошибка', description: 'Не удалось загрузить файл', variant: 'destructive' });
                     } finally {
@@ -1663,24 +1664,25 @@ const Admin = () => {
                     
                     setUploadingDiploma(true);
                     try {
-                      const reader = new FileReader();
-                      reader.onload = async () => {
-                        const base64 = reader.result?.toString().split(',')[1];
-                        const response = await fetch(UPLOAD_URL, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            file: base64,
-                            fileName: file.name,
-                            fileType: file.type,
-                            folder: 'diplomas'
-                          })
-                        });
-                        const data = await response.json();
-                        setFormData({...formData, diplomaImage: data.url});
-                        toast({ title: 'Файл загружен', description: 'Образец диплома загружен успешно' });
-                      };
-                      reader.readAsDataURL(file);
+                      const base64 = await new Promise<string>((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result?.toString().split(',')[1] || '');
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                      });
+                      const response = await fetch(UPLOAD_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          file: base64,
+                          fileName: file.name,
+                          fileType: file.type,
+                          folder: 'diplomas'
+                        })
+                      });
+                      const data = await response.json();
+                      setFormData(prev => ({...prev, diplomaImage: data.url}));
+                      toast({ title: 'Файл загружен', description: 'Образец диплома загружен успешно' });
                     } catch (error) {
                       toast({ title: 'Ошибка', description: 'Не удалось загрузить файл', variant: 'destructive' });
                     } finally {

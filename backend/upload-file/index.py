@@ -31,7 +31,14 @@ def handler(event: dict, context) -> dict:
         }
     
     try:
-        body = json.loads(event.get('body', '{}'))
+        is_base64_encoded = event.get('isBase64Encoded', False)
+        
+        if is_base64_encoded:
+            body_str = base64.b64decode(event.get('body', '')).decode('utf-8')
+        else:
+            body_str = event.get('body', '{}')
+            
+        body = json.loads(body_str)
         file_base64 = body.get('file')
         file_name = body.get('fileName')
         file_type = body.get('fileType', 'application/pdf')

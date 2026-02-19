@@ -1665,50 +1665,37 @@ const Index = () => {
                 setIsUploading(true);
                 setUploadProgress(10);
 
-                const presignedResponse = await fetch(UPLOAD_PRESIGNED_URL, {
+                const fileBase64 = await new Promise<string>((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    const result = reader.result as string;
+                    resolve(result.split(',')[1]);
+                  };
+                  reader.onerror = () => reject(new Error('Ошибка чтения файла'));
+                  reader.readAsDataURL(uploadedFile);
+                });
+
+                setUploadProgress(30);
+
+                const uploadResponse = await fetch("https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b", {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    file_name: uploadedFile.name,
-                    file_type: uploadedFile.type
+                    file: fileBase64,
+                    fileName: uploadedFile.name,
+                    fileType: uploadedFile.type,
+                    folder: 'works'
                   })
                 });
 
-                if (!presignedResponse.ok) {
-                  throw new Error('Не удалось получить URL для загрузки');
+                if (!uploadResponse.ok) {
+                  throw new Error('Не удалось загрузить файл');
                 }
 
-                setUploadProgress(20);
-                const { presigned_url, file_url } = await presignedResponse.json();
+                setUploadProgress(70);
+                const { url: file_url } = await uploadResponse.json();
 
-                const xhr = new XMLHttpRequest();
-                
-                await new Promise<void>((resolve, reject) => {
-                  xhr.upload.addEventListener('progress', (e) => {
-                    if (e.lengthComputable) {
-                      const percentComplete = 20 + Math.round((e.loaded / e.total) * 60);
-                      setUploadProgress(percentComplete);
-                    }
-                  });
-
-                  xhr.addEventListener('load', () => {
-                    if (xhr.status === 200) {
-                      setUploadProgress(80);
-                      resolve();
-                    } else {
-                      reject(new Error('Ошибка загрузки файла'));
-                    }
-                  });
-
-                  xhr.addEventListener('error', () => reject(new Error('Ошибка сети')));
-                  xhr.addEventListener('abort', () => reject(new Error('Загрузка отменена')));
-
-                  xhr.open('PUT', presigned_url);
-                  xhr.setRequestHeader('Content-Type', uploadedFile.type);
-                  xhr.send(uploadedFile);
-                });
-
-                setUploadProgress(90);
+                setUploadProgress(85);
 
                 const applicationData = {
                   full_name: formData.get('fullName'),

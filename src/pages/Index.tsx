@@ -1788,7 +1788,25 @@ const Index = () => {
                   type="file" 
                   accept="image/*,.pdf"
                   required
-                  onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const maxSize = 5 * 1024 * 1024; // 5 МБ
+                      if (file.size > maxSize) {
+                        toast({
+                          title: "Файл слишком большой",
+                          description: `Максимальный размер файла — 5 МБ. Ваш файл: ${(file.size / 1024 / 1024).toFixed(1)} МБ`,
+                          variant: "destructive"
+                        });
+                        e.target.value = '';
+                        setUploadedFile(null);
+                        return;
+                      }
+                      setUploadedFile(file);
+                    } else {
+                      setUploadedFile(null);
+                    }
+                  }}
                   className="rounded-xl border-2 focus:border-primary h-10 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-primary file:text-white file:text-sm file:cursor-pointer hover:file:bg-primary/90"
                 />
               </div>
@@ -1798,7 +1816,7 @@ const Index = () => {
                   <span className="text-success font-semibold">Файл загружен: {uploadedFile.name}</span>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">Форматы: JPG, PNG, PDF (макс. 10 МБ)</p>
+              <p className="text-xs text-muted-foreground">Форматы: JPG, PNG, PDF (макс. 5 МБ)</p>
             </div>
 
             <div className="space-y-4 pt-2">

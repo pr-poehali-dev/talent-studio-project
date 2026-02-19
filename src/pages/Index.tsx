@@ -1751,9 +1751,10 @@ const Index = () => {
               } catch (error) {
                 setIsUploading(false);
                 setUploadProgress(0);
+                console.error('Ошибка при подаче заявки:', error);
                 toast({
                   title: "Ошибка",
-                  description: "Произошла ошибка при загрузке файла или создании платежа",
+                  description: error instanceof Error ? error.message : "Произошла ошибка при загрузке файла или создании платежа",
                   variant: "destructive"
                 });
               }

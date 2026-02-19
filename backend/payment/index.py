@@ -50,23 +50,7 @@ def handler(event: dict, context) -> dict:
                 aws_secret_access_key=aws_secret_key
             )
             
-            work_file_url = ''
-            work_file = application_data.get('work_file')
-            file_name = application_data.get('file_name')
-            file_type = application_data.get('file_type')
-            
-            if work_file and file_name:
-                file_data = base64.b64decode(work_file)
-                file_key = f'works/{uuid.uuid4()}_{file_name}'
-                
-                s3.put_object(
-                    Bucket='files',
-                    Key=file_key,
-                    Body=file_data,
-                    ContentType=file_type
-                )
-                
-                work_file_url = f"https://cdn.poehali.dev/projects/{aws_access_key}/bucket/{file_key}"
+            work_file_url = application_data.get('work_file_url', '')
             
             pending_id = str(uuid.uuid4())
             
@@ -78,8 +62,6 @@ def handler(event: dict, context) -> dict:
                 'work_title': application_data.get('work_title'),
                 'email': application_data.get('email'),
                 'contest_name': application_data.get('contest_name'),
-                'file_name': file_name,
-                'file_type': file_type,
                 'gallery_consent': application_data.get('gallery_consent', False),
                 'work_file_url': work_file_url
             }

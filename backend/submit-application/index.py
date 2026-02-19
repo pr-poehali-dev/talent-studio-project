@@ -33,39 +33,15 @@ def handler(event: dict, context) -> dict:
             work_title = body.get('work_title')
             email = body.get('email')
             contest_name = body.get('contest_name')
-            work_file = body.get('work_file')
-            file_name = body.get('file_name')
-            file_type = body.get('file_type')
+            work_file_url = body.get('work_file_url')
             gallery_consent = body.get('gallery_consent', True)
             
-            if not all([full_name, age, work_title, email, contest_name, work_file, file_name]):
+            if not all([full_name, age, work_title, email, contest_name, work_file_url]):
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'error': 'Missing required fields'})
                 }
-            
-            aws_access_key = os.environ.get('AWS_ACCESS_KEY_ID')
-            aws_secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-            
-            import boto3
-            s3 = boto3.client('s3',
-                endpoint_url='https://bucket.poehali.dev',
-                aws_access_key_id=aws_access_key,
-                aws_secret_access_key=aws_secret_key
-            )
-            
-            file_data = base64.b64decode(work_file)
-            file_key = f'works/{file_name}'
-            
-            s3.put_object(
-                Bucket='files',
-                Key=file_key,
-                Body=file_data,
-                ContentType=file_type
-            )
-            
-            work_file_url = f"https://cdn.poehali.dev/projects/{aws_access_key}/bucket/{file_key}"
             
             dsn = os.environ.get('DATABASE_URL')
             conn = psycopg2.connect(dsn)

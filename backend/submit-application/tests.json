@@ -18,6 +18,23 @@
         "error": "string"
       },
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test POST with valid data",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "full_name": "Тестов Тест Тестович",
+        "age": 12,
+        "teacher": "Педагогов П.П.",
+        "institution": "Тестовая школа",
+        "work_title": "Тестовая работа",
+        "email": "test@example.com",
+        "contest_name": "Тестовый конкурс",
+        "work_file_url": "https://cdn.poehali.dev/projects/test/bucket/works/test.jpg",
+        "gallery_consent": true
+      },
+      "expectedStatus": 200
     }
   ]
 }

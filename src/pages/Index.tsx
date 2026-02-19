@@ -74,6 +74,7 @@ const GALLERY_API_URL = "https://functions.poehali.dev/eddc53e6-7462-4e4b-95fe-3
 const REVIEWS_API_URL = "https://functions.poehali.dev/3daafc39-174c-4669-8e8a-71172a246929";
 const PAYMENT_API_URL = "https://functions.poehali.dev/f40bd7c6-a503-4165-8673-e8091832d07c";
 const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
+const UPLOAD_PRESIGNED_URL = "https://functions.poehali.dev/be7b31ca-63ff-4082-9667-d4ab8c4c7f94";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -1659,54 +1660,73 @@ const Index = () => {
               const contestPrice = contests.find(c => c.title === selectedContest)?.price || 300;
               
               try {
-                const reader = new FileReader();
-                reader.onload = async () => {
-                  const base64File = reader.result?.toString().split(',')[1];
-                  
-                  const applicationData = {
-                    full_name: formData.get('fullName'),
-                    age: parseInt(formData.get('age') as string),
-                    teacher: formData.get('teacher') || null,
-                    institution: formData.get('institution') || null,
-                    work_title: formData.get('workTitle'),
-                    email: formData.get('email'),
-                    contest_name: selectedContest,
-                    work_file: base64File,
+                toast({
+                  title: "Загрузка файла",
+                  description: "Загружаем вашу работу...",
+                });
+
+                const presignedResponse = await fetch(UPLOAD_PRESIGNED_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
                     file_name: uploadedFile.name,
-                    file_type: uploadedFile.type,
-                    gallery_consent: formData.get('gallery') === 'on'
-                  };
-                  
-                  const paymentResponse = await fetch(PAYMENT_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      amount: contestPrice,
-                      description: `Оплата участия в конкурсе "${selectedContest}"`,
-                      contest_name: selectedContest,
-                      email: formData.get('email'),
-                      application_data: applicationData
-                    })
-                  });
-                  
-                  const paymentResult = await paymentResponse.json();
-                  
-                  if (paymentResponse.ok && paymentResult.confirmation_url) {
-                    window.location.href = paymentResult.confirmation_url;
-                  } else {
-                    toast({
-                      title: "Ошибка оплаты",
-                      description: paymentResult.error || "Не удалось создать платёж",
-                      variant: "destructive"
-                    });
-                  }
+                    file_type: uploadedFile.type
+                  })
+                });
+
+                if (!presignedResponse.ok) {
+                  throw new Error('Не удалось получить URL для загрузки');
+                }
+
+                const { presigned_url, file_url } = await presignedResponse.json();
+
+                await fetch(presigned_url, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': uploadedFile.type
+                  },
+                  body: uploadedFile
+                });
+
+                const applicationData = {
+                  full_name: formData.get('fullName'),
+                  age: parseInt(formData.get('age') as string),
+                  teacher: formData.get('teacher') || null,
+                  institution: formData.get('institution') || null,
+                  work_title: formData.get('workTitle'),
+                  email: formData.get('email'),
+                  contest_name: selectedContest,
+                  work_file_url: file_url,
+                  gallery_consent: formData.get('gallery') === 'on'
                 };
-                
-                reader.readAsDataURL(uploadedFile);
+
+                const paymentResponse = await fetch(PAYMENT_API_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    amount: contestPrice,
+                    description: `Оплата участия в конкурсе "${selectedContest}"`,
+                    contest_name: selectedContest,
+                    email: formData.get('email'),
+                    application_data: applicationData
+                  })
+                });
+
+                const paymentResult = await paymentResponse.json();
+
+                if (paymentResponse.ok && paymentResult.confirmation_url) {
+                  window.location.href = paymentResult.confirmation_url;
+                } else {
+                  toast({
+                    title: "Ошибка оплаты",
+                    description: paymentResult.error || "Не удалось создать платёж",
+                    variant: "destructive"
+                  });
+                }
               } catch (error) {
                 toast({
                   title: "Ошибка",
-                  description: "Произошла ошибка при создании платежа",
+                  description: "Произошла ошибка при загрузке файла или создании платежа",
                   variant: "destructive"
                 });
               }
@@ -1791,11 +1811,11 @@ const Index = () => {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const maxSize = 5 * 1024 * 1024; // 5 МБ
+                      const maxSize = 15 * 1024 * 1024; // 15 МБ
                       if (file.size > maxSize) {
                         toast({
                           title: "Файл слишком большой",
-                          description: `Максимальный размер файла — 5 МБ. Ваш файл: ${(file.size / 1024 / 1024).toFixed(1)} МБ`,
+                          description: `Максимальный размер файла — 15 МБ. Ваш файл: ${(file.size / 1024 / 1024).toFixed(1)} МБ`,
                           variant: "destructive"
                         });
                         e.target.value = '';
@@ -1816,7 +1836,7 @@ const Index = () => {
                   <span className="text-success font-semibold">Файл загружен: {uploadedFile.name}</span>
                 </div>
               )}
-              <p className="text-xs text-muted-foreground">Форматы: JPG, PNG, PDF (макс. 5 МБ)</p>
+              <p className="text-xs text-muted-foreground">Форматы: JPG, PNG, PDF (макс. 15 МБ)</p>
             </div>
 
             <div className="space-y-4 pt-2">

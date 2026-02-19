@@ -84,6 +84,8 @@ const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContest, setSelectedContest] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -1660,10 +1662,8 @@ const Index = () => {
               const contestPrice = contests.find(c => c.title === selectedContest)?.price || 300;
               
               try {
-                toast({
-                  title: "Загрузка файла",
-                  description: "Загружаем вашу работу...",
-                });
+                setIsUploading(true);
+                setUploadProgress(10);
 
                 const presignedResponse = await fetch(UPLOAD_PRESIGNED_URL, {
                   method: 'POST',
@@ -1678,15 +1678,37 @@ const Index = () => {
                   throw new Error('Не удалось получить URL для загрузки');
                 }
 
+                setUploadProgress(20);
                 const { presigned_url, file_url } = await presignedResponse.json();
 
-                await fetch(presigned_url, {
-                  method: 'PUT',
-                  headers: {
-                    'Content-Type': uploadedFile.type
-                  },
-                  body: uploadedFile
+                const xhr = new XMLHttpRequest();
+                
+                await new Promise<void>((resolve, reject) => {
+                  xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                      const percentComplete = 20 + Math.round((e.loaded / e.total) * 60);
+                      setUploadProgress(percentComplete);
+                    }
+                  });
+
+                  xhr.addEventListener('load', () => {
+                    if (xhr.status === 200) {
+                      setUploadProgress(80);
+                      resolve();
+                    } else {
+                      reject(new Error('Ошибка загрузки файла'));
+                    }
+                  });
+
+                  xhr.addEventListener('error', () => reject(new Error('Ошибка сети')));
+                  xhr.addEventListener('abort', () => reject(new Error('Загрузка отменена')));
+
+                  xhr.open('PUT', presigned_url);
+                  xhr.setRequestHeader('Content-Type', uploadedFile.type);
+                  xhr.send(uploadedFile);
                 });
+
+                setUploadProgress(90);
 
                 const applicationData = {
                   full_name: formData.get('fullName'),
@@ -1714,6 +1736,9 @@ const Index = () => {
 
                 const paymentResult = await paymentResponse.json();
 
+                setUploadProgress(100);
+                setIsUploading(false);
+
                 if (paymentResponse.ok && paymentResult.confirmation_url) {
                   window.location.href = paymentResult.confirmation_url;
                 } else {
@@ -1724,6 +1749,8 @@ const Index = () => {
                   });
                 }
               } catch (error) {
+                setIsUploading(false);
+                setUploadProgress(0);
                 toast({
                   title: "Ошибка",
                   description: "Произошла ошибка при загрузке файла или создании платежа",
@@ -1830,10 +1857,24 @@ const Index = () => {
                   className="rounded-xl border-2 focus:border-primary h-10 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-primary file:text-white file:text-sm file:cursor-pointer hover:file:bg-primary/90"
                 />
               </div>
-              {uploadedFile && (
+              {uploadedFile && !isUploading && (
                 <div className="flex items-center gap-2 p-3 bg-success/10 rounded-xl text-sm">
                   <Icon name="CheckCircle" className="text-success" size={20} />
-                  <span className="text-success font-semibold">Файл загружен: {uploadedFile.name}</span>
+                  <span className="text-success font-semibold">Файл выбран: {uploadedFile.name} ({(uploadedFile.size / 1024 / 1024).toFixed(1)} МБ)</span>
+                </div>
+              )}
+              {isUploading && (
+                <div className="space-y-2 p-3 bg-primary/10 rounded-xl">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-semibold text-primary">Загрузка файла...</span>
+                    <span className="text-primary">{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <div 
+                      className="bg-primary h-2.5 rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
                 </div>
               )}
               <p className="text-xs text-muted-foreground">Форматы: JPG, PNG, PDF (макс. 15 МБ)</p>
@@ -1857,10 +1898,20 @@ const Index = () => {
 
             <Button 
               type="submit" 
-              className="w-full text-lg py-6 rounded-xl bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
+              disabled={isUploading}
+              className="w-full text-lg py-6 rounded-xl bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Icon name="CreditCard" className="mr-2" />
-              Оплатить и подать заявку
+              {isUploading ? (
+                <>
+                  <Icon name="Loader2" className="mr-2 animate-spin" />
+                  Загрузка файла {uploadProgress}%
+                </>
+              ) : (
+                <>
+                  <Icon name="CreditCard" className="mr-2" />
+                  Оплатить и подать заявку
+                </>
+              )}
             </Button>
           </form>
         </DialogContent>

@@ -1788,8 +1788,6 @@ const Admin = () => {
                   id="age"
                   name="age"
                   type="number"
-                  min="5"
-                  max="18"
                   defaultValue={editingApplication.age}
                   required 
                   className="rounded-xl border-2 focus:border-primary"
@@ -2126,7 +2124,7 @@ const Admin = () => {
 
             <div className="space-y-2">
               <Label>Возраст *</Label>
-              <Input name="manualAge" type="number" min="5" max="18" placeholder="Введите возраст" required className="rounded-xl" />
+              <Input name="manualAge" type="number" placeholder="Введите возраст" required className="rounded-xl" />
             </div>
 
             <div className="space-y-2">

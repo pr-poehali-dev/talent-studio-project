@@ -1786,8 +1786,6 @@ const Index = () => {
                 id="age"
                 name="age"
                 type="number" 
-                min="5" 
-                max="18" 
                 placeholder="Введите возраст" 
                 required 
                 className="rounded-xl border-2 focus:border-primary"

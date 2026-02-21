@@ -256,7 +256,7 @@ const Index = () => {
     { id: "animals", label: "Конкурсы, посвященные теме животных", icon: "PawPrint", heading: "Конкурсы о животных" },
     { id: "plants", label: "Конкурсы, посвященные теме растений", icon: "Flower2", heading: "Конкурсы о растениях" },
     { id: "holidays", label: "Конкурсы, посвященные теме праздников", icon: "PartyPopper", heading: "Праздничные конкурсы" },
-    { id: "thematic", label: "Тематические конкурсы ИЗО и творчества", icon: "Sparkles", heading: "Тематические конкурсы" },
+    { id: "thematic", label: "Тематические конкурсы ИЗО и ДПИ", icon: "Sparkles", heading: "Тематические конкурсы" },
   ];
 
   const getCategoryIcon = (categoryId: string) => {

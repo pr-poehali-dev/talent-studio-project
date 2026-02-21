@@ -191,12 +191,16 @@ def handler(event: dict, context) -> dict:
             conn = psycopg2.connect(dsn)
             cursor = conn.cursor()
             
+            permanent = query_params.get('permanent') == 'true'
+
             if restore:
                 cursor.execute("""
                     UPDATE applications 
                     SET deleted_at = NULL, updated_at = CURRENT_TIMESTAMP
                     WHERE id = %s
                 """, (app_id,))
+            elif permanent:
+                cursor.execute("DELETE FROM applications WHERE id = %s AND deleted_at IS NOT NULL", (app_id,))
             else:
                 cursor.execute("""
                     UPDATE applications 

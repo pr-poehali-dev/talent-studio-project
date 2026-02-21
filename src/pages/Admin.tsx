@@ -412,6 +412,21 @@ const Admin = () => {
     }
   };
 
+  const handlePermanentDeleteApplication = async (id: number) => {
+    if (!confirm("Удалить заявку навсегда? Это действие нельзя отменить.")) return;
+    try {
+      const response = await fetch(`${APPLICATIONS_API_URL}?id=${id}&permanent=true`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        toast({ title: "Удалено", description: "Заявка удалена безвозвратно" });
+        loadDeletedApplications();
+      }
+    } catch (error) {
+      toast({ title: "Ошибка", description: "Не удалось удалить заявку", variant: "destructive" });
+    }
+  };
+
   const handleRestoreApplication = async (id: number) => {
     try {
       const response = await fetch(`${APPLICATIONS_API_URL}?id=${id}&restore=true`, {
@@ -1070,6 +1085,15 @@ const Admin = () => {
                           >
                             <Icon name="RotateCcw" size={16} className="mr-1" />
                             Восстановить
+                          </Button>
+                          <Button
+                            onClick={() => handlePermanentDeleteApplication(app.id)}
+                            variant="destructive"
+                            size="sm"
+                            className="rounded-xl"
+                          >
+                            <Icon name="Trash2" size={16} className="mr-1" />
+                            Удалить
                           </Button>
                         </div>
                       </div>

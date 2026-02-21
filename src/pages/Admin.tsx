@@ -841,13 +841,23 @@ const Admin = () => {
           <div>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-3xl font-heading font-bold text-primary">Заявки на участие</h2>
-              <Button
-                onClick={() => { setManualAppFile(null); setManualContestName(""); setIsManualAppModalOpen(true); }}
-                className="rounded-xl bg-primary hover:bg-primary/90"
-              >
-                <Icon name="Plus" className="mr-2" size={16} />
-                Добавить заявку
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => { loadApplications(); loadDeletedApplications(); }}
+                  className="rounded-xl"
+                >
+                  <Icon name="RefreshCw" className="mr-2" size={16} />
+                  Обновить
+                </Button>
+                <Button
+                  onClick={() => { setManualAppFile(null); setManualContestName(""); setIsManualAppModalOpen(true); }}
+                  className="rounded-xl bg-primary hover:bg-primary/90"
+                >
+                  <Icon name="Plus" className="mr-2" size={16} />
+                  Добавить заявку
+                </Button>
+              </div>
             </div>
             
             <div className="flex gap-2 mb-6">

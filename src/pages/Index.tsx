@@ -1812,7 +1812,7 @@ const Index = () => {
               <Input 
                 id="institution"
                 name="institution"
-                placeholder="Название школы, студии или учреждения" 
+                placeholder="Название школы, студии, город, страна" 
                 className="rounded-xl border-2 focus:border-primary"
               />
             </div>

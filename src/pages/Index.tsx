@@ -1808,7 +1808,7 @@ const Index = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="institution" className="text-base font-semibold">Учреждение</Label>
+              <Label htmlFor="institution" className="text-base font-semibold">Учреждение, город, страна</Label>
               <Input 
                 id="institution"
                 name="institution"

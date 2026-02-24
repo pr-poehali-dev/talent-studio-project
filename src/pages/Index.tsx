@@ -471,6 +471,35 @@ const Index = () => {
             </div>
           </section>
 
+          <section>
+            <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
+            <div className="grid md:grid-cols-4 gap-6">
+              {featuredWorks.slice(0, 8).map((work) => (
+                <Card
+                  key={work.id}
+                  className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"
+                  onClick={() => {
+                    setImagePreview(work.work_file_url);
+                    setIsImageModalOpen(true);
+                  }}
+                >
+                  <div className="h-48 overflow-hidden">
+                    <img 
+                      src={work.work_file_url} 
+                      alt={work.work_title}
+                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                    />
+                  </div>
+                  <CardContent className="p-4">
+                    <h4 className="text-base font-heading font-bold mb-1">{work.work_title}</h4>
+                    <p className="text-xs text-muted-foreground mb-1">👤 {work.full_name}{work.age ? `, ${work.age} лет` : ''}</p>
+                    <p className="text-xs text-muted-foreground">🏆 {work.contest_name}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+
           <section className="mb-16">
             <h3 className="text-4xl font-heading font-bold text-center mb-12 text-primary">🌟 Почему выбирают нас?</h3>
             <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -527,35 +556,6 @@ const Index = () => {
                 <h4 className="text-xl font-heading font-bold text-center mb-3 text-primary">Удобная подача работ</h4>
                 <p className="text-center text-muted-foreground">Заполните простую форму, загрузите фото работы — и готово! </p>
               </Card>
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
-            <div className="grid md:grid-cols-4 gap-6">
-              {featuredWorks.slice(0, 8).map((work) => (
-                <Card
-                  key={work.id}
-                  className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"
-                  onClick={() => {
-                    setImagePreview(work.work_file_url);
-                    setIsImageModalOpen(true);
-                  }}
-                >
-                  <div className="h-48 overflow-hidden">
-                    <img 
-                      src={work.work_file_url} 
-                      alt={work.work_title}
-                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <h4 className="text-base font-heading font-bold mb-1">{work.work_title}</h4>
-                    <p className="text-xs text-muted-foreground mb-1">👤 {work.full_name}{work.age ? `, ${work.age} лет` : ''}</p>
-                    <p className="text-xs text-muted-foreground">🏆 {work.contest_name}</p>
-                  </CardContent>
-                </Card>
-              ))}
             </div>
           </section>
         </div>

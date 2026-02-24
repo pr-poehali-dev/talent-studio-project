@@ -772,7 +772,7 @@ const Index = () => {
           <h2 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">Итоги конкурсов</h2>
           
           <div className="max-w-7xl mx-auto mb-8 bg-white rounded-lg shadow-sm border p-6">
-            <div className="grid md:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-4 gap-4 mb-4">
               <div>
                 <Label className="text-sm font-medium mb-2 block">Дата вручения</Label>
                 <Popover>
@@ -829,6 +829,14 @@ const Index = () => {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setResultFilters({ contest: '', fullName: '', result: 'all', date: undefined })}
+              >
+                Сбросить фильтр
+              </Button>
             </div>
           </div>
 

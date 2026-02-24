@@ -850,6 +850,41 @@ const Index = () => {
               </div>
             ) : (
               <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+                {filteredResults.length > RESULTS_PER_PAGE && (
+                  <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
+                    <p className="text-sm text-muted-foreground">
+                      Показано {(resultsPage - 1) * RESULTS_PER_PAGE + 1}–{Math.min(resultsPage * RESULTS_PER_PAGE, filteredResults.length)} из {filteredResults.length}
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setResultsPage(p => p - 1)}
+                        disabled={resultsPage === 1}
+                      >
+                        Назад
+                      </Button>
+                      {Array.from({ length: Math.ceil(filteredResults.length / RESULTS_PER_PAGE) }, (_, i) => i + 1).map(page => (
+                        <Button
+                          key={page}
+                          variant={page === resultsPage ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setResultsPage(page)}
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setResultsPage(p => p + 1)}
+                        disabled={resultsPage === Math.ceil(filteredResults.length / RESULTS_PER_PAGE)}
+                      >
+                        Вперёд
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 <div className="hidden md:grid gap-4 p-4 bg-gray-50 border-b font-semibold text-sm" style={{gridTemplateColumns: '120px 2fr 60px 1.5fr 1.5fr 1.5fr 2.5fr'}}>
                   <div>Дата вручения</div>
                   <div>ФИО участника</div>

@@ -106,6 +106,8 @@ const Index = () => {
     result: 'all',
     date: undefined as Date | undefined
   });
+  const [resultsPage, setResultsPage] = useState(1);
+  const RESULTS_PER_PAGE = 20;
   const { toast } = useToast();
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -237,6 +239,7 @@ const Index = () => {
     }
 
     setFilteredResults(filtered);
+    setResultsPage(1);
   }, [results, resultFilters]);
 
   const handleMouseEnter = () => {
@@ -858,7 +861,7 @@ const Index = () => {
                 </div>
                 
                 <div className="divide-y">
-                  {filteredResults.map((result, index) => (
+                  {filteredResults.slice((resultsPage - 1) * RESULTS_PER_PAGE, resultsPage * RESULTS_PER_PAGE).map((result, index) => (
                     <div key={result.id} className="grid gap-4 p-4 hover:bg-gray-50 transition-colors md:grid-cols-[120px_2fr_60px_1.5fr_1.5fr_1.5fr_2.5fr]">
                       <div className="text-sm">
                         <span className="md:hidden font-semibold text-muted-foreground">Дата вручения: </span>
@@ -907,6 +910,41 @@ const Index = () => {
                     </div>
                   ))}
                 </div>
+                {filteredResults.length > RESULTS_PER_PAGE && (
+                  <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50">
+                    <p className="text-sm text-muted-foreground">
+                      Показано {(resultsPage - 1) * RESULTS_PER_PAGE + 1}–{Math.min(resultsPage * RESULTS_PER_PAGE, filteredResults.length)} из {filteredResults.length}
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setResultsPage(p => p - 1)}
+                        disabled={resultsPage === 1}
+                      >
+                        Назад
+                      </Button>
+                      {Array.from({ length: Math.ceil(filteredResults.length / RESULTS_PER_PAGE) }, (_, i) => i + 1).map(page => (
+                        <Button
+                          key={page}
+                          variant={page === resultsPage ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setResultsPage(page)}
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setResultsPage(p => p + 1)}
+                        disabled={resultsPage === Math.ceil(filteredResults.length / RESULTS_PER_PAGE)}
+                      >
+                        Вперёд
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

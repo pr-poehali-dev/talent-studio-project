@@ -42,6 +42,7 @@ def handler(event: dict, context) -> dict:
                     SELECT id, full_name, age, work_title, contest_name, work_file_url, result, created_at
                     FROM applications
                     WHERE gallery_consent = true
+                        AND result IS NOT NULL
                         AND work_file_url IS NOT NULL
                         AND deleted_at IS NULL
                     ORDER BY created_at DESC

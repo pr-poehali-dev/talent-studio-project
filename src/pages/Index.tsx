@@ -97,6 +97,8 @@ const Index = () => {
   const [results, setResults] = useState<PublicResult[]>([]);
   const [filteredResults, setFilteredResults] = useState<PublicResult[]>([]);
   const [galleryWorks, setGalleryWorks] = useState<GalleryWork[]>([]);
+  const [galleryVisible, setGalleryVisible] = useState(16);
+  const GALLERY_STEP = 16;
   const [featuredWorks, setFeaturedWorks] = useState<GalleryWork[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -175,6 +177,7 @@ const Index = () => {
       }
     };
     if (activeSection === 'gallery') {
+      setGalleryVisible(16);
       loadGalleryWorks();
     }
   }, [activeSection]);
@@ -694,7 +697,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-12 text-secondary">🎨 Галерея работ</h2>
           <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {galleryWorks.map((work) => (
+            {galleryWorks.slice(0, galleryVisible).map((work) => (
               <Card
                 key={work.id}
                 className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"
@@ -718,6 +721,18 @@ const Index = () => {
               </Card>
             ))}
           </div>
+          {galleryVisible < galleryWorks.length && (
+            <div className="text-center mt-10">
+              <p className="text-sm text-muted-foreground mb-3">Показано {galleryVisible} из {galleryWorks.length}</p>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setGalleryVisible(v => v + GALLERY_STEP)}
+              >
+                Показать ещё
+              </Button>
+            </div>
+          )}
         </div>
       )}
 

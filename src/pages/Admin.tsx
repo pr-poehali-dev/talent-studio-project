@@ -93,7 +93,7 @@ const Admin = () => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [activeTab, setActiveTab] = useState<'contests' | 'applications' | 'results' | 'reviews' | 'settings'>('contests');
-  const [applicationsSubTab, setApplicationsSubTab] = useState<'active' | 'trash'>('active');
+  const [applicationsSubTab, setApplicationsSubTab] = useState<'active' | 'archive' | 'trash'>('active');
   const [contests, setContests] = useState<Contest[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [deletedApplications, setDeletedApplications] = useState<Application[]>([]);

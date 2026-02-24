@@ -37,8 +37,8 @@ interface AdminApplicationsTabProps {
   contests: Contest[];
   applications: Application[];
   deletedApplications: Application[];
-  applicationsSubTab: 'active' | 'trash';
-  setApplicationsSubTab: (v: 'active' | 'trash') => void;
+  applicationsSubTab: 'active' | 'archive' | 'trash';
+  setApplicationsSubTab: (v: 'active' | 'archive' | 'trash') => void;
   applicationsWithResults: Set<number>;
   isAppModalOpen: boolean;
   setIsAppModalOpen: (v: boolean) => void;
@@ -138,7 +138,15 @@ const AdminApplicationsTab = ({
           className="rounded-xl"
         >
           <Icon name="FileText" className="mr-2" size={16} />
-          Активные ({applications.length})
+          Активные ({applications.filter(a => !applicationsWithResults.has(a.id)).length})
+        </Button>
+        <Button
+          variant={applicationsSubTab === 'archive' ? 'default' : 'outline'}
+          onClick={() => setApplicationsSubTab('archive')}
+          className="rounded-xl"
+        >
+          <Icon name="Archive" className="mr-2" size={16} />
+          Архив ({applications.filter(a => applicationsWithResults.has(a.id)).length})
         </Button>
         <Button
           variant={applicationsSubTab === 'trash' ? 'default' : 'outline'}
@@ -152,7 +160,7 @@ const AdminApplicationsTab = ({
 
       {applicationsSubTab === 'active' && (
         <div className="grid gap-4">
-          {applications.map((app) => (
+          {applications.filter(app => !applicationsWithResults.has(app.id)).map((app) => (
             <Card key={`app-${app.id}`} className="rounded-2xl shadow-md">
               <CardContent className="p-4">
                 <div className="flex justify-between items-start">
@@ -291,6 +299,87 @@ const AdminApplicationsTab = ({
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+
+      {applicationsSubTab === 'archive' && (
+        <div className="grid gap-4">
+          {applications.filter(app => applicationsWithResults.has(app.id)).length === 0 ? (
+            <Card className="rounded-2xl p-8 text-center">
+              <Icon name="Archive" size={48} className="mx-auto text-muted-foreground mb-4" />
+              <p className="text-lg text-muted-foreground">Архив пуст</p>
+              <p className="text-sm text-muted-foreground mt-2">Сюда попадают заявки, по которым опубликованы итоги</p>
+            </Card>
+          ) : (
+            applications.filter(app => applicationsWithResults.has(app.id)).map((app) => (
+              <Card key={`arch-${app.id}`} className="rounded-2xl shadow-md border-l-4 border-l-green-500">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 grid md:grid-cols-3 gap-x-4 gap-y-2">
+                      <div>
+                        <p className="text-xs text-muted-foreground">ФИО</p>
+                        <p className="font-semibold text-sm">{app.full_name}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Возраст</p>
+                        <p className="font-semibold text-sm">{app.age} лет</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Название работы</p>
+                        <p className="font-semibold text-sm">{app.work_title}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Конкурс</p>
+                        <p className="font-semibold text-sm">{app.contest_name}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Педагог</p>
+                        <p className="font-semibold text-sm">{app.teacher || '—'}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Email</p>
+                        <p className="font-semibold text-sm">{app.email}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Работа</p>
+                        <button
+                          onClick={() => { setWorkPreview(app.work_file_url); setIsWorkPreviewOpen(true); }}
+                          className="text-primary hover:underline flex items-center gap-1 text-xs cursor-pointer"
+                        >
+                          <Icon name="Eye" size={14} />
+                          Посмотреть
+                        </button>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Дата подачи</p>
+                        <p className="font-semibold text-sm">
+                          {app.created_at ? new Date(app.created_at).toLocaleDateString('ru-RU') : '—'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="ml-4 flex flex-col items-end gap-2">
+                      <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-green-100 text-green-800">
+                        <Icon name="CheckCircle2" size={14} />
+                        Итоги опубликованы
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <Icon name="Award" size={20} className="text-orange-500" />
+                      <span className="inline-block px-4 py-2 rounded-lg text-base font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md">
+                        {app.result === 'grand_prix' ? '🏆 Гран-При' :
+                         app.result === 'first_degree' ? '🥇 Диплом 1 степени' :
+                         app.result === 'second_degree' ? '🥈 Диплом 2 степени' :
+                         app.result === 'third_degree' ? '🥉 Диплом 3 степени' :
+                         app.result === 'participant' ? '✨ Участник' : '—'}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       )}
 

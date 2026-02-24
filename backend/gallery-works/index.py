@@ -3,7 +3,7 @@ import os
 import psycopg2
 
 def handler(event: dict, context) -> dict:
-    '''API для получения работ для галереи (только отмеченные как лучшие, с согласием на публикацию и результатом)'''
+    '''API для получения работ галереи. ?featured=true — только лучшие работы (для главной). Без параметра — все с согласием на публикацию.'''
     method = event.get('httpMethod', 'GET')
 
     if method == 'OPTIONS':
@@ -19,28 +19,33 @@ def handler(event: dict, context) -> dict:
 
     if method == 'GET':
         try:
+            query_params = event.get('queryStringParameters') or {}
+            featured_only = query_params.get('featured') == 'true'
+
             dsn = os.environ.get('DATABASE_URL')
             conn = psycopg2.connect(dsn)
             cur = conn.cursor()
 
-            cur.execute("""
-                SELECT 
-                    id,
-                    full_name,
-                    age,
-                    work_title,
-                    contest_name,
-                    work_file_url,
-                    result,
-                    created_at
-                FROM applications
-                WHERE is_featured = true
-                    AND gallery_consent = true
-                    AND result IS NOT NULL
-                    AND work_file_url IS NOT NULL
-                    AND deleted_at IS NULL
-                ORDER BY created_at DESC
-            """)
+            if featured_only:
+                cur.execute("""
+                    SELECT id, full_name, age, work_title, contest_name, work_file_url, result, created_at
+                    FROM applications
+                    WHERE is_featured = true
+                        AND gallery_consent = true
+                        AND result IS NOT NULL
+                        AND work_file_url IS NOT NULL
+                        AND deleted_at IS NULL
+                    ORDER BY created_at DESC
+                """)
+            else:
+                cur.execute("""
+                    SELECT id, full_name, age, work_title, contest_name, work_file_url, result, created_at
+                    FROM applications
+                    WHERE gallery_consent = true
+                        AND work_file_url IS NOT NULL
+                        AND deleted_at IS NULL
+                    ORDER BY created_at DESC
+                """)
 
             rows = cur.fetchall()
             works = []
@@ -61,28 +66,19 @@ def handler(event: dict, context) -> dict:
 
             return {
                 'statusCode': 200,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps(works, ensure_ascii=False)
             }
 
         except Exception as e:
             return {
                 'statusCode': 500,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'error': str(e)}, ensure_ascii=False)
             }
 
     return {
         'statusCode': 405,
-        'headers': {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-        },
+        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
         'body': json.dumps({'error': 'Method not allowed'}, ensure_ascii=False)
     }

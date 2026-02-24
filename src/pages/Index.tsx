@@ -97,6 +97,7 @@ const Index = () => {
   const [results, setResults] = useState<PublicResult[]>([]);
   const [filteredResults, setFilteredResults] = useState<PublicResult[]>([]);
   const [galleryWorks, setGalleryWorks] = useState<GalleryWork[]>([]);
+  const [featuredWorks, setFeaturedWorks] = useState<GalleryWork[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [resultFilters, setResultFilters] = useState({
@@ -147,6 +148,21 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
+    const loadFeaturedWorks = async () => {
+      try {
+        const response = await fetch(`${GALLERY_API_URL}?featured=true`);
+        const data = await response.json();
+        setFeaturedWorks(data);
+      } catch (error) {
+        console.error('Ошибка загрузки лучших работ:', error);
+      }
+    };
+    if (activeSection === 'home') {
+      loadFeaturedWorks();
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
     const loadGalleryWorks = async () => {
       try {
         const response = await fetch(GALLERY_API_URL);
@@ -156,7 +172,7 @@ const Index = () => {
         console.error('Ошибка загрузки работ галереи:', error);
       }
     };
-    if (activeSection === 'gallery' || activeSection === 'home') {
+    if (activeSection === 'gallery') {
       loadGalleryWorks();
     }
   }, [activeSection]);
@@ -517,7 +533,7 @@ const Index = () => {
           <section>
             <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
             <div className="grid md:grid-cols-4 gap-6">
-              {galleryWorks.slice(0, 8).map((work) => (
+              {featuredWorks.slice(0, 8).map((work) => (
                 <Card
                   key={work.id}
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"

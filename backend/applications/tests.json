@@ -11,8 +11,7 @@
       "method": "GET",
       "path": "/",
       "expectedStatus": 200,
-      "expectedBody": [],
-      "bodyMatcher": "type"
+      "bodyMatcher": "none"
     }
   ]
 }

@@ -39,6 +39,7 @@ interface Application {
   result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant' | null;
   gallery_consent: boolean;
   diploma_issued_at: string | null;
+  is_featured: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;

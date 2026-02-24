@@ -27,6 +27,7 @@ interface Application {
   result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant' | null;
   gallery_consent: boolean;
   diploma_issued_at: string | null;
+  is_featured: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -260,23 +261,31 @@ const AdminApplicationsTab = ({
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  <div className="flex items-start gap-3">
-                    <Icon name="Award" size={20} className={app.result ? "text-orange-500" : "text-gray-400"} />
-                    <div className="flex-1">
-                      <p className="text-xs text-muted-foreground mb-2">Результат</p>
-                      {app.result ? (
-                        <span className="inline-block px-4 py-2 rounded-lg text-base font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md">
-                          {app.result === 'grand_prix' ? '🏆 Гран-При' :
-                           app.result === 'first_degree' ? '🥇 Диплом 1 степени' :
-                           app.result === 'second_degree' ? '🥈 Диплом 2 степени' :
-                           app.result === 'third_degree' ? '🥉 Диплом 3 степени' : '✨ Участник'}
-                        </span>
-                      ) : (
-                        <span className="px-3 py-1 rounded-md text-xs bg-gray-200 text-gray-600">
-                          Не выбран
-                        </span>
-                      )}
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <div className="flex items-start gap-3 flex-1">
+                      <Icon name="Award" size={20} className={app.result ? "text-orange-500" : "text-gray-400"} />
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground mb-2">Результат</p>
+                        {app.result ? (
+                          <span className="inline-block px-4 py-2 rounded-lg text-base font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md">
+                            {app.result === 'grand_prix' ? '🏆 Гран-При' :
+                             app.result === 'first_degree' ? '🥇 Диплом 1 степени' :
+                             app.result === 'second_degree' ? '🥈 Диплом 2 степени' :
+                             app.result === 'third_degree' ? '🥉 Диплом 3 степени' : '✨ Участник'}
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 rounded-md text-xs bg-gray-200 text-gray-600">
+                            Не выбран
+                          </span>
+                        )}
+                      </div>
                     </div>
+                    {app.is_featured && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-sm font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md">
+                        <Icon name="Star" size={14} className="fill-white" />
+                        Лучшая работа
+                      </span>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -386,7 +395,8 @@ const AdminApplicationsTab = ({
                     work_title: formData.get('workTitle') as string,
                     email: formData.get('email') as string,
                     result: appResult && appResult !== 'none' ? appResult : null,
-                    diploma_issued_at: diplomaDate || null
+                    diploma_issued_at: diplomaDate || null,
+                    is_featured: formData.get('isFeatured') === 'on'
                   };
 
                   const response = await fetch(APPLICATIONS_API_URL, {
@@ -455,6 +465,21 @@ const AdminApplicationsTab = ({
               <div className="space-y-2">
                 <Label htmlFor="diplomaIssuedAt" className="text-base font-semibold">Дата вручения</Label>
                 <Input id="diplomaIssuedAt" name="diplomaIssuedAt" type="date" defaultValue={editingApplication.diploma_issued_at || ''} className="rounded-xl border-2 focus:border-primary" />
+              </div>
+
+              <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-purple-200 bg-purple-50">
+                <Checkbox
+                  id="isFeatured"
+                  name="isFeatured"
+                  defaultChecked={editingApplication.is_featured}
+                />
+                <div>
+                  <Label htmlFor="isFeatured" className="text-base font-semibold cursor-pointer flex items-center gap-2">
+                    <Icon name="Star" size={16} className="text-purple-500" />
+                    Лучшая работа
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">Работа попадёт в галерею на главной странице</p>
+                </div>
               </div>
 
               <div className="space-y-2">

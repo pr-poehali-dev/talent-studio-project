@@ -25,41 +25,27 @@ def handler(event: dict, context) -> dict:
             conn = psycopg2.connect(dsn)
             cursor = conn.cursor()
             
-            query_params = event.get('queryStringParameters', {})
+            query_params = event.get('queryStringParameters', {}) or {}
             show_deleted = query_params.get('deleted') == 'true'
             
-            cursor.execute("""
-                SELECT column_name 
-                FROM information_schema.columns 
-                WHERE table_name = 'applications' AND column_name = 'deleted_at'
-            """)
-            has_deleted_at = cursor.fetchone() is not None
-            
-            if has_deleted_at:
-                if show_deleted:
-                    cursor.execute("""
-                        SELECT id, full_name, age, teacher, institution, work_title, 
-                               email, contest_id, contest_name, work_file_url, 
-                               status, result, gallery_consent, created_at, updated_at, deleted_at, diploma_issued_at
-                        FROM applications
-                        WHERE deleted_at IS NOT NULL
-                        ORDER BY deleted_at DESC
-                    """)
-                else:
-                    cursor.execute("""
-                        SELECT id, full_name, age, teacher, institution, work_title, 
-                               email, contest_id, contest_name, work_file_url, 
-                               status, result, gallery_consent, created_at, updated_at, deleted_at, diploma_issued_at
-                        FROM applications
-                        WHERE deleted_at IS NULL
-                        ORDER BY created_at DESC
-                    """)
+            if show_deleted:
+                cursor.execute("""
+                    SELECT id, full_name, age, teacher, institution, work_title, 
+                           email, contest_id, contest_name, work_file_url, 
+                           status, result, gallery_consent, created_at, updated_at, deleted_at,
+                           diploma_issued_at, is_featured
+                    FROM applications
+                    WHERE deleted_at IS NOT NULL
+                    ORDER BY deleted_at DESC
+                """)
             else:
                 cursor.execute("""
                     SELECT id, full_name, age, teacher, institution, work_title, 
                            email, contest_id, contest_name, work_file_url, 
-                           status, result, gallery_consent, created_at, updated_at
+                           status, result, gallery_consent, created_at, updated_at, deleted_at,
+                           diploma_issued_at, is_featured
                     FROM applications
+                    WHERE deleted_at IS NULL
                     ORDER BY created_at DESC
                 """)
             
@@ -67,45 +53,26 @@ def handler(event: dict, context) -> dict:
             
             applications = []
             for row in rows:
-                if has_deleted_at:
-                    app_data = {
-                        'id': row[0],
-                        'full_name': row[1],
-                        'age': row[2],
-                        'teacher': row[3],
-                        'institution': row[4],
-                        'work_title': row[5],
-                        'email': row[6],
-                        'contest_id': row[7],
-                        'contest_name': row[8],
-                        'work_file_url': row[9],
-                        'status': row[10],
-                        'result': row[11],
-                        'gallery_consent': row[12],
-                        'created_at': row[13].isoformat() if row[13] else None,
-                        'updated_at': row[14].isoformat() if row[14] else None,
-                        'deleted_at': row[15].isoformat() if row[15] else None,
-                        'diploma_issued_at': row[16].isoformat() if len(row) > 16 and row[16] else None
-                    }
-                else:
-                    app_data = {
-                        'id': row[0],
-                        'full_name': row[1],
-                        'age': row[2],
-                        'teacher': row[3],
-                        'institution': row[4],
-                        'work_title': row[5],
-                        'email': row[6],
-                        'contest_id': row[7],
-                        'contest_name': row[8],
-                        'work_file_url': row[9],
-                        'status': row[10],
-                        'result': row[11],
-                        'gallery_consent': row[12],
-                        'created_at': row[13].isoformat() if row[13] else None,
-                        'updated_at': row[14].isoformat() if row[14] else None,
-                        'deleted_at': None
-                    }
+                app_data = {
+                    'id': row[0],
+                    'full_name': row[1],
+                    'age': row[2],
+                    'teacher': row[3],
+                    'institution': row[4],
+                    'work_title': row[5],
+                    'email': row[6],
+                    'contest_id': row[7],
+                    'contest_name': row[8],
+                    'work_file_url': row[9],
+                    'status': row[10],
+                    'result': row[11],
+                    'gallery_consent': row[12],
+                    'created_at': row[13].isoformat() if row[13] else None,
+                    'updated_at': row[14].isoformat() if row[14] else None,
+                    'deleted_at': row[15].isoformat() if row[15] else None,
+                    'diploma_issued_at': row[16].isoformat() if row[16] else None,
+                    'is_featured': row[17] if row[17] is not None else False
+                }
                 applications.append(app_data)
             
             cursor.close()
@@ -143,7 +110,8 @@ def handler(event: dict, context) -> dict:
                 UPDATE applications 
                 SET full_name = %s, age = %s, teacher = %s, institution = %s,
                     work_title = %s, email = %s, status = %s, result = %s,
-                    diploma_issued_at = %s, updated_at = CURRENT_TIMESTAMP
+                    diploma_issued_at = %s, is_featured = %s,
+                    updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
             """, (
                 body.get('full_name'),
@@ -155,6 +123,7 @@ def handler(event: dict, context) -> dict:
                 body.get('status'),
                 body.get('result'),
                 body.get('diploma_issued_at'),
+                body.get('is_featured', False),
                 app_id
             ))
             
@@ -177,7 +146,7 @@ def handler(event: dict, context) -> dict:
     
     if method == 'DELETE':
         try:
-            query_params = event.get('queryStringParameters', {})
+            query_params = event.get('queryStringParameters', {}) or {}
             app_id = query_params.get('id')
             restore = query_params.get('restore') == 'true'
             

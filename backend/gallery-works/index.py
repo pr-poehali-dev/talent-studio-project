@@ -3,7 +3,7 @@ import os
 import psycopg2
 
 def handler(event: dict, context) -> dict:
-    '''API для получения работ для галереи (только с согласием на публикацию)'''
+    '''API для получения работ для галереи (только отмеченные как лучшие, с согласием на публикацию и результатом)'''
     method = event.get('httpMethod', 'GET')
 
     if method == 'OPTIONS':
@@ -33,9 +33,12 @@ def handler(event: dict, context) -> dict:
                     work_file_url,
                     result,
                     created_at
-                FROM t_p93576920_talent_studio_projec.results
-                WHERE gallery_consent = true 
+                FROM applications
+                WHERE is_featured = true
+                    AND gallery_consent = true
+                    AND result IS NOT NULL
                     AND work_file_url IS NOT NULL
+                    AND deleted_at IS NULL
                 ORDER BY created_at DESC
             """)
 

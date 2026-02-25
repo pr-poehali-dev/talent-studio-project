@@ -90,7 +90,9 @@ const AdminContestsTab = ({
             <CardContent className="p-6">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-primary mb-2">{contest.title}</h3>
+                  <h3 className="text-xl font-bold text-primary mb-2">
+                    {contest.isPopular && <span className="mr-1">⭐</span>}{contest.title}
+                  </h3>
                   <p className="text-sm text-muted-foreground mb-2">{contest.description}</p>
                   <div className="flex flex-wrap gap-3 text-sm">
                     <span className="bg-secondary/20 px-3 py-1 rounded-lg">

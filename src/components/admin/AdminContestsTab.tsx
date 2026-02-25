@@ -226,22 +226,30 @@ const AdminContestsTab = ({
                     try {
                       const reader = new FileReader();
                       reader.onload = async () => {
-                        const base64 = reader.result?.toString().split(',')[1];
-                        const response = await fetch(UPLOAD_URL, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            file: base64,
-                            fileName: file.name,
-                            fileType: file.type || 'application/octet-stream',
-                            folder: 'rules'
-                          })
-                        });
-                        const data = await response.json();
-                        setFormData({...formData, rulesLink: data.url});
+                        try {
+                          const base64 = reader.result?.toString().split(',')[1];
+                          const uploadId = crypto.randomUUID();
+                          const response = await fetch(UPLOAD_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              chunk: base64,
+                              chunkIndex: 0,
+                              totalChunks: 1,
+                              uploadId,
+                              fileName: file.name,
+                              fileType: file.type || 'application/octet-stream',
+                              folder: 'rules'
+                            })
+                          });
+                          const data = await response.json();
+                          if (data.url) setFormData({...formData, rulesLink: data.url});
+                        } finally {
+                          setUploadingRules(false);
+                        }
                       };
                       reader.readAsDataURL(file);
-                    } finally {
+                    } catch {
                       setUploadingRules(false);
                     }
                   }}
@@ -271,22 +279,30 @@ const AdminContestsTab = ({
                     try {
                       const reader = new FileReader();
                       reader.onload = async () => {
-                        const base64 = reader.result?.toString().split(',')[1];
-                        const response = await fetch(UPLOAD_URL, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            file: base64,
-                            fileName: file.name,
-                            fileType: file.type,
-                            folder: 'diplomas'
-                          })
-                        });
-                        const data = await response.json();
-                        setFormData({...formData, diplomaImage: data.url});
+                        try {
+                          const base64 = reader.result?.toString().split(',')[1];
+                          const uploadId = crypto.randomUUID();
+                          const response = await fetch(UPLOAD_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              chunk: base64,
+                              chunkIndex: 0,
+                              totalChunks: 1,
+                              uploadId,
+                              fileName: file.name,
+                              fileType: file.type,
+                              folder: 'diplomas'
+                            })
+                          });
+                          const data = await response.json();
+                          if (data.url) setFormData({...formData, diplomaImage: data.url});
+                        } finally {
+                          setUploadingDiploma(false);
+                        }
                       };
                       reader.readAsDataURL(file);
-                    } finally {
+                    } catch {
                       setUploadingDiploma(false);
                     }
                   }}

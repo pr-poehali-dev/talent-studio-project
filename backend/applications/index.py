@@ -106,26 +106,49 @@ def handler(event: dict, context) -> dict:
             conn = psycopg2.connect(dsn)
             cursor = conn.cursor()
             
-            cursor.execute("""
-                UPDATE applications 
-                SET full_name = %s, age = %s, teacher = %s, institution = %s,
-                    work_title = %s, email = %s, status = %s, result = %s,
-                    diploma_issued_at = %s, is_featured = %s,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE id = %s
-            """, (
-                body.get('full_name'),
-                body.get('age'),
-                body.get('teacher'),
-                body.get('institution'),
-                body.get('work_title'),
-                body.get('email'),
-                body.get('status'),
-                body.get('result'),
-                body.get('diploma_issued_at'),
-                body.get('is_featured', False),
-                app_id
-            ))
+            if body.get('work_file_url'):
+                cursor.execute("""
+                    UPDATE applications 
+                    SET full_name = %s, age = %s, teacher = %s, institution = %s,
+                        work_title = %s, email = %s, status = %s, result = %s,
+                        diploma_issued_at = %s, is_featured = %s, work_file_url = %s,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, (
+                    body.get('full_name'),
+                    body.get('age'),
+                    body.get('teacher'),
+                    body.get('institution'),
+                    body.get('work_title'),
+                    body.get('email'),
+                    body.get('status'),
+                    body.get('result'),
+                    body.get('diploma_issued_at'),
+                    body.get('is_featured', False),
+                    body.get('work_file_url'),
+                    app_id
+                ))
+            else:
+                cursor.execute("""
+                    UPDATE applications 
+                    SET full_name = %s, age = %s, teacher = %s, institution = %s,
+                        work_title = %s, email = %s, status = %s, result = %s,
+                        diploma_issued_at = %s, is_featured = %s,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                """, (
+                    body.get('full_name'),
+                    body.get('age'),
+                    body.get('teacher'),
+                    body.get('institution'),
+                    body.get('work_title'),
+                    body.get('email'),
+                    body.get('status'),
+                    body.get('result'),
+                    body.get('diploma_issued_at'),
+                    body.get('is_featured', False),
+                    app_id
+                ))
             
             conn.commit()
             cursor.close()

@@ -68,6 +68,7 @@ interface AdminApplicationsTabProps {
   loadApplications: () => void;
   loadDeletedApplications: () => void;
   APPLICATIONS_API_URL: string;
+  UPLOAD_URL: string;
   toast: (opts: { title: string; description?: string; variant?: 'default' | 'destructive' }) => void;
 }
 
@@ -106,8 +107,14 @@ const AdminApplicationsTab = ({
   loadApplications,
   loadDeletedApplications,
   APPLICATIONS_API_URL,
+  UPLOAD_URL,
   toast,
 }: AdminApplicationsTabProps) => {
+  const [uploadingWorkFile, setUploadingWorkFile] = useState(false);
+  const [newWorkFileUrl, setNewWorkFileUrl] = useState<string | null>(null);
+  const [workFileError, setWorkFileError] = useState<string | null>(null);
+  const [workFileUploadProgress, setWorkFileUploadProgress] = useState(0);
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -458,7 +465,14 @@ const AdminApplicationsTab = ({
       )}
 
       {/* Модал редактирования заявки */}
-      <Dialog open={isAppModalOpen} onOpenChange={setIsAppModalOpen}>
+      <Dialog open={isAppModalOpen} onOpenChange={(open) => {
+        if (!open) {
+          setNewWorkFileUrl(null);
+          setWorkFileError(null);
+          setWorkFileUploadProgress(0);
+        }
+        setIsAppModalOpen(open);
+      }}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-heading font-bold text-primary">
@@ -475,7 +489,7 @@ const AdminApplicationsTab = ({
 
                 try {
                   const diplomaDate = formData.get('diplomaIssuedAt') as string;
-                  const updateData = {
+                  const updateData: Record<string, unknown> = {
                     id: editingApplication.id,
                     full_name: formData.get('fullName') as string,
                     age: parseInt(formData.get('age') as string),
@@ -487,6 +501,7 @@ const AdminApplicationsTab = ({
                     diploma_issued_at: diplomaDate || null,
                     is_featured: formData.get('isFeatured') === 'on'
                   };
+                  if (newWorkFileUrl) updateData.work_file_url = newWorkFileUrl;
 
                   const response = await fetch(APPLICATIONS_API_URL, {
                     method: 'PUT',
@@ -573,17 +588,109 @@ const AdminApplicationsTab = ({
 
               <div className="space-y-2">
                 <Label className="text-base font-semibold">Файл работы</Label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setWorkPreview(editingApplication.work_file_url);
-                    setIsWorkPreviewOpen(true);
-                  }}
-                  className="text-primary hover:underline flex items-center gap-2"
-                >
-                  <Icon name="Eye" size={16} />
-                  Посмотреть работу
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setWorkPreview(newWorkFileUrl || editingApplication.work_file_url);
+                      setIsWorkPreviewOpen(true);
+                    }}
+                    className="text-primary hover:underline flex items-center gap-2 text-sm"
+                  >
+                    <Icon name="Eye" size={16} />
+                    {newWorkFileUrl ? 'Посмотреть новый файл' : 'Посмотреть текущий файл'}
+                  </button>
+                  {newWorkFileUrl && (
+                    <span className="text-xs text-success flex items-center gap-1">
+                      <Icon name="CheckCircle" size={14} />
+                      Новый файл загружен
+                    </span>
+                  )}
+                </div>
+                <div className="border-2 border-dashed border-border rounded-xl p-4 bg-muted/30">
+                  <Label className="text-sm text-muted-foreground mb-2 block">Заменить файл (JPG, PNG, PDF — до 15 МБ)</Label>
+                  <Input
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    disabled={uploadingWorkFile}
+                    className="rounded-xl h-10"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 15 * 1024 * 1024) {
+                        setWorkFileError('Файл слишком большой. Максимум 15 МБ.');
+                        return;
+                      }
+                      setUploadingWorkFile(true);
+                      setWorkFileError(null);
+                      setWorkFileUploadProgress(0);
+                      setNewWorkFileUrl(null);
+                      try {
+                        const CHUNK_SIZE = 2 * 1024 * 1024;
+                        const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+                        let uploadId = '';
+                        let fileUrl = '';
+                        for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+                          const start = chunkIndex * CHUNK_SIZE;
+                          const end = Math.min(start + CHUNK_SIZE, file.size);
+                          const chunk = file.slice(start, end);
+                          const chunkBase64 = await new Promise<string>((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve((reader.result as string).split(',')[1]);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(chunk);
+                          });
+                          const response = await fetch(UPLOAD_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              chunk: chunkBase64,
+                              chunkIndex,
+                              totalChunks,
+                              fileName: file.name,
+                              fileType: file.type,
+                              folder: 'works',
+                              uploadId: uploadId || undefined
+                            })
+                          });
+                          const data = await response.json();
+                          if (data.uploadId) uploadId = data.uploadId;
+                          if (data.url) fileUrl = data.url;
+                          setWorkFileUploadProgress(Math.round(((chunkIndex + 1) / totalChunks) * 100));
+                        }
+                        if (fileUrl) {
+                          setNewWorkFileUrl(fileUrl);
+                        } else {
+                          setWorkFileError('Не удалось загрузить файл. Попробуйте ещё раз.');
+                        }
+                      } catch {
+                        setWorkFileError('Ошибка соединения. Проверьте интернет и попробуйте снова.');
+                      } finally {
+                        setUploadingWorkFile(false);
+                      }
+                    }}
+                  />
+                  {uploadingWorkFile && (
+                    <div className="mt-2 space-y-1">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Icon name="Loader2" size={14} className="animate-spin" />
+                        Загружаю... {workFileUploadProgress}%
+                      </div>
+                      <div className="w-full bg-border rounded-full h-2">
+                        <div
+                          className="bg-primary h-2 rounded-full transition-all"
+                          style={{ width: `${workFileUploadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {workFileError && (
+                    <p className="text-sm text-red-500 flex items-center gap-1 mt-2">
+                      <Icon name="AlertCircle" size={14} />
+                      {workFileError}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <Button type="submit" className="w-full rounded-xl bg-primary hover:bg-primary/90">

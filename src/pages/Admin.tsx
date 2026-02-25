@@ -693,6 +693,7 @@ const Admin = () => {
             loadApplications={loadApplications}
             loadDeletedApplications={loadDeletedApplications}
             APPLICATIONS_API_URL={APPLICATIONS_API_URL}
+            UPLOAD_URL={UPLOAD_URL}
             toast={toast}
           />
         )}

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,6 +68,9 @@ const AdminContestsTab = ({
   handleDelete,
   UPLOAD_URL,
 }: AdminContestsTabProps) => {
+  const [rulesError, setRulesError] = useState<string | null>(null);
+  const [diplomaError, setDiplomaError] = useState<string | null>(null);
+
   return (
     <>
       <div className="flex justify-between items-center mb-8">
@@ -223,6 +227,7 @@ const AdminContestsTab = ({
                     const file = e.target.files?.[0];
                     if (!file) return;
                     setUploadingRules(true);
+                    setRulesError(null);
                     try {
                       const reader = new FileReader();
                       reader.onload = async () => {
@@ -243,13 +248,24 @@ const AdminContestsTab = ({
                             })
                           });
                           const data = await response.json();
-                          if (data.url) setFormData({...formData, rulesLink: data.url});
+                          if (data.url) {
+                            setFormData({...formData, rulesLink: data.url});
+                          } else {
+                            setRulesError(data.error || 'Не удалось загрузить файл. Попробуйте ещё раз.');
+                          }
+                        } catch {
+                          setRulesError('Ошибка соединения. Проверьте интернет и попробуйте снова.');
                         } finally {
                           setUploadingRules(false);
                         }
                       };
+                      reader.onerror = () => {
+                        setRulesError('Не удалось прочитать файл.');
+                        setUploadingRules(false);
+                      };
                       reader.readAsDataURL(file);
                     } catch {
+                      setRulesError('Произошла ошибка при загрузке.');
                       setUploadingRules(false);
                     }
                   }}
@@ -258,6 +274,12 @@ const AdminContestsTab = ({
                 />
                 {uploadingRules && <Icon name="Loader2" className="animate-spin" />}
               </div>
+              {rulesError && (
+                <p className="text-sm text-red-500 flex items-center gap-1 mt-1">
+                  <Icon name="AlertCircle" size={14} />
+                  {rulesError}
+                </p>
+              )}
               {formData.rulesLink && formData.rulesLink !== '#' && (
                 <a href={formData.rulesLink} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 mt-1">
                   <Icon name="ExternalLink" size={14} />
@@ -276,6 +298,7 @@ const AdminContestsTab = ({
                     const file = e.target.files?.[0];
                     if (!file) return;
                     setUploadingDiploma(true);
+                    setDiplomaError(null);
                     try {
                       const reader = new FileReader();
                       reader.onload = async () => {
@@ -296,13 +319,24 @@ const AdminContestsTab = ({
                             })
                           });
                           const data = await response.json();
-                          if (data.url) setFormData({...formData, diplomaImage: data.url});
+                          if (data.url) {
+                            setFormData({...formData, diplomaImage: data.url});
+                          } else {
+                            setDiplomaError(data.error || 'Не удалось загрузить изображение. Попробуйте ещё раз.');
+                          }
+                        } catch {
+                          setDiplomaError('Ошибка соединения. Проверьте интернет и попробуйте снова.');
                         } finally {
                           setUploadingDiploma(false);
                         }
                       };
+                      reader.onerror = () => {
+                        setDiplomaError('Не удалось прочитать файл.');
+                        setUploadingDiploma(false);
+                      };
                       reader.readAsDataURL(file);
                     } catch {
+                      setDiplomaError('Произошла ошибка при загрузке.');
                       setUploadingDiploma(false);
                     }
                   }}
@@ -311,6 +345,12 @@ const AdminContestsTab = ({
                 />
                 {uploadingDiploma && <Icon name="Loader2" className="animate-spin" />}
               </div>
+              {diplomaError && (
+                <p className="text-sm text-red-500 flex items-center gap-1 mt-1">
+                  <Icon name="AlertCircle" size={14} />
+                  {diplomaError}
+                </p>
+              )}
               {formData.diplomaImage && (
                 <div className="mt-2">
                   <img src={formData.diplomaImage} alt="Превью диплома" className="w-32 h-auto rounded-lg border" />

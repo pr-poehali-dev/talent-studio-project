@@ -280,6 +280,7 @@ const Index = () => {
     { id: "holidays", label: "Конкурсы, посвященные теме праздников", icon: "PartyPopper", heading: "Праздничные конкурсы" },
     { id: "thematic", label: "Тематические конкурсы ИЗО и ДПИ", icon: "Sparkles", heading: "Тематические конкурсы" },
     { id: "literary", label: "Конкурсы, посвященные литературным сюжетам и образам", icon: "BookOpen", heading: "Конкурсы по литературным сюжетам и образам" },
+    { id: "preschool", label: "Конкурсы для детей дошкольного возраста", icon: "Baby", heading: "Конкурсы для дошкольников" },
   ];
 
   const getCategoryIcon = (categoryId: string) => {

@@ -278,11 +278,14 @@ const Admin = () => {
     const months: Record<string, string> = {
       'января': '01', 'февраля': '02', 'марта': '03', 'апреля': '04',
       'мая': '05', 'июня': '06', 'июля': '07', 'августа': '08',
-      'сентября': '09', 'октября': '10', 'ноября': '11', 'декабря': '12'
+      'сентября': '09', 'октября': '10', 'ноября': '11', 'декабря': '12',
+      'january': '01', 'february': '02', 'march': '03', 'april': '04',
+      'may': '05', 'june': '06', 'july': '07', 'august': '08',
+      'september': '09', 'october': '10', 'november': '11', 'december': '12'
     };
     const parts = dateStr.trim().split(' ');
-    if (parts.length === 3 && months[parts[1]]) {
-      return `${parts[2]}-${months[parts[1]]}-${parts[0].padStart(2, '0')}`;
+    if (parts.length === 3 && months[parts[1].toLowerCase()]) {
+      return `${parts[2]}-${months[parts[1].toLowerCase()]}-${parts[0].padStart(2, '0')}`;
     }
     const d = new Date(dateStr);
     return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];

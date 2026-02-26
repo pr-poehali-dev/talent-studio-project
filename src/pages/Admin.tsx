@@ -274,11 +274,25 @@ const Admin = () => {
     setIsModalOpen(true);
   };
 
+  const parseRussianDate = (dateStr: string): string => {
+    const months: Record<string, string> = {
+      'января': '01', 'февраля': '02', 'марта': '03', 'апреля': '04',
+      'мая': '05', 'июня': '06', 'июля': '07', 'августа': '08',
+      'сентября': '09', 'октября': '10', 'ноября': '11', 'декабря': '12'
+    };
+    const parts = dateStr.trim().split(' ');
+    if (parts.length === 3 && months[parts[1]]) {
+      return `${parts[2]}-${months[parts[1]]}-${parts[0].padStart(2, '0')}`;
+    }
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
+  };
+
   const handleEditContest = (contest: Contest) => {
     setEditingContest(contest);
     setFormData({
       ...contest,
-      deadline: contest.deadline ? new Date(contest.deadline).toISOString().split('T')[0] : ""
+      deadline: contest.deadline ? parseRussianDate(contest.deadline) : ""
     });
     setIsModalOpen(true);
   };

@@ -472,15 +472,16 @@ const Index = () => {
                     <h4 className="text-lg font-heading font-bold mb-2">{contest.title}</h4>
                     <p className="text-sm text-muted-foreground mb-2">{contest.description}</p>
                     {contest.rulesLink && (
-                      <a
-                        href={contest.rulesLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-primary underline hover:opacity-75 mb-2 inline-block"
-                        onClick={(e) => e.stopPropagation()}
+                      <button
+                        className="text-sm text-primary underline hover:opacity-75 mb-2 block text-left"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPdfUrl(contest.rulesLink);
+                          setIsPdfModalOpen(true);
+                        }}
                       >
                         📄 Положение конкурса
-                      </a>
+                      </button>
                     )}
                     <p className="text-sm font-semibold text-success">💰 {contest.price} ₽</p>
                   </CardContent>

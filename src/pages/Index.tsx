@@ -100,6 +100,8 @@ const Index = () => {
   const [galleryVisible, setGalleryVisible] = useState(16);
   const GALLERY_STEP = 16;
   const [featuredWorks, setFeaturedWorks] = useState<GalleryWork[]>([]);
+  const [featuredPage, setFeaturedPage] = useState(0);
+  const FEATURED_PER_PAGE = 8;
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [resultFilters, setResultFilters] = useState({
@@ -492,30 +494,57 @@ const Index = () => {
 
           <section className="mb-20">
             <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
-            <div className="grid md:grid-cols-4 gap-6">
-              {featuredWorks.slice(0, 8).map((work) => (
-                <Card
-                  key={work.id}
-                  className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"
-                  onClick={() => {
-                    setImagePreview(work.work_file_url);
-                    setIsImageModalOpen(true);
-                  }}
-                >
-                  <div className="h-48 overflow-hidden">
-                    <img 
-                      src={work.work_file_url} 
-                      alt={work.work_title}
-                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <h4 className="text-base font-heading font-bold mb-1">{work.work_title}</h4>
-                    <p className="text-xs text-muted-foreground mb-1">👤 {work.full_name}{work.age ? `, ${work.age} лет` : ''}</p>
-                    <p className="text-xs text-muted-foreground">🏆 {work.contest_name}</p>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="relative">
+              <div className="grid md:grid-cols-4 gap-6">
+                {featuredWorks.slice(featuredPage * FEATURED_PER_PAGE, (featuredPage + 1) * FEATURED_PER_PAGE).map((work) => (
+                  <Card
+                    key={work.id}
+                    className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"
+                    onClick={() => {
+                      setImagePreview(work.work_file_url);
+                      setIsImageModalOpen(true);
+                    }}
+                  >
+                    <div className="h-48 overflow-hidden">
+                      <img 
+                        src={work.work_file_url} 
+                        alt={work.work_title}
+                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                      />
+                    </div>
+                    <CardContent className="p-4">
+                      <h4 className="text-base font-heading font-bold mb-1">{work.work_title}</h4>
+                      <p className="text-xs text-muted-foreground mb-1">👤 {work.full_name}{work.age ? `, ${work.age} лет` : ''}</p>
+                      <p className="text-xs text-muted-foreground">🏆 {work.contest_name}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              {featuredWorks.length > FEATURED_PER_PAGE && (
+                <div className="flex items-center justify-center gap-4 mt-8">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full w-12 h-12 shadow-md"
+                    disabled={featuredPage === 0}
+                    onClick={() => setFeaturedPage(p => p - 1)}
+                  >
+                    <Icon name="ChevronLeft" size={22} />
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    {featuredPage + 1} / {Math.ceil(featuredWorks.length / FEATURED_PER_PAGE)}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full w-12 h-12 shadow-md"
+                    disabled={(featuredPage + 1) * FEATURED_PER_PAGE >= featuredWorks.length}
+                    onClick={() => setFeaturedPage(p => p + 1)}
+                  >
+                    <Icon name="ChevronRight" size={22} />
+                  </Button>
+                </div>
+              )}
             </div>
           </section>
 

@@ -490,7 +490,7 @@ const Index = () => {
             </div>
           </section>
 
-          <section>
+          <section className="mb-20">
             <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
             <div className="grid md:grid-cols-4 gap-6">
               {featuredWorks.slice(0, 8).map((work) => (

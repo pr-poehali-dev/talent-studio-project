@@ -495,7 +495,7 @@ const Index = () => {
           <section className="mb-20">
             <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
             <div className="relative">
-              <div className="grid md:grid-cols-4 gap-6">
+              <div className="grid md:grid-cols-4 gap-6 min-h-[560px] content-start">
                 {featuredWorks.slice(featuredPage * FEATURED_PER_PAGE, (featuredPage + 1) * FEATURED_PER_PAGE).map((work) => (
                   <Card
                     key={work.id}

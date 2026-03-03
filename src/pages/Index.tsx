@@ -305,13 +305,13 @@ const Index = () => {
               className="w-full cursor-pointer drop-shadow-2xl"
               onClick={() => setShowCatWelcome(false)}
             />
-            {/* Текст в облачке — правый верхний угол картинки */}
+            {/* Текст в облачке */}
             <div
-              className="absolute"
-              style={{ top: '8%', left: '38%', width: '54%' }}
+              className="absolute flex items-center justify-center"
+              style={{ top: '5%', left: '35%', width: '60%', height: '50%' }}
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-center font-semibold leading-snug" style={{ fontSize: 'clamp(12px, 1.5vw, 18px)', color: '#5a3000' }}>
+              <p className="text-center font-semibold leading-snug px-4" style={{ fontSize: 'clamp(14px, 2vw, 22px)', color: '#5a3000', width: '70%' }}>
                 Дорогие гости и участники, подписывайтесь на нашу группу{' '}
                 <a
                   href="https://vk.com/studio.talantov"

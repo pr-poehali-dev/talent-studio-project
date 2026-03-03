@@ -308,10 +308,10 @@ const Index = () => {
             {/* Текст в облачке */}
             <div
               className="absolute flex items-center justify-center"
-              style={{ top: '5%', left: '35%', width: '60%', height: '50%' }}
+              style={{ top: '5%', left: '40%', width: '58%', height: '50%' }}
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-center font-semibold leading-snug px-4" style={{ fontSize: 'clamp(18px, 2.8vw, 32px)', color: '#5a3000', width: '70%' }}>
+              <p className="text-center font-semibold leading-snug px-4" style={{ fontSize: 'clamp(22px, 3.5vw, 40px)', color: '#5a3000', width: '70%' }}>
                 Дорогие гости и участники, подписывайтесь на нашу группу{' '}
                 <a
                   href="https://vk.com/studio.talantov"

@@ -298,13 +298,33 @@ const Index = () => {
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 animate-in fade-in duration-500"
           onClick={() => setShowCatWelcome(false)}
         >
-          <img
-            src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/414e01b6-6b15-442b-896a-03e29a3e5b5d.png"
-            alt="Кот Ван Гог"
-            style={{ width: '1000px', maxWidth: '95vw' }}
-            className="cursor-pointer drop-shadow-2xl animate-in zoom-in duration-500"
-            onClick={() => setShowCatWelcome(false)}
-          />
+          <div className="relative animate-in zoom-in duration-500" style={{ width: '1000px', maxWidth: '95vw' }}>
+            <img
+              src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/414e01b6-6b15-442b-896a-03e29a3e5b5d.png"
+              alt="Кот Ван Гог"
+              className="w-full cursor-pointer drop-shadow-2xl"
+              onClick={() => setShowCatWelcome(false)}
+            />
+            {/* Текст в облачке — правый верхний угол картинки */}
+            <div
+              className="absolute"
+              style={{ top: '8%', left: '38%', width: '54%' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p className="text-center font-semibold leading-snug" style={{ fontSize: 'clamp(12px, 1.5vw, 18px)', color: '#5a3000' }}>
+                Дорогие гости и участники, подписывайтесь на нашу группу{' '}
+                <a
+                  href="https://vk.com/studio.talantov"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline font-bold hover:opacity-80"
+                  style={{ color: '#0077FF' }}
+                >
+                  ВКонтакте
+                </a>
+              </p>
+            </div>
+          </div>
         </div>
       )}
       <nav className="sticky top-0 z-50 backdrop-blur-md shadow-md" style={{ background: 'linear-gradient(to right, #FEFEFE, #FFFBDB)' }}>

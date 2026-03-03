@@ -81,6 +81,7 @@ const Index = () => {
   const initialSection = searchParams.get('section') || 'home';
   const categoryParam = searchParams.get('category');
   const [activeSection, setActiveSection] = useState(initialSection);
+  const [showCatWelcome, setShowCatWelcome] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContest, setSelectedContest] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -292,6 +293,20 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {showCatWelcome && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 animate-in fade-in duration-500"
+          onClick={() => setShowCatWelcome(false)}
+        >
+          <img
+            src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/414e01b6-6b15-442b-896a-03e29a3e5b5d.png"
+            alt="Кот Ван Гог"
+            style={{ width: '1000px', maxWidth: '95vw' }}
+            className="cursor-pointer drop-shadow-2xl animate-in zoom-in duration-500"
+            onClick={() => setShowCatWelcome(false)}
+          />
+        </div>
+      )}
       <nav className="sticky top-0 z-50 backdrop-blur-md shadow-md" style={{ background: 'linear-gradient(to right, #FEFEFE, #FFFBDB)' }}>
         <div className="container mx-auto pl-[50px] pr-4 py-4">
           <div className="flex items-center">

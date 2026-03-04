@@ -313,14 +313,14 @@ const Index = () => {
               style={{ top: '5%', left: '40%', width: '58%', height: '50%' }}
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-center font-semibold leading-snug px-4" style={{ fontSize: 'calc(min(1000px, 95vw) * 0.038)', color: '#5a3000', width: '70%' }}>
+              <p className="text-center font-semibold italic leading-snug px-4 font-body" style={{ fontSize: 'calc(min(1000px, 95vw) * 0.038)', color: 'hsl(var(--foreground))', width: '70%' }}>
                 Дорогие гости и участники, подписывайтесь на нашу группу{' '}
                 <a
                   href="https://vk.com/studio.talantov"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline font-bold hover:opacity-80"
-                  style={{ color: '#0077FF' }}
+                  className="font-bold rounded px-1 hover:brightness-110 transition-all"
+                  style={{ color: '#fff', background: '#0077FF', textDecoration: 'none', padding: '1px 6px', borderRadius: '4px' }}
                 >
                   ВКонтакте
                 </a>

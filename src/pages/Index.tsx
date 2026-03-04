@@ -316,22 +316,27 @@ const Index = () => {
             />
             {/* Текст в облачке */}
             <div
-              className="absolute flex items-center justify-center"
+              className="absolute flex flex-col items-center justify-center gap-2"
               style={{ top: '5%', left: '40%', width: '58%', height: '50%' }}
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-center font-semibold leading-snug px-4 font-sans" style={{ fontSize: 'calc(min(1000px, 95vw) * 0.038)', color: 'hsl(var(--foreground))', width: '70%', opacity: 0, animation: 'catTextIn 0.6s ease-out 0.4s forwards' }}>
-                Дорогие гости и участники, подписывайтесь на нашу группу{' '}
+              <div style={{ opacity: 0, animation: 'catTextIn 0.6s ease-out 0.4s forwards', width: '72%', textAlign: 'center' }}>
+                <p className="font-heading font-bold" style={{ fontSize: 'calc(min(1000px, 95vw) * 0.032)', color: '#E31E24', marginBottom: '0.4em', lineHeight: 1.2 }}>
+                  Дорогие гости и участники!
+                </p>
+                <p className="font-sans font-semibold" style={{ fontSize: 'calc(min(1000px, 95vw) * 0.026)', color: '#5a3e00', lineHeight: 1.4, marginBottom: '0.6em' }}>
+                  Подписывайтесь на нашу группу
+                </p>
                 <a
                   href="https://vk.com/studio.talantov"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold rounded px-1 hover:brightness-110 transition-all"
-                  style={{ color: '#fff', background: '#0077FF', textDecoration: 'none', padding: '1px 6px', borderRadius: '4px' }}
+                  className="inline-block font-sans font-bold hover:brightness-110 transition-all hover:scale-105"
+                  style={{ fontSize: 'calc(min(1000px, 95vw) * 0.028)', color: '#fff', background: '#0077FF', textDecoration: 'none', padding: '3px 14px', borderRadius: '20px' }}
                 >
                   ВКонтакте
                 </a>
-              </p>
+              </div>
             </div>
           </div>
         </div>

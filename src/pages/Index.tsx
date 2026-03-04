@@ -313,7 +313,7 @@ const Index = () => {
               style={{ top: '5%', left: '40%', width: '58%', height: '50%' }}
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-center font-semibold italic leading-snug px-4 font-body" style={{ fontSize: 'calc(min(1000px, 95vw) * 0.038)', color: 'hsl(var(--foreground))', width: '70%' }}>
+              <p className="text-center font-semibold italic leading-snug px-4 font-sans" style={{ fontSize: 'calc(min(1000px, 95vw) * 0.038)', color: 'hsl(var(--foreground))', width: '70%', opacity: 0, animation: 'catTextIn 0.6s ease-out 0.4s forwards' }}>
                 Дорогие гости и участники, подписывайтесь на нашу группу{' '}
                 <a
                   href="https://vk.com/studio.talantov"

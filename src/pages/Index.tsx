@@ -301,6 +301,13 @@ const Index = () => {
           onClick={() => setShowCatWelcome(false)}
         >
           <div className="relative animate-in zoom-in duration-500" style={{ width: '1000px', maxWidth: '95vw' }}>
+            <button
+              onClick={() => setShowCatWelcome(false)}
+              className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white text-foreground rounded-full w-8 h-8 flex items-center justify-center shadow-md transition-all hover:scale-110"
+              aria-label="Закрыть"
+            >
+              <Icon name="X" size={18} />
+            </button>
             <img
               src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/414e01b6-6b15-442b-896a-03e29a3e5b5d.png"
               alt="Кот Ван Гог"
@@ -313,7 +320,7 @@ const Index = () => {
               style={{ top: '5%', left: '40%', width: '58%', height: '50%' }}
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-center font-semibold italic leading-snug px-4 font-sans" style={{ fontSize: 'calc(min(1000px, 95vw) * 0.038)', color: 'hsl(var(--foreground))', width: '70%', opacity: 0, animation: 'catTextIn 0.6s ease-out 0.4s forwards' }}>
+              <p className="text-center font-semibold leading-snug px-4 font-sans" style={{ fontSize: 'calc(min(1000px, 95vw) * 0.038)', color: 'hsl(var(--foreground))', width: '70%', opacity: 0, animation: 'catTextIn 0.6s ease-out 0.4s forwards' }}>
                 Дорогие гости и участники, подписывайтесь на нашу группу{' '}
                 <a
                   href="https://vk.com/studio.talantov"

@@ -82,6 +82,7 @@
 
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
+    if (window.location.pathname !== '/admin') {
     (function (m, e, t, r, i, k, a) {
         m[i] = m[i] || function () {
             (m[i].a = m[i].a || []).push(arguments)
@@ -104,6 +105,7 @@
         webvisor: true,
         trackHash: true
     });
+    }
 </script>
 <noscript>
     <div><img src="https://mc.yandex.ru/watch/106829772" style="position:absolute; left:-9999px;" alt=""/></div>

@@ -83,6 +83,7 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState(initialSection);
   const [showCatWelcome, setShowCatWelcome] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileOpenSubmenu, setMobileOpenSubmenu] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContest, setSelectedContest] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -420,9 +421,13 @@ const Index = () => {
               <div key={item.id}>
                 <button
                   onClick={() => {
-                    setActiveSection(item.id);
-                    setIsMobileMenuOpen(false);
-                    setShowContestsDropdown(false);
+                    if (item.hasDropdown) {
+                      setMobileOpenSubmenu(mobileOpenSubmenu === item.id ? null : item.id);
+                    } else {
+                      setActiveSection(item.id);
+                      setIsMobileMenuOpen(false);
+                      setMobileOpenSubmenu(null);
+                    }
                   }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-left ${
                     activeSection === item.id
@@ -432,8 +437,11 @@ const Index = () => {
                 >
                   <Icon name={item.icon} size={20} />
                   {item.label}
+                  {item.hasDropdown && (
+                    <Icon name="ChevronDown" size={16} className={`ml-auto transition-transform ${mobileOpenSubmenu === item.id ? 'rotate-180' : ''}`} />
+                  )}
                 </button>
-                {item.hasDropdown && (
+                {item.hasDropdown && mobileOpenSubmenu === item.id && (
                   <div className="pl-4 flex flex-col gap-1 pb-2">
                     {contestCategories.map((category) => (
                       <button
@@ -442,6 +450,7 @@ const Index = () => {
                           setActiveSection("contests");
                           setContestFilter(category.id);
                           setIsMobileMenuOpen(false);
+                          setMobileOpenSubmenu(null);
                         }}
                         className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm hover:bg-accent transition-colors text-left"
                       >

@@ -82,6 +82,7 @@ const Index = () => {
   const categoryParam = searchParams.get('category');
   const [activeSection, setActiveSection] = useState(initialSection);
   const [showCatWelcome, setShowCatWelcome] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContest, setSelectedContest] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -335,6 +336,14 @@ const Index = () => {
               alt="Мечтай, твори, дерзай!" 
               className="h-32 w-auto object-contain"
             />
+            {/* Кнопка-гамбургер для мобильных */}
+            <button
+              className="md:hidden ml-auto p-2 rounded-xl hover:bg-accent transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <Icon name={isMobileMenuOpen ? "X" : "Menu"} size={28} />
+            </button>
+
             <div className="hidden md:flex gap-2 ml-[20px] flex-1 justify-end">
               {navItems.map((item) => (
                 <div 
@@ -402,6 +411,51 @@ const Index = () => {
           </div>
         </div>
       </nav>
+
+      {/* Мобильное меню */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden sticky top-[148px] z-40 shadow-lg" style={{ background: 'linear-gradient(to right, #FEFEFE, #FFFBDB)' }}>
+          <div className="flex flex-col py-2 px-4">
+            {navItems.map((item) => (
+              <div key={item.id}>
+                <button
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    setIsMobileMenuOpen(false);
+                    setShowContestsDropdown(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-left ${
+                    activeSection === item.id
+                      ? "bg-primary text-primary-foreground"
+                      : "text-foreground hover:bg-accent"
+                  }`}
+                >
+                  <Icon name={item.icon} size={20} />
+                  {item.label}
+                </button>
+                {item.hasDropdown && (
+                  <div className="pl-4 flex flex-col gap-1 pb-2">
+                    {contestCategories.map((category) => (
+                      <button
+                        key={category.id}
+                        onClick={() => {
+                          setActiveSection("contests");
+                          setContestFilter(category.id);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm hover:bg-accent transition-colors text-left"
+                      >
+                        <Icon name={category.icon} size={16} className="text-primary" />
+                        {category.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {activeSection === "home" && (
         <div className="container mx-auto px-[40px] py-12">

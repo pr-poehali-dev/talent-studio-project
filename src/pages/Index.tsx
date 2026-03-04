@@ -317,7 +317,7 @@ const Index = () => {
             {/* Текст в облачке */}
             <div
               className="absolute flex flex-col items-center justify-center gap-2"
-              style={{ top: '5%', left: '40%', width: '58%', height: '50%' }}
+              style={{ top: '5%', left: '44%', width: '58%', height: '50%' }}
               onClick={(e) => e.stopPropagation()}
             >
               <div style={{ opacity: 0, animation: 'catTextIn 0.6s ease-out 0.4s forwards', width: '72%', textAlign: 'center' }}>

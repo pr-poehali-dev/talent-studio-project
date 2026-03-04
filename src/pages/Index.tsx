@@ -311,7 +311,7 @@ const Index = () => {
               style={{ top: '5%', left: '40%', width: '58%', height: '50%' }}
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-center font-semibold leading-snug px-4" style={{ fontSize: 'clamp(22px, 3.5vw, 40px)', color: '#5a3000', width: '70%' }}>
+              <p className="text-center font-semibold leading-snug px-4" style={{ fontSize: '3.8%', color: '#5a3000', width: '70%' }}>
                 Дорогие гости и участники, подписывайтесь на нашу группу{' '}
                 <a
                   href="https://vk.com/studio.talantov"

@@ -87,6 +87,7 @@ const APPLICATIONS_API_URL = "https://functions.poehali.dev/ff2c7334-750b-418e-8
 const SUBMIT_APPLICATION_URL = "https://functions.poehali.dev/2d352955-9c6c-4bbb-ad1e-944c7ea04d84";
 const REVIEWS_API_URL = "https://functions.poehali.dev/3daafc39-174c-4669-8e8a-71172a246929";
 const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
+const CERTIFICATES_LOG_URL = "https://functions.poehali.dev/15416f51-5386-4500-b770-4dea40b824e5";
 
 const Admin = () => {
   useEffect(() => {
@@ -100,7 +101,9 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const [activeTab, setActiveTab] = useState<'contests' | 'applications' | 'results' | 'reviews' | 'settings'>('contests');
+  const [activeTab, setActiveTab] = useState<'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings'>('contests');
+  const [certificatesLog, setCertificatesLog] = useState<{id: number; result_id: number; full_name: string; contest_name: string; issued_at: string}[]>([]);
+  const [certLoading, setCertLoading] = useState(false);
   const [applicationsSubTab, setApplicationsSubTab] = useState<'active' | 'archive' | 'trash'>('active');
   const [contests, setContests] = useState<Contest[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -653,6 +656,23 @@ const Admin = () => {
             Отзывы ({reviews.length})
           </Button>
           <Button
+            variant={activeTab === 'certificates' ? 'default' : 'ghost'}
+            onClick={() => {
+              setActiveTab('certificates');
+              if (certificatesLog.length === 0) {
+                setCertLoading(true);
+                fetch(CERTIFICATES_LOG_URL)
+                  .then(r => r.json())
+                  .then(data => setCertificatesLog(data))
+                  .finally(() => setCertLoading(false));
+              }
+            }}
+            className="rounded-t-xl rounded-b-none"
+          >
+            <Icon name="ScrollText" className="mr-2" />
+            Выданные справки
+          </Button>
+          <Button
             variant={activeTab === 'settings' ? 'default' : 'ghost'}
             onClick={() => setActiveTab('settings')}
             className="rounded-t-xl rounded-b-none"
@@ -740,6 +760,59 @@ const Admin = () => {
             REVIEWS_API_URL={REVIEWS_API_URL}
             toast={toast}
           />
+        )}
+
+        {activeTab === 'certificates' && (
+          <div>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-heading font-bold text-primary">Выданные справки</h2>
+              <Button variant="outline" size="sm" onClick={() => {
+                setCertLoading(true);
+                fetch(CERTIFICATES_LOG_URL)
+                  .then(r => r.json())
+                  .then(data => setCertificatesLog(data))
+                  .finally(() => setCertLoading(false));
+              }}>
+                <Icon name="RefreshCw" size={16} className="mr-2" />
+                Обновить
+              </Button>
+            </div>
+            {certLoading ? (
+              <div className="flex items-center gap-2 text-muted-foreground"><Icon name="Loader2" className="animate-spin" /> Загрузка...</div>
+            ) : certificatesLog.length === 0 ? (
+              <p className="text-muted-foreground">Справки ещё не выдавались</p>
+            ) : (
+              <div className="rounded-2xl border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="text-left px-4 py-3 font-semibold">ID</th>
+                      <th className="text-left px-4 py-3 font-semibold">Участник</th>
+                      <th className="text-left px-4 py-3 font-semibold">Конкурс</th>
+                      <th className="text-left px-4 py-3 font-semibold">ID результата</th>
+                      <th className="text-left px-4 py-3 font-semibold">Дата и время выдачи</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {certificatesLog.map((row, i) => (
+                      <tr key={row.id} className={i % 2 === 0 ? 'bg-white' : 'bg-muted/30'}>
+                        <td className="px-4 py-3 text-muted-foreground">{row.id}</td>
+                        <td className="px-4 py-3 font-medium">{row.full_name || '—'}</td>
+                        <td className="px-4 py-3">{row.contest_name || '—'}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{row.result_id}</td>
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {new Date(row.issued_at).toLocaleString('ru-RU', {
+                            day: '2-digit', month: '2-digit', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                          })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'settings' && (

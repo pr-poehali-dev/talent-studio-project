@@ -318,6 +318,14 @@ def handler(event: dict, context) -> dict:
         pdf_bytes = build_pdf(dict(result))
         pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
 
+        # Записываем лог выдачи справки
+        with conn.cursor() as log_cur:
+            log_cur.execute(
+                'INSERT INTO certificates_log (result_id, full_name, contest_name) VALUES (%s, %s, %s)',
+                (result_id, result.get('full_name', ''), result.get('contest_name', ''))
+            )
+            conn.commit()
+
         full_name_safe = (result.get('full_name') or 'certificate').replace(' ', '_')
         filename = f'certificate_{result_id}_{full_name_safe}.pdf'
 

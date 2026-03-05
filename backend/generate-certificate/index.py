@@ -43,8 +43,7 @@ RESULT_COLORS = {
 }
 
 LOGO_URL      = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/2aa89901-38a4-48dd-b954-f55aec2d1508.png'
-SIGNATURE_URL = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/3d72c8a2-4a58-4bce-bb30-0eab320c01f4.png'
-STAMP_URL     = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/d664621f-7a21-4f2d-a269-d2a37f07e63a.png'
+SIGN_STAMP_URL = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/57089395-3617-4837-8eb4-5a611478b79f.png'
 
 _img_cache: dict = {}
 
@@ -229,32 +228,17 @@ def build_pdf(result: dict) -> bytes:
         Paragraph('Мозжерина Анна Владимировна', sign_name_style),
     ]
 
-    # Правая колонка — подпись и печать в одной вложенной таблице (вплотную)
-    right_inner = []
+    # Правая колонка — единая картинка подписи+печати
+    right_col = []
     try:
-        sig_img = Image(fetch_image(SIGNATURE_URL), width=38*mm, height=18*mm, kind='proportional')
-        right_inner.append(sig_img)
+        sign_stamp_img = Image(fetch_image(SIGN_STAMP_URL), width=55*mm, height=55*mm, kind='proportional')
+        right_col.append(sign_stamp_img)
     except Exception:
-        right_inner.append(Spacer(1, 18*mm))
-    try:
-        stamp_img = Image(fetch_image(STAMP_URL), width=42*mm, height=42*mm, kind='proportional')
-        right_inner.append(stamp_img)
-    except Exception:
-        right_inner.append(Spacer(1, 42*mm))
-
-    inner_table = Table([[right_inner]], colWidths=None)
-    inner_table.setStyle(TableStyle([
-        ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
-        ('ALIGN',         (0,0), (-1,-1), 'RIGHT'),
-        ('LEFTPADDING',   (0,0), (-1,-1), 0),
-        ('RIGHTPADDING',  (0,0), (-1,-1), 0),
-        ('TOPPADDING',    (0,0), (-1,-1), 0),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 0),
-    ]))
+        right_col.append(Spacer(1, 55*mm))
 
     sign_table = Table(
-        [[left_col, inner_table]],
-        colWidths=[usable_width * 0.45, usable_width * 0.55],
+        [[left_col, right_col]],
+        colWidths=[usable_width * 0.5, usable_width * 0.5],
     )
     sign_table.setStyle(TableStyle([
         ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),

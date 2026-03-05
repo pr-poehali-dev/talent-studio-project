@@ -663,12 +663,13 @@ const Index = () => {
             <h3 className="text-4xl font-heading font-bold text-center mb-12 text-primary">🌟 Почему выбирают нас?</h3>
             <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
               <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <Icon name="Award" className="text-white" size={32} />
+                <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <Icon name="Trophy" className="text-white" size={32} />
                 </div>
-                <h4 className="text-xl font-heading font-bold text-center mb-3 text-primary">Официальные дипломы</h4>
+                <h4 className="text-xl font-heading font-bold text-center mb-3 text-accent">Широкий выбор номинаций</h4>
+                <p className="text-center text-muted-foreground text-sm mb-2 font-medium">👉 Огромное количество ярких конкурсов</p>
                 <p className="text-center text-muted-foreground">
-                  Каждый участник получает красочный диплом в электронном виде — отличное пополнение портфолио! Дипломы соответствуют требованиям для школьных конкурсов и мероприятий.
+                  Студия предлагает более 50 разнообразных конкурсов по изобразительному искусству, декоративно‑прикладному творчеству и специализированным тематическим направлениям. Каждый участник сможет подобрать мероприятие в соответствии со своими интересами и творческим потенциалом.
                 </p>
               </Card>
 
@@ -677,16 +678,19 @@ const Index = () => {
                   <Icon name="Zap" className="text-white" size={32} />
                 </div>
                 <h4 className="text-xl font-heading font-bold text-center mb-3 text-secondary">Быстрые результаты</h4>
-                <p className="text-center text-muted-foreground">Итоги конкурсов публикуются в течение 1-2 дней после принятия заявки на участие. </p>
+                <p className="text-center text-muted-foreground text-sm mb-2 font-medium">👉 Гарантированные сроки предоставления результатов</p>
+                <p className="text-center text-muted-foreground">
+                  Итоги конкурсов публикуются в срок от 1 до 3 рабочих дней после подачи и регистрации заявки на участие.
+                </p>
               </Card>
 
               <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <Icon name="Trophy" className="text-white" size={32} />
+                <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <Icon name="Award" className="text-white" size={32} />
                 </div>
-                <h4 className="text-xl font-heading font-bold text-center mb-3 text-accent">Широкий выбор номинаций</h4>
+                <h4 className="text-xl font-heading font-bold text-center mb-3 text-primary">Про дипломы</h4>
                 <p className="text-center text-muted-foreground">
-                  Более 50 различных конкурсов по изобразительному искусству, декоративно-прикладному творчеству, тематическим направлениям — каждый найдет что-то своё!
+                  Каждый участник конкурса получает электронный диплом установленного образца. Документ может быть использован для пополнения портфолио и соответствует требованиям, предъявляемым к материалам для школьных конкурсов и мероприятий.
                 </p>
               </Card>
 
@@ -694,17 +698,19 @@ const Index = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-success to-info rounded-2xl flex items-center justify-center mb-4 mx-auto">
                   <Icon name="Wallet" className="text-white" size={32} />
                 </div>
-                <h4 className="text-xl font-heading font-bold text-center mb-3 text-success">Доступная стоимость</h4>
-                <p className="text-center text-muted-foreground">Всего 200 ₽ за участие. Никаких скрытых платежей — стоимость фиксирована и указана заранее.</p>
+                <h4 className="text-xl font-heading font-bold text-center mb-3 text-success">Стоимость</h4>
+                <p className="text-center text-muted-foreground">
+                  👉 Стоимость участия составляет 200 рублей. Цена фиксирована, дополнительные или скрытые платежи отсутствуют.
+                </p>
               </Card>
 
               <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
                 <div className="w-16 h-16 bg-gradient-to-br from-info to-primary rounded-2xl flex items-center justify-center mb-4 mx-auto">
                   <Icon name="Users" className="text-white" size={32} />
                 </div>
-                <h4 className="text-xl font-heading font-bold text-center mb-3 text-info">Для всех возрастов</h4>
+                <h4 className="text-xl font-heading font-bold text-center mb-3 text-info">Без возрастных ограничений</h4>
                 <p className="text-center text-muted-foreground">
-                  Принимаем работы детей, подростков и взрослых. Участвовать могут и учащиеся художественных школ, и любители творчества!
+                  К участию приглашаются: учащиеся и педагоги художественных школ и студий; художники‑любители и профессионалы; все желающие представить свои творческие работы широкой аудитории.
                 </p>
               </Card>
 
@@ -713,7 +719,7 @@ const Index = () => {
                   <Icon name="Smartphone" className="text-white" size={32} />
                 </div>
                 <h4 className="text-xl font-heading font-bold text-center mb-3 text-primary">Удобная подача работ</h4>
-                <p className="text-center text-muted-foreground">Заполните простую форму, загрузите фото работы — и готово! </p>
+                <p className="text-center text-muted-foreground">Заполните форму → загрузите фото → оплатите оргвзнос → участвуйте! Всё просто и быстро.</p>
               </Card>
             </div>
           </section>

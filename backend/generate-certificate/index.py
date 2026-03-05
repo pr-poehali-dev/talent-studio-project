@@ -202,7 +202,7 @@ def build_pdf(result: dict) -> bytes:
         row('Дата выдачи справки',      issued_str),
     ]
 
-    info_table = Table(data, colWidths=[55*mm, usable_width - 55*mm], rowHeights=[11*mm]*len(data))
+    info_table = Table(data, colWidths=[55*mm, usable_width - 55*mm])
     info_table.setStyle(TableStyle([
         ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
         ('LEFTPADDING',   (0,0), (-1,-1), 3*mm),
@@ -229,35 +229,41 @@ def build_pdf(result: dict) -> bytes:
         Paragraph('Мозжерина Анна Владимировна', sign_name_style),
     ]
 
-    # Средняя колонка — подпись
-    sig_cell = []
+    # Правая колонка — подпись и печать в одной вложенной таблице (вплотную)
+    right_inner = []
     try:
         sig_img = Image(fetch_image(SIGNATURE_URL), width=38*mm, height=18*mm, kind='proportional')
-        sig_cell.append(sig_img)
+        right_inner.append(sig_img)
     except Exception:
-        sig_cell.append(Spacer(1, 18*mm))
-
-    # Правая колонка — печать
-    stamp_cell = []
+        right_inner.append(Spacer(1, 18*mm))
     try:
         stamp_img = Image(fetch_image(STAMP_URL), width=42*mm, height=42*mm, kind='proportional')
-        stamp_cell.append(stamp_img)
+        right_inner.append(stamp_img)
     except Exception:
-        stamp_cell.append(Spacer(1, 35*mm))
+        right_inner.append(Spacer(1, 42*mm))
+
+    inner_table = Table([[right_inner]], colWidths=None)
+    inner_table.setStyle(TableStyle([
+        ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+        ('ALIGN',         (0,0), (-1,-1), 'RIGHT'),
+        ('LEFTPADDING',   (0,0), (-1,-1), 0),
+        ('RIGHTPADDING',  (0,0), (-1,-1), 0),
+        ('TOPPADDING',    (0,0), (-1,-1), 0),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 0),
+    ]))
 
     sign_table = Table(
-        [[left_col, sig_cell, stamp_cell]],
-        colWidths=[usable_width * 0.42, usable_width * 0.26, usable_width * 0.32],
+        [[left_col, inner_table]],
+        colWidths=[usable_width * 0.45, usable_width * 0.55],
     )
     sign_table.setStyle(TableStyle([
-        ('VALIGN',  (0,0), (-1,-1), 'MIDDLE'),
-        ('ALIGN',   (0,0), (0,0),   'LEFT'),
-        ('ALIGN',   (1,0), (1,0),   'CENTER'),
-        ('ALIGN',   (2,0), (2,0),   'RIGHT'),
-        ('LEFTPADDING',  (0,0), (-1,-1), 0),
-        ('RIGHTPADDING', (0,0), (-1,-1), 0),
-        ('TOPPADDING',   (0,0), (-1,-1), 0),
-        ('BOTTOMPADDING',(0,0), (-1,-1), 0),
+        ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+        ('ALIGN',         (0,0), (0,0),   'LEFT'),
+        ('ALIGN',         (1,0), (1,0),   'RIGHT'),
+        ('LEFTPADDING',   (0,0), (-1,-1), 0),
+        ('RIGHTPADDING',  (0,0), (-1,-1), 0),
+        ('TOPPADDING',    (0,0), (-1,-1), 0),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 0),
     ]))
     story.append(sign_table)
 

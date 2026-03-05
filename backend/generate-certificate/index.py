@@ -1,15 +1,17 @@
 import json
 import os
 import base64
+import urllib.request
+import tempfile
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.lib.colors import HexColor, white
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from datetime import date
@@ -39,6 +41,21 @@ RESULT_COLORS = {
     'third_degree': HexColor('#cd7f32'),
     'participant': HexColor('#4a90d9'),
 }
+
+LOGO_URL      = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/2aa89901-38a4-48dd-b954-f55aec2d1508.png'
+SIGNATURE_URL = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/3d72c8a2-4a58-4bce-bb30-0eab320c01f4.png'
+STAMP_URL     = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/d664621f-7a21-4f2d-a269-d2a37f07e63a.png'
+
+_img_cache: dict = {}
+
+def fetch_image(url: str) -> BytesIO:
+    if url in _img_cache:
+        return BytesIO(_img_cache[url])
+    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        data = resp.read()
+    _img_cache[url] = data
+    return BytesIO(data)
 
 _fonts_registered = False
 
@@ -136,6 +153,15 @@ def build_pdf(result: dict) -> bytes:
 
     story = []
 
+    # --- Шапка: логотип по центру ---
+    try:
+        logo_img = Image(fetch_image(LOGO_URL), width=45*mm, height=45*mm, kind='proportional')
+        logo_img.hAlign = 'CENTER'
+        story.append(logo_img)
+        story.append(Spacer(1, 3*mm))
+    except Exception:
+        pass
+
     story.append(Paragraph('СПРАВКА-ПОДТВЕРЖДЕНИЕ', title_style))
     story.append(Paragraph('об участии в конкурсе', subtitle_style))
     story.append(Spacer(1, 3*mm))
@@ -190,9 +216,47 @@ def build_pdf(result: dict) -> bytes:
     story.append(info_table)
 
     story.append(Spacer(1, 6*mm))
-    story.append(HRFlowable(width=usable_width, thickness=1, color=COLORS['mid_gray'], spaceAfter=3*mm))
+    story.append(HRFlowable(width=usable_width, thickness=1, color=COLORS['mid_gray'], spaceAfter=4*mm))
+
+    # --- Подвал: подпись и печать ---
+    sign_label_style = S('SL', fontSize=9, textColor=COLORS['text_muted'], fontName=F, spaceAfter=0)
+    sign_name_style  = S('SN', fontSize=10, textColor=COLORS['text_dark'], fontName=FB, spaceAfter=0)
+
+    sign_col = []
+    sign_col.append(Paragraph('Руководитель:', sign_label_style))
+    try:
+        sig_img = Image(fetch_image(SIGNATURE_URL), width=40*mm, height=20*mm, kind='proportional')
+        sign_col.append(sig_img)
+    except Exception:
+        sign_col.append(Spacer(1, 20*mm))
+    sign_col.append(Paragraph('Мозжерина Анна Владимировна', sign_name_style))
+
+    stamp_col = []
+    try:
+        stamp_img = Image(fetch_image(STAMP_URL), width=38*mm, height=38*mm, kind='proportional')
+        stamp_img.hAlign = 'RIGHT'
+        stamp_col.append(stamp_img)
+    except Exception:
+        stamp_col.append(Spacer(1, 38*mm))
+
+    sign_table = Table(
+        [[sign_col, stamp_col]],
+        colWidths=[usable_width * 0.6, usable_width * 0.4],
+    )
+    sign_table.setStyle(TableStyle([
+        ('VALIGN',  (0,0), (-1,-1), 'BOTTOM'),
+        ('ALIGN',   (1,0), (1,0),   'RIGHT'),
+        ('LEFTPADDING',  (0,0), (-1,-1), 0),
+        ('RIGHTPADDING', (0,0), (-1,-1), 0),
+        ('TOPPADDING',   (0,0), (-1,-1), 0),
+        ('BOTTOMPADDING',(0,0), (-1,-1), 0),
+    ]))
+    story.append(sign_table)
+
+    story.append(Spacer(1, 4*mm))
+    story.append(HRFlowable(width=usable_width, thickness=0.5, color=COLORS['mid_gray'], spaceAfter=2*mm))
     story.append(Paragraph(
-        'Справка выдана для предъявления по месту требования.<br/>'
+        'Справка выдана для предъявления по месту требования. '
         f'Документ сформирован автоматически • ID записи: {result_id}',
         footer_style
     ))

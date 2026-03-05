@@ -39,6 +39,7 @@ interface PublicResult {
   institution: string | null;
   work_title: string;
   contest_name: string;
+  contest_id: number | null;
   result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant';
   work_file_url: string;
   diploma_issued_at: string | null;
@@ -1052,7 +1053,7 @@ const Index = () => {
                     </div>
                   </div>
                 )}
-                <div className="hidden md:grid gap-4 p-4 bg-gray-50 border-b font-semibold text-sm" style={{gridTemplateColumns: '120px 2fr 60px 1.5fr 1.5fr 1.5fr 2.5fr'}}>
+                <div className="hidden md:grid gap-4 p-4 bg-gray-50 border-b font-semibold text-sm" style={{gridTemplateColumns: '120px 2fr 60px 1.5fr 1.5fr 1.5fr 2.5fr 160px'}}>
                   <div>Дата вручения</div>
                   <div>ФИО участника</div>
                   <div>Возраст</div>
@@ -1060,11 +1061,12 @@ const Index = () => {
                   <div>Результат</div>
                   <div>Педагог</div>
                   <div>Учреждение</div>
+                  <div>Справка</div>
                 </div>
                 
                 <div className="divide-y">
                   {filteredResults.slice((resultsPage - 1) * RESULTS_PER_PAGE, resultsPage * RESULTS_PER_PAGE).map((result, index) => (
-                    <div key={result.id} className="grid gap-4 p-4 hover:bg-gray-50 transition-colors md:grid-cols-[120px_2fr_60px_1.5fr_1.5fr_1.5fr_2.5fr]">
+                    <div key={result.id} className="grid gap-4 p-4 hover:bg-gray-50 transition-colors md:grid-cols-[120px_2fr_60px_1.5fr_1.5fr_1.5fr_2.5fr_160px]">
                       <div className="text-sm">
                         <span className="md:hidden font-semibold text-muted-foreground">Дата вручения: </span>
                         {result.diploma_issued_at ? new Date(result.diploma_issued_at).toLocaleDateString('ru-RU') : '—'}
@@ -1108,6 +1110,17 @@ const Index = () => {
                       <div className="text-sm">
                         <span className="md:hidden font-semibold text-muted-foreground">Учреждение: </span>
                         {result.institution || '—'}
+                      </div>
+                      <div className="text-sm">
+                        <a
+                          href={`https://functions.poehali.dev/7ea2c01d-bd1a-4567-b4f0-21aab3b96774?id=${result.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                        >
+                          <Icon name="FileText" size={14} />
+                          Скачать справку
+                        </a>
                       </div>
                     </div>
                   ))}

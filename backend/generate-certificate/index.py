@@ -222,10 +222,22 @@ def build_pdf(result: dict) -> bytes:
     sign_label_style = S('SL', fontSize=9, textColor=COLORS['text_muted'], fontName=F, spaceAfter=0)
     sign_name_style  = S('SN', fontSize=10, textColor=COLORS['text_dark'], fontName=FB, spaceAfter=0)
 
-    # Левая колонка — пустая (можно добавить текст при необходимости)
-    left_col = [Spacer(1, 1*mm)]
+    # Левая колонка — должность и ФИО
+    left_col = [
+        Paragraph('Руководитель:', sign_label_style),
+        Spacer(1, 2*mm),
+        Paragraph('Мозжерина Анна Владимировна', sign_name_style),
+    ]
 
-    # Правая колонка — печать + подпись рядом
+    # Средняя колонка — подпись
+    sig_cell = []
+    try:
+        sig_img = Image(fetch_image(SIGNATURE_URL), width=38*mm, height=18*mm, kind='proportional')
+        sig_cell.append(sig_img)
+    except Exception:
+        sig_cell.append(Spacer(1, 18*mm))
+
+    # Правая колонка — печать
     stamp_cell = []
     try:
         stamp_img = Image(fetch_image(STAMP_URL), width=35*mm, height=35*mm, kind='proportional')
@@ -233,25 +245,17 @@ def build_pdf(result: dict) -> bytes:
     except Exception:
         stamp_cell.append(Spacer(1, 35*mm))
 
-    sig_cell = []
-    sig_cell.append(Paragraph('Руководитель:', sign_label_style))
-    try:
-        sig_img = Image(fetch_image(SIGNATURE_URL), width=38*mm, height=18*mm, kind='proportional')
-        sig_cell.append(sig_img)
-    except Exception:
-        sig_cell.append(Spacer(1, 18*mm))
-    sig_cell.append(Paragraph('Мозжерина Анна Владимировна', sign_name_style))
-
     sign_table = Table(
-        [[left_col, stamp_cell, sig_cell]],
-        colWidths=[usable_width * 0.35, usable_width * 0.3, usable_width * 0.35],
+        [[left_col, sig_cell, stamp_cell]],
+        colWidths=[usable_width * 0.45, usable_width * 0.28, usable_width * 0.27],
     )
     sign_table.setStyle(TableStyle([
         ('VALIGN',  (0,0), (-1,-1), 'MIDDLE'),
+        ('ALIGN',   (0,0), (0,0),   'LEFT'),
         ('ALIGN',   (1,0), (1,0),   'CENTER'),
-        ('ALIGN',   (2,0), (2,0),   'LEFT'),
+        ('ALIGN',   (2,0), (2,0),   'RIGHT'),
         ('LEFTPADDING',  (0,0), (-1,-1), 0),
-        ('RIGHTPADDING', (0,0), (-1,-1), 2),
+        ('RIGHTPADDING', (0,0), (-1,-1), 0),
         ('TOPPADDING',   (0,0), (-1,-1), 0),
         ('BOTTOMPADDING',(0,0), (-1,-1), 0),
     ]))

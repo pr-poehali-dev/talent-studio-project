@@ -698,7 +698,7 @@ const Index = () => {
                 </div>
                 <h4 className="text-xl font-heading font-bold text-center mb-3 text-success">Стоимость</h4>
                 <p className="text-center text-muted-foreground">
-                  👉 Стоимость участия составляет 200 рублей. Цена фиксирована, дополнительные или скрытые платежи отсутствуют.
+                  Стоимость участия составляет 200 рублей. Цена фиксирована, дополнительные или скрытые платежи отсутствуют.
                 </p>
               </Card>
 

@@ -43,11 +43,18 @@ RESULT_COLORS = {
 }
 
 DEJAVU_URLS = {
-    'regular': 'https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf',
-    'bold': 'https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-Bold.ttf',
+    'regular': 'https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/master/ttf/DejaVuSans.ttf',
+    'bold': 'https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/master/ttf/DejaVuSans-Bold.ttf',
 }
 
 _fonts_registered = False
+
+
+def _download(url: str, path: str):
+    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        with open(path, 'wb') as f:
+            f.write(resp.read())
 
 
 def ensure_fonts():
@@ -60,9 +67,9 @@ def ensure_fonts():
     bold_path = os.path.join(tmp, 'DejaVuSans-Bold.ttf')
 
     if not os.path.exists(regular_path):
-        urllib.request.urlretrieve(DEJAVU_URLS['regular'], regular_path)
+        _download(DEJAVU_URLS['regular'], regular_path)
     if not os.path.exists(bold_path):
-        urllib.request.urlretrieve(DEJAVU_URLS['bold'], bold_path)
+        _download(DEJAVU_URLS['bold'], bold_path)
 
     pdfmetrics.registerFont(TTFont('DejaVu', regular_path))
     pdfmetrics.registerFont(TTFont('DejaVu-Bold', bold_path))

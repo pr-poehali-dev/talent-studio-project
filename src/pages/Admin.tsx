@@ -791,6 +791,7 @@ const Admin = () => {
                       <th className="text-left px-4 py-3 font-semibold">Конкурс</th>
                       <th className="text-left px-4 py-3 font-semibold">ID результата</th>
                       <th className="text-left px-4 py-3 font-semibold">Дата и время выдачи</th>
+                      <th className="px-4 py-3"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -805,6 +806,25 @@ const Admin = () => {
                             day: '2-digit', month: '2-digit', year: 'numeric',
                             hour: '2-digit', minute: '2-digit'
                           })}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={async () => {
+                              const res = await fetch(`https://functions.poehali.dev/7ea2c01d-bd1a-4567-b4f0-21aab3b96774?id=${row.result_id}`);
+                              if (!res.ok) { toast({ title: 'Ошибка', description: 'Не удалось сформировать справку', variant: 'destructive' }); return; }
+                              const blob = await res.blob();
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `certificate_${row.result_id}_${(row.full_name || '').replace(/\s+/g, '_')}.pdf`;
+                              a.click();
+                              URL.revokeObjectURL(url);
+                            }}
+                          >
+                            <Icon name="Download" size={16} />
+                          </Button>
                         </td>
                       </tr>
                     ))}

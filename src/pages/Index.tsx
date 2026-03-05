@@ -666,8 +666,7 @@ const Index = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-2xl flex items-center justify-center mb-4 mx-auto">
                   <Icon name="Trophy" className="text-white" size={32} />
                 </div>
-                <h4 className="text-xl font-heading font-bold text-center mb-3 text-accent">Широкий выбор номинаций</h4>
-                <p className="text-center text-muted-foreground text-sm mb-2 font-medium">👉 Огромное количество ярких конкурсов</p>
+                <h4 className="text-xl font-heading font-bold text-center mb-3 text-accent">Огромное количество ярких конкурсов</h4>
                 <p className="text-center text-muted-foreground">
                   Студия предлагает более 50 разнообразных конкурсов по изобразительному искусству, декоративно‑прикладному творчеству и специализированным тематическим направлениям. Каждый участник сможет подобрать мероприятие в соответствии со своими интересами и творческим потенциалом.
                 </p>
@@ -677,8 +676,7 @@ const Index = () => {
                 <div className="w-16 h-16 bg-gradient-to-br from-secondary to-accent rounded-2xl flex items-center justify-center mb-4 mx-auto">
                   <Icon name="Zap" className="text-white" size={32} />
                 </div>
-                <h4 className="text-xl font-heading font-bold text-center mb-3 text-secondary">Быстрые результаты</h4>
-                <p className="text-center text-muted-foreground text-sm mb-2 font-medium">👉 Гарантированные сроки предоставления результатов</p>
+                <h4 className="text-xl font-heading font-bold text-center mb-3 text-secondary">Гарантированные сроки предоставления результатов</h4>
                 <p className="text-center text-muted-foreground">
                   Итоги конкурсов публикуются в срок от 1 до 3 рабочих дней после подачи и регистрации заявки на участие.
                 </p>

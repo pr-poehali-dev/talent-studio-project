@@ -127,14 +127,7 @@ def build_pdf(result: dict) -> bytes:
     result_label = RESULT_LABELS.get(result_value, result_value)
     result_color = RESULT_COLORS.get(result_value, COLORS['accent'])
 
-    issued_at = result.get('diploma_issued_at')
-    if issued_at:
-        try:
-            issued_str = date.fromisoformat(str(issued_at)).strftime('%d.%m.%Y')
-        except Exception:
-            issued_str = str(issued_at)
-    else:
-        issued_str = date.today().strftime('%d.%m.%Y')
+    issued_str = date.today().strftime('%d.%m.%Y')
 
     created_at = result.get('created_at', '')
     try:

@@ -1,15 +1,17 @@
 import json
 import os
 import base64
+import urllib.request
+import tempfile
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
-from reportlab.lib.colors import HexColor, white, black
+from reportlab.lib.colors import HexColor, white
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from datetime import date
@@ -26,9 +28,6 @@ RESULT_LABELS = {
 COLORS = {
     'primary': HexColor('#1a1a2e'),
     'accent': HexColor('#e94560'),
-    'gold': HexColor('#d4a017'),
-    'silver': HexColor('#9e9e9e'),
-    'bronze': HexColor('#cd7f32'),
     'light_gray': HexColor('#f5f5f5'),
     'mid_gray': HexColor('#cccccc'),
     'text_dark': HexColor('#333333'),
@@ -43,16 +42,39 @@ RESULT_COLORS = {
     'participant': HexColor('#4a90d9'),
 }
 
+DEJAVU_URLS = {
+    'regular': 'https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf',
+    'bold': 'https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-Bold.ttf',
+}
 
-def register_fonts():
-    try:
-        from reportlab.pdfbase.cidfonts import UnicodeCIDFont
-        pdfmetrics.registerFont(UnicodeCIDFont('HeiseiMin-W3'))
-    except Exception:
-        pass
+_fonts_registered = False
+
+
+def ensure_fonts():
+    global _fonts_registered
+    if _fonts_registered:
+        return
+
+    tmp = tempfile.gettempdir()
+    regular_path = os.path.join(tmp, 'DejaVuSans.ttf')
+    bold_path = os.path.join(tmp, 'DejaVuSans-Bold.ttf')
+
+    if not os.path.exists(regular_path):
+        urllib.request.urlretrieve(DEJAVU_URLS['regular'], regular_path)
+    if not os.path.exists(bold_path):
+        urllib.request.urlretrieve(DEJAVU_URLS['bold'], bold_path)
+
+    pdfmetrics.registerFont(TTFont('DejaVu', regular_path))
+    pdfmetrics.registerFont(TTFont('DejaVu-Bold', bold_path))
+    _fonts_registered = True
 
 
 def build_pdf(result: dict) -> bytes:
+    ensure_fonts()
+
+    F = 'DejaVu'
+    FB = 'DejaVu-Bold'
+
     buffer = BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -63,31 +85,21 @@ def build_pdf(result: dict) -> bytes:
         bottomMargin=15*mm,
     )
 
-    width, height = A4
+    width, _ = A4
     usable_width = width - 40*mm
-
     styles = getSampleStyleSheet()
 
-    def style(name, **kwargs):
-        base = kwargs.pop('parent', 'Normal')
-        s = ParagraphStyle(name, parent=styles[base], **kwargs)
-        return s
+    def S(name, **kw):
+        return ParagraphStyle(name, parent=styles['Normal'], **kw)
 
-    title_style = style('Title', fontSize=22, textColor=COLORS['primary'],
-                        alignment=TA_CENTER, spaceAfter=2*mm, leading=28,
-                        fontName='Helvetica-Bold')
-    subtitle_style = style('Subtitle', fontSize=11, textColor=COLORS['text_muted'],
-                           alignment=TA_CENTER, spaceAfter=1*mm, fontName='Helvetica')
-    label_style = style('Label', fontSize=9, textColor=COLORS['text_muted'],
-                        fontName='Helvetica', spaceAfter=0.5*mm)
-    value_style = style('Value', fontSize=12, textColor=COLORS['text_dark'],
-                        fontName='Helvetica-Bold', spaceAfter=3*mm, leading=16)
-    footer_style = style('Footer', fontSize=8, textColor=COLORS['text_muted'],
-                         alignment=TA_CENTER, fontName='Helvetica')
-    result_style = style('Result', fontSize=16, textColor=white,
-                         alignment=TA_CENTER, fontName='Helvetica-Bold', leading=20)
-    doc_num_style = style('DocNum', fontSize=8, textColor=COLORS['text_muted'],
-                          alignment=TA_RIGHT, fontName='Helvetica')
+    title_style   = S('T',  fontSize=22, textColor=COLORS['primary'],  alignment=TA_CENTER, spaceAfter=2*mm,  leading=28, fontName=FB)
+    subtitle_style= S('ST', fontSize=11, textColor=COLORS['text_muted'],alignment=TA_CENTER, spaceAfter=1*mm,  fontName=F)
+    label_style   = S('L',  fontSize=9,  textColor=COLORS['text_muted'],fontName=F,          spaceAfter=0.5*mm)
+    value_style   = S('V',  fontSize=12, textColor=COLORS['text_dark'], fontName=FB,          spaceAfter=3*mm,  leading=16)
+    footer_style  = S('F',  fontSize=8,  textColor=COLORS['text_muted'],alignment=TA_CENTER, fontName=F)
+    result_style  = S('R',  fontSize=16, textColor=white,               alignment=TA_CENTER, fontName=FB,      leading=20)
+    docnum_style  = S('D',  fontSize=8,  textColor=COLORS['text_muted'],alignment=TA_RIGHT,  fontName=F)
+    intro_style   = S('I',  fontSize=11, textColor=COLORS['text_dark'], alignment=TA_CENTER, fontName=F,       spaceAfter=5*mm, leading=16)
 
     result_value = result.get('result', 'participant')
     result_label = RESULT_LABELS.get(result_value, result_value)
@@ -96,8 +108,7 @@ def build_pdf(result: dict) -> bytes:
     issued_at = result.get('diploma_issued_at')
     if issued_at:
         try:
-            d = date.fromisoformat(str(issued_at))
-            issued_str = d.strftime('%d.%m.%Y')
+            issued_str = date.fromisoformat(str(issued_at)).strftime('%d.%m.%Y')
         except Exception:
             issued_str = str(issued_at)
     else:
@@ -109,90 +120,71 @@ def build_pdf(result: dict) -> bytes:
     except Exception:
         participation_date = issued_str
 
-    full_name = result.get('full_name', '—')
-    age = result.get('age')
-    teacher = result.get('teacher') or '—'
+    full_name   = result.get('full_name') or '—'
+    age         = result.get('age')
+    teacher     = result.get('teacher') or '—'
     institution = result.get('institution') or '—'
-    contest_name = result.get('contest_name', '—')
-    work_title = result.get('work_title') or '—'
-    result_id = result.get('id', '')
+    contest_name= result.get('contest_name') or '—'
+    work_title  = result.get('work_title') or '—'
+    result_id   = result.get('id', '')
 
     story = []
 
     story.append(Paragraph('СПРАВКА-ПОДТВЕРЖДЕНИЕ', title_style))
     story.append(Paragraph('об участии в конкурсе', subtitle_style))
     story.append(Spacer(1, 3*mm))
-    story.append(HRFlowable(width=usable_width, thickness=2, color=COLORS['accent'],
-                             spaceAfter=4*mm, spaceBefore=0))
+    story.append(HRFlowable(width=usable_width, thickness=2, color=COLORS['accent'], spaceAfter=4*mm))
 
-    doc_num_text = f'№ {result_id} от {issued_str}'
-    story.append(Paragraph(doc_num_text, doc_num_style))
+    story.append(Paragraph(f'№ {result_id} от {issued_str}', docnum_style))
     story.append(Spacer(1, 4*mm))
 
-    intro_style = style('Intro', fontSize=11, textColor=COLORS['text_dark'],
-                        alignment=TA_CENTER, fontName='Helvetica', spaceAfter=5*mm, leading=16)
     story.append(Paragraph(
         'Настоящая справка подтверждает, что нижеуказанный участник<br/>'
         'принял(а) участие в конкурсе и был(а) отмечен(а) следующим образом:',
         intro_style
     ))
 
-    result_table = Table(
-        [[Paragraph(result_label, result_style)]],
-        colWidths=[usable_width],
-        rowHeights=[14*mm]
-    )
+    result_table = Table([[Paragraph(result_label, result_style)]], colWidths=[usable_width], rowHeights=[14*mm])
     result_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), result_color),
-        ('ROUNDEDCORNERS', [4]),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 3*mm),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3*mm),
+        ('BACKGROUND', (0,0), (-1,-1), result_color),
+        ('VALIGN',     (0,0), (-1,-1), 'MIDDLE'),
+        ('TOPPADDING', (0,0), (-1,-1), 3*mm),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 3*mm),
     ]))
     story.append(result_table)
     story.append(Spacer(1, 6*mm))
 
-    def info_row(label, value):
-        return [
-            Paragraph(label, label_style),
-            Paragraph(str(value), value_style),
-        ]
+    def row(label, value):
+        return [Paragraph(label, label_style), Paragraph(str(value), value_style)]
 
     age_str = f'{age} лет' if age else '—'
 
     data = [
-        info_row('ФИО участника', full_name),
-        info_row('Возраст', age_str),
-        info_row('Конкурс', contest_name),
-        info_row('Номинация / Работа', work_title),
-        info_row('Руководитель / Тренер', teacher),
-        info_row('Организация / Учреждение', institution),
-        info_row('Дата участия', participation_date),
-        info_row('Дата выдачи справки', issued_str),
+        row('ФИО участника',            full_name),
+        row('Возраст',                  age_str),
+        row('Конкурс',                  contest_name),
+        row('Номинация / Работа',       work_title),
+        row('Руководитель / Тренер',    teacher),
+        row('Организация / Учреждение', institution),
+        row('Дата участия',             participation_date),
+        row('Дата выдачи справки',      issued_str),
     ]
 
-    info_table = Table(
-        data,
-        colWidths=[55*mm, usable_width - 55*mm],
-        rowHeights=[11*mm] * len(data),
-    )
+    info_table = Table(data, colWidths=[55*mm, usable_width - 55*mm], rowHeights=[11*mm]*len(data))
     info_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 3*mm),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 3*mm),
-        ('TOPPADDING', (0, 0), (-1, -1), 1*mm),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 1*mm),
-        ('BACKGROUND', (0, 0), (-1, -1), white),
-        ('ROWBACKGROUNDS', (0, 0), (-1, -1), [COLORS['light_gray'], white]),
-        ('LINEBELOW', (0, 0), (-1, -2), 0.3, COLORS['mid_gray']),
-        ('LINEBEFORE', (1, 0), (1, -1), 1, COLORS['mid_gray']),
+        ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+        ('LEFTPADDING',   (0,0), (-1,-1), 3*mm),
+        ('RIGHTPADDING',  (0,0), (-1,-1), 3*mm),
+        ('TOPPADDING',    (0,0), (-1,-1), 1*mm),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 1*mm),
+        ('ROWBACKGROUNDS',(0,0), (-1,-1), [COLORS['light_gray'], white]),
+        ('LINEBELOW',     (0,0), (-1,-2), 0.3, COLORS['mid_gray']),
+        ('LINEBEFORE',    (1,0), (1,-1),  1,   COLORS['mid_gray']),
     ]))
     story.append(info_table)
 
     story.append(Spacer(1, 6*mm))
-    story.append(HRFlowable(width=usable_width, thickness=1, color=COLORS['mid_gray'],
-                             spaceAfter=3*mm, spaceBefore=0))
-
+    story.append(HRFlowable(width=usable_width, thickness=1, color=COLORS['mid_gray'], spaceAfter=3*mm))
     story.append(Paragraph(
         'Справка выдана для предъявления по месту требования.<br/>'
         f'Документ сформирован автоматически • ID записи: {result_id}',
@@ -262,7 +254,6 @@ def handler(event: dict, context) -> dict:
         result['diploma_issued_at'] = result['diploma_issued_at'].isoformat() if result.get('diploma_issued_at') else None
         result['created_at'] = result['created_at'].isoformat() if result.get('created_at') else None
 
-        register_fonts()
         pdf_bytes = build_pdf(dict(result))
         pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
 

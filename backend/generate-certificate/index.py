@@ -1,8 +1,6 @@
 import json
 import os
 import base64
-import urllib.request
-import tempfile
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from io import BytesIO
@@ -42,19 +40,21 @@ RESULT_COLORS = {
     'participant': HexColor('#4a90d9'),
 }
 
-DEJAVU_URLS = {
-    'regular': 'https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/master/ttf/DejaVuSans.ttf',
-    'bold': 'https://raw.githubusercontent.com/dejavu-fonts/dejavu-fonts/master/ttf/DejaVuSans-Bold.ttf',
-}
-
 _fonts_registered = False
 
-
-def _download(url: str, path: str):
-    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-    with urllib.request.urlopen(req, timeout=20) as resp:
-        with open(path, 'wb') as f:
-            f.write(resp.read())
+SYSTEM_FONT_CANDIDATES = [
+    # DejaVu (Debian/Ubuntu)
+    ('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',      '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'),
+    ('/usr/share/fonts/dejavu/DejaVuSans.ttf',               '/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf'),
+    # Liberation (RedHat/CentOS)
+    ('/usr/share/fonts/liberation/LiberationSans-Regular.ttf', '/usr/share/fonts/liberation/LiberationSans-Bold.ttf'),
+    ('/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf', '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf'),
+    # FreeFonts
+    ('/usr/share/fonts/truetype/freefont/FreeSans.ttf',      '/usr/share/fonts/truetype/freefont/FreeSansBold.ttf'),
+    # reportlab bundled
+    (os.path.join(os.path.dirname(__file__), 'fonts', 'DejaVuSans.ttf'),
+     os.path.join(os.path.dirname(__file__), 'fonts', 'DejaVuSans-Bold.ttf')),
+]
 
 
 def ensure_fonts():
@@ -62,18 +62,17 @@ def ensure_fonts():
     if _fonts_registered:
         return
 
-    tmp = tempfile.gettempdir()
-    regular_path = os.path.join(tmp, 'DejaVuSans.ttf')
-    bold_path = os.path.join(tmp, 'DejaVuSans-Bold.ttf')
+    for regular_path, bold_path in SYSTEM_FONT_CANDIDATES:
+        if os.path.exists(regular_path) and os.path.exists(bold_path):
+            pdfmetrics.registerFont(TTFont('DejaVu', regular_path))
+            pdfmetrics.registerFont(TTFont('DejaVu-Bold', bold_path))
+            _fonts_registered = True
+            return
 
-    if not os.path.exists(regular_path):
-        _download(DEJAVU_URLS['regular'], regular_path)
-    if not os.path.exists(bold_path):
-        _download(DEJAVU_URLS['bold'], bold_path)
-
-    pdfmetrics.registerFont(TTFont('DejaVu', regular_path))
-    pdfmetrics.registerFont(TTFont('DejaVu-Bold', bold_path))
-    _fonts_registered = True
+    raise RuntimeError(
+        'No suitable Cyrillic TTF font found. Searched: ' +
+        str([r for r, b in SYSTEM_FONT_CANDIDATES])
+    )
 
 
 def build_pdf(result: dict) -> bytes:

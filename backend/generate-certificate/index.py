@@ -240,14 +240,14 @@ def build_pdf(result: dict) -> bytes:
     # Правая колонка — печать
     stamp_cell = []
     try:
-        stamp_img = Image(fetch_image(STAMP_URL), width=35*mm, height=35*mm, kind='proportional')
+        stamp_img = Image(fetch_image(STAMP_URL), width=42*mm, height=42*mm, kind='proportional')
         stamp_cell.append(stamp_img)
     except Exception:
         stamp_cell.append(Spacer(1, 35*mm))
 
     sign_table = Table(
         [[left_col, sig_cell, stamp_cell]],
-        colWidths=[usable_width * 0.45, usable_width * 0.28, usable_width * 0.27],
+        colWidths=[usable_width * 0.42, usable_width * 0.26, usable_width * 0.32],
     )
     sign_table.setStyle(TableStyle([
         ('VALIGN',  (0,0), (-1,-1), 'MIDDLE'),

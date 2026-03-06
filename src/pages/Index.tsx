@@ -265,7 +265,7 @@ const Index = () => {
     }, 150);
   };
 
-  const navItems = [
+  const navItems: { id: string; label: string; icon: string; hasDropdown?: boolean; isExternal?: boolean; href?: string }[] = [
     { id: "home", label: "Главная", icon: "Home" },
     { id: "contests", label: "Конкурсы", icon: "Trophy", hasDropdown: true },
     { id: "gallery", label: "Галерея", icon: "Image" },
@@ -275,6 +275,7 @@ const Index = () => {
     { id: "reviews", label: "Отзывы", icon: "MessageSquare" },
     { id: "designer", label: "Услуги дизайнера", icon: "PenTool" },
     { id: "about", label: "О нас", icon: "Users" },
+    { id: "coloring", label: "Раскраска", icon: "Paintbrush", isExternal: true, href: "/coloring" },
   ];
 
   const contestCategories = [
@@ -367,18 +368,20 @@ const Index = () => {
                   onMouseLeave={() => item.hasDropdown && handleMouseLeave()}
                 >
                   <a
-                    href={item.id === "home" ? "/" : `/?section=${item.id}`}
+                    href={item.isExternal ? item.href : item.id === "home" ? "/" : `/?section=${item.id}`}
                     onClick={(e) => {
-                      if (!item.hasDropdown) {
+                      if (!item.isExternal && !item.hasDropdown) {
                         e.preventDefault();
                         setActiveSection(item.id);
                         setShowContestsDropdown(false);
                       }
                     }}
                     className={`flex items-center gap-1 px-3 py-2 rounded-xl font-semibold transition-all ${
-                      activeSection === item.id
-                        ? "bg-primary text-primary-foreground shadow-lg scale-105"
-                        : "text-foreground hover:bg-accent hover:scale-105"
+                      item.isExternal
+                        ? "text-foreground hover:bg-accent hover:scale-105 bg-yellow-50 border border-yellow-200"
+                        : activeSection === item.id
+                          ? "bg-primary text-primary-foreground shadow-lg scale-105"
+                          : "text-foreground hover:bg-accent hover:scale-105"
                     }`}
                   >
                     <Icon name={item.icon} size={18} />
@@ -439,8 +442,9 @@ const Index = () => {
             {navItems.map((item) => (
               <div key={item.id}>
                 <a
-                  href={item.id === "home" ? "/" : `/?section=${item.id}`}
+                  href={item.isExternal ? item.href : item.id === "home" ? "/" : `/?section=${item.id}`}
                   onClick={(e) => {
+                    if (item.isExternal) return;
                     if (item.hasDropdown) {
                       e.preventDefault();
                       setMobileOpenSubmenu(mobileOpenSubmenu === item.id ? null : item.id);

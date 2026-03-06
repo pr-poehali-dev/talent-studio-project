@@ -394,29 +394,33 @@ const Index = () => {
                       onMouseLeave={handleMouseLeave}
                     >
                       <div className="bg-white rounded-xl shadow-xl border-2 border-gray-100 min-w-[320px] py-2">
-                        <button
-                          onClick={() => {
+                        <a
+                          href="/?section=contests"
+                          onClick={(e) => {
+                            e.preventDefault();
                             setActiveSection("contests");
                             setContestFilter(null);
                             setShowContestsDropdown(false);
                           }}
-                          className="w-full text-left px-4 py-3 hover:bg-accent transition-colors font-medium"
+                          className="block w-full text-left px-4 py-3 hover:bg-accent transition-colors font-medium"
                         >
                           Все конкурсы
-                        </button>
+                        </a>
                         {contestCategories.map((category) => (
-                          <button
+                          <a
                             key={category.id}
-                            onClick={() => {
+                            href={`/?section=contests&category=${category.id}`}
+                            onClick={(e) => {
+                              e.preventDefault();
                               setActiveSection("contests");
                               setContestFilter(category.id);
                               setShowContestsDropdown(false);
                             }}
-                            className="w-full text-left px-4 py-3 hover:bg-accent transition-colors flex items-center gap-2"
+                            className="block w-full text-left px-4 py-3 hover:bg-accent transition-colors flex items-center gap-2"
                           >
                             <Icon name={category.icon} size={18} className="text-primary" />
                             {category.label}
-                          </button>
+                          </a>
                         ))}                      
                       </div>
                     </div>

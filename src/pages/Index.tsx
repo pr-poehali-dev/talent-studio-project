@@ -366,9 +366,11 @@ const Index = () => {
                   onMouseEnter={() => item.hasDropdown && handleMouseEnter()}
                   onMouseLeave={() => item.hasDropdown && handleMouseLeave()}
                 >
-                  <button
-                    onClick={() => {
+                  <a
+                    href={item.id === "home" ? "/" : `/?section=${item.id}`}
+                    onClick={(e) => {
                       if (!item.hasDropdown) {
+                        e.preventDefault();
                         setActiveSection(item.id);
                         setShowContestsDropdown(false);
                       }
@@ -384,7 +386,7 @@ const Index = () => {
                     {item.hasDropdown && (
                       <Icon name="ChevronDown" size={16} className={`transition-transform ${showContestsDropdown ? 'rotate-180' : ''}`} />
                     )}
-                  </button>
+                  </a>
                   {item.hasDropdown && showContestsDropdown && (
                     <div 
                       className="absolute top-full mt-0 pt-2 bg-transparent z-50 animate-in fade-in slide-in-from-top-2 duration-200"
@@ -432,11 +434,14 @@ const Index = () => {
           <div className="flex flex-col py-2 px-4">
             {navItems.map((item) => (
               <div key={item.id}>
-                <button
-                  onClick={() => {
+                <a
+                  href={item.id === "home" ? "/" : `/?section=${item.id}`}
+                  onClick={(e) => {
                     if (item.hasDropdown) {
+                      e.preventDefault();
                       setMobileOpenSubmenu(mobileOpenSubmenu === item.id ? null : item.id);
                     } else {
+                      e.preventDefault();
                       setActiveSection(item.id);
                       setIsMobileMenuOpen(false);
                       setMobileOpenSubmenu(null);
@@ -453,7 +458,7 @@ const Index = () => {
                   {item.hasDropdown && (
                     <Icon name="ChevronDown" size={16} className={`ml-auto transition-transform ${mobileOpenSubmenu === item.id ? 'rotate-180' : ''}`} />
                   )}
-                </button>
+                </a>
                 {item.hasDropdown && mobileOpenSubmenu === item.id && (
                   <div className="pl-4 flex flex-col gap-1 pb-2">
                     {contestCategories.map((category) => (

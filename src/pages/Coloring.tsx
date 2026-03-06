@@ -14,6 +14,7 @@ const CAT_IMAGE = "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e661
 export default function Coloring() {
   const drawCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
   const [selectedColor, setSelectedColor] = useState("#FFD700");
   const [brushSize, setBrushSize] = useState(18);
   const [tool, setTool] = useState<"brush" | "eraser">("brush");
@@ -107,8 +108,9 @@ export default function Coloring() {
     if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
-  const handleDownload = async () => {
+  const handleDownload = () => {
     const drawCanvas = drawCanvasRef.current;
+    const catImg = imgRef.current;
     if (!drawCanvas) return;
 
     const merged = document.createElement("canvas");
@@ -117,34 +119,18 @@ export default function Coloring() {
     const ctx = merged.getContext("2d");
     if (!ctx) return;
 
-    // Белый фон
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, merged.width, merged.height);
 
-    // Загружаем картинку через fetch чтобы обойти CORS
-    try {
-      const resp = await fetch(CAT_IMAGE);
-      const blob = await resp.blob();
-      const url = URL.createObjectURL(blob);
-      const img = new Image();
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, merged.width, merged.height);
-        ctx.drawImage(drawCanvas, 0, 0);
-        URL.revokeObjectURL(url);
-        const link = document.createElement("a");
-        link.download = "kot-van-gog.png";
-        link.href = merged.toDataURL("image/png");
-        link.click();
-      };
-      img.src = url;
-    } catch {
-      // Если fetch не сработал — скачиваем только раскраску
-      ctx.drawImage(drawCanvas, 0, 0);
-      const link = document.createElement("a");
-      link.download = "kot-van-gog.png";
-      link.href = merged.toDataURL("image/png");
-      link.click();
+    if (catImg && catImg.complete) {
+      ctx.drawImage(catImg, 0, 0, merged.width, merged.height);
     }
+    ctx.drawImage(drawCanvas, 0, 0);
+
+    const link = document.createElement("a");
+    link.download = "kot-van-gog.png";
+    link.href = merged.toDataURL("image/png");
+    link.click();
   };
 
   return (
@@ -225,12 +211,14 @@ export default function Coloring() {
               </div>
             )}
             <img
+              ref={imgRef}
               src={CAT_IMAGE}
               alt="Кот Ван Гог"
               className="block select-none pointer-events-none w-full h-full object-contain"
               style={{ maxHeight: 'calc(95vh - 160px)' }}
               onLoad={() => setImageLoaded(true)}
               draggable={false}
+              crossOrigin="anonymous"
             />
             {/* Слой рисования поверх */}
             {imageLoaded && (

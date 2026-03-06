@@ -108,9 +108,8 @@ export default function Coloring() {
     if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     const drawCanvas = drawCanvasRef.current;
-    const catImg = imgRef.current;
     if (!drawCanvas) return;
 
     const merged = document.createElement("canvas");
@@ -122,15 +121,29 @@ export default function Coloring() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, merged.width, merged.height);
 
-    if (catImg && catImg.complete) {
-      ctx.drawImage(catImg, 0, 0, merged.width, merged.height);
-    }
-    ctx.drawImage(drawCanvas, 0, 0);
+    const doSave = () => {
+      ctx.drawImage(drawCanvas, 0, 0);
+      const link = document.createElement("a");
+      link.download = "kot-van-gog.png";
+      link.href = merged.toDataURL("image/png");
+      link.click();
+    };
 
-    const link = document.createElement("a");
-    link.download = "kot-van-gog.png";
-    link.href = merged.toDataURL("image/png");
-    link.click();
+    try {
+      const resp = await fetch(CAT_IMAGE);
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const tmpImg = new Image();
+      tmpImg.onload = () => {
+        ctx.drawImage(tmpImg, 0, 0, merged.width, merged.height);
+        URL.revokeObjectURL(blobUrl);
+        doSave();
+      };
+      tmpImg.onerror = doSave;
+      tmpImg.src = blobUrl;
+    } catch {
+      doSave();
+    }
   };
 
   return (
@@ -218,7 +231,6 @@ export default function Coloring() {
               style={{ maxHeight: 'calc(95vh - 160px)' }}
               onLoad={() => setImageLoaded(true)}
               draggable={false}
-              crossOrigin="anonymous"
             />
             {/* Слой рисования поверх */}
             {imageLoaded && (

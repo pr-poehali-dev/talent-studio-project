@@ -433,7 +433,7 @@ const Index = () => {
                 ))}
               </div>
               {/* Вторая строка — кнопка Раскраски */}
-              <div className="flex justify-end">
+              <div className="flex justify-center">
                 <button
                   onClick={() => setIsColoringModalOpen(true)}
                   className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg animate-pulse"
@@ -2576,7 +2576,7 @@ const Index = () => {
 
       {/* Модальное окно раскраски */}
       <Dialog open={isColoringModalOpen} onOpenChange={setIsColoringModalOpen}>
-        <DialogContent className="max-w-[98vw] w-[1200px] max-h-[95vh] overflow-y-auto p-0 rounded-3xl">
+        <DialogContent className="max-w-[98vw] w-[1200px] max-h-[95vh] overflow-hidden p-0 rounded-3xl">
           <Coloring />
         </DialogContent>
       </Dialog>

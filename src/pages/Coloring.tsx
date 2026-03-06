@@ -148,18 +148,18 @@ export default function Coloring() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white py-10 px-4">
+    <div className="bg-gradient-to-b from-yellow-50 to-white py-5 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-heading font-bold text-primary mb-3">
+        <div className="text-center mb-4">
+          <h1 className="text-3xl font-heading font-bold text-primary mb-1">
             🎨 Раскрась Кота Ван Гога!
           </h1>
-          <p className="text-lg text-slate-600 max-w-xl mx-auto">
+          <p className="text-sm text-slate-600 max-w-xl mx-auto">
             Используй кисть и цвета, чтобы оживить нашего любимого кота. Готовую раскраску можно скачать!
           </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 items-start justify-center">
+        <div className="flex flex-col lg:flex-row gap-4 items-start justify-center">
           {/* Панель инструментов */}
           <div className="bg-white rounded-3xl shadow-lg p-5 flex flex-col gap-5 w-full lg:w-56 order-2 lg:order-1">
             <div>
@@ -250,7 +250,7 @@ export default function Coloring() {
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-3 mt-6">
+        <div className="flex items-center justify-center gap-3 mt-3">
           <div
             className="w-8 h-8 rounded-full border-2 border-slate-200 shadow"
             style={{ backgroundColor: tool === "eraser" ? "#fff" : selectedColor }}

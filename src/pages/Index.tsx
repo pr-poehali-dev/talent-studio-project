@@ -334,8 +334,8 @@ const Index = () => {
                   href="https://vk.com/studio.talantov"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block font-sans font-bold hover:brightness-110 transition-all hover:scale-105"
-                  style={{ fontSize: 'calc(min(800px, 76vw) * 0.035)', color: '#fff', background: '#0077FF', textDecoration: 'none', padding: '3px 14px', borderRadius: '20px' }}
+                  className="inline-block font-sans font-bold hover:brightness-110 transition-all hover:scale-105 animate-pulse"
+                  style={{ fontSize: 'calc(min(800px, 76vw) * 0.035)', color: '#fff', background: '#0077FF', textDecoration: 'none', padding: '3px 14px', borderRadius: '20px', animationDuration: '1.5s' }}
                 >
                   ВКонтакте
                 </a>

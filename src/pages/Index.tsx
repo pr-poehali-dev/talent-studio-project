@@ -332,7 +332,7 @@ const Index = () => {
             {/* Текст в облачке */}
             <div
               className="absolute flex flex-col items-center justify-center gap-2"
-              style={{ top: '5%', left: '42%', width: '58%', height: '50%' }}
+              style={{ top: '5%', left: '42%', width: '58%', height: '50%', animation: 'catWave 2.5s ease-in-out infinite', transformOrigin: 'bottom center' }}
               onClick={(e) => e.stopPropagation()}
             >
               <div style={{ opacity: 0, animation: 'catTextIn 0.6s ease-out 0.4s forwards', width: '72%', textAlign: 'center' }}>

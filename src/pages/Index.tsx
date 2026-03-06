@@ -433,7 +433,7 @@ const Index = () => {
                 ))}
               </div>
               {/* Вторая строка — кнопка Раскраски */}
-              <div className="flex justify-center">
+              <div className="flex justify-start">
                 <button
                   onClick={() => setIsColoringModalOpen(true)}
                   className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg animate-pulse"

@@ -10,6 +10,7 @@ const COLORS = [
 ];
 
 const CAT_IMAGE = "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/files/f25e0dc6-e608-45b0-a7f6-31277725305c.jpg";
+const PROXY_URL = "https://functions.poehali.dev/86688b07-9265-42b9-8dad-f85c7b8b5d6f";
 
 export default function Coloring() {
   const drawCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -30,8 +31,8 @@ export default function Coloring() {
       const ctx = canvas.getContext("2d");
       if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
-    // Загружаем картинку как blob сразу — для последующего сохранения
-    fetch(CAT_IMAGE)
+    // Загружаем картинку через прокси (обход CORS) для последующего сохранения на canvas
+    fetch(`${PROXY_URL}?url=${encodeURIComponent(CAT_IMAGE)}`)
       .then(r => r.blob())
       .then(blob => {
         const url = URL.createObjectURL(blob);

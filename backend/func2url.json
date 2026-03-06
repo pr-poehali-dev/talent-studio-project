@@ -1,4 +1,5 @@
 {
+  "proxy-image": "https://functions.poehali.dev/86688b07-9265-42b9-8dad-f85c7b8b5d6f",
   "certificates-log": "https://functions.poehali.dev/15416f51-5386-4500-b770-4dea40b824e5",
   "generate-certificate": "https://functions.poehali.dev/7ea2c01d-bd1a-4567-b4f0-21aab3b96774",
   "upload-presigned-url": "https://functions.poehali.dev/be7b31ca-63ff-4082-9667-d4ab8c4c7f94",

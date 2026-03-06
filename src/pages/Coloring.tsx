@@ -15,18 +15,35 @@ export default function Coloring() {
   const drawCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+  const catImgEl = useRef<HTMLImageElement | null>(null);
   const [selectedColor, setSelectedColor] = useState("#FFD700");
   const [brushSize, setBrushSize] = useState(18);
   const [tool, setTool] = useState<"brush" | "eraser">("brush");
   const [isDrawing, setIsDrawing] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imgBlobUrl, setImgBlobUrl] = useState<string | null>(null);
   const lastPos = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const canvas = drawCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    // Загружаем картинку как blob сразу — для последующего сохранения
+    fetch(CAT_IMAGE)
+      .then(r => r.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        setImgBlobUrl(url);
+        const img = new Image();
+        img.onload = () => { catImgEl.current = img; };
+        img.src = url;
+      })
+      .catch(() => {});
+    return () => {
+      if (imgBlobUrl) URL.revokeObjectURL(imgBlobUrl);
+    };
   }, []);
 
   const getPos = (e: React.MouseEvent | React.TouchEvent) => {
@@ -108,7 +125,7 @@ export default function Coloring() {
     if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
-  const handleDownload = async () => {
+  const handleDownload = () => {
     const drawCanvas = drawCanvasRef.current;
     if (!drawCanvas) return;
 
@@ -121,29 +138,15 @@ export default function Coloring() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, merged.width, merged.height);
 
-    const doSave = () => {
-      ctx.drawImage(drawCanvas, 0, 0);
-      const link = document.createElement("a");
-      link.download = "kot-van-gog.png";
-      link.href = merged.toDataURL("image/png");
-      link.click();
-    };
-
-    try {
-      const resp = await fetch(CAT_IMAGE);
-      const blob = await resp.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const tmpImg = new Image();
-      tmpImg.onload = () => {
-        ctx.drawImage(tmpImg, 0, 0, merged.width, merged.height);
-        URL.revokeObjectURL(blobUrl);
-        doSave();
-      };
-      tmpImg.onerror = doSave;
-      tmpImg.src = blobUrl;
-    } catch {
-      doSave();
+    if (catImgEl.current) {
+      ctx.drawImage(catImgEl.current, 0, 0, merged.width, merged.height);
     }
+    ctx.drawImage(drawCanvas, 0, 0);
+
+    const link = document.createElement("a");
+    link.download = "kot-van-gog.png";
+    link.href = merged.toDataURL("image/png");
+    link.click();
   };
 
   return (
@@ -225,7 +228,7 @@ export default function Coloring() {
             )}
             <img
               ref={imgRef}
-              src={CAT_IMAGE}
+              src={imgBlobUrl || CAT_IMAGE}
               alt="Кот Ван Гог"
               className="block select-none pointer-events-none w-full h-full object-contain"
               style={{ maxHeight: 'calc(95vh - 160px)' }}

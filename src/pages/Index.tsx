@@ -488,7 +488,7 @@ const Index = () => {
               <span className="text-5xl">🎓</span>
               <p className="text-xl text-slate-700 font-medium leading-relaxed">
                 Дипломы, выдаваемые по итогам участия в наших конкурсах, имеют официальный статус и принимаются в качестве подтверждающих документов при{" "}
-                <span className="text-primary font-bold underline decoration-2 underline-offset-4">прохождении педагогами процедуры аттестации</span>.
+                <span className="text-primary font-bold underline decoration-2 underline-offset-4">прохождении педагогами процедуры аттестации</span>
               </p>
             </div>
             <div className="flex gap-4 justify-center flex-wrap">

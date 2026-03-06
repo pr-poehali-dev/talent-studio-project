@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/ui/icon";
 import { useState, useRef, useEffect } from "react";
+import Coloring from "@/pages/Coloring";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -97,6 +98,7 @@ const Index = () => {
   const [applicationFormUrl, setApplicationFormUrl] = useState<string | null>(null);
   const [showContestsDropdown, setShowContestsDropdown] = useState(false);
   const [contestFilter, setContestFilter] = useState<string | null>(categoryParam);
+  const [isColoringModalOpen, setIsColoringModalOpen] = useState(false);
   const [contests, setContests] = useState<Contest[]>([]);
   const [results, setResults] = useState<PublicResult[]>([]);
   const [filteredResults, setFilteredResults] = useState<PublicResult[]>([]);
@@ -275,7 +277,6 @@ const Index = () => {
     { id: "reviews", label: "Отзывы", icon: "MessageSquare" },
     { id: "designer", label: "Услуги дизайнера", icon: "PenTool" },
     { id: "about", label: "О нас", icon: "Users" },
-    { id: "coloring", label: "Раскраска", icon: "Paintbrush", isExternal: true, href: "/coloring" },
   ];
 
   const contestCategories = [
@@ -359,77 +360,89 @@ const Index = () => {
               <Icon name={isMobileMenuOpen ? "X" : "Menu"} size={28} />
             </button>
 
-            <div className="hidden md:flex gap-2 ml-[20px] flex-1 justify-end">
-              {navItems.map((item) => (
-                <div 
-                  key={item.id} 
-                  className="relative"
-                  onMouseEnter={() => item.hasDropdown && handleMouseEnter()}
-                  onMouseLeave={() => item.hasDropdown && handleMouseLeave()}
-                >
-                  <a
-                    href={item.isExternal ? item.href : item.id === "home" ? "/" : `/?section=${item.id}`}
-                    onClick={(e) => {
-                      if (!item.isExternal && !item.hasDropdown) {
-                        e.preventDefault();
-                        setActiveSection(item.id);
-                        setShowContestsDropdown(false);
-                      }
-                    }}
-                    className={`flex items-center gap-1 px-3 py-2 rounded-xl font-semibold transition-all ${
-                      item.isExternal
-                        ? "text-foreground hover:bg-accent hover:scale-105 bg-yellow-50 border border-yellow-200"
-                        : activeSection === item.id
+            <div className="hidden md:flex flex-col gap-1 ml-[20px] flex-1">
+              {/* Первая строка меню */}
+              <div className="flex gap-2 justify-end">
+                {navItems.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className="relative"
+                    onMouseEnter={() => item.hasDropdown && handleMouseEnter()}
+                    onMouseLeave={() => item.hasDropdown && handleMouseLeave()}
+                  >
+                    <a
+                      href={item.id === "home" ? "/" : `/?section=${item.id}`}
+                      onClick={(e) => {
+                        if (!item.hasDropdown) {
+                          e.preventDefault();
+                          setActiveSection(item.id);
+                          setShowContestsDropdown(false);
+                        }
+                      }}
+                      className={`flex items-center gap-1 px-3 py-2 rounded-xl font-semibold transition-all ${
+                        activeSection === item.id
                           ? "bg-primary text-primary-foreground shadow-lg scale-105"
                           : "text-foreground hover:bg-accent hover:scale-105"
-                    }`}
-                  >
-                    <Icon name={item.icon} size={18} />
-                    {item.label}
-                    {item.hasDropdown && (
-                      <Icon name="ChevronDown" size={16} className={`transition-transform ${showContestsDropdown ? 'rotate-180' : ''}`} />
-                    )}
-                  </a>
-                  {item.hasDropdown && showContestsDropdown && (
-                    <div 
-                      className="absolute top-full mt-0 pt-2 bg-transparent z-50 animate-in fade-in slide-in-from-top-2 duration-200"
-                      onMouseEnter={handleMouseEnter}
-                      onMouseLeave={handleMouseLeave}
+                      }`}
                     >
-                      <div className="bg-white rounded-xl shadow-xl border-2 border-gray-100 min-w-[320px] py-2">
-                        <a
-                          href="/?section=contests"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setActiveSection("contests");
-                            setContestFilter(null);
-                            setShowContestsDropdown(false);
-                          }}
-                          className="block w-full text-left px-4 py-3 hover:bg-accent transition-colors font-medium"
-                        >
-                          Все конкурсы
-                        </a>
-                        {contestCategories.map((category) => (
+                      <Icon name={item.icon} size={18} />
+                      {item.label}
+                      {item.hasDropdown && (
+                        <Icon name="ChevronDown" size={16} className={`transition-transform ${showContestsDropdown ? 'rotate-180' : ''}`} />
+                      )}
+                    </a>
+                    {item.hasDropdown && showContestsDropdown && (
+                      <div 
+                        className="absolute top-full mt-0 pt-2 bg-transparent z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                        onMouseEnter={handleMouseEnter}
+                        onMouseLeave={handleMouseLeave}
+                      >
+                        <div className="bg-white rounded-xl shadow-xl border-2 border-gray-100 min-w-[320px] py-2">
                           <a
-                            key={category.id}
-                            href={`/?section=contests&category=${category.id}`}
+                            href="/?section=contests"
                             onClick={(e) => {
                               e.preventDefault();
                               setActiveSection("contests");
-                              setContestFilter(category.id);
+                              setContestFilter(null);
                               setShowContestsDropdown(false);
                             }}
-                            className="block w-full text-left px-4 py-3 hover:bg-accent transition-colors flex items-center gap-2"
+                            className="block w-full text-left px-4 py-3 hover:bg-accent transition-colors font-medium"
                           >
-                            <Icon name={category.icon} size={18} className="text-primary" />
-                            {category.label}
+                            Все конкурсы
                           </a>
-                        ))}                      
+                          {contestCategories.map((category) => (
+                            <a
+                              key={category.id}
+                              href={`/?section=contests&category=${category.id}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setActiveSection("contests");
+                                setContestFilter(category.id);
+                                setShowContestsDropdown(false);
+                              }}
+                              className="block w-full text-left px-4 py-3 hover:bg-accent transition-colors flex items-center gap-2"
+                            >
+                              <Icon name={category.icon} size={18} className="text-primary" />
+                              {category.label}
+                            </a>
+                          ))}                      
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                ))}
+              </div>
+              {/* Вторая строка — кнопка Раскраски */}
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setIsColoringModalOpen(true)}
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg animate-pulse"
+                  style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #E31E24 50%, #9C27B0 100%)', animationDuration: '3s' }}
+                >
+                  <Icon name="Paintbrush" size={18} />
+                  🎨 Раскрась Кота Ван Гога!
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -442,9 +455,8 @@ const Index = () => {
             {navItems.map((item) => (
               <div key={item.id}>
                 <a
-                  href={item.isExternal ? item.href : item.id === "home" ? "/" : `/?section=${item.id}`}
+                  href={item.id === "home" ? "/" : `/?section=${item.id}`}
                   onClick={(e) => {
-                    if (item.isExternal) return;
                     if (item.hasDropdown) {
                       e.preventDefault();
                       setMobileOpenSubmenu(mobileOpenSubmenu === item.id ? null : item.id);
@@ -488,6 +500,15 @@ const Index = () => {
                 )}
               </div>
             ))}
+            {/* Кнопка раскраски в мобильном меню */}
+            <button
+              onClick={() => { setIsColoringModalOpen(true); setIsMobileMenuOpen(false); }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-white transition-all text-left mt-1"
+              style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #E31E24 50%, #9C27B0 100%)' }}
+            >
+              <Icon name="Paintbrush" size={20} />
+              🎨 Раскрась Кота Ван Гога!
+            </button>
           </div>
         </div>
       )}
@@ -2552,6 +2573,13 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Модальное окно раскраски */}
+      <Dialog open={isColoringModalOpen} onOpenChange={setIsColoringModalOpen}>
+        <DialogContent className="max-w-[98vw] w-[1200px] max-h-[95vh] overflow-y-auto p-0 rounded-3xl">
+          <Coloring />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

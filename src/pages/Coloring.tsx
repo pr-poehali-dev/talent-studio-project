@@ -161,7 +161,7 @@ export default function Coloring() {
 
         <div className="flex flex-col lg:flex-row gap-4 items-start justify-center">
           {/* Панель инструментов */}
-          <div className="bg-white rounded-3xl shadow-lg p-5 flex flex-col gap-5 w-full lg:w-56 order-2 lg:order-1">
+          <div className="bg-white rounded-3xl shadow-lg p-4 flex flex-col gap-3 w-full lg:w-52 order-2 lg:order-1" style={{ maxHeight: 'calc(95vh - 160px)', overflowY: 'auto' }}>
             <div>
               <p className="text-sm font-bold text-slate-500 uppercase tracking-wide mb-3">Цвета</p>
               <div className="grid grid-cols-5 gap-2">
@@ -216,7 +216,7 @@ export default function Coloring() {
           <div
             ref={containerRef}
             className="relative rounded-3xl overflow-hidden shadow-xl border-4 border-white order-1 lg:order-2 flex-1"
-            style={{ cursor: tool === "eraser" ? "cell" : "crosshair" }}
+            style={{ cursor: tool === "eraser" ? "cell" : "crosshair", maxHeight: 'calc(95vh - 160px)' }}
           >
             {/* Картинка-подложка */}
             {!imageLoaded && (
@@ -227,7 +227,8 @@ export default function Coloring() {
             <img
               src={CAT_IMAGE}
               alt="Кот Ван Гог"
-              className="w-full block select-none pointer-events-none"
+              className="block select-none pointer-events-none w-full h-full object-contain"
+              style={{ maxHeight: 'calc(95vh - 160px)' }}
               onLoad={() => setImageLoaded(true)}
               draggable={false}
             />

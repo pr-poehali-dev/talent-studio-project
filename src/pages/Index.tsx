@@ -487,8 +487,8 @@ const Index = () => {
             <div className="max-w-3xl mx-auto mb-8 flex items-center gap-6 bg-white border-l-8 border-primary rounded-2xl shadow-md px-10 py-6 text-left">
               <span className="text-5xl">🎓</span>
               <p className="text-xl text-slate-700 font-medium leading-relaxed">
-                Дипломы всех наших конкурсов официально принимаются при{" "}
-                <span className="text-primary font-bold underline decoration-2 underline-offset-4">прохождении педагогами аттестации</span>.
+                Дипломы, выдаваемые по итогам участия в наших конкурсах, имеют официальный статус и принимаются в качестве подтверждающих документов при{" "}
+                <span className="text-primary font-bold underline decoration-2 underline-offset-4">прохождении педагогами процедуры аттестации</span>.
               </p>
             </div>
             <div className="flex gap-4 justify-center flex-wrap">

@@ -303,7 +303,7 @@ const Index = () => {
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 animate-in fade-in duration-500"
           onClick={() => setShowCatWelcome(false)}
         >
-          <div className="relative animate-in zoom-in duration-500" style={{ width: '1000px', maxWidth: '95vw' }}>
+          <div className="relative animate-in zoom-in duration-500" style={{ width: '800px', maxWidth: '76vw' }}>
             <button
               onClick={() => setShowCatWelcome(false)}
               className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white text-foreground rounded-full w-8 h-8 flex items-center justify-center shadow-md transition-all hover:scale-110"
@@ -324,10 +324,10 @@ const Index = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div style={{ opacity: 0, animation: 'catTextIn 0.6s ease-out 0.4s forwards', width: '72%', textAlign: 'center' }}>
-                <p className="font-heading font-bold" style={{ fontSize: 'calc(min(1000px, 95vw) * 0.040)', color: '#E31E24', marginBottom: '0.4em', lineHeight: 1.2 }}>
+                <p className="font-heading font-bold" style={{ fontSize: 'calc(min(800px, 76vw) * 0.040)', color: '#E31E24', marginBottom: '0.4em', lineHeight: 1.2 }}>
                   Дорогие гости и участники!
                 </p>
-                <p className="font-sans font-semibold" style={{ fontSize: 'calc(min(1000px, 95vw) * 0.033)', color: '#5a3e00', lineHeight: 1.4, marginBottom: '0.6em' }}>
+                <p className="font-sans font-semibold" style={{ fontSize: 'calc(min(800px, 76vw) * 0.033)', color: '#5a3e00', lineHeight: 1.4, marginBottom: '0.6em' }}>
                   Подписывайтесь на нашу группу
                 </p>
                 <a
@@ -335,7 +335,7 @@ const Index = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block font-sans font-bold hover:brightness-110 transition-all hover:scale-105"
-                  style={{ fontSize: 'calc(min(1000px, 95vw) * 0.035)', color: '#fff', background: '#0077FF', textDecoration: 'none', padding: '3px 14px', borderRadius: '20px' }}
+                  style={{ fontSize: 'calc(min(800px, 76vw) * 0.035)', color: '#fff', background: '#0077FF', textDecoration: 'none', padding: '3px 14px', borderRadius: '20px' }}
                 >
                   ВКонтакте
                 </a>

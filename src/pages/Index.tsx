@@ -311,11 +311,23 @@ const Index = () => {
             >
               <Icon name="X" size={18} />
             </button>
+            <style>{`
+              @keyframes catWave {
+                0%   { transform: rotate(0deg); }
+                10%  { transform: rotate(-6deg); }
+                20%  { transform: rotate(6deg); }
+                30%  { transform: rotate(-6deg); }
+                40%  { transform: rotate(6deg); }
+                50%  { transform: rotate(0deg); }
+                100% { transform: rotate(0deg); }
+              }
+            `}</style>
             <img
               src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/414e01b6-6b15-442b-896a-03e29a3e5b5d.png"
               alt="Кот Ван Гог"
               className="w-full cursor-pointer drop-shadow-2xl"
               onClick={() => setShowCatWelcome(false)}
+              style={{ animation: 'catWave 2.5s ease-in-out infinite', transformOrigin: 'bottom center' }}
             />
             {/* Текст в облачке */}
             <div

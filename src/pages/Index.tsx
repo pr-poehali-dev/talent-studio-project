@@ -484,8 +484,8 @@ const Index = () => {
           <section className="text-center mb-16 animate-in fade-in duration-700">
             <h2 className="text-5xl md:text-7xl font-heading mb-6 font-bold" style={{ color: '#E31E24' }}>Мечтай, твори, дерзай!</h2>
             <p className="max-w-4xl mx-auto mb-4 py-[3px] text-xl font-normal text-center text-slate-600">Кот Ван Гог и студия талантов «Мечтай, твори, дерзай!» приглашают учащихся и педагогов художественных школ и студий, художников‑любителей и профессионалов, а также всех, кто любит творить и хочет представить свои работы широкой аудитории к участию во Всероссийских конкурсах изобразительного и декоративно-прикладного искусства!</p>
-            <p className="max-w-3xl mx-auto mb-8 py-3 px-6 text-lg font-semibold text-center text-primary bg-primary/10 rounded-2xl border border-primary/20">
-              Дипломы всех наших конкурсов официально принимаются при прохождении педагогами аттестации.
+            <p className="max-w-3xl mx-auto mb-8 py-4 px-8 text-lg font-bold text-center text-white bg-primary rounded-2xl shadow-lg">
+              🎓 Дипломы всех наших конкурсов официально принимаются при прохождении педагогами аттестации
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Button 

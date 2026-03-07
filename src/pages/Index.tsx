@@ -311,6 +311,14 @@ const Index = () => {
             >
               <Icon name="X" size={18} />
             </button>
+            {/* 8 марта */}
+            <img
+              src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/f9149869-b0e9-400b-84a7-af392e3a2a43.png"
+              alt="Поздравляем с 8 Марта!"
+              className="w-full cursor-pointer drop-shadow-2xl rounded-xl"
+              onClick={() => setShowCatWelcome(false)}
+            />
+            {/* КОТ С ВК — ВРЕМЕННО ОТКЛЮЧЁН (вернуть командой "верни кота")
             <style>{`
               @keyframes catWave {
                 0%   { transform: rotate(0deg); }
@@ -329,7 +337,6 @@ const Index = () => {
               onClick={() => setShowCatWelcome(false)}
               style={{ animation: 'catWave 2.5s ease-in-out infinite', transformOrigin: 'bottom center' }}
             />
-            {/* Текст в облачке */}
             <div
               className="absolute flex flex-col items-center justify-center gap-2"
               style={{ top: '5%', left: '42%', width: '58%', height: '50%', animation: 'catWave 2.5s ease-in-out infinite', transformOrigin: 'bottom center' }}
@@ -353,6 +360,7 @@ const Index = () => {
                 </a>
               </div>
             </div>
+            */}
           </div>
         </div>
       )}

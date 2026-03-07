@@ -313,7 +313,7 @@ const Index = () => {
             </button>
             {/* 8 марта */}
             <img
-              src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/f9149869-b0e9-400b-84a7-af392e3a2a43.png"
+              src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/94f861b6-8318-4275-b5d4-9a7c5c0b6811.png"
               alt="Поздравляем с 8 Марта!"
               className="w-full cursor-pointer drop-shadow-2xl rounded-xl"
               onClick={() => setShowCatWelcome(false)}

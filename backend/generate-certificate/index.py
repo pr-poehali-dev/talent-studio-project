@@ -249,7 +249,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
     story.append(HRFlowable(width=usable_width, thickness=0.5, color=COLORS['mid_gray'], spaceAfter=2*mm))
     story.append(Paragraph(
         'Справка выдана для предъявления по месту требования. '
-        f'Документ сформирован автоматически • ID записи: {result_id}',
+        f'Документ сформирован автоматически • ID результата: {result_id}',
         footer_style
     ))
 

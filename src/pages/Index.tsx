@@ -444,8 +444,8 @@ const Index = () => {
                   </div>
                 ))}
               </div>
-              {/* Вторая строка — кнопка Раскраски */}
-              <div className="flex justify-start">
+              {/* Вторая строка — кнопки */}
+              <div className="flex justify-start gap-2">
                 <button
                   onClick={() => setIsColoringModalOpen(true)}
                   className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg animate-pulse"
@@ -454,6 +454,14 @@ const Index = () => {
                   <Icon name="Paintbrush" size={18} />
                   🎨 Раскрась Кота Ван Гога!
                 </button>
+                <a
+                  href="/collective"
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #0077FF 0%, #00B4D8 100%)' }}
+                >
+                  <Icon name="Users" size={18} />
+                  Коллективная заявка
+                </a>
               </div>
             </div>
           </div>
@@ -521,6 +529,14 @@ const Index = () => {
               <Icon name="Paintbrush" size={20} />
               🎨 Раскрась Кота Ван Гога!
             </button>
+            <a
+              href="/collective"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-white transition-all text-left mt-1"
+              style={{ background: 'linear-gradient(135deg, #0077FF 0%, #00B4D8 100%)' }}
+            >
+              <Icon name="Users" size={20} />
+              Коллективная заявка
+            </a>
           </div>
         </div>
       )}

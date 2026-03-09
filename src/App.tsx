@@ -10,6 +10,7 @@ import Admin from "./pages/Admin";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
 import Coloring from "./pages/Coloring";
+import CollectiveApplication from "./pages/CollectiveApplication";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/contests" element={<Navigate to="/?section=contests" replace />} />
           <Route path="/designer" element={<Navigate to="/?section=designer" replace />} />
           <Route path="/coloring" element={<Coloring />} />
+          <Route path="/collective" element={<CollectiveApplication />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

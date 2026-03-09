@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,8 +10,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
-const UPLOAD_PRESIGNED_URL = "https://functions.poehali.dev/be7b31ca-63ff-4082-9667-d4ab8c4c7f94";
+const UPLOAD_FILE_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
 const COLLECTIVE_PAYMENT_URL = "https://functions.poehali.dev/2d424d6d-1380-426b-9238-6343653c5533";
+const MAX_FILE_SIZE = 15 * 1024 * 1024;
 
 const PRICE_PER_PARTICIPANT = 200;
 
@@ -58,7 +59,6 @@ export default function CollectiveApplication() {
   const [galleryConsent, setGalleryConsent] = useState(false);
   const [termsConsent, setTermsConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
     fetch(API_URL)
@@ -76,27 +76,62 @@ export default function CollectiveApplication() {
   };
 
   const uploadFile = async (participantId: string, file: File) => {
-    updateParticipant(participantId, { file, uploading: true, uploadProgress: 0 });
-
-    const ext = file.name.split(".").pop() || "bin";
-    const filename = `collective/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-
-    const presignRes = await fetch(UPLOAD_PRESIGNED_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filename, content_type: file.type }),
-    });
-    const { upload_url, public_url } = await presignRes.json();
-
-    const CHUNK = 2 * 1024 * 1024;
-    const chunks = Math.ceil(file.size / CHUNK);
-    for (let i = 0; i < chunks; i++) {
-      const chunk = file.slice(i * CHUNK, (i + 1) * CHUNK);
-      await fetch(upload_url, { method: "PUT", body: chunk, headers: { "Content-Type": file.type } });
-      updateParticipant(participantId, { uploadProgress: Math.round(((i + 1) / chunks) * 100) });
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        title: "Файл слишком большой",
+        description: `Максимальный размер — 15 МБ. Ваш файл: ${(file.size / 1024 / 1024).toFixed(1)} МБ`,
+        variant: "destructive",
+      });
+      return;
     }
 
-    updateParticipant(participantId, { fileUrl: public_url, uploading: false, uploadProgress: 100 });
+    updateParticipant(participantId, { file, uploading: true, uploadProgress: 0, fileUrl: "" });
+
+    try {
+      const CHUNK_SIZE = 2 * 1024 * 1024;
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+      let uploadId = "";
+      let fileUrl = "";
+
+      for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+        const start = chunkIndex * CHUNK_SIZE;
+        const chunk = file.slice(start, Math.min(start + CHUNK_SIZE, file.size));
+
+        const chunkBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve((reader.result as string).split(",")[1]);
+          reader.onerror = () => reject(new Error("Ошибка чтения файла"));
+          reader.readAsDataURL(chunk);
+        });
+
+        updateParticipant(participantId, { uploadProgress: Math.round(((chunkIndex) / totalChunks) * 90) });
+
+        const res = await fetch(UPLOAD_FILE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chunk: chunkBase64,
+            chunkIndex,
+            totalChunks,
+            fileName: file.name,
+            fileType: file.type,
+            folder: "collective",
+            uploadId: uploadId || undefined,
+          }),
+        });
+
+        if (!res.ok) throw new Error("Ошибка загрузки файла");
+
+        const result = await res.json();
+        if (!uploadId) uploadId = result.uploadId;
+        if (result.complete) fileUrl = result.url;
+      }
+
+      updateParticipant(participantId, { fileUrl, uploading: false, uploadProgress: 100 });
+    } catch (err) {
+      updateParticipant(participantId, { uploading: false, uploadProgress: 0, file: null });
+      toast({ title: "Ошибка загрузки", description: String(err), variant: "destructive" });
+    }
   };
 
   const totalAmount = participants.length * PRICE_PER_PARTICIPANT;
@@ -244,39 +279,36 @@ export default function CollectiveApplication() {
                     <Input value={p.workTitle} onChange={(e) => updateParticipant(p.id, { workTitle: e.target.value })} placeholder="Название работы" />
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <Label>Файл работы *</Label>
-                    <input
+                    <Input
                       type="file"
-                      ref={(el) => { fileRefs.current[p.id] = el; }}
-                      className="hidden"
-                      accept="image/*,application/pdf,.doc,.docx"
+                      accept="image/*,.pdf"
+                      disabled={p.uploading}
                       onChange={(e) => {
                         const f = e.target.files?.[0];
                         if (f) uploadFile(p.id, f);
                       }}
+                      className="rounded-xl border-2 focus:border-primary h-10 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-primary file:text-white file:text-sm file:cursor-pointer hover:file:bg-primary/90"
                     />
-                    {p.fileUrl ? (
-                      <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
-                        <Icon name="CheckCircle" size={16} />
-                        <span className="truncate">{p.file?.name || "Файл загружен"}</span>
-                        <Button type="button" variant="ghost" size="sm" className="h-6 px-2 ml-auto text-xs" onClick={() => { updateParticipant(p.id, { fileUrl: "", file: null, uploadProgress: 0 }); if (fileRefs.current[p.id]) fileRefs.current[p.id]!.value = ""; }}>
-                          Сменить
-                        </Button>
+                    {p.fileUrl && !p.uploading && (
+                      <div className="flex items-center gap-2 p-3 bg-green-50 rounded-xl text-sm text-green-700">
+                        <Icon name="CheckCircle" size={18} />
+                        <span className="font-semibold truncate">Файл загружен: {p.file?.name}</span>
                       </div>
-                    ) : p.uploading ? (
-                      <div className="p-2 border rounded-lg text-sm text-muted-foreground">
-                        <div className="flex justify-between mb-1"><span>Загрузка...</span><span>{p.uploadProgress}%</span></div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5">
-                          <div className="bg-primary h-1.5 rounded-full transition-all" style={{ width: `${p.uploadProgress}%` }} />
+                    )}
+                    {p.uploading && (
+                      <div className="space-y-1 p-3 bg-primary/10 rounded-xl">
+                        <div className="flex justify-between text-sm">
+                          <span className="font-semibold text-primary">Загрузка файла...</span>
+                          <span className="text-primary">{p.uploadProgress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                          <div className="bg-primary h-2.5 rounded-full transition-all duration-300" style={{ width: `${p.uploadProgress}%` }} />
                         </div>
                       </div>
-                    ) : (
-                      <Button type="button" variant="outline" className="w-full" onClick={() => fileRefs.current[p.id]?.click()}>
-                        <Icon name="Upload" size={16} />
-                        Загрузить файл
-                      </Button>
                     )}
+                    <p className="text-xs text-muted-foreground">Форматы: JPG, PNG, PDF (макс. 15 МБ)</p>
                   </div>
                 </CardContent>
               </Card>

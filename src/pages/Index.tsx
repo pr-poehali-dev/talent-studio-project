@@ -853,8 +853,8 @@ const Index = () => {
                 key={contest.id}
                 className="group overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
               >
-                <div className="flex flex-col md:flex-row md:h-64">
-                  <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0 overflow-hidden relative">
+                <div className="flex flex-col md:flex-row md:min-h-64">
+                  <div className="md:w-64 h-48 md:h-auto md:min-h-64 bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0 overflow-hidden relative">
                     <div className="transition-all duration-300 absolute inset-0 flex items-center justify-center opacity-100 scale-100 group-hover:opacity-0 group-hover:scale-75">
                       <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
                     </div>

@@ -91,7 +91,7 @@ def ensure_fonts():
     )
 
 
-def build_pdf(result: dict) -> bytes:
+def build_pdf(result: dict, cert_id: int = None) -> bytes:
     ensure_fonts()
 
     F = 'DejaVu'
@@ -142,6 +142,7 @@ def build_pdf(result: dict) -> bytes:
     contest_name= result.get('contest_name') or '—'
     work_title  = result.get('work_title') or '—'
     result_id   = result.get('id', '')
+    display_num = cert_id if cert_id else result_id
 
     story = []
 
@@ -159,7 +160,7 @@ def build_pdf(result: dict) -> bytes:
     story.append(Spacer(1, 3*mm))
     story.append(HRFlowable(width=usable_width, thickness=2, color=COLORS['accent'], spaceAfter=4*mm))
 
-    story.append(Paragraph(f'№ {result_id} от {issued_str}', docnum_style))
+    story.append(Paragraph(f'№ {display_num} от {issued_str}', docnum_style))
     story.append(Spacer(1, 4*mm))
 
     story.append(Paragraph(
@@ -315,16 +316,17 @@ def handler(event: dict, context) -> dict:
         result['diploma_issued_at'] = result['diploma_issued_at'].isoformat() if result.get('diploma_issued_at') else None
         result['created_at'] = result['created_at'].isoformat() if result.get('created_at') else None
 
-        pdf_bytes = build_pdf(dict(result))
-        pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
-
-        # Записываем лог выдачи справки
+        # Записываем лог выдачи справки и получаем ID записи
         with conn.cursor() as log_cur:
             log_cur.execute(
-                'INSERT INTO certificates_log (result_id, full_name, contest_name) VALUES (%s, %s, %s)',
+                'INSERT INTO certificates_log (result_id, full_name, contest_name) VALUES (%s, %s, %s) RETURNING id',
                 (result_id, result.get('full_name', ''), result.get('contest_name', ''))
             )
+            cert_id = log_cur.fetchone()[0]
             conn.commit()
+
+        pdf_bytes = build_pdf(dict(result), cert_id=cert_id)
+        pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
 
         full_name_safe = (result.get('full_name') or 'certificate').replace(' ', '_')
         filename = f'certificate_{result_id}_{full_name_safe}.pdf'

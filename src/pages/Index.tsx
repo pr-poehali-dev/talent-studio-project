@@ -289,6 +289,7 @@ const Index = () => {
     { id: "thematic", label: "Тематические конкурсы ИЗО и ДПИ", icon: "Sparkles", heading: "Тематические конкурсы" },
     { id: "literary", label: "Конкурсы, посвященные литературным сюжетам и образам", icon: "BookOpen", heading: "Конкурсы по литературным сюжетам и образам" },
     { id: "preschool", label: "Конкурсы для детей дошкольного возраста", icon: "Baby", heading: "Конкурсы для дошкольников" },
+    { id: "artists-masters", label: "Конкурсы ИЗО и ДПИ, посвященные творчеству выдающихся художников", icon: "Frame", heading: "Конкурсы, посвященные творчеству выдающихся художников" },
   ];
 
   const getCategoryIcon = (categoryId: string) => {
@@ -835,6 +836,12 @@ const Index = () => {
               <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-holidays">Всероссийские конкурсы изобразительного и декоративно-прикладного искусства, посвященные теме праздников</h3>
             ) : contestFilter === "thematic" ? (
               <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-thematic">Всероссийские тематические конкурсы изобразительного и декоративно-прикладного искусства</h3>
+            ) : contestFilter === "literary" ? (
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-literary">Всероссийские конкурсы, посвященные литературным сюжетам и образам</h3>
+            ) : contestFilter === "preschool" ? (
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-preschool">Всероссийские конкурсы для детей дошкольного возраста</h3>
+            ) : contestFilter === "artists-masters" ? (
+              <h3 className="text-3xl font-heading font-bold text-center text-primary" data-editable="contest-heading-artists-masters">Всероссийские конкурсы ИЗО и ДПИ, посвященные творчеству выдающихся художников</h3>
             ) : null}
           </div>
 

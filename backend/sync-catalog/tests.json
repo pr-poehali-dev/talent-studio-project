@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Get sync settings",
+      "method": "GET",
+      "queryParams": {
+        "resource": "settings"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "settings": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create sync setting",
+      "method": "POST",
+      "body": {
+        "syncType": "google_sheets",
+        "sourceUrl": "https://docs.google.com/spreadsheets/d/test",
+        "scheduleMinutes": 60,
+        "updatePricesOnly": false
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "id": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

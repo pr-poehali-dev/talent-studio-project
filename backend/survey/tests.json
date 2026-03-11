@@ -1,0 +1,33 @@
+{
+  "tests": [
+    {
+      "name": "Get active questions",
+      "method": "GET",
+      "path": "/?action=questions",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "questions": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Register new user",
+      "method": "POST",
+      "path": "/?action=register",
+      "body": {
+        "name": "Test User",
+        "email": "test@example.com",
+        "gender": "male",
+        "birthDate": "1990-01-01",
+        "goals": ["Поддержка иммунитета", "Уровень энергии", "Память и фокус"]
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "user_id": "number",
+        "survey_id": "number",
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

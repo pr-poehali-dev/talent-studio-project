@@ -1,0 +1,39 @@
+{
+  "tests": [
+    {
+      "name": "Create new order",
+      "method": "POST",
+      "body": {
+        "customerName": "Иван Иванов",
+        "customerEmail": "ivan@example.com",
+        "customerPhone": "+79991234567",
+        "deliveryMethod": "courier",
+        "deliveryAddress": "ул. Ленина, д. 1, кв. 10",
+        "deliveryCity": "Москва",
+        "deliveryPostalCode": "101000",
+        "totalAmount": 3970,
+        "items": [
+          {"id": 1, "name": "Витамин D3", "price": 890, "quantity": 1}
+        ],
+        "surveyData": {}
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "orderId": "number",
+        "orderNumber": "string",
+        "paymentUrl": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get all orders",
+      "method": "GET",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "orders": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

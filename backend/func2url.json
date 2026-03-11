@@ -1,4 +1,9 @@
 {
+  "sync-catalog": "https://functions.poehali.dev/bdd9ab47-bb31-4879-ab3d-84d225683906",
+  "orders": "https://functions.poehali.dev/da5207db-b340-41fa-bb94-63a37a6f09f8",
+  "survey-submit-stage": "https://functions.poehali.dev/7e9452f6-4a08-4da1-93f7-b8569752755b",
+  "survey": "https://functions.poehali.dev/f3a67a9d-75ef-48ee-851e-cddce35891d0",
+  "products": "https://functions.poehali.dev/ef452bc4-bdcc-4de7-a222-e720f3a81a41",
   "collective-payment": "https://functions.poehali.dev/2d424d6d-1380-426b-9238-6343653c5533",
   "proxy-image": "https://functions.poehali.dev/86688b07-9265-42b9-8dad-f85c7b8b5d6f",
   "certificates-log": "https://functions.poehali.dev/15416f51-5386-4500-b770-4dea40b824e5",

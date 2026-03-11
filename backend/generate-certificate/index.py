@@ -189,7 +189,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
         row('Возраст',                  age_str),
         row('Конкурс',                  contest_name),
         row('Номинация / Работа',       work_title),
-        row('Руководитель / Тренер',    teacher),
+        row('Педагог / Руководитель',    teacher),
         row('Организация / Учреждение', institution),
         row('Дата участия',             participation_date),
         row('Дата выдачи справки',      issued_str),

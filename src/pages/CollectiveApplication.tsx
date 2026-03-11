@@ -15,7 +15,7 @@ const COLLECTIVE_PAYMENT_URL = "https://functions.poehali.dev/2d424d6d-1380-426b
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
 
 const PRICE_STANDARD = 200;
-const PRICE_BULK = 1;
+const PRICE_BULK = 150;
 const BULK_THRESHOLD = 5;
 
 interface Contest {

@@ -56,7 +56,7 @@ def handler(event: dict, context) -> dict:
         }
 
     # Рассчитываем сумму: 150 руб./уч. при 5 и более, иначе 200 руб./уч.
-    price_per = 1 if len(participants) >= 5 else 200
+    price_per = 150 if len(participants) >= 5 else 200
     expected_amount = len(participants) * price_per
     if int(float(amount)) != expected_amount:
         amount = expected_amount

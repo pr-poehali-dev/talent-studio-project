@@ -27,6 +27,7 @@ interface Application {
   gallery_consent: boolean;
   diploma_issued_at: string | null;
   is_featured: boolean;
+  is_collective: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;

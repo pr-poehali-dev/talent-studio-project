@@ -76,8 +76,8 @@ def handler(event: dict, context) -> dict:
                 cur.execute(
                     '''INSERT INTO applications 
                        (full_name, age, teacher, institution, work_title, email, contest_name,
-                        contest_id, gallery_consent, payment_status, work_file_url, created_at)
-                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                        contest_id, gallery_consent, payment_status, work_file_url, is_collective, created_at)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
                        RETURNING id''',
                     (
                         participant.get('full_name'),
@@ -90,7 +90,8 @@ def handler(event: dict, context) -> dict:
                         participant.get('contest_id'),
                         participant.get('gallery_consent', False),
                         'paid',
-                        participant.get('work_file_url', '')
+                        participant.get('work_file_url', ''),
+                        True
                     )
                 )
                 application_ids.append(cur.fetchone()[0])

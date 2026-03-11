@@ -33,7 +33,7 @@ def handler(event: dict, context) -> dict:
                     SELECT id, full_name, age, teacher, institution, work_title, 
                            email, contest_id, contest_name, work_file_url, 
                            status, result, gallery_consent, created_at, updated_at, deleted_at,
-                           diploma_issued_at, is_featured
+                           diploma_issued_at, is_featured, is_collective
                     FROM applications
                     WHERE deleted_at IS NOT NULL
                     ORDER BY deleted_at DESC
@@ -43,7 +43,7 @@ def handler(event: dict, context) -> dict:
                     SELECT id, full_name, age, teacher, institution, work_title, 
                            email, contest_id, contest_name, work_file_url, 
                            status, result, gallery_consent, created_at, updated_at, deleted_at,
-                           diploma_issued_at, is_featured
+                           diploma_issued_at, is_featured, is_collective
                     FROM applications
                     WHERE deleted_at IS NULL
                     ORDER BY created_at DESC
@@ -71,7 +71,8 @@ def handler(event: dict, context) -> dict:
                     'updated_at': row[14].isoformat() if row[14] else None,
                     'deleted_at': row[15].isoformat() if row[15] else None,
                     'diploma_issued_at': row[16].isoformat() if row[16] else None,
-                    'is_featured': row[17] if row[17] is not None else False
+                    'is_featured': row[17] if row[17] is not None else False,
+                    'is_collective': row[18] if row[18] is not None else False
                 }
                 applications.append(app_data)
             

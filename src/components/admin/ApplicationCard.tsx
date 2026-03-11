@@ -18,6 +18,7 @@ interface Application {
   gallery_consent: boolean;
   diploma_issued_at: string | null;
   is_featured: boolean;
+  is_collective: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -185,6 +186,12 @@ const ApplicationCard = (props: ApplicationCardProps) => {
                 <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-sm font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md">
                   <Icon name="Star" size={14} className="fill-white" />
                   Лучшая работа
+                </span>
+              )}
+              {app.is_collective && (
+                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-sm font-bold bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md">
+                  <Icon name="Users" size={14} />
+                  Коллективная
                 </span>
               )}
             </div>

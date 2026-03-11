@@ -2,10 +2,12 @@ import json
 import os
 import psycopg2
 import boto3
+from botocore.exceptions import ClientError
 
 def handler(event: dict, context) -> dict:
     '''Обработка webhook от ЮКассы. При успешной оплате создаёт заявку(и) в БД из временных данных в S3.
-    Для коллективных заявок создаёт отдельную заявку для каждого участника с данными педагога.'''
+    Для коллективных заявок создаёт отдельную заявку для каждого участника с данными педагога.
+    Идемпотентность: S3-файл удаляется ДО записи в БД — повторный webhook не найдёт файл и вернёт 200.'''
     
     method = event.get('httpMethod', 'POST')
     
@@ -60,19 +62,38 @@ def handler(event: dict, context) -> dict:
         )
         
         s3_key = f'pending_applications/{pending_id}.json'
-        obj = s3.get_object(Bucket='files', Key=s3_key)
-        app_data = json.loads(obj['Body'].read().decode('utf-8'))
+        
+        # Читаем данные из S3
+        try:
+            obj = s3.get_object(Bucket='files', Key=s3_key)
+            app_data = json.loads(obj['Body'].read().decode('utf-8'))
+        except ClientError as e:
+            if e.response['Error']['Code'] in ('NoSuchKey', '404'):
+                # Файл уже удалён — этот webhook уже был обработан ранее
+                print(f'[IDEMPOTENT] pending_id={pending_id} already processed, skipping')
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'status': 'already_processed'})
+                }
+            raise
+        
+        participants = app_data.get('participants')
+        print(f'[INFO] pending_id={pending_id}, type={app_data.get("type")}, participants_count={len(participants) if participants else 0}')
+        
+        # Удаляем S3-файл ДО записи в БД — идемпотентность при повторных webhook'ах
+        s3.delete_object(Bucket='files', Key=s3_key)
         
         dsn = os.environ.get('DATABASE_URL')
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         
-        participants = app_data.get('participants')
         application_ids = []
         
         if participants and isinstance(participants, list):
             # Коллективная заявка — создаём отдельную запись для каждого участника
-            for participant in participants:
+            for i, participant in enumerate(participants):
+                print(f'[INFO] Inserting participant {i+1}/{len(participants)}: {participant.get("full_name")}')
                 cur.execute(
                     '''INSERT INTO applications 
                        (full_name, age, teacher, institution, work_title, email, contest_name,
@@ -124,10 +145,7 @@ def handler(event: dict, context) -> dict:
         cur.close()
         conn.close()
         
-        try:
-            s3.delete_object(Bucket='files', Key=s3_key)
-        except Exception:
-            pass
+        print(f'[SUCCESS] Created {len(application_ids)} applications: {application_ids}')
         
         return {
             'statusCode': 200,
@@ -141,6 +159,7 @@ def handler(event: dict, context) -> dict:
         }
         
     except Exception as e:
+        print(f'[ERROR] {str(e)}')
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

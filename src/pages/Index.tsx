@@ -99,7 +99,7 @@ const Index = () => {
   const [showContestsDropdown, setShowContestsDropdown] = useState(false);
   const [contestFilter, setContestFilter] = useState<string | null>(categoryParam);
   const [isColoringModalOpen, setIsColoringModalOpen] = useState(false);
-  const [isCollectiveStubOpen, setIsCollectiveStubOpen] = useState(false);
+
   const [contests, setContests] = useState<Contest[]>([]);
   const [results, setResults] = useState<PublicResult[]>([]);
   const [filteredResults, setFilteredResults] = useState<PublicResult[]>([]);
@@ -455,14 +455,14 @@ const Index = () => {
                   <Icon name="Paintbrush" size={18} />
                   🎨 Раскрась Кота Ван Гога!
                 </button>
-                <button
-                  onClick={() => setIsCollectiveStubOpen(true)}
+                <a
+                  href="/collective"
                   className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg"
                   style={{ background: 'linear-gradient(135deg, #0077FF 0%, #00B4D8 100%)' }}
                 >
                   <Icon name="Users" size={18} />
                   Коллективная заявка
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -530,14 +530,14 @@ const Index = () => {
               <Icon name="Paintbrush" size={20} />
               🎨 Раскрась Кота Ван Гога!
             </button>
-            <button
-              onClick={() => setIsCollectiveStubOpen(true)}
+            <a
+              href="/collective"
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-white transition-all text-left mt-1"
               style={{ background: 'linear-gradient(135deg, #0077FF 0%, #00B4D8 100%)' }}
             >
               <Icon name="Users" size={20} />
               Коллективная заявка
-            </button>
+            </a>
           </div>
         </div>
       )}
@@ -2616,25 +2616,6 @@ const Index = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Заглушка: Коллективная заявка */}
-      <Dialog open={isCollectiveStubOpen} onOpenChange={setIsCollectiveStubOpen}>
-        <DialogContent className="max-w-sm rounded-2xl text-center">
-          <DialogHeader>
-            <div className="flex justify-center mb-3">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0077FF 0%, #00B4D8 100%)' }}>
-                <Icon name="Users" size={32} className="text-white" />
-              </div>
-            </div>
-            <DialogTitle className="text-xl">Коллективная заявка</DialogTitle>
-            <DialogDescription className="text-base text-muted-foreground mt-2">
-              Раздел находится в разработке.<br />Скоро он будет доступен!
-            </DialogDescription>
-          </DialogHeader>
-          <Button onClick={() => setIsCollectiveStubOpen(false)} className="mt-2 w-full rounded-xl">
-            Понятно
-          </Button>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

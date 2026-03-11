@@ -367,8 +367,7 @@ export default function CollectiveApplication() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="w-full text-base py-6"
-                style={{ background: "var(--primary, #E31E24)", color: "#fff" }}
+                className="w-full text-base py-6 bg-primary text-white hover:bg-primary/90"
               >
                 {submitting ? (
                   <><Icon name="Loader2" size={18} className="animate-spin" /> Создание платежа...</>

@@ -7,7 +7,8 @@ from botocore.exceptions import ClientError
 def handler(event: dict, context) -> dict:
     '''Обработка webhook от ЮКассы. При успешной оплате создаёт заявку(и) в БД из временных данных в S3.
     Для коллективных заявок создаёт отдельную заявку для каждого участника с данными педагога.
-    Идемпотентность: S3-файл удаляется ДО записи в БД — повторный webhook не найдёт файл и вернёт 200.'''
+    Идемпотентность: S3-файл удаляется ДО записи в БД.
+    Каждый участник — отдельная транзакция, ошибка одного не блокирует остальных.'''
     
     method = event.get('httpMethod', 'POST')
     
@@ -69,7 +70,6 @@ def handler(event: dict, context) -> dict:
             app_data = json.loads(obj['Body'].read().decode('utf-8'))
         except ClientError as e:
             if e.response['Error']['Code'] in ('NoSuchKey', '404'):
-                # Файл уже удалён — этот webhook уже был обработан ранее
                 print(f'[IDEMPOTENT] pending_id={pending_id} already processed, skipping')
                 return {
                     'statusCode': 200,
@@ -85,39 +85,69 @@ def handler(event: dict, context) -> dict:
         s3.delete_object(Bucket='files', Key=s3_key)
         
         dsn = os.environ.get('DATABASE_URL')
-        conn = psycopg2.connect(dsn)
-        cur = conn.cursor()
-        
         application_ids = []
+        failed_participants = []
         
         if participants and isinstance(participants, list):
-            # Коллективная заявка — создаём отдельную запись для каждого участника
+            # Коллективная заявка — каждый участник в отдельной транзакции
             for i, participant in enumerate(participants):
-                print(f'[INFO] Inserting participant {i+1}/{len(participants)}: {participant.get("full_name")}')
-                cur.execute(
-                    '''INSERT INTO applications 
-                       (full_name, age, teacher, institution, work_title, email, contest_name,
-                        contest_id, gallery_consent, payment_status, work_file_url, is_collective, created_at)
-                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
-                       RETURNING id''',
-                    (
-                        participant.get('full_name'),
-                        participant.get('age'),
-                        participant.get('teacher'),
-                        participant.get('institution'),
-                        participant.get('work_title'),
-                        participant.get('email'),
-                        participant.get('contest_name'),
-                        participant.get('contest_id'),
-                        participant.get('gallery_consent', False),
-                        'paid',
-                        participant.get('work_file_url', ''),
-                        True
+                age_raw = participant.get('age')
+                try:
+                    age = int(age_raw) if age_raw is not None else None
+                except (ValueError, TypeError):
+                    age = None
+                
+                print(f'[INFO] Inserting participant {i+1}/{len(participants)}: {participant.get("full_name")}, age={age}, contest_id={participant.get("contest_id")}')
+                
+                conn = psycopg2.connect(dsn)
+                cur = conn.cursor()
+                try:
+                    # Проверяем contest_id на существование
+                    contest_id = participant.get('contest_id')
+                    if contest_id:
+                        cur.execute('SELECT id FROM contests WHERE id = %s', (int(contest_id),))
+                        if not cur.fetchone():
+                            print(f'[WARN] contest_id={contest_id} not found, setting NULL')
+                            contest_id = None
+                        else:
+                            contest_id = int(contest_id)
+                    
+                    cur.execute(
+                        '''INSERT INTO applications 
+                           (full_name, age, teacher, institution, work_title, email, contest_name,
+                            contest_id, gallery_consent, payment_status, work_file_url, is_collective, created_at)
+                           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                           RETURNING id''',
+                        (
+                            participant.get('full_name'),
+                            age,
+                            participant.get('teacher'),
+                            participant.get('institution'),
+                            participant.get('work_title'),
+                            participant.get('email'),
+                            participant.get('contest_name'),
+                            contest_id,
+                            participant.get('gallery_consent', False),
+                            'paid',
+                            participant.get('work_file_url', ''),
+                            True
+                        )
                     )
-                )
-                application_ids.append(cur.fetchone()[0])
+                    app_id = cur.fetchone()[0]
+                    conn.commit()
+                    application_ids.append(app_id)
+                    print(f'[SUCCESS] Participant {i+1} saved as application id={app_id}')
+                except Exception as pe:
+                    conn.rollback()
+                    print(f'[ERROR] Participant {i+1} ({participant.get("full_name")}) failed: {str(pe)}')
+                    failed_participants.append({'index': i+1, 'name': participant.get('full_name'), 'error': str(pe)})
+                finally:
+                    cur.close()
+                    conn.close()
         else:
             # Одиночная заявка
+            conn = psycopg2.connect(dsn)
+            cur = conn.cursor()
             cur.execute(
                 '''INSERT INTO applications 
                    (full_name, age, teacher, institution, work_title, email, contest_name,
@@ -140,12 +170,11 @@ def handler(event: dict, context) -> dict:
                 )
             )
             application_ids.append(cur.fetchone()[0])
+            conn.commit()
+            cur.close()
+            conn.close()
         
-        conn.commit()
-        cur.close()
-        conn.close()
-        
-        print(f'[SUCCESS] Created {len(application_ids)} applications: {application_ids}')
+        print(f'[DONE] Created {len(application_ids)} applications: {application_ids}, failed: {len(failed_participants)}')
         
         return {
             'statusCode': 200,
@@ -154,7 +183,8 @@ def handler(event: dict, context) -> dict:
                 'status': 'success',
                 'application_ids': application_ids,
                 'application_id': application_ids[0] if application_ids else None,
-                'payment_status': 'paid'
+                'payment_status': 'paid',
+                'failed': failed_participants
             })
         }
         

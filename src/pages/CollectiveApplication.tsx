@@ -14,7 +14,9 @@ const UPLOAD_FILE_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-e
 const COLLECTIVE_PAYMENT_URL = "https://functions.poehali.dev/2d424d6d-1380-426b-9238-6343653c5533";
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
 
-const PRICE_PER_PARTICIPANT = 200;
+const PRICE_STANDARD = 200;
+const PRICE_BULK = 150;
+const BULK_THRESHOLD = 5;
 
 interface Contest {
   id: number;
@@ -134,7 +136,8 @@ export default function CollectiveApplication() {
     }
   };
 
-  const totalAmount = participants.length * PRICE_PER_PARTICIPANT;
+  const pricePerParticipant = participants.length >= BULK_THRESHOLD ? PRICE_BULK : PRICE_STANDARD;
+  const totalAmount = participants.length * pricePerParticipant;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -348,7 +351,15 @@ export default function CollectiveApplication() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Участников: {participants.length} × {PRICE_PER_PARTICIPANT} ₽</p>
+                  <p className="text-sm text-muted-foreground">
+                    Участников: {participants.length} × {pricePerParticipant} ₽
+                    {participants.length >= BULK_THRESHOLD && (
+                      <span className="ml-2 text-green-600 font-semibold">скидка при 5+</span>
+                    )}
+                  </p>
+                  {participants.length >= BULK_THRESHOLD && (
+                    <p className="text-xs text-muted-foreground line-through">{participants.length * PRICE_STANDARD} ₽</p>
+                  )}
                   <p className="text-2xl font-bold mt-1">Итого: {totalAmount} ₽</p>
                 </div>
                 <Icon name="CreditCard" size={32} className="text-muted-foreground" />

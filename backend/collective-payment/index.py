@@ -55,8 +55,9 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False,
         }
 
-    # Проверяем что сумма соответствует количеству участников
-    expected_amount = len(participants) * 200
+    # Рассчитываем сумму: 150 руб./уч. при 5 и более, иначе 200 руб./уч.
+    price_per = 150 if len(participants) >= 5 else 200
+    expected_amount = len(participants) * price_per
     if int(float(amount)) != expected_amount:
         amount = expected_amount
 
@@ -124,7 +125,7 @@ def handler(event: dict, context) -> dict:
                 {
                     "description": f"Участие в конкурсе (участник {i + 1})",
                     "quantity": "1",
-                    "amount": {"value": "200.00", "currency": "RUB"},
+                    "amount": {"value": f"{price_per}.00", "currency": "RUB"},
                     "vat_code": 1,
                 }
                 for i in range(len(participants))

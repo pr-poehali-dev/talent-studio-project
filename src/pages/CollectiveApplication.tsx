@@ -145,7 +145,7 @@ export default function CollectiveApplication() {
     if (!teacher.trim()) return toast({ title: "Укажите педагога", variant: "destructive" });
     if (!institution.trim()) return toast({ title: "Укажите учреждение", variant: "destructive" });
     if (!email.trim()) return toast({ title: "Укажите электронную почту", variant: "destructive" });
-    if (!termsConsent) return toast({ title: "Необходимо принять условия", variant: "destructive" });
+    if (!termsConsent) return toast({ title: "Необходимо согласиться с обработкой персональных данных", variant: "destructive" });
 
     for (const [i, p] of participants.entries()) {
       if (!p.fullName.trim()) return toast({ title: `Участник ${i + 1}: укажите ФИО`, variant: "destructive" });

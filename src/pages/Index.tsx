@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/components/ui/use-toast";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
@@ -79,6 +79,7 @@ const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-
 const UPLOAD_PRESIGNED_URL = "https://functions.poehali.dev/be7b31ca-63ff-4082-9667-d4ab8c4c7f94";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialSection = searchParams.get('section') || 'home';
   const categoryParam = searchParams.get('category');
@@ -608,14 +609,8 @@ const Index = () => {
                 {/* CTA */}
                 <div className="flex flex-col gap-2 flex-shrink-0">
                   <button
-                    onClick={() => setActiveSection('contests')}
+                    onClick={() => navigate('/collective')}
                     className="inline-flex items-center justify-center gap-2 bg-yellow-300 hover:bg-yellow-200 text-purple-900 font-bold px-6 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/30 text-sm"
-                  >
-                    🎯 Выбрать конкурс
-                  </button>
-                  <button
-                    onClick={() => setActiveSection('apply')}
-                    className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/30 font-semibold px-6 py-2.5 rounded-xl transition-all text-sm"
                   >
                     Подать заявку
                   </button>

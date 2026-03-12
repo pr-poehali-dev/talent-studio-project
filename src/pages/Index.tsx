@@ -613,7 +613,7 @@ const Index = () => {
                       <span className="text-white/50 line-through text-sm">от 200 ₽</span>
                       <span className="text-white/40 text-xs">→</span>
                       <span className="text-yellow-300 font-bold text-sm">150 ₽</span>
-                      <span className="ml-auto bg-green-400/20 text-green-300 text-xs font-bold px-1.5 py-0.5 rounded">−50%</span>
+
                     </div>
                     <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
                       <span className="text-lg">⚡</span>

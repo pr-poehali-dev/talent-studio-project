@@ -2,81 +2,31 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/ui/icon";
-import { useState, useRef, useEffect } from "react";
-import Coloring from "@/pages/Coloring";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState, useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { useToast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
-interface Contest {
-  id: number;
-  title: string;
-  description: string;
-  categoryId: string;
-  deadline: string;
-  price: number;
-  status: string;
-  rulesLink: string;
-  diplomaImage: string;
-  image: string;
-  participants: number;
-  isPopular?: boolean;
-}
-
-interface PublicResult {
-  id: number;
-  full_name: string;
-  age: number | null;
-  teacher: string | null;
-  institution: string | null;
-  work_title: string;
-  contest_name: string;
-  contest_id: number | null;
-  result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant';
-  work_file_url: string;
-  diploma_issued_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface GalleryWork {
-  id: number;
-  full_name: string;
-  age: number | null;
-  work_title: string;
-  contest_name: string;
-  work_file_url: string;
-  result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant';
-  created_at: string;
-}
-
-interface Review {
-  id: number;
-  author_name: string;
-  author_role: string | null;
-  rating: number;
-  text: string;
-  status: 'pending' | 'approved' | 'rejected';
-  created_at: string;
-  published_at: string | null;
-}
-
-const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
-const SUBMIT_APPLICATION_URL = "https://functions.poehali.dev/2d352955-9c6c-4bbb-ad1e-944c7ea04d84";
-const GALLERY_API_URL = "https://functions.poehali.dev/eddc53e6-7462-4e4b-95fe-3b3ce3e6f95a";
-const REVIEWS_API_URL = "https://functions.poehali.dev/3daafc39-174c-4669-8e8a-71172a246929";
-const PAYMENT_API_URL = "https://functions.poehali.dev/f40bd7c6-a503-4165-8673-e8091832d07c";
-const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
-const UPLOAD_PRESIGNED_URL = "https://functions.poehali.dev/be7b31ca-63ff-4082-9667-d4ab8c4c7f94";
+import IndexNav from "@/components/index-page/IndexNav";
+import IndexHome from "@/components/index-page/IndexHome";
+import IndexModals from "@/components/index-page/IndexModals";
+import {
+  Contest,
+  PublicResult,
+  GalleryWork,
+  Review,
+  API_URL,
+  GALLERY_API_URL,
+  REVIEWS_API_URL,
+  SETTINGS_API_URL,
+  contestCategories,
+  getCategoryIcon,
+} from "@/components/index-page/IndexTypes";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -109,7 +59,6 @@ const Index = () => {
   const GALLERY_STEP = 16;
   const [featuredWorks, setFeaturedWorks] = useState<GalleryWork[]>([]);
   const [featuredPage, setFeaturedPage] = useState(0);
-  const FEATURED_PER_PAGE = 8;
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [resultFilters, setResultFilters] = useState({
@@ -120,8 +69,6 @@ const Index = () => {
   });
   const [resultsPage, setResultsPage] = useState(1);
   const RESULTS_PER_PAGE = 20;
-  const { toast } = useToast();
-  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const loadContests = async () => {
@@ -227,13 +174,13 @@ const Index = () => {
     let filtered = [...results];
 
     if (resultFilters.contest) {
-      filtered = filtered.filter(r => 
+      filtered = filtered.filter(r =>
         r.contest_name.toLowerCase().includes(resultFilters.contest.toLowerCase())
       );
     }
 
     if (resultFilters.fullName) {
-      filtered = filtered.filter(r => 
+      filtered = filtered.filter(r =>
         r.full_name.toLowerCase().includes(resultFilters.fullName.toLowerCase())
       );
     }
@@ -255,643 +202,105 @@ const Index = () => {
     setResultsPage(1);
   }, [results, resultFilters]);
 
-  const handleMouseEnter = () => {
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
-    setShowContestsDropdown(true);
-  };
-
-  const handleMouseLeave = () => {
-    closeTimeoutRef.current = setTimeout(() => {
-      setShowContestsDropdown(false);
-    }, 150);
-  };
-
-  const navItems: { id: string; label: string; icon: string; hasDropdown?: boolean; isExternal?: boolean; href?: string }[] = [
-    { id: "home", label: "Главная", icon: "Home" },
-    { id: "contests", label: "Конкурсы", icon: "Trophy", hasDropdown: true },
-    { id: "gallery", label: "Галерея", icon: "Image" },
-    { id: "documents", label: "Документы", icon: "FileText" },
-    { id: "results", label: "Итоги", icon: "Award" },
-    { id: "shop", label: "Магазин", icon: "ShoppingBag" },
-    { id: "reviews", label: "Отзывы", icon: "MessageSquare" },
-    { id: "designer", label: "Услуги дизайнера", icon: "PenTool" },
-    { id: "about", label: "О нас", icon: "Users" },
-  ];
-
-  const contestCategories = [
-    { id: "visual-arts", label: "Конкурсы изобразительного искусства", icon: "Palette", heading: "Конкурсы изобразительного искусства" },
-    { id: "decorative-arts", label: "Конкурсы декоративно-прикладного искусства", icon: "Scissors", heading: "Конкурсы декоративно-прикладного искусства" },
-    { id: "nature", label: "Конкурсы, посвященные теме природы", icon: "TreePine", heading: "Конкурсы о природе" },
-    { id: "animals", label: "Конкурсы, посвященные теме животных", icon: "PawPrint", heading: "Конкурсы о животных" },
-    { id: "plants", label: "Конкурсы, посвященные теме растений", icon: "Flower2", heading: "Конкурсы о растениях" },
-    { id: "holidays", label: "Конкурсы, посвященные теме праздников", icon: "PartyPopper", heading: "Праздничные конкурсы" },
-    { id: "thematic", label: "Тематические конкурсы ИЗО и ДПИ", icon: "Sparkles", heading: "Тематические конкурсы" },
-    { id: "literary", label: "Конкурсы, посвященные литературным сюжетам и образам", icon: "BookOpen", heading: "Конкурсы по литературным сюжетам и образам" },
-    { id: "preschool", label: "Конкурсы для детей дошкольного возраста", icon: "Baby", heading: "Конкурсы для дошкольников" },
-    { id: "artists-masters", label: "Конкурсы ИЗО и ДПИ, посвященные творчеству выдающихся художников", icon: "Brush", heading: "Конкурсы, посвященные творчеству выдающихся художников" },
-  ];
-
-  const getCategoryIcon = (categoryId: string) => {
-    const category = contestCategories.find(cat => cat.id === categoryId);
-    return category?.icon || "Trophy";
-  };
+  const renderContestCard = (contest: Contest) => (
+    <Card
+      key={contest.id}
+      className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
+    >
+      <div className="flex flex-col md:flex-row md:h-64">
+        <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
+          <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
+        </div>
+        <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-start mb-2">
+              <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
+              {contest.status === "new" && (
+                <Badge className="bg-success text-success-foreground">Новый!</Badge>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
+            <button
+              onClick={() => {
+                if (contest.rulesLink && contest.rulesLink !== '#') {
+                  setPdfUrl(contest.rulesLink);
+                  setIsPdfModalOpen(true);
+                }
+              }}
+              className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1"
+            >
+              <Icon name="FileText" size={16} />
+              Положение конкурса
+            </button>
+            <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
+          </div>
+          <Button
+            className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
+            onClick={() => {
+              setSelectedContest(contest.title);
+              setIsModalOpen(true);
+            }}
+          >
+            Участвовать
+          </Button>
+        </CardContent>
+        <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
+          <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
+          <div
+            className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
+            onClick={() => {
+              setImagePreview(contest.diplomaImage);
+              setIsImageModalOpen(true);
+            }}
+          >
+            <img
+              src={contest.diplomaImage}
+              alt="Образец диплома"
+              className="w-full h-full object-contain"
+            />
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen bg-white">
-      {showCatWelcome && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 animate-in fade-in duration-500"
-          onClick={() => setShowCatWelcome(false)}
-        >
-          <div className="relative animate-in zoom-in duration-500" style={{ width: '800px', maxWidth: '76vw' }}>
-            <button
-              onClick={() => setShowCatWelcome(false)}
-              className="absolute top-2 right-2 z-10 bg-white/80 hover:bg-white text-foreground rounded-full w-8 h-8 flex items-center justify-center shadow-md transition-all hover:scale-110"
-              aria-label="Закрыть"
-            >
-              <Icon name="X" size={18} />
-            </button>
-            <style>{`
-              @keyframes catWave {
-                0%   { transform: rotate(0deg); }
-                10%  { transform: rotate(-6deg); }
-                20%  { transform: rotate(6deg); }
-                30%  { transform: rotate(-6deg); }
-                40%  { transform: rotate(6deg); }
-                50%  { transform: rotate(0deg); }
-                100% { transform: rotate(0deg); }
-              }
-            `}</style>
-            <img
-              src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/414e01b6-6b15-442b-896a-03e29a3e5b5d.png"
-              alt="Кот Ван Гог"
-              className="w-full cursor-pointer drop-shadow-2xl"
-              onClick={() => setShowCatWelcome(false)}
-              style={{ animation: 'catWave 2.5s ease-in-out infinite', transformOrigin: 'bottom center' }}
-            />
-            <div
-              className="absolute flex flex-col items-center justify-center gap-2"
-              style={{ top: '5%', left: '42%', width: '58%', height: '50%', animation: 'catWave 2.5s ease-in-out infinite', transformOrigin: 'bottom center' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div style={{ opacity: 0, animation: 'catTextIn 0.6s ease-out 0.4s forwards', width: '72%', textAlign: 'center' }}>
-                <p className="font-heading font-bold" style={{ fontSize: 'calc(min(800px, 76vw) * 0.040)', color: '#E31E24', marginBottom: '0.4em', lineHeight: 1.2 }}>
-                  Дорогие гости и участники!
-                </p>
-                <p className="font-sans font-semibold" style={{ fontSize: 'calc(min(800px, 76vw) * 0.033)', color: '#5a3e00', lineHeight: 1.4, marginBottom: '0.6em' }}>
-                  Подписывайтесь на нашу группу
-                </p>
-                <a
-                  href="https://vk.com/studio.talantov"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block font-sans font-bold hover:brightness-110 transition-all hover:scale-105 animate-pulse"
-                  style={{ fontSize: 'calc(min(800px, 76vw) * 0.035)', color: '#fff', background: '#0077FF', textDecoration: 'none', padding: '3px 14px', borderRadius: '20px', animationDuration: '1.5s' }}
-                >
-                  ВКонтакте
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      <nav className="sticky top-0 z-50 backdrop-blur-md shadow-md" style={{ background: 'linear-gradient(to right, #FEFEFE, #FFFBDB)' }}>
-        <div className="container mx-auto pl-[50px] pr-4 py-4">
-          <div className="flex items-center">
-            <img 
-              src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/2aa89901-38a4-48dd-b954-f55aec2d1508.png" 
-              alt="Мечтай, твори, дерзай!" 
-              className="h-32 w-auto object-contain"
-            />
-            {/* Кнопка-гамбургер для мобильных */}
-            <button
-              className="md:hidden ml-auto p-2 rounded-xl hover:bg-accent transition-colors"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              <Icon name={isMobileMenuOpen ? "X" : "Menu"} size={28} />
-            </button>
-
-            <div className="hidden md:flex flex-col gap-1 ml-[20px] flex-1">
-              {/* Первая строка меню */}
-              <div className="flex gap-2 justify-end">
-                {navItems.map((item) => (
-                  <div 
-                    key={item.id} 
-                    className="relative"
-                    onMouseEnter={() => item.hasDropdown && handleMouseEnter()}
-                    onMouseLeave={() => item.hasDropdown && handleMouseLeave()}
-                  >
-                    <a
-                      href={item.id === "home" ? "/" : `/?section=${item.id}`}
-                      onClick={(e) => {
-                        if (!item.hasDropdown) {
-                          e.preventDefault();
-                          setActiveSection(item.id);
-                          setShowContestsDropdown(false);
-                        }
-                      }}
-                      className={`flex items-center gap-1 px-3 py-2 rounded-xl font-semibold transition-all ${
-                        activeSection === item.id
-                          ? "bg-primary text-primary-foreground shadow-lg scale-105"
-                          : "text-foreground hover:bg-accent hover:scale-105"
-                      }`}
-                    >
-                      <Icon name={item.icon} size={18} />
-                      {item.label}
-                      {item.hasDropdown && (
-                        <Icon name="ChevronDown" size={16} className={`transition-transform ${showContestsDropdown ? 'rotate-180' : ''}`} />
-                      )}
-                    </a>
-                    {item.hasDropdown && showContestsDropdown && (
-                      <div 
-                        className="absolute top-full mt-0 pt-2 bg-transparent z-50 animate-in fade-in slide-in-from-top-2 duration-200"
-                        onMouseEnter={handleMouseEnter}
-                        onMouseLeave={handleMouseLeave}
-                      >
-                        <div className="bg-white rounded-xl shadow-xl border-2 border-gray-100 min-w-[320px] py-2">
-                          <a
-                            href="/?section=contests"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setActiveSection("contests");
-                              setContestFilter(null);
-                              setShowContestsDropdown(false);
-                            }}
-                            className="block w-full text-left px-4 py-3 hover:bg-accent transition-colors font-medium"
-                          >
-                            Все конкурсы
-                          </a>
-                          {contestCategories.map((category) => (
-                            <a
-                              key={category.id}
-                              href={`/?section=contests&category=${category.id}`}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setActiveSection("contests");
-                                setContestFilter(category.id);
-                                setShowContestsDropdown(false);
-                              }}
-                              className="block w-full text-left px-4 py-3 hover:bg-accent transition-colors flex items-center gap-2"
-                            >
-                              <Icon name={category.icon} size={18} className="text-primary" />
-                              {category.label}
-                            </a>
-                          ))}                      
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              {/* Вторая строка — кнопки */}
-              <div className="flex justify-start gap-2">
-                <button
-                  onClick={() => setIsColoringModalOpen(true)}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg animate-pulse"
-                  style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #E31E24 50%, #9C27B0 100%)', animationDuration: '3s' }}
-                >
-                  <Icon name="Paintbrush" size={18} />
-                  🎨 Раскрась Кота Ван Гога!
-                </button>
-                <a
-                  href="/collective"
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg"
-                  style={{ background: 'linear-gradient(135deg, #0077FF 0%, #00B4D8 100%)' }}
-                >
-                  <Icon name="Users" size={18} />
-                  Коллективная заявка
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Мобильное меню */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden sticky top-[148px] z-40 shadow-lg" style={{ background: 'linear-gradient(to right, #FEFEFE, #FFFBDB)' }}>
-          <div className="flex flex-col py-2 px-4">
-            {navItems.map((item) => (
-              <div key={item.id}>
-                <a
-                  href={item.id === "home" ? "/" : `/?section=${item.id}`}
-                  onClick={(e) => {
-                    if (item.hasDropdown) {
-                      e.preventDefault();
-                      setMobileOpenSubmenu(mobileOpenSubmenu === item.id ? null : item.id);
-                    } else {
-                      e.preventDefault();
-                      setActiveSection(item.id);
-                      setIsMobileMenuOpen(false);
-                      setMobileOpenSubmenu(null);
-                    }
-                  }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-left ${
-                    activeSection === item.id
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground hover:bg-accent"
-                  }`}
-                >
-                  <Icon name={item.icon} size={20} />
-                  {item.label}
-                  {item.hasDropdown && (
-                    <Icon name="ChevronDown" size={16} className={`ml-auto transition-transform ${mobileOpenSubmenu === item.id ? 'rotate-180' : ''}`} />
-                  )}
-                </a>
-                {item.hasDropdown && mobileOpenSubmenu === item.id && (
-                  <div className="pl-4 flex flex-col gap-1 pb-2">
-                    {contestCategories.map((category) => (
-                      <button
-                        key={category.id}
-                        onClick={() => {
-                          setActiveSection("contests");
-                          setContestFilter(category.id);
-                          setIsMobileMenuOpen(false);
-                          setMobileOpenSubmenu(null);
-                        }}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm hover:bg-accent transition-colors text-left"
-                      >
-                        <Icon name={category.icon} size={16} className="text-primary" />
-                        {category.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-            {/* Кнопка раскраски в мобильном меню */}
-            <button
-              onClick={() => { setIsColoringModalOpen(true); setIsMobileMenuOpen(false); }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-white transition-all text-left mt-1"
-              style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #E31E24 50%, #9C27B0 100%)' }}
-            >
-              <Icon name="Paintbrush" size={20} />
-              🎨 Раскрась Кота Ван Гога!
-            </button>
-            <a
-              href="/collective"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-white transition-all text-left mt-1"
-              style={{ background: 'linear-gradient(135deg, #0077FF 0%, #00B4D8 100%)' }}
-            >
-              <Icon name="Users" size={20} />
-              Коллективная заявка
-            </a>
-          </div>
-        </div>
-      )}
+      <IndexNav
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        showCatWelcome={showCatWelcome}
+        setShowCatWelcome={setShowCatWelcome}
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+        mobileOpenSubmenu={mobileOpenSubmenu}
+        setMobileOpenSubmenu={setMobileOpenSubmenu}
+        showContestsDropdown={showContestsDropdown}
+        setShowContestsDropdown={setShowContestsDropdown}
+        setContestFilter={setContestFilter}
+        setIsColoringModalOpen={setIsColoringModalOpen}
+      />
 
       {activeSection === "home" && (
-        <div className="container mx-auto px-[40px] py-12">
-
-          {/* Рекламный баннер — групповая скидка */}
-          <section className="mb-10">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-6 py-5 md:px-8 md:py-6 shadow-2xl">
-              {/* Бегущие звёзды — фоновая анимация */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(12)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="absolute rounded-full bg-white/10"
-                    style={{
-                      width: `${Math.random() * 60 + 15}px`,
-                      height: `${Math.random() * 60 + 15}px`,
-                      top: `${Math.random() * 100}%`,
-                      left: `-100px`,
-                      animation: `floatRight ${6 + i * 1.2}s linear ${i * 0.8}s infinite`,
-                    }}
-                  />
-                ))}
-              </div>
-              {/* Блики */}
-              <div className="absolute -top-8 -right-8 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
-              <div className="absolute -bottom-8 -left-8 w-36 h-36 bg-pink-400/10 rounded-full blur-2xl" />
-
-              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5">
-                <div className="text-center md:text-left">
-                  <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-widest">
-                    🔥 Выгодное предложение
-                  </div>
-                  <h3 className="text-2xl md:text-3xl font-heading font-bold text-white leading-tight mb-2">
-                    Коллективная заявка —{' '}
-                    <span className="text-yellow-300">150 ₽ за участника!</span>
-                  </h3>
-                  <p className="text-white/80 text-sm md:text-base max-w-md">
-                    Подайте заявку на <strong className="text-white">5 и более участников</strong> и получите специальную цену вместо стандартной
-                  </p>
-                </div>
-
-                {/* Счётчик-визуализация */}
-                <div className="flex-shrink-0">
-                  <div className="flex flex-col items-center">
-                    <div className="flex items-end gap-2 mb-2">
-                      {[1,2,3,4,5].map((n) => (
-                        <div key={n} className="flex flex-col items-center gap-1">
-                          <div
-                            className={`w-8 rounded-lg flex items-center justify-center text-sm font-bold transition-all ${n <= 4 ? 'bg-white/20 text-white/60 h-8' : 'bg-yellow-300 text-purple-900 h-11 shadow-lg shadow-yellow-400/40'}`}
-                            style={n === 5 ? {animation: 'pulse 2s ease-in-out infinite'} : {}}
-                          >
-                            {n === 5 ? '🏆' : n}
-                          </div>
-                          {n === 5 && <span className="text-yellow-300 text-xs font-bold">скидка!</span>}
-                        </div>
-                      ))}
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-2 text-center border border-white/20">
-                      <div className="text-yellow-300 text-2xl font-bold font-heading">150 ₽</div>
-                      <div className="text-white/70 text-xs">за одного участника</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CTA */}
-                <div className="flex flex-col gap-3 flex-shrink-0 min-w-[180px]">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
-                      <span className="text-white/50 line-through text-sm">от 200 ₽</span>
-                      <span className="text-white/40 text-xs">→</span>
-                      <span className="text-yellow-300 font-bold text-sm">150 ₽</span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
-                      <span className="text-lg">⚡</span>
-                      <span className="text-white/80 text-xs">Одна заявка на всех</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => navigate('/collective')}
-                    className="inline-flex items-center justify-center gap-2 bg-yellow-300 hover:bg-yellow-200 text-purple-900 font-bold px-6 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/30 text-sm w-full"
-                  >
-                    Подать заявку
-                  </button>
-                </div>
-              </div>
-            </div>
-            <style>{`
-              @keyframes floatRight {
-                0% { transform: translateX(0) scale(0.8); opacity: 0; }
-                10% { opacity: 1; }
-                90% { opacity: 0.5; }
-                100% { transform: translateX(calc(100vw + 200px)) scale(1.2); opacity: 0; }
-              }
-            `}</style>
-          </section>
-
-          <section className="text-center mb-16 animate-in fade-in duration-700">
-            <h2 className="text-5xl md:text-7xl font-heading mb-6 font-bold" style={{ color: '#E31E24' }}>Мечтай, твори, дерзай!</h2>
-            <p className="max-w-4xl mx-auto mb-4 py-[3px] text-xl font-normal text-center text-slate-600">Кот Ван Гог и студия талантов «Мечтай, твори, дерзай!» приглашают учащихся и педагогов художественных школ и студий, художников‑любителей и профессионалов, а также всех, кто любит творить и хочет представить свои работы широкой аудитории к участию во Всероссийских конкурсах изобразительного и декоративно-прикладного искусства!</p>
-            <div className="max-w-3xl mx-auto mb-8 flex items-center gap-6 bg-white border-l-8 border-primary rounded-2xl shadow-md px-10 py-6 text-left">
-              <span className="text-5xl">🎓</span>
-              <p className="text-xl text-slate-700 font-medium leading-relaxed">
-                Дипломы, выдаваемые по итогам участия в наших конкурсах, имеют официальный статус и принимаются в качестве подтверждающих документов при{" "}
-                <span className="text-primary font-bold underline decoration-2 underline-offset-4">прохождении педагогами процедуры аттестации</span>
-              </p>
-            </div>
-            <div className="flex gap-4 justify-center flex-wrap">
-              <Button 
-                size="lg" 
-                className="text-lg px-8 py-6 rounded-2xl bg-primary hover:bg-primary/90 shadow-xl"
-                onClick={() => setActiveSection("contests")}
-              >
-                <Icon name="Palette" className="mr-2" />
-                Участвовать в конкурсе
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-lg px-8 py-6 rounded-2xl border-2 border-secondary text-secondary hover:bg-secondary hover:text-white"
-                onClick={() => setActiveSection("gallery")}
-              >
-                <Icon name="Image" className="mr-2" />
-                Смотреть галерею
-              </Button>
-            </div>
-          </section>
-
-          {contests.filter(c => c.status === "new").length > 0 && (
-            <section className="mb-16">
-              <h3 className="text-4xl font-heading font-bold text-center mb-8" style={{ color: '#FF8C00' }}>✨ Новые конкурсы</h3>
-              <div className="grid md:grid-cols-4 gap-6">
-                {contests.filter(c => c.status === "new").map((contest) => (
-                  <Card
-                    key={contest.id}
-                    className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-2 rounded-3xl"
-                    style={{ borderColor: '#FF8C00' }}
-                  >
-                    <div className="h-40 bg-gradient-to-br from-orange-50 via-orange-100 to-orange-50 flex items-center justify-center relative">
-                      <Icon name={getCategoryIcon(contest.categoryId)} style={{ color: '#FF8C00' }} size={60} />
-                      <Badge className="absolute top-2 right-2 text-white" style={{ backgroundColor: '#FF8C00' }}>Новый!</Badge>
-                    </div>
-                    <CardContent className="p-4">
-                      <div className="mb-2">
-                        <h4 className="text-lg font-heading font-bold text-primary">{contest.title}</h4>
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{contest.description}</p>
-                      <p className="text-sm font-semibold mb-2" style={{ color: '#FF8C00' }}>💰 {contest.price} ₽</p>
-                      <button 
-                        onClick={() => {
-                          if (contest.rulesLink && contest.rulesLink !== '#') {
-                            setPdfUrl(contest.rulesLink);
-                            setIsPdfModalOpen(true);
-                          }
-                        }}
-                        className="text-xs hover:underline flex items-center gap-1 font-semibold mb-1"
-                        style={{ color: '#FF8C00' }}
-                      >
-                        <Icon name="FileText" size={14} />
-                        Положение конкурса
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setImagePreview(contest.diplomaImage);
-                          setIsImageModalOpen(true);
-                        }}
-                        className="text-xs hover:underline flex items-center gap-1 font-semibold mb-3"
-                        style={{ color: '#FF8C00' }}
-                      >
-                        <Icon name="Award" size={14} />
-                        Образец диплома
-                      </button>
-                      <Button 
-                        className="w-full rounded-xl text-white hover:opacity-90"
-                        style={{ backgroundColor: '#FF8C00' }}
-                        onClick={() => {
-                          setSelectedContest(contest.title);
-                          setIsModalOpen(true);
-                        }}
-                      >
-                        Участвовать
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </section>
-          )}
-
-          <section className="mb-16">
-            <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">⭐ Популярные конкурсы</h3>
-            <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {contests.filter(c => c.isPopular).map((contest) => (
-                <Card
-                  key={contest.id}
-                  className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"
-                  onClick={() => {
-                    setSelectedContest(contest.title);
-                    setIsModalOpen(true);
-                  }}
-                >
-                  <div className="h-56 overflow-hidden bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center">
-                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
-                  </div>
-                  <CardContent className="p-6">
-                    <h4 className="text-lg font-heading font-bold mb-2">{contest.title}</h4>
-                    <p className="text-sm text-muted-foreground mb-2">{contest.description}</p>
-                    {contest.rulesLink && (
-                      <button
-                        className="text-sm text-primary underline hover:opacity-75 mb-2 block text-left"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPdfUrl(contest.rulesLink);
-                          setIsPdfModalOpen(true);
-                        }}
-                      >
-                        📄 Положение конкурса
-                      </button>
-                    )}
-                    <p className="text-sm font-semibold text-success">💰 {contest.price} ₽</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-
-          <section className="mb-20">
-            <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
-            <div className="relative">
-              <div className="grid md:grid-cols-4 gap-6 min-h-[560px] content-start">
-                {featuredWorks.slice(featuredPage * FEATURED_PER_PAGE, (featuredPage + 1) * FEATURED_PER_PAGE).map((work) => (
-                  <Card
-                    key={work.id}
-                    className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"
-                    onClick={() => {
-                      setImagePreview(work.work_file_url);
-                      setIsImageModalOpen(true);
-                    }}
-                  >
-                    <div className="h-48 overflow-hidden">
-                      <img 
-                        src={work.work_file_url} 
-                        alt={work.work_title}
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                      />
-                    </div>
-                    <CardContent className="p-4">
-                      <h4 className="text-base font-heading font-bold mb-1">{work.work_title}</h4>
-                      <p className="text-xs text-muted-foreground mb-1">👤 {work.full_name}{work.age ? `, ${work.age} лет` : ''}</p>
-                      <p className="text-xs text-muted-foreground">🏆 {work.contest_name}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              {featuredWorks.length > FEATURED_PER_PAGE && (
-                <div className="flex items-center justify-center gap-4 mt-8">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="rounded-full w-12 h-12 shadow-md"
-                    disabled={featuredPage === 0}
-                    onClick={() => setFeaturedPage(p => p - 1)}
-                  >
-                    <Icon name="ChevronLeft" size={22} />
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    {featuredPage + 1} / {Math.ceil(featuredWorks.length / FEATURED_PER_PAGE)}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="rounded-full w-12 h-12 shadow-md"
-                    disabled={(featuredPage + 1) * FEATURED_PER_PAGE >= featuredWorks.length}
-                    onClick={() => setFeaturedPage(p => p + 1)}
-                  >
-                    <Icon name="ChevronRight" size={22} />
-                  </Button>
-                </div>
-              )}
-            </div>
-          </section>
-
-          <section className="mb-16">
-            <h3 className="text-4xl font-heading font-bold text-center mb-12 text-primary">🌟 Почему выбирают нас?</h3>
-            <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <Icon name="Trophy" className="text-white" size={32} />
-                </div>
-                <h4 className="text-xl font-heading font-bold text-center mb-3 text-accent">Огромное количество ярких конкурсов</h4>
-                <p className="text-center text-muted-foreground">
-                  Студия предлагает более 50 разнообразных конкурсов по изобразительному искусству, декоративно‑прикладному творчеству и специализированным тематическим направлениям. Каждый участник сможет подобрать мероприятие в соответствии со своими интересами и творческим потенциалом.
-                </p>
-              </Card>
-
-              <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-secondary to-accent rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <Icon name="Zap" className="text-white" size={32} />
-                </div>
-                <h4 className="text-xl font-heading font-bold text-center mb-3 text-secondary">Гарантированные сроки предоставления результатов</h4>
-                <p className="text-center text-muted-foreground">
-                  Итоги конкурсов публикуются в срок от 1 до 3 рабочих дней после подачи и регистрации заявки на участие.
-                </p>
-              </Card>
-
-              <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <Icon name="Award" className="text-white" size={32} />
-                </div>
-                <h4 className="text-xl font-heading font-bold text-center mb-3 text-primary">Про дипломы</h4>
-                <p className="text-center text-muted-foreground">
-                  Каждый участник конкурса получает электронный диплом установленного образца. Документ может быть использован для пополнения портфолио и соответствует требованиям, предъявляемым к материалам для школьных конкурсов и мероприятий.
-                </p>
-              </Card>
-
-              <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-success to-info rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <Icon name="Wallet" className="text-white" size={32} />
-                </div>
-                <h4 className="text-xl font-heading font-bold text-center mb-3 text-success">Стоимость</h4>
-                <p className="text-center text-muted-foreground">
-                  Стоимость участия составляет 200 рублей. Цена фиксирована, дополнительные или скрытые платежи отсутствуют.
-                </p>
-              </Card>
-
-              <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-info to-primary rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <Icon name="Users" className="text-white" size={32} />
-                </div>
-                <h4 className="text-xl font-heading font-bold text-center mb-3 text-info">Без возрастных ограничений</h4>
-                <p className="text-center text-muted-foreground">
-                  К участию приглашаются: учащиеся и педагоги художественных школ и студий; художники‑любители и профессионалы; все желающие представить свои творческие работы широкой аудитории.
-                </p>
-              </Card>
-
-              <Card className="p-6 rounded-3xl hover:shadow-2xl transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-success rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <Icon name="Smartphone" className="text-white" size={32} />
-                </div>
-                <h4 className="text-xl font-heading font-bold text-center mb-3 text-primary">Удобная подача работ</h4>
-                <p className="text-center text-muted-foreground">Заполните форму → загрузите фото → оплатите оргвзнос → участвуйте! Всё просто и быстро.</p>
-              </Card>
-            </div>
-          </section>
-        </div>
+        <IndexHome
+          contests={contests}
+          featuredWorks={featuredWorks}
+          featuredPage={featuredPage}
+          setFeaturedPage={setFeaturedPage}
+          setActiveSection={setActiveSection}
+          setSelectedContest={setSelectedContest}
+          setIsModalOpen={setIsModalOpen}
+          setImagePreview={setImagePreview}
+          setIsImageModalOpen={setIsImageModalOpen}
+          setPdfUrl={setPdfUrl}
+          setIsPdfModalOpen={setIsPdfModalOpen}
+        />
       )}
 
       {activeSection === "contests" && (
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-8 text-primary">🏆 Все конкурсы</h2>
-          
+
           <div className="max-w-5xl mx-auto mb-8">
             <div className="flex flex-wrap gap-3 justify-center">
               <Button
@@ -973,7 +382,7 @@ const Index = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <button 
+                      <button
                         onClick={() => {
                           if (contest.rulesLink && contest.rulesLink !== '#') {
                             setPdfUrl(contest.rulesLink);
@@ -987,7 +396,7 @@ const Index = () => {
                       </button>
                       <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
                     </div>
-                    <Button 
+                    <Button
                       className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
                       onClick={() => {
                         setSelectedContest(contest.title);
@@ -999,15 +408,15 @@ const Index = () => {
                   </CardContent>
                   <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
                     <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
-                    <div 
+                    <div
                       className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
                       onClick={() => {
                         setImagePreview(contest.diplomaImage);
                         setIsImageModalOpen(true);
                       }}
                     >
-                      <img 
-                        src={contest.diplomaImage} 
+                      <img
+                        src={contest.diplomaImage}
                         alt="Образец диплома"
                         className="w-full h-full object-contain"
                       />
@@ -1033,16 +442,16 @@ const Index = () => {
                   setIsImageModalOpen(true);
                 }}
               >
-                <div className="h-56 overflow-hidden">
-                  <img 
-                    src={work.work_file_url} 
+                <div className="h-48 overflow-hidden">
+                  <img
+                    src={work.work_file_url}
                     alt={work.work_title}
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                   />
                 </div>
-                <CardContent className="p-6">
-                  <h4 className="text-lg font-heading font-bold mb-2">{work.work_title}</h4>
-                  <p className="text-sm text-muted-foreground mb-2">👤 {work.full_name}{work.age ? `, ${work.age} лет` : ''}</p>
+                <CardContent className="p-4">
+                  <h4 className="text-base font-heading font-bold mb-1">{work.work_title}</h4>
+                  <p className="text-xs text-muted-foreground mb-1">👤 {work.full_name}{work.age ? `, ${work.age} лет` : ''}</p>
                   <p className="text-xs text-muted-foreground">🏆 {work.contest_name}</p>
                 </CardContent>
               </Card>
@@ -1115,7 +524,7 @@ const Index = () => {
       {activeSection === "results" && (
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">Итоги конкурсов</h2>
-          
+
           <div className="max-w-7xl mx-auto mb-8 bg-white rounded-lg shadow-sm border p-6">
             <div className="grid md:grid-cols-4 gap-4 mb-4">
               <div>
@@ -1198,32 +607,11 @@ const Index = () => {
                       Показано {(resultsPage - 1) * RESULTS_PER_PAGE + 1}–{Math.min(resultsPage * RESULTS_PER_PAGE, filteredResults.length)} из {filteredResults.length}
                     </p>
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setResultsPage(p => p - 1)}
-                        disabled={resultsPage === 1}
-                      >
-                        Назад
-                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => setResultsPage(p => p - 1)} disabled={resultsPage === 1}>Назад</Button>
                       {Array.from({ length: Math.ceil(filteredResults.length / RESULTS_PER_PAGE) }, (_, i) => i + 1).map(page => (
-                        <Button
-                          key={page}
-                          variant={page === resultsPage ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setResultsPage(page)}
-                        >
-                          {page}
-                        </Button>
+                        <Button key={page} variant={page === resultsPage ? "default" : "outline"} size="sm" onClick={() => setResultsPage(page)}>{page}</Button>
                       ))}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setResultsPage(p => p + 1)}
-                        disabled={resultsPage === Math.ceil(filteredResults.length / RESULTS_PER_PAGE)}
-                      >
-                        Вперёд
-                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => setResultsPage(p => p + 1)} disabled={resultsPage === Math.ceil(filteredResults.length / RESULTS_PER_PAGE)}>Вперёд</Button>
                     </div>
                   </div>
                 )}
@@ -1237,9 +625,9 @@ const Index = () => {
                   <div>Учреждение</div>
                   <div>Справка</div>
                 </div>
-                
+
                 <div className="divide-y">
-                  {filteredResults.slice((resultsPage - 1) * RESULTS_PER_PAGE, resultsPage * RESULTS_PER_PAGE).map((result, index) => (
+                  {filteredResults.slice((resultsPage - 1) * RESULTS_PER_PAGE, resultsPage * RESULTS_PER_PAGE).map((result) => (
                     <div key={result.id} className="grid gap-4 p-4 hover:bg-gray-50 transition-colors md:grid-cols-[120px_2fr_60px_1.5fr_1.5fr_1.5fr_2.5fr_160px]">
                       <div className="text-sm">
                         <span className="md:hidden font-semibold text-muted-foreground">Дата вручения: </span>
@@ -1260,8 +648,8 @@ const Index = () => {
                       <div className="text-sm">
                         <span className="md:hidden font-semibold text-muted-foreground">Результат: </span>
                         <span className={`inline-block px-3 py-1 rounded-md font-semibold text-xs ${
-                          result.result === 'grand_prix' 
-                            ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white' 
+                          result.result === 'grand_prix'
+                            ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white'
                             : result.result === 'first_degree'
                             ? 'bg-gradient-to-r from-yellow-300 to-yellow-500 text-white'
                             : result.result === 'second_degree'
@@ -1296,7 +684,6 @@ const Index = () => {
                           Скачать справку
                         </a>
                       </div>
-
                     </div>
                   ))}
                 </div>
@@ -1306,32 +693,11 @@ const Index = () => {
                       Показано {(resultsPage - 1) * RESULTS_PER_PAGE + 1}–{Math.min(resultsPage * RESULTS_PER_PAGE, filteredResults.length)} из {filteredResults.length}
                     </p>
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setResultsPage(p => p - 1)}
-                        disabled={resultsPage === 1}
-                      >
-                        Назад
-                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => setResultsPage(p => p - 1)} disabled={resultsPage === 1}>Назад</Button>
                       {Array.from({ length: Math.ceil(filteredResults.length / RESULTS_PER_PAGE) }, (_, i) => i + 1).map(page => (
-                        <Button
-                          key={page}
-                          variant={page === resultsPage ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setResultsPage(page)}
-                        >
-                          {page}
-                        </Button>
+                        <Button key={page} variant={page === resultsPage ? "default" : "outline"} size="sm" onClick={() => setResultsPage(page)}>{page}</Button>
                       ))}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setResultsPage(p => p + 1)}
-                        disabled={resultsPage === Math.ceil(filteredResults.length / RESULTS_PER_PAGE)}
-                      >
-                        Вперёд
-                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => setResultsPage(p => p + 1)} disabled={resultsPage === Math.ceil(filteredResults.length / RESULTS_PER_PAGE)}>Вперёд</Button>
                     </div>
                   </div>
                 )}
@@ -1350,14 +716,11 @@ const Index = () => {
                 <div className="mb-8">
                   <Icon name="Award" className="mx-auto text-primary mb-4" size={80} />
                 </div>
-                <h3 className="text-3xl font-heading font-bold text-primary mb-6">
-                  Скоро открытие!
-                </h3>
+                <h3 className="text-3xl font-heading font-bold text-primary mb-6">Скоро открытие!</h3>
                 <div className="max-w-2xl mx-auto space-y-4 text-lg text-muted-foreground leading-relaxed">
                   <p>
-                    Мы рады сообщить, что в ближайшее время в нашем магазине появится возможность 
-                    заказать <span className="font-semibold text-primary">наградную атрибутику</span> для 
-                    юных победителей!
+                    Мы рады сообщить, что в ближайшее время в нашем магазине появится возможность
+                    заказать <span className="font-semibold text-primary">наградную атрибутику</span> для юных победителей!
                   </p>
                   <div className="grid md:grid-cols-2 gap-4 mt-8 text-left">
                     <div className="flex items-start gap-3">
@@ -1391,7 +754,7 @@ const Index = () => {
                   </div>
                   <div className="mt-8 pt-8 border-t border-primary/20">
                     <p className="text-base">
-                      Следите за обновлениями! Уже совсем скоро вы сможете увековечить достижения 
+                      Следите за обновлениями! Уже совсем скоро вы сможете увековечить достижения
                       ваших талантливых детей с помощью качественной наградной продукции.
                     </p>
                   </div>
@@ -1405,12 +768,12 @@ const Index = () => {
       {activeSection === "reviews" && (
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">💬 Отзывы</h2>
-          
+
           <div className="max-w-2xl mx-auto mb-12">
             <Card className="p-8 rounded-3xl shadow-2xl border-2 border-primary/20">
               <h3 className="text-2xl font-heading font-bold text-primary mb-6 text-center">Оставьте свой отзыв</h3>
               <p className="text-center text-muted-foreground mb-6">Поделитесь своим мнением о работе нашей студии. Все отзывы проходят модерацию перед публикацией.</p>
-              <Button 
+              <Button
                 onClick={() => setIsReviewModalOpen(true)}
                 className="w-full rounded-xl bg-primary hover:bg-primary/90 text-lg py-6"
               >
@@ -1535,11 +898,7 @@ const Index = () => {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
                 <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                   <div className="h-48 overflow-hidden cursor-pointer" onClick={() => { setImagePreview("https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/7f67c92e-7c9f-4693-9b5c-92d2659ee74a.jpg"); setIsImageModalOpen(true); }}>
-                    <img 
-                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/7f67c92e-7c9f-4693-9b5c-92d2659ee74a.jpg" 
-                      alt="Афиши и анонсы" 
-                      className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
-                    />
+                    <img src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/7f67c92e-7c9f-4693-9b5c-92d2659ee74a.jpg" alt="Афиши и анонсы" className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500" />
                   </div>
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-3">
@@ -1556,11 +915,7 @@ const Index = () => {
 
                 <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                   <div className="h-48 overflow-hidden cursor-pointer" onClick={() => { setImagePreview("https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/0759c799-d612-4cdf-9c5f-89383ed43558.jpg"); setIsImageModalOpen(true); }}>
-                    <img 
-                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/0759c799-d612-4cdf-9c5f-89383ed43558.jpg" 
-                      alt="Дипломы и грамоты" 
-                      className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
-                    />
+                    <img src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/0759c799-d612-4cdf-9c5f-89383ed43558.jpg" alt="Дипломы и грамоты" className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500" />
                   </div>
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-3">
@@ -1577,11 +932,7 @@ const Index = () => {
 
                 <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                   <div className="h-48 overflow-hidden cursor-pointer" onClick={() => { setImagePreview("https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/1d0a1cce-ff11-4433-a55c-79a222878f38.jpg"); setIsImageModalOpen(true); }}>
-                    <img 
-                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/1d0a1cce-ff11-4433-a55c-79a222878f38.jpg" 
-                      alt="Благодарственные письма" 
-                      className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
-                    />
+                    <img src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/1d0a1cce-ff11-4433-a55c-79a222878f38.jpg" alt="Благодарственные письма" className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500" />
                   </div>
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-3">
@@ -1598,11 +949,7 @@ const Index = () => {
 
                 <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                   <div className="h-48 overflow-hidden cursor-pointer" onClick={() => { setImagePreview("https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c7540fd7-567e-45e1-b1c5-b48bdda48180.jpg"); setIsImageModalOpen(true); }}>
-                    <img 
-                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c7540fd7-567e-45e1-b1c5-b48bdda48180.jpg" 
-                      alt="Программки" 
-                      className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
-                    />
+                    <img src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/c7540fd7-567e-45e1-b1c5-b48bdda48180.jpg" alt="Программки" className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500" />
                   </div>
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-3">
@@ -1618,85 +965,56 @@ const Index = () => {
                 </Card>
 
                 <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => { setImagePreview("https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/66a65365-9ded-4574-b8d8-27565e077116.jpg"); setIsImageModalOpen(true); }}>
-                    <img 
-                      src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/66a65365-9ded-4574-b8d8-27565e077116.jpg" 
-                      alt="Сертификаты" 
-                      className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
-                    />
+                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => { setImagePreview("https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/e0d9cbb8-8eb7-4b01-a3d2-a7ada3e6c2b8.jpg"); setIsImageModalOpen(true); }}>
+                    <img src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/e0d9cbb8-8eb7-4b01-a3d2-a7ada3e6c2b8.jpg" alt="Баннеры и растяжки" className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500" />
                   </div>
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-10 h-10 rounded-xl bg-success/20 flex items-center justify-center">
-                        <Icon name="BadgeCheck" size={20} className="text-success" />
+                        <Icon name="Flag" size={20} className="text-success" />
                       </div>
-                      <h3 className="text-xl font-heading font-bold">Сертификаты</h3>
+                      <h3 className="text-xl font-heading font-bold">Баннеры и растяжки</h3>
                     </div>
                     <p className="text-muted-foreground leading-relaxed">
-                      Профессиональные сертификаты для участников мастер-классов, семинаров и курсов повышения квалификации. Солидное оформление с логотипами организаций.
+                      Масштабные баннеры и растяжки для оформления сцены, фойе и входных групп. Яркий дизайн, который создаёт праздничную атмосферу любого мероприятия.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="group overflow-hidden rounded-3xl border-2 border-transparent hover:border-primary/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                  <div className="h-48 overflow-hidden cursor-pointer" onClick={() => { setImagePreview("https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/f5a2b3c4-d6e7-4f8a-9b0c-1d2e3f4a5b6c.jpg"); setIsImageModalOpen(true); }}>
+                    <img src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/f5a2b3c4-d6e7-4f8a-9b0c-1d2e3f4a5b6c.jpg" alt="Фирменный стиль" className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500" />
+                  </div>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <Icon name="Palette" size={20} className="text-primary" />
+                      </div>
+                      <h3 className="text-xl font-heading font-bold">Фирменный стиль</h3>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Разработка фирменного стиля для школ, студий и творческих организаций. Логотип, фирменные цвета, шрифты — всё для создания узнаваемого образа.
                     </p>
                   </CardContent>
                 </Card>
               </div>
 
-              <div className="bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-3xl p-8 md:p-12 mb-20">
-                <h2 className="text-3xl font-heading font-bold text-center mb-12">Для кого наши услуги</h2>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="flex items-start gap-4 bg-white/80 rounded-2xl p-6 shadow-sm">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Icon name="Music" size={24} className="text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-heading font-bold text-lg mb-1">Музыкальные школы</h3>
-                      <p className="text-muted-foreground">Афиши отчётных концертов, дипломы выпускников, грамоты для конкурсантов</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4 bg-white/80 rounded-2xl p-6 shadow-sm">
-                    <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center flex-shrink-0">
-                      <Icon name="Building2" size={24} className="text-secondary" />
-                    </div>
-                    <div>
-                      <h3 className="font-heading font-bold text-lg mb-1">Концертные залы</h3>
-                      <p className="text-muted-foreground">Программки, плакаты, пригласительные билеты для концертов и представлений</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4 bg-white/80 rounded-2xl p-6 shadow-sm">
-                    <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center flex-shrink-0">
-                      <Icon name="Landmark" size={24} className="text-accent" />
-                    </div>
-                    <div>
-                      <h3 className="font-heading font-bold text-lg mb-1">Дома культуры и творчества</h3>
-                      <p className="text-muted-foreground">Рекламные материалы для кружков, секций, фестивалей и праздничных мероприятий</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4 bg-white/80 rounded-2xl p-6 shadow-sm">
-                    <div className="w-12 h-12 rounded-xl bg-info/20 flex items-center justify-center flex-shrink-0">
-                      <Icon name="GraduationCap" size={24} className="text-info" />
-                    </div>
-                    <div>
-                      <h3 className="font-heading font-bold text-lg mb-1">Образовательные учреждения</h3>
-                      <p className="text-muted-foreground">Дипломы олимпиад, благодарности педагогам, оформление школьных мероприятий</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-20">
-                <h2 className="text-3xl font-heading font-bold text-center mb-12">Почему выбирают нас</h2>
+              <div className="bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5 rounded-3xl p-8 mb-16">
+                <h2 className="text-3xl font-heading font-bold text-center mb-10">Как мы работаем</h2>
                 <div className="grid md:grid-cols-4 gap-6">
                   <div className="text-center p-6">
-                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                      <Icon name="Palette" size={32} className="text-primary" />
+                    <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                      <Icon name="MessageSquare" size={32} className="text-primary" />
                     </div>
-                    <h3 className="font-heading font-bold mb-2">Уникальный дизайн</h3>
-                    <p className="text-sm text-muted-foreground">Каждый макет создаётся индивидуально, никаких шаблонных решений</p>
+                    <h3 className="font-heading font-bold mb-2">Обсуждение</h3>
+                    <p className="text-sm text-muted-foreground">Рассказываете о задаче и пожеланиях по стилю</p>
                   </div>
                   <div className="text-center p-6">
                     <div className="w-16 h-16 rounded-2xl bg-secondary/20 flex items-center justify-center mx-auto mb-4">
-                      <Icon name="Clock" size={32} className="text-secondary" />
+                      <Icon name="PenTool" size={32} className="text-secondary" />
                     </div>
-                    <h3 className="font-heading font-bold mb-2">Быстрые сроки</h3>
-                    <p className="text-sm text-muted-foreground">Готовый макет от 1 рабочего дня. Срочные заказы — в день обращения</p>
+                    <h3 className="font-heading font-bold mb-2">Разработка</h3>
+                    <p className="text-sm text-muted-foreground">Создаём макет в течение 1–3 рабочих дней</p>
                   </div>
                   <div className="text-center p-6">
                     <div className="w-16 h-16 rounded-2xl bg-accent/20 flex items-center justify-center mx-auto mb-4">
@@ -1750,67 +1068,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🎨 Конкурсы изобразительного искусства</h2>
           <div className="space-y-6 max-w-5xl mx-auto">
-            {contests.filter(c => c.categoryId === "visual-arts").map((contest) => (
-              <Card
-                key={contest.id}
-                className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
-              >
-                <div className="flex flex-col md:flex-row md:h-64">
-                  <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
-                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
-                  </div>
-                  <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
-                        {contest.status === "new" && (
-                          <Badge className="bg-success text-success-foreground">Новый!</Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <button 
-                        onClick={() => {
-                          if (contest.rulesLink && contest.rulesLink !== '#') {
-                            setPdfUrl(contest.rulesLink);
-                            setIsPdfModalOpen(true);
-                          }
-                        }}
-                        className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1"
-                      >
-                        <Icon name="FileText" size={16} />
-                        Положение конкурса
-                      </button>
-                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
-                    </div>
-                    <Button 
-                      className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
-                      onClick={() => {
-                        setSelectedContest(contest.title);
-                        setIsModalOpen(true);
-                      }}
-                    >
-                      Участвовать
-                    </Button>
-                  </CardContent>
-                  <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
-                    <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
-                    <div 
-                      className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
-                      onClick={() => {
-                        setImagePreview(contest.diplomaImage);
-                        setIsImageModalOpen(true);
-                      }}
-                    >
-                      <img 
-                        src={contest.diplomaImage} 
-                        alt="Образец диплома"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
+            {contests.filter(c => c.categoryId === "visual-arts").map(renderContestCard)}
           </div>
         </div>
       )}
@@ -1819,67 +1077,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">✨ Конкурсы декоративно-прикладного искусства</h2>
           <div className="space-y-6 max-w-5xl mx-auto">
-            {contests.filter(c => c.categoryId === "decorative-arts").map((contest) => (
-              <Card
-                key={contest.id}
-                className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
-              >
-                <div className="flex flex-col md:flex-row md:h-64">
-                  <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
-                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
-                  </div>
-                  <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
-                        {contest.status === "new" && (
-                          <Badge className="bg-success text-success-foreground">Новый!</Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <button 
-                        onClick={() => {
-                          if (contest.rulesLink && contest.rulesLink !== '#') {
-                            setPdfUrl(contest.rulesLink);
-                            setIsPdfModalOpen(true);
-                          }
-                        }}
-                        className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1"
-                      >
-                        <Icon name="FileText" size={16} />
-                        Положение конкурса
-                      </button>
-                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
-                    </div>
-                    <Button 
-                      className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
-                      onClick={() => {
-                        setSelectedContest(contest.title);
-                        setIsModalOpen(true);
-                      }}
-                    >
-                      Участвовать
-                    </Button>
-                  </CardContent>
-                  <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
-                    <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
-                    <div 
-                      className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
-                      onClick={() => {
-                        setImagePreview(contest.diplomaImage);
-                        setIsImageModalOpen(true);
-                      }}
-                    >
-                      <img 
-                        src={contest.diplomaImage} 
-                        alt="Образец диплома"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
+            {contests.filter(c => c.categoryId === "decorative-arts").map(renderContestCard)}
           </div>
         </div>
       )}
@@ -1888,67 +1086,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🌿 Конкурсы, посвященные теме природы</h2>
           <div className="space-y-6 max-w-5xl mx-auto">
-            {contests.filter(c => c.categoryId === "nature").map((contest) => (
-              <Card
-                key={contest.id}
-                className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
-              >
-                <div className="flex flex-col md:flex-row md:h-64">
-                  <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
-                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
-                  </div>
-                  <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
-                        {contest.status === "new" && (
-                          <Badge className="bg-success text-success-foreground">Новый!</Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <button 
-                        onClick={() => {
-                          if (contest.rulesLink && contest.rulesLink !== '#') {
-                            setPdfUrl(contest.rulesLink);
-                            setIsPdfModalOpen(true);
-                          }
-                        }}
-                        className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1"
-                      >
-                        <Icon name="FileText" size={16} />
-                        Положение конкурса
-                      </button>
-                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
-                    </div>
-                    <Button 
-                      className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
-                      onClick={() => {
-                        setSelectedContest(contest.title);
-                        setIsModalOpen(true);
-                      }}
-                    >
-                      Участвовать
-                    </Button>
-                  </CardContent>
-                  <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
-                    <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
-                    <div 
-                      className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
-                      onClick={() => {
-                        setImagePreview(contest.diplomaImage);
-                        setIsImageModalOpen(true);
-                      }}
-                    >
-                      <img 
-                        src={contest.diplomaImage} 
-                        alt="Образец диплома"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
+            {contests.filter(c => c.categoryId === "nature").map(renderContestCard)}
           </div>
         </div>
       )}
@@ -1957,67 +1095,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🐾 Конкурсы, посвященные теме животных</h2>
           <div className="space-y-6 max-w-5xl mx-auto">
-            {contests.filter(c => c.categoryId === "animals").map((contest) => (
-              <Card
-                key={contest.id}
-                className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
-              >
-                <div className="flex flex-col md:flex-row md:h-64">
-                  <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
-                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
-                  </div>
-                  <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
-                        {contest.status === "new" && (
-                          <Badge className="bg-success text-success-foreground">Новый!</Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <button 
-                        onClick={() => {
-                          if (contest.rulesLink && contest.rulesLink !== '#') {
-                            setPdfUrl(contest.rulesLink);
-                            setIsPdfModalOpen(true);
-                          }
-                        }}
-                        className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1"
-                      >
-                        <Icon name="FileText" size={16} />
-                        Положение конкурса
-                      </button>
-                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
-                    </div>
-                    <Button 
-                      className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
-                      onClick={() => {
-                        setSelectedContest(contest.title);
-                        setIsModalOpen(true);
-                      }}
-                    >
-                      Участвовать
-                    </Button>
-                  </CardContent>
-                  <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
-                    <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
-                    <div 
-                      className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
-                      onClick={() => {
-                        setImagePreview(contest.diplomaImage);
-                        setIsImageModalOpen(true);
-                      }}
-                    >
-                      <img 
-                        src={contest.diplomaImage} 
-                        alt="Образец диплома"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
+            {contests.filter(c => c.categoryId === "animals").map(renderContestCard)}
           </div>
         </div>
       )}
@@ -2026,553 +1104,88 @@ const Index = () => {
         <div className="container mx-auto px-4 py-12">
           <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🌸 Конкурсы, посвященные теме растений</h2>
           <div className="space-y-6 max-w-5xl mx-auto">
-            {contests.filter(c => c.categoryId === "plants").map((contest) => (
-              <Card
-                key={contest.id}
-                className="overflow-hidden hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-primary rounded-3xl"
-              >
-                <div className="flex flex-col md:flex-row md:h-64">
-                  <div className="md:w-64 h-48 md:h-full bg-gradient-to-br from-primary/20 via-secondary/30 to-accent/20 flex items-center justify-center flex-shrink-0">
-                    <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
-                  </div>
-                  <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="text-2xl font-heading font-bold text-primary">{contest.title}</h4>
-                        {contest.status === "new" && (
-                          <Badge className="bg-success text-success-foreground">Новый!</Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">{contest.description}</p>
-                      <button 
-                        onClick={() => {
-                          if (contest.rulesLink && contest.rulesLink !== '#') {
-                            setPdfUrl(contest.rulesLink);
-                            setIsPdfModalOpen(true);
-                          }
-                        }}
-                        className="text-sm text-primary hover:underline flex items-center gap-1 font-semibold mb-1"
-                      >
-                        <Icon name="FileText" size={16} />
-                        Положение конкурса
-                      </button>
-                      <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
-                    </div>
-                    <Button 
-                      className="w-full md:w-auto rounded-xl bg-primary hover:bg-primary/90 px-8"
-                      onClick={() => {
-                        setSelectedContest(contest.title);
-                        setIsModalOpen(true);
-                      }}
-                    >
-                      Участвовать
-                    </Button>
-                  </CardContent>
-                  <div className="flex-[0.4] p-3 flex flex-col items-center justify-center border-l">
-                    <p className="text-xs font-semibold text-muted-foreground mb-1 text-center">Образец диплома</p>
-                    <div 
-                      className="w-full flex-1 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center"
-                      onClick={() => {
-                        setImagePreview(contest.diplomaImage);
-                        setIsImageModalOpen(true);
-                      }}
-                    >
-                      <img 
-                        src={contest.diplomaImage} 
-                        alt="Образец диплома"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
+            {contests.filter(c => c.categoryId === "plants").map(renderContestCard)}
           </div>
         </div>
       )}
 
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl">
-          <DialogHeader>
-            <DialogTitle className="text-3xl font-heading font-bold text-primary">
-              🎨 Оформление заявки на участие
-            </DialogTitle>
-            <DialogDescription className="text-base">
-              Конкурс: <span className="font-semibold text-primary">{selectedContest}</span>
-            </DialogDescription>
-          </DialogHeader>
-          
-          <form 
-            className="space-y-5 mt-4"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              
-              if (!uploadedFile) {
-                toast({
-                  title: "Ошибка",
-                  description: "Пожалуйста, загрузите файл работы",
-                  variant: "destructive"
-                });
-                return;
-              }
-              
-              const formData = new FormData(e.currentTarget);
-              const contestPrice = contests.find(c => c.title === selectedContest)?.price || 300;
-              
-              try {
-                setIsUploading(true);
-                setUploadProgress(10);
-
-                const CHUNK_SIZE = 2 * 1024 * 1024;
-                const totalChunks = Math.ceil(uploadedFile.size / CHUNK_SIZE);
-                let uploadId = '';
-                let file_url = '';
-
-                for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-                  const start = chunkIndex * CHUNK_SIZE;
-                  const end = Math.min(start + CHUNK_SIZE, uploadedFile.size);
-                  const chunk = uploadedFile.slice(start, end);
-
-                  const chunkBase64 = await new Promise<string>((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                      const result = reader.result as string;
-                      resolve(result.split(',')[1]);
-                    };
-                    reader.onerror = () => reject(new Error('Ошибка чтения файла'));
-                    reader.readAsDataURL(chunk);
-                  });
-
-                  const chunkProgress = 10 + Math.round((chunkIndex / totalChunks) * 70);
-                  setUploadProgress(chunkProgress);
-
-                  const uploadResponse = await fetch("https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      chunk: chunkBase64,
-                      chunkIndex,
-                      totalChunks,
-                      fileName: uploadedFile.name,
-                      fileType: uploadedFile.type,
-                      folder: 'works',
-                      uploadId: uploadId || undefined
-                    })
-                  });
-
-                  if (!uploadResponse.ok) {
-                    throw new Error('Не удалось загрузить файл');
-                  }
-
-                  const result = await uploadResponse.json();
-                  
-                  if (!uploadId) {
-                    uploadId = result.uploadId;
-                  }
-
-                  if (result.complete) {
-                    file_url = result.url;
-                  }
-                }
-
-                setUploadProgress(85);
-
-                const applicationData = {
-                  full_name: formData.get('fullName'),
-                  age: parseInt(formData.get('age') as string),
-                  teacher: formData.get('teacher') || null,
-                  institution: formData.get('institution') || null,
-                  work_title: formData.get('workTitle'),
-                  email: formData.get('email'),
-                  contest_name: selectedContest,
-                  work_file_url: file_url,
-                  gallery_consent: formData.get('gallery') === 'on'
-                };
-
-                const paymentResponse = await fetch(PAYMENT_API_URL, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    amount: contestPrice,
-                    description: `Оплата участия в конкурсе "${selectedContest}"`,
-                    contest_name: selectedContest,
-                    email: formData.get('email'),
-                    application_data: applicationData
-                  })
-                });
-
-                const paymentResult = await paymentResponse.json();
-
-                setUploadProgress(100);
-                setIsUploading(false);
-
-                if (paymentResponse.ok && paymentResult.confirmation_url) {
-                  window.location.href = paymentResult.confirmation_url;
-                } else {
-                  toast({
-                    title: "Ошибка оплаты",
-                    description: paymentResult.error || "Не удалось создать платёж",
-                    variant: "destructive"
-                  });
-                }
-              } catch (error) {
-                setIsUploading(false);
-                setUploadProgress(0);
-                console.error('Ошибка при подаче заявки:', error);
-                toast({
-                  title: "Ошибка",
-                  description: error instanceof Error ? error.message : "Произошла ошибка при загрузке файла или создании платежа",
-                  variant: "destructive"
-                });
-              }
-            }}
-          >
-            <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-base font-semibold">ФИО *</Label>
-              <Input 
-                id="fullName"
-                name="fullName"
-                placeholder="Введите ФИО участника" 
-                required 
-                className="rounded-xl border-2 focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="age" className="text-base font-semibold">Возраст *</Label>
-              <Input 
-                id="age"
-                name="age"
-                type="number" 
-                placeholder="Введите возраст" 
-                required 
-                className="rounded-xl border-2 focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="teacher" className="text-base font-semibold">Педагог</Label>
-              <Input 
-                id="teacher"
-                name="teacher"
-                placeholder="ФИО педагога (если есть)" 
-                className="rounded-xl border-2 focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="institution" className="text-base font-semibold">Учреждение, город, страна</Label>
-              <Input 
-                id="institution"
-                name="institution"
-                placeholder="Название школы, студии, город, страна" 
-                className="rounded-xl border-2 focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="workTitle" className="text-base font-semibold">Название творческой работы *</Label>
-              <Input 
-                id="workTitle"
-                name="workTitle"
-                placeholder="Введите название работы" 
-                required 
-                className="rounded-xl border-2 focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-base font-semibold">Электронная почта *</Label>
-              <Input 
-                id="email"
-                name="email"
-                type="email" 
-                placeholder="example@mail.ru" 
-                required 
-                className="rounded-xl border-2 focus:border-primary"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="workFile" className="text-base font-semibold">Загрузить работу *</Label>
-              <div className="relative">
-                <Input 
-                  id="workFile" 
-                  type="file" 
-                  accept="image/*,.pdf"
-                  required
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const maxSize = 15 * 1024 * 1024; // 15 МБ
-                      if (file.size > maxSize) {
-                        toast({
-                          title: "Файл слишком большой",
-                          description: `Максимальный размер файла — 15 МБ. Ваш файл: ${(file.size / 1024 / 1024).toFixed(1)} МБ`,
-                          variant: "destructive"
-                        });
-                        e.target.value = '';
-                        setUploadedFile(null);
-                        return;
-                      }
-                      setUploadedFile(file);
-                    } else {
-                      setUploadedFile(null);
-                    }
-                  }}
-                  className="rounded-xl border-2 focus:border-primary h-10 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-primary file:text-white file:text-sm file:cursor-pointer hover:file:bg-primary/90"
-                />
-              </div>
-              {uploadedFile && !isUploading && (
-                <div className="flex items-center gap-2 p-3 bg-success/10 rounded-xl text-sm">
-                  <Icon name="CheckCircle" className="text-success" size={20} />
-                  <span className="text-success font-semibold">Файл выбран: {uploadedFile.name} ({(uploadedFile.size / 1024 / 1024).toFixed(1)} МБ)</span>
-                </div>
-              )}
-              {isUploading && (
-                <div className="space-y-2 p-3 bg-primary/10 rounded-xl">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-primary">Загрузка файла...</span>
-                    <span className="text-primary">{uploadProgress}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                    <div 
-                      className="bg-primary h-2.5 rounded-full transition-all duration-300 ease-out"
-                      style={{ width: `${uploadProgress}%` }}
-                    ></div>
-                  </div>
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">Форматы: JPG, PNG, PDF (макс. 15 МБ)</p>
-            </div>
-
-            <div className="space-y-4 pt-2">
-              <div className="flex items-start space-x-3 p-3 bg-accent/10 rounded-xl">
-                <Checkbox id="gallery" name="gallery" className="mt-1" />
-                <Label htmlFor="gallery" className="text-sm leading-relaxed cursor-pointer">
-                  Согласен на публикацию работы в галерее сайта
-                </Label>
-              </div>
-
-              <div className="flex items-start space-x-3 p-3 bg-accent/10 rounded-xl">
-                <Checkbox id="terms" required className="mt-1" />
-                <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
-                  Согласен с условиями конкурса и политикой обработки персональных данных *
-                </Label>
-              </div>
-            </div>
-
-            <Button 
-              type="submit" 
-              disabled={isUploading}
-              className="w-full text-lg py-6 rounded-xl bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isUploading ? (
-                <>
-                  <Icon name="Loader2" className="mr-2 animate-spin" />
-                  Загрузка файла {uploadProgress}%
-                </>
-              ) : (
-                <>
-                  <Icon name="CreditCard" className="mr-2" />
-                  Оплатить и подать заявку
-                </>
-              )}
-            </Button>
-
-            <div className="mt-4 p-4 bg-accent/10 rounded-xl border border-accent/20">
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Если у Вас возникли проблемы с подачей заявки, Вы можете отправить пакет документов (
-                {applicationFormUrl ? (
-                  <a 
-                    href={applicationFormUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline font-semibold"
-                  >
-                    заполненный лист подачи заявки
-                  </a>
-                ) : (
-                  <span className="font-semibold">заполненный лист подачи заявки</span>
-                )}, квитанцию об оплате орг. взноса, фото работы) на электронную почту{' '}
-                <a 
-                  href="mailto:studio-talantov@yandex.ru" 
-                  className="text-primary hover:underline font-semibold"
-                >
-                  studio-talantov@yandex.ru
-                </a>
-              </p>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
-        <DialogContent className="sm:max-w-[90vw] max-h-[90vh] p-0 overflow-hidden rounded-3xl">
-          <div className="relative w-full h-full flex items-center justify-center bg-black/95">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-4 right-4 z-10 text-white hover:bg-white/20 rounded-full"
-              onClick={() => setIsImageModalOpen(false)}
-            >
-              <Icon name="X" size={24} />
-            </Button>
-            {imagePreview && (
-              <img 
-                src={imagePreview} 
-                alt="Увеличенное изображение"
-                className="max-w-full max-h-[85vh] object-contain"
-              />
-            )}
+      {activeSection === "holidays" && (
+        <div className="container mx-auto px-4 py-12">
+          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🎉 Конкурсы, посвященные теме праздников</h2>
+          <div className="space-y-6 max-w-5xl mx-auto">
+            {contests.filter(c => c.categoryId === "holidays").map(renderContestCard)}
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
 
-      <Dialog open={isPdfModalOpen} onOpenChange={setIsPdfModalOpen}>
-        <DialogContent className="sm:max-w-[90vw] sm:max-h-[90vh] p-0 overflow-hidden rounded-3xl">
-          <div className="relative w-full h-[90vh] bg-white">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-4 right-4 z-10 bg-white hover:bg-gray-100 rounded-full shadow-lg"
-              onClick={() => setIsPdfModalOpen(false)}
-            >
-              <Icon name="X" size={24} />
-            </Button>
-            {pdfUrl && (
-              <iframe 
-                src={pdfUrl}
-                className="w-full h-full"
-                title="Положение конкурса"
-              />
-            )}
+      {activeSection === "thematic" && (
+        <div className="container mx-auto px-4 py-12">
+          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">✨ Тематические конкурсы ИЗО и ДПИ</h2>
+          <div className="space-y-6 max-w-5xl mx-auto">
+            {contests.filter(c => c.categoryId === "thematic").map(renderContestCard)}
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
 
-      <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl">
-          <DialogHeader>
-            <DialogTitle className="text-3xl font-heading font-bold text-primary">
-              ✍️ Напишите отзыв
-            </DialogTitle>
-            <DialogDescription className="text-base">
-              Ваш отзыв будет опубликован после проверки модератором
-            </DialogDescription>
-          </DialogHeader>
-          
-          <form 
-            className="space-y-5 mt-4"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              
-              try {
-                const response = await fetch(REVIEWS_API_URL, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    author_name: formData.get('author_name'),
-                    author_role: formData.get('author_role') || null,
-                    rating: parseInt(formData.get('rating') as string),
-                    text: formData.get('text')
-                  })
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                  toast({
-                    title: "Отзыв отправлен!",
-                    description: "Ваш отзыв будет опубликован после модерации. Спасибо!",
-                  });
-                  setIsReviewModalOpen(false);
-                  e.currentTarget.reset();
-                } else {
-                  toast({
-                    title: "Ошибка",
-                    description: result.error || "Не удалось отправить отзыв",
-                    variant: "destructive"
-                  });
-                }
-              } catch (error) {
-                toast({
-                  title: "Ошибка",
-                  description: "Произошла ошибка при отправке отзыва",
-                  variant: "destructive"
-                });
-              }
-            }}
-          >
-            <div className="space-y-2">
-              <Label htmlFor="author_name" className="text-base font-semibold">Ваше имя *</Label>
-              <Input 
-                id="author_name"
-                name="author_name"
-                placeholder="Как вас зовут?" 
-                required 
-                className="rounded-xl border-2 focus:border-primary"
-              />
-            </div>
+      {activeSection === "literary" && (
+        <div className="container mx-auto px-4 py-12">
+          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">📚 Конкурсы по литературным сюжетам</h2>
+          <div className="space-y-6 max-w-5xl mx-auto">
+            {contests.filter(c => c.categoryId === "literary").map(renderContestCard)}
+          </div>
+        </div>
+      )}
 
-            <div className="space-y-2">
-              <Label htmlFor="author_role" className="text-base font-semibold">Ваша роль</Label>
-              <Input 
-                id="author_role"
-                name="author_role"
-                placeholder="Например: Мама участника, Педагог, и т.д." 
-                className="rounded-xl border-2 focus:border-primary"
-              />
-            </div>
+      {activeSection === "preschool" && (
+        <div className="container mx-auto px-4 py-12">
+          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🎈 Конкурсы для дошкольников</h2>
+          <div className="space-y-6 max-w-5xl mx-auto">
+            {contests.filter(c => c.categoryId === "preschool").map(renderContestCard)}
+          </div>
+        </div>
+      )}
 
-            <div className="space-y-2">
-              <Label htmlFor="rating" className="text-base font-semibold">Оценка *</Label>
-              <Select name="rating" required>
-                <SelectTrigger className="rounded-xl border-2 focus:border-primary">
-                  <SelectValue placeholder="Выберите оценку" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="5">⭐⭐⭐⭐⭐ Отлично</SelectItem>
-                  <SelectItem value="4">⭐⭐⭐⭐ Хорошо</SelectItem>
-                  <SelectItem value="3">⭐⭐⭐ Нормально</SelectItem>
-                  <SelectItem value="2">⭐⭐ Плохо</SelectItem>
-                  <SelectItem value="1">⭐ Ужасно</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      {activeSection === "artists-masters" && (
+        <div className="container mx-auto px-4 py-12">
+          <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">🖼️ Конкурсы о творчестве художников</h2>
+          <div className="space-y-6 max-w-5xl mx-auto">
+            {contests.filter(c => c.categoryId === "artists-masters").map(renderContestCard)}
+          </div>
+        </div>
+      )}
 
-            <div className="space-y-2">
-              <Label htmlFor="text" className="text-base font-semibold">Ваш отзыв *</Label>
-              <textarea 
-                id="text"
-                name="text"
-                placeholder="Расскажите о вашем опыте участия в конкурсах студии..."
-                required
-                rows={6}
-                className="flex min-h-[120px] w-full rounded-xl border-2 border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full text-lg py-6 rounded-xl bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
-            >
-              <Icon name="Send" className="mr-2" />
-              Отправить отзыв
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <IndexModals
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        selectedContest={selectedContest}
+        contests={contests}
+        uploadedFile={uploadedFile}
+        setUploadedFile={setUploadedFile}
+        uploadProgress={uploadProgress}
+        setUploadProgress={setUploadProgress}
+        isUploading={isUploading}
+        setIsUploading={setIsUploading}
+        applicationFormUrl={applicationFormUrl}
+        isImageModalOpen={isImageModalOpen}
+        setIsImageModalOpen={setIsImageModalOpen}
+        imagePreview={imagePreview}
+        isPdfModalOpen={isPdfModalOpen}
+        setIsPdfModalOpen={setIsPdfModalOpen}
+        pdfUrl={pdfUrl}
+        isReviewModalOpen={isReviewModalOpen}
+        setIsReviewModalOpen={setIsReviewModalOpen}
+        isColoringModalOpen={isColoringModalOpen}
+        setIsColoringModalOpen={setIsColoringModalOpen}
+      />
 
       <footer className="bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 border-t border-primary/10 py-16 mt-16">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div className="md:col-span-1">
               <div className="mb-6">
-                <img 
-                  src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/2aa89901-38a4-48dd-b954-f55aec2d1508.png" 
-                  alt="Мечтай, твори, дерзай!" 
+                <img
+                  src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/2aa89901-38a4-48dd-b954-f55aec2d1508.png"
+                  alt="Мечтай, твори, дерзай!"
                   className="h-32 w-auto object-contain"
                 />
               </div>
@@ -2580,107 +1193,55 @@ const Index = () => {
                 Студия талантов для юных художников и творцов
               </p>
             </div>
-            
+
             <div>
               <h3 className="font-heading font-bold text-lg mb-4 text-primary">Навигация</h3>
               <nav className="space-y-3">
-                <button
-                  onClick={() => setActiveSection('home')}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left"
-                >
-                  <Icon name="Home" size={16} />
-                  Главная
+                <button onClick={() => setActiveSection('home')} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left">
+                  <Icon name="Home" size={16} />Главная
                 </button>
-                <button
-                  onClick={() => setActiveSection('contests')}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left"
-                >
-                  <Icon name="Trophy" size={16} />
-                  Все конкурсы
+                <button onClick={() => setActiveSection('contests')} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left">
+                  <Icon name="Trophy" size={16} />Все конкурсы
                 </button>
-                <button
-                  onClick={() => setActiveSection('documents')}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left"
-                >
-                  <Icon name="FileText" size={16} />
-                  Документы
+                <button onClick={() => setActiveSection('documents')} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left">
+                  <Icon name="FileText" size={16} />Документы
                 </button>
-                <button
-                  onClick={() => setActiveSection('results')}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left"
-                >
-                  <Icon name="Award" size={16} />
-                  Итоги
+                <button onClick={() => setActiveSection('results')} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left">
+                  <Icon name="Award" size={16} />Итоги
                 </button>
-                <button
-                  onClick={() => setActiveSection('shop')}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left"
-                >
-                  <Icon name="ShoppingBag" size={16} />
-                  Магазин
+                <button onClick={() => setActiveSection('shop')} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left">
+                  <Icon name="ShoppingBag" size={16} />Магазин
                 </button>
-                <button
-                  onClick={() => setActiveSection('reviews')}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left"
-                >
-                  <Icon name="MessageSquare" size={16} />
-                  Отзывы
+                <button onClick={() => setActiveSection('reviews')} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left">
+                  <Icon name="MessageSquare" size={16} />Отзывы
                 </button>
-                <button
-                  onClick={() => setActiveSection('about')}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left"
-                >
-                  <Icon name="Info" size={16} />
-                  О нас
+                <button onClick={() => setActiveSection('about')} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left">
+                  <Icon name="Info" size={16} />О нас
                 </button>
-                <button
-                  onClick={() => setActiveSection('designer')}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left"
-                >
-                  <Icon name="PenTool" size={16} />
-                  Услуги дизайнера
+                <button onClick={() => setActiveSection('designer')} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors w-full text-left">
+                  <Icon name="PenTool" size={16} />Услуги дизайнера
                 </button>
               </nav>
             </div>
-            
+
             <div>
               <h3 className="font-heading font-bold text-lg mb-4 text-primary">Контакты</h3>
               <div className="space-y-3">
-                <a 
-                  href="https://студия-талантов.рф" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <Icon name="Globe" size={16} />
-                  студия-талантов.рф
+                <a href="https://студия-талантов.рф" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <Icon name="Globe" size={16} />студия-талантов.рф
                 </a>
-                <a 
-                  href="mailto:studio-talantov@yandex.ru"
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <Icon name="Mail" size={16} />
-                  studio-talantov@yandex.ru
+                <a href="mailto:studio-talantov@yandex.ru" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <Icon name="Mail" size={16} />studio-talantov@yandex.ru
                 </a>
-                <a 
-                  href="tel:+79082433179"
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <Icon name="Phone" size={16} />
-                  +7 (908) 243-31-79
+                <a href="tel:+79082433179" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <Icon name="Phone" size={16} />+7 (908) 243-31-79
                 </a>
-                <a 
-                  href="https://vk.com/studio.talantov" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  <Icon name="MessageCircle" size={16} />
-                  VK: studio.talantov
+                <a href="https://vk.com/studio.talantov" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                  <Icon name="MessageCircle" size={16} />VK: studio.talantov
                 </a>
               </div>
             </div>
-            
+
             <div>
               <h3 className="font-heading font-bold text-lg mb-4 text-primary">Реквизиты</h3>
               <div className="space-y-2 text-sm text-muted-foreground">
@@ -2695,7 +1256,7 @@ const Index = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="border-t border-primary/10 pt-8">
             <p className="text-center text-sm text-muted-foreground">
               © 2026 Студия талантов "Мечтай, твори, дерзай!". Все права защищены.
@@ -2703,14 +1264,6 @@ const Index = () => {
           </div>
         </div>
       </footer>
-
-      {/* Модальное окно раскраски */}
-      <Dialog open={isColoringModalOpen} onOpenChange={setIsColoringModalOpen}>
-        <DialogContent className="max-w-[98vw] w-[1200px] max-h-[95vh] overflow-hidden p-0 rounded-3xl">
-          <Coloring />
-        </DialogContent>
-      </Dialog>
-
     </div>
   );
 };

@@ -1227,7 +1227,7 @@ const Index = () => {
                     </div>
                   </div>
                 )}
-                <div className="hidden md:grid gap-4 p-4 bg-gray-50 border-b font-semibold text-sm" style={{gridTemplateColumns: '120px 2fr 60px 1.5fr 1.5fr 1.5fr 2.5fr 160px 120px'}}>
+                <div className="hidden md:grid gap-4 p-4 bg-gray-50 border-b font-semibold text-sm" style={{gridTemplateColumns: '120px 2fr 60px 1.5fr 1.5fr 1.5fr 2.5fr 160px'}}>
                   <div>Дата вручения</div>
                   <div>ФИО участника</div>
                   <div>Возраст</div>
@@ -1236,12 +1236,11 @@ const Index = () => {
                   <div>Педагог</div>
                   <div>Учреждение</div>
                   <div>Справка</div>
-                  <div>Поделиться</div>
                 </div>
                 
                 <div className="divide-y">
                   {filteredResults.slice((resultsPage - 1) * RESULTS_PER_PAGE, resultsPage * RESULTS_PER_PAGE).map((result, index) => (
-                    <div key={result.id} className="grid gap-4 p-4 hover:bg-gray-50 transition-colors md:grid-cols-[120px_2fr_60px_1.5fr_1.5fr_1.5fr_2.5fr_160px_120px]">
+                    <div key={result.id} className="grid gap-4 p-4 hover:bg-gray-50 transition-colors md:grid-cols-[120px_2fr_60px_1.5fr_1.5fr_1.5fr_2.5fr_160px]">
                       <div className="text-sm">
                         <span className="md:hidden font-semibold text-muted-foreground">Дата вручения: </span>
                         {result.diploma_issued_at ? new Date(result.diploma_issued_at).toLocaleDateString('ru-RU') : '—'}
@@ -1297,18 +1296,7 @@ const Index = () => {
                           Скачать справку
                         </a>
                       </div>
-                      <div className="text-sm">
-                        <span className="md:hidden font-semibold text-muted-foreground">Поделиться: </span>
-                        <a
-                          href={`https://vk.com/share.php?url=${encodeURIComponent(window.location.origin + '/?section=results')}&title=${encodeURIComponent(`🏆 ${result.full_name} — ${result.result === 'grand_prix' ? 'Гран-При' : result.result === 'first_degree' ? 'Диплом 1 степени' : result.result === 'second_degree' ? 'Диплом 2 степени' : result.result === 'third_degree' ? 'Диплом 3 степени' : 'Участник'} в конкурсе «${result.contest_name}»! Мечтай, твори, дерзай! 🎨`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-white bg-[#0077FF] hover:bg-[#0060CC] px-2 py-1 rounded font-medium transition-colors"
-                        >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.864-.525-2.05-1.727-1.033-1-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.846 0-3.896-1.118-5.335-3.202C5.258 10.766 4.8 8.96 4.8 8.55c0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.677.864 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V9.864c-.068-1.186-.695-1.287-.695-1.71 0-.203.17-.407.44-.407h2.744c.373 0 .508.203.508.643v3.473c0 .372.17.508.271.508.22 0 .407-.136.813-.542 1.254-1.406 2.151-3.574 2.151-3.574.119-.254.322-.491.763-.491h1.744c.525 0 .643.27.525.643-.22 1.017-2.354 4.031-2.354 4.031-.186.305-.254.44 0 .78.186.254.796.78 1.203 1.253.745.847 1.32 1.558 1.473 2.05.17.49-.085.745-.576.745z"/></svg>
-                          ВКонтакте
-                        </a>
-                      </div>
+
                     </div>
                   ))}
                 </div>

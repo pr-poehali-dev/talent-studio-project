@@ -608,13 +608,13 @@ const Index = () => {
                 {/* CTA */}
                 <div className="flex flex-col gap-2 flex-shrink-0">
                   <button
-                    onClick={() => setSection('contests')}
+                    onClick={() => setActiveSection('contests')}
                     className="inline-flex items-center justify-center gap-2 bg-yellow-300 hover:bg-yellow-200 text-purple-900 font-bold px-6 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/30 text-sm"
                   >
                     🎯 Выбрать конкурс
                   </button>
                   <button
-                    onClick={() => setSection('apply')}
+                    onClick={() => setActiveSection('apply')}
                     className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/30 font-semibold px-6 py-2.5 rounded-xl transition-all text-sm"
                   >
                     Подать заявку

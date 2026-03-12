@@ -607,10 +607,26 @@ const Index = () => {
                 </div>
 
                 {/* CTA */}
-                <div className="flex flex-col gap-2 flex-shrink-0">
+                <div className="flex flex-col gap-3 flex-shrink-0 min-w-[180px]">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
+                      <span className="text-white/50 line-through text-sm">от 300 ₽</span>
+                      <span className="text-white/40 text-xs">→</span>
+                      <span className="text-yellow-300 font-bold text-sm">150 ₽</span>
+                      <span className="ml-auto bg-green-400/20 text-green-300 text-xs font-bold px-1.5 py-0.5 rounded">−50%</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
+                      <span className="text-lg">🎓</span>
+                      <span className="text-white/80 text-xs">Диплом каждому участнику</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
+                      <span className="text-lg">⚡</span>
+                      <span className="text-white/80 text-xs">Одна заявка на всех</span>
+                    </div>
+                  </div>
                   <button
                     onClick={() => navigate('/collective')}
-                    className="inline-flex items-center justify-center gap-2 bg-yellow-300 hover:bg-yellow-200 text-purple-900 font-bold px-6 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/30 text-sm"
+                    className="inline-flex items-center justify-center gap-2 bg-yellow-300 hover:bg-yellow-200 text-purple-900 font-bold px-6 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/30 text-sm w-full"
                   >
                     Подать заявку
                   </button>

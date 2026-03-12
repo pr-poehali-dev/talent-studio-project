@@ -729,6 +729,94 @@ const Index = () => {
             </div>
           </section>
 
+          {/* Рекламный баннер — групповая скидка */}
+          <section className="mb-16">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 p-8 md:p-12 shadow-2xl">
+              {/* Бегущие звёзды — фоновая анимация */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                {[...Array(12)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute rounded-full bg-white/10"
+                    style={{
+                      width: `${Math.random() * 80 + 20}px`,
+                      height: `${Math.random() * 80 + 20}px`,
+                      top: `${Math.random() * 100}%`,
+                      left: `-100px`,
+                      animation: `floatRight ${6 + i * 1.2}s linear ${i * 0.8}s infinite`,
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Блики */}
+              <div className="absolute -top-10 -right-10 w-64 h-64 bg-white/5 rounded-full blur-2xl" />
+              <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-pink-400/10 rounded-full blur-2xl" />
+
+              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div className="text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-4 py-1.5 rounded-full mb-4 uppercase tracking-widest">
+                    🔥 Выгодное предложение
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-heading font-bold text-white leading-tight mb-3">
+                    Коллективная заявка —<br />
+                    <span className="text-yellow-300">150 ₽ за участника!</span>
+                  </h3>
+                  <p className="text-white/80 text-base md:text-lg max-w-md">
+                    Подайте заявку на <strong className="text-white">5 и более участников</strong> и получите специальную цену вместо стандартной
+                  </p>
+                </div>
+
+                {/* Счётчик-визуализация */}
+                <div className="flex-shrink-0">
+                  <div className="relative flex flex-col items-center">
+                    <div className="flex items-end gap-4 mb-3">
+                      {[1,2,3,4,5].map((n) => (
+                        <div key={n} className="flex flex-col items-center gap-1">
+                          <div
+                            className={`w-10 rounded-xl flex items-center justify-center text-lg font-bold transition-all ${n <= 4 ? 'bg-white/20 text-white/60 h-10' : 'bg-yellow-300 text-purple-900 h-14 shadow-lg shadow-yellow-400/40'}`}
+                            style={n === 5 ? {animation: 'pulse 2s ease-in-out infinite'} : {}}
+                          >
+                            {n === 5 ? '🏆' : n}
+                          </div>
+                          {n === 5 && <span className="text-yellow-300 text-xs font-bold">+1 = скидка!</span>}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-3 text-center border border-white/20">
+                      <div className="text-yellow-300 text-3xl font-bold font-heading">150 ₽</div>
+                      <div className="text-white/70 text-xs">за одного участника</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="relative z-10 mt-8 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+                <button
+                  onClick={() => setSection('contests')}
+                  className="inline-flex items-center justify-center gap-2 bg-yellow-300 hover:bg-yellow-200 text-purple-900 font-bold px-8 py-3 rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/30 text-sm"
+                >
+                  🎯 Выбрать конкурс для группы
+                </button>
+                <button
+                  onClick={() => setSection('apply')}
+                  className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/30 font-semibold px-8 py-3 rounded-2xl transition-all text-sm"
+                >
+                  Подать коллективную заявку
+                </button>
+              </div>
+            </div>
+            <style>{`
+              @keyframes floatRight {
+                0% { transform: translateX(0) scale(0.8); opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 0.5; }
+                100% { transform: translateX(calc(100vw + 200px)) scale(1.2); opacity: 0; }
+              }
+            `}</style>
+          </section>
+
           <section className="mb-16">
             <h3 className="text-4xl font-heading font-bold text-center mb-12 text-primary">🌟 Почему выбирают нас?</h3>
             <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">

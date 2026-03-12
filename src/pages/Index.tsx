@@ -609,11 +609,10 @@ const Index = () => {
                 {/* CTA */}
                 <div className="flex flex-col gap-3 flex-shrink-0 min-w-[180px]">
                   <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
+                    <div className="flex items-center justify-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
                       <span className="text-white/50 line-through text-sm">от 200 ₽</span>
                       <span className="text-white/40 text-xs">→</span>
                       <span className="text-yellow-300 font-bold text-sm">150 ₽</span>
-
                     </div>
                     <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
                       <span className="text-lg">⚡</span>

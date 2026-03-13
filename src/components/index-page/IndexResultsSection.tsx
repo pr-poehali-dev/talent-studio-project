@@ -212,11 +212,9 @@ const IndexResultsSection = ({
                           : '';
                         const teacher = result.teacher ? ` под руководством педагога ${result.teacher}` : '';
                         const institution = result.institution ? ` (${result.institution})` : '';
-                        const text = `🏆 Студия талантов «Мечтай, твори, дерзай!» поздравляет участника конкурса!\n\n` +
-                          `${result.full_name}${teacher}${institution} стал обладателем ${resultLabel} в конкурсе «${result.contest_name}»${date ? ` (${date})` : ''}.\n\n` +
-                          `Поздравляем с заслуженной наградой! 🎨✨\n\n` +
-                          `Подробнее о конкурсах студии: https://talent-studio-project.poehali.dev`;
-                        return `https://vk.com/share.php?url=https://talent-studio-project.poehali.dev&title=${encodeURIComponent(text)}`;
+                        const title = `🏆 ${result.full_name} — ${resultLabel} в конкурсе «${result.contest_name}»${date ? ` (${date})` : ''}`;
+                        const description = `Студия талантов «Мечтай, твори, дерзай!» поздравляет с заслуженной наградой!${teacher ? `\nПедагог: ${result.teacher}` : ''}${institution ? `\nУчреждение: ${result.institution}` : ''}\n\nПодробнее о конкурсах студии: https://talent-studio-project.poehali.dev 🎨✨`;
+                        return `https://vk.com/share.php?url=https://talent-studio-project.poehali.dev&title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}&noparse=true`;
                       })()}
                       target="_blank"
                       rel="noopener noreferrer"

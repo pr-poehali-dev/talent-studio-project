@@ -15,6 +15,7 @@ interface IndexNavProps {
   setShowContestsDropdown: (v: boolean) => void;
   setContestFilter: (v: string | null) => void;
   setIsColoringModalOpen: (v: boolean) => void;
+  setActiveSection: (s: string) => void;
 }
 
 const navItems: { id: string; label: string; icon: string; hasDropdown?: boolean }[] = [
@@ -23,9 +24,7 @@ const navItems: { id: string; label: string; icon: string; hasDropdown?: boolean
   { id: "gallery", label: "Галерея", icon: "Image" },
   { id: "documents", label: "Документы", icon: "FileText" },
   { id: "results", label: "Итоги", icon: "Award" },
-  { id: "shop", label: "Магазин", icon: "ShoppingBag" },
   { id: "reviews", label: "Отзывы", icon: "MessageSquare" },
-  { id: "designer", label: "Услуги дизайнера", icon: "PenTool" },
   { id: "jury", label: "Жюри", icon: "Star" },
   { id: "about", label: "О нас", icon: "Users" },
 ];
@@ -43,6 +42,7 @@ const IndexNav = ({
   setShowContestsDropdown,
   setContestFilter,
   setIsColoringModalOpen,
+  setActiveSection,
 }: IndexNavProps) => {
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -223,6 +223,22 @@ const IndexNav = ({
                   <Icon name="Users" size={18} />
                   Коллективная заявка
                 </a>
+                <button
+                  onClick={() => setActiveSection("shop")}
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)' }}
+                >
+                  <Icon name="ShoppingBag" size={18} />
+                  Магазин
+                </button>
+                <button
+                  onClick={() => setActiveSection("designer")}
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #10B981 0%, #0EA5E9 100%)' }}
+                >
+                  <Icon name="PenTool" size={18} />
+                  Услуги дизайнера
+                </button>
               </div>
             </div>
           </div>
@@ -296,6 +312,22 @@ const IndexNav = ({
               <Icon name="Users" size={20} />
               Коллективная заявка
             </a>
+            <button
+              onClick={() => { setActiveSection("shop"); setIsMobileMenuOpen(false); }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-white transition-all text-left mt-1"
+              style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)' }}
+            >
+              <Icon name="ShoppingBag" size={20} />
+              Магазин
+            </button>
+            <button
+              onClick={() => { setActiveSection("designer"); setIsMobileMenuOpen(false); }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-white transition-all text-left mt-1"
+              style={{ background: 'linear-gradient(135deg, #10B981 0%, #0EA5E9 100%)' }}
+            >
+              <Icon name="PenTool" size={20} />
+              Услуги дизайнера
+            </button>
           </div>
         </div>
       )}

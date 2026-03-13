@@ -142,57 +142,54 @@ const IndexJurySection = () => {
             <div className="flex-1 h-px bg-orange-100" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
             {members.map((member, index) => (
               <div
                 key={member.name}
-                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-orange-50 group"
+                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-orange-50 group flex flex-col"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="flex flex-col sm:flex-row gap-0">
-                  {/* Photo */}
-                  <div className="w-full sm:w-44 flex-shrink-0 relative overflow-hidden" style={{ minHeight: "220px" }}>
-                    {member.photo ? (
-                      <img
-                        src={member.photo}
-                        alt={member.name}
-                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 absolute inset-0"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-orange-100 to-amber-100 flex flex-col items-center justify-center absolute inset-0">
-                        <Icon name="User" size={40} className="text-orange-300 mb-2" />
-                        <span className="text-orange-300 text-xs text-center px-2">Фото скоро</span>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/5" />
-                  </div>
+                {/* Photo */}
+                <div className="w-full overflow-hidden">
+                  {member.photo ? (
+                    <img
+                      src={member.photo}
+                      alt={member.name}
+                      className="w-full object-contain group-hover:scale-[1.02] transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full aspect-[3/4] bg-gradient-to-br from-orange-100 to-amber-100 flex flex-col items-center justify-center">
+                      <Icon name="User" size={48} className="text-orange-300 mb-2" />
+                      <span className="text-orange-300 text-sm text-center px-2">Фото скоро</span>
+                    </div>
+                  )}
+                </div>
 
-                  {/* Info */}
-                  <div className="flex-1 p-6 flex flex-col">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="font-bold text-gray-800 text-base leading-snug">
-                          {member.name}
-                        </h3>
-                        <p className="text-orange-500 text-sm font-medium mt-1">{member.title}</p>
-                      </div>
-                      <div className="ml-2 flex-shrink-0 w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center">
-                        <Icon name="Award" size={14} className="text-orange-500" />
-                      </div>
+                {/* Info */}
+                <div className="p-6 flex flex-col flex-1">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h3 className="font-bold text-gray-800 text-base leading-snug">
+                        {member.name}
+                      </h3>
+                      <p className="text-orange-500 text-sm font-medium mt-1">{member.title}</p>
                     </div>
-                    <p className="text-gray-500 text-sm leading-relaxed flex-1 mt-2">
-                      {member.description}
-                    </p>
-                    <div className="flex flex-wrap gap-1.5 mt-4">
-                      {member.tags?.map((tag) => (
-                        <span
-                          key={tag}
-                          className="bg-orange-50 text-orange-500 text-xs px-2 py-0.5 rounded-full border border-orange-100"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                    <div className="ml-2 flex-shrink-0 w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center">
+                      <Icon name="Award" size={14} className="text-orange-500" />
                     </div>
+                  </div>
+                  <p className="text-gray-500 text-sm leading-relaxed mt-2">
+                    {member.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mt-4">
+                    {member.tags?.map((tag) => (
+                      <span
+                        key={tag}
+                        className="bg-orange-50 text-orange-500 text-xs px-2 py-0.5 rounded-full border border-orange-100"
+                      >
+                        {tag}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>

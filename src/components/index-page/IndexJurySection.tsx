@@ -1,3 +1,4 @@
+import { useRef, useEffect, useState } from "react";
 import Icon from "@/components/ui/icon";
 
 interface JuryMember {
@@ -52,6 +53,116 @@ const juryMembers: JuryMember[] = [
     tags: ["ИЗО", "Технология", "Педагог"],
   },
 ];
+
+const JuryCard = ({ member, index }: { member: JuryMember; index: number }) => {
+  const imgRef = useRef<HTMLImageElement>(null);
+  const textRef = useRef<HTMLParagraphElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [needsExpand, setNeedsExpand] = useState(false);
+  const [imgHeight, setImgHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    const check = () => {
+      if (!imgRef.current || !textRef.current) return;
+      const h = imgRef.current.offsetHeight;
+      setImgHeight(h);
+      const textEl = textRef.current;
+      setNeedsExpand(textEl.scrollHeight > textEl.offsetHeight);
+    };
+    const img = imgRef.current;
+    if (img?.complete) {
+      check();
+    } else {
+      img?.addEventListener("load", check);
+    }
+    window.addEventListener("resize", check);
+    return () => {
+      img?.removeEventListener("load", check);
+      window.removeEventListener("resize", check);
+    };
+  }, []);
+
+  return (
+    <div
+      className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-orange-50 group"
+      style={{ animationDelay: `${index * 100}ms` }}
+    >
+      <div className="flex gap-0">
+        {/* Photo */}
+        <div className="w-36 flex-shrink-0 overflow-hidden">
+          {member.photo ? (
+            <img
+              ref={imgRef}
+              src={member.photo}
+              alt={member.name}
+              className="w-full h-auto block group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full min-h-[200px] bg-gradient-to-br from-orange-100 to-amber-100 flex flex-col items-center justify-center">
+              <Icon name="User" size={40} className="text-orange-300 mb-2" />
+              <span className="text-orange-300 text-xs text-center px-2">Фото скоро</span>
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div
+          className="flex-1 p-5 flex flex-col transition-all duration-300"
+          style={!expanded && imgHeight ? { maxHeight: imgHeight, overflow: "hidden" } : {}}
+        >
+          <div className="flex items-start justify-between mb-1">
+            <div>
+              <h3 className="font-bold text-gray-800 text-base leading-snug">
+                {member.name}
+              </h3>
+              <p className="text-orange-500 text-sm font-medium mt-0.5">{member.title}</p>
+            </div>
+            <div className="ml-2 flex-shrink-0 w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center">
+              <Icon name="Award" size={14} className="text-orange-500" />
+            </div>
+          </div>
+          <p
+            ref={textRef}
+            className="text-gray-500 text-sm leading-relaxed mt-2"
+            style={!expanded && imgHeight ? { overflow: "hidden" } : {}}
+          >
+            {member.description}
+          </p>
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {member.tags?.map((tag) => (
+              <span
+                key={tag}
+                className="bg-orange-50 text-orange-500 text-xs px-2 py-0.5 rounded-full border border-orange-100"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Expand button */}
+      {needsExpand && !expanded && (
+        <button
+          onClick={() => setExpanded(true)}
+          className="w-full text-center text-orange-500 text-xs font-medium py-2 border-t border-orange-50 hover:bg-orange-50 transition-colors flex items-center justify-center gap-1"
+        >
+          Подробнее
+          <Icon name="ChevronDown" size={12} className="text-orange-400" />
+        </button>
+      )}
+      {needsExpand && expanded && (
+        <button
+          onClick={() => setExpanded(false)}
+          className="w-full text-center text-orange-400 text-xs font-medium py-2 border-t border-orange-50 hover:bg-orange-50 transition-colors flex items-center justify-center gap-1"
+        >
+          Свернуть
+          <Icon name="ChevronUp" size={12} className="text-orange-400" />
+        </button>
+      )}
+    </div>
+  );
+};
 
 const IndexJurySection = () => {
   const organizer = juryMembers.find((m) => m.isOrganizer);
@@ -144,57 +255,7 @@ const IndexJurySection = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {members.map((member, index) => (
-              <div
-                key={member.name}
-                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-orange-50 group"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="flex gap-0">
-                  {/* Photo */}
-                  <div className="w-36 flex-shrink-0 overflow-hidden">
-                    {member.photo ? (
-                      <img
-                        src={member.photo}
-                        alt={member.name}
-                        className="w-full h-auto block group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full min-h-[200px] bg-gradient-to-br from-orange-100 to-amber-100 flex flex-col items-center justify-center">
-                        <Icon name="User" size={40} className="text-orange-300 mb-2" />
-                        <span className="text-orange-300 text-xs text-center px-2">Фото скоро</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 p-5 flex flex-col">
-                    <div className="flex items-start justify-between mb-1">
-                      <div>
-                        <h3 className="font-bold text-gray-800 text-base leading-snug">
-                          {member.name}
-                        </h3>
-                        <p className="text-orange-500 text-sm font-medium mt-0.5">{member.title}</p>
-                      </div>
-                      <div className="ml-2 flex-shrink-0 w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center">
-                        <Icon name="Award" size={14} className="text-orange-500" />
-                      </div>
-                    </div>
-                    <p className="text-gray-500 text-sm leading-relaxed flex-1 mt-2">
-                      {member.description}
-                    </p>
-                    <div className="flex flex-wrap gap-1.5 mt-3">
-                      {member.tags?.map((tag) => (
-                        <span
-                          key={tag}
-                          className="bg-orange-50 text-orange-500 text-xs px-2 py-0.5 rounded-full border border-orange-100"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <JuryCard key={member.name} member={member} index={index} />
             ))}
           </div>
         </div>

@@ -119,7 +119,7 @@ const IndexNav = ({
       )}
 
       <nav className="sticky top-0 z-50 backdrop-blur-md shadow-md" style={{ background: 'linear-gradient(to right, #FEFEFE, #FFFBDB)' }}>
-        <div className="container mx-auto pl-[50px] pr-4 py-4">
+        <div className="w-full px-4 py-4">
           <div className="flex items-center">
             <img
               src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/2aa89901-38a4-48dd-b954-f55aec2d1508.png"
@@ -133,7 +133,7 @@ const IndexNav = ({
               <Icon name={isMobileMenuOpen ? "X" : "Menu"} size={28} />
             </button>
 
-            <div className="hidden md:flex flex-col gap-3 ml-[20px] flex-1">
+            <div className="hidden md:flex flex-col gap-3 ml-[40px] flex-1">
               <div className="flex gap-2 justify-end">
                 {navItems.map((item) => (
                   <div

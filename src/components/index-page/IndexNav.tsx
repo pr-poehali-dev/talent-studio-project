@@ -15,7 +15,6 @@ interface IndexNavProps {
   setShowContestsDropdown: (v: boolean) => void;
   setContestFilter: (v: string | null) => void;
   setIsColoringModalOpen: (v: boolean) => void;
-  setActiveSection: (s: string) => void;
 }
 
 const navItems: { id: string; label: string; icon: string; hasDropdown?: boolean }[] = [
@@ -42,7 +41,6 @@ const IndexNav = ({
   setShowContestsDropdown,
   setContestFilter,
   setIsColoringModalOpen,
-  setActiveSection,
 }: IndexNavProps) => {
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 

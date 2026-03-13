@@ -133,7 +133,7 @@ const IndexNav = ({
               <Icon name={isMobileMenuOpen ? "X" : "Menu"} size={28} />
             </button>
 
-            <div className="hidden md:flex flex-col gap-1 ml-[20px] flex-1">
+            <div className="hidden md:flex flex-col gap-3 ml-[20px] flex-1">
               <div className="flex gap-2 justify-end">
                 {navItems.map((item) => (
                   <div
@@ -204,15 +204,8 @@ const IndexNav = ({
                   </div>
                 ))}
               </div>
-              <div className="flex justify-start gap-2">
-                <button
-                  onClick={() => setIsColoringModalOpen(true)}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg animate-pulse"
-                  style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #E31E24 50%, #9C27B0 100%)', animationDuration: '3s' }}
-                >
-                  <Icon name="Paintbrush" size={18} />
-                  🎨 Раскрась Кота Ван Гога!
-                </button>
+              <div className="flex justify-between items-center gap-2 mt-2">
+                <div className="flex gap-2">
                 <a
                   href="/collective"
                   className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg"
@@ -236,6 +229,15 @@ const IndexNav = ({
                 >
                   <Icon name="PenTool" size={18} />
                   Услуги дизайнера
+                </button>
+                </div>
+                <button
+                  onClick={() => setIsColoringModalOpen(true)}
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg animate-pulse"
+                  style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #E31E24 50%, #9C27B0 100%)', animationDuration: '3s' }}
+                >
+                  <Icon name="Paintbrush" size={18} />
+                  🎨 Раскрась Кота Ван Гога!
                 </button>
               </div>
             </div>

@@ -212,9 +212,13 @@ const IndexResultsSection = ({
                           : '';
                         const teacher = result.teacher ? ` под руководством педагога ${result.teacher}` : '';
                         const institution = result.institution ? ` (${result.institution})` : '';
-                        const title = `🏆 ${result.full_name} — ${resultLabel} в конкурсе «${result.contest_name}»${date ? ` (${date})` : ''}`;
-                        const description = `Студия талантов «Мечтай, твори, дерзай!» поздравляет с заслуженной наградой!${teacher ? `\nПедагог: ${result.teacher}` : ''}${institution ? `\nУчреждение: ${result.institution}` : ''}\n\nПодробнее о конкурсах студии: https://talent-studio-project.poehali.dev 🎨✨`;
-                        return `https://vk.com/share.php?url=https://talent-studio-project.poehali.dev&title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}&noparse=true`;
+                        const message =
+                          `🏆 Студия талантов «Мечтай, твори, дерзай!» поздравляет с заслуженной наградой!\n\n` +
+                          `${result.full_name}${institution} удостоен(а) ${resultLabel} в конкурсе «${result.contest_name}»${date ? ` (${date})` : ''}.` +
+                          `${result.teacher ? `\n\nПедагог: ${result.teacher}` : ''}\n\n` +
+                          `Поздравляем! Так держать! 🎨✨\n\n` +
+                          `Подробнее о конкурсах студии: https://talent-studio-project.poehali.dev`;
+                        return `https://vk.com/wall?act=post&message=${encodeURIComponent(message)}`;
                       })()}
                       target="_blank"
                       rel="noopener noreferrer"

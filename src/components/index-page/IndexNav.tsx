@@ -26,6 +26,7 @@ const navItems: { id: string; label: string; icon: string; hasDropdown?: boolean
   { id: "shop", label: "Магазин", icon: "ShoppingBag" },
   { id: "reviews", label: "Отзывы", icon: "MessageSquare" },
   { id: "designer", label: "Услуги дизайнера", icon: "PenTool" },
+  { id: "jury", label: "Жюри", icon: "Star" },
   { id: "about", label: "О нас", icon: "Users" },
 ];
 

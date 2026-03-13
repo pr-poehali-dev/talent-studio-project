@@ -9,6 +9,7 @@ import IndexResultsSection from "@/components/index-page/IndexResultsSection";
 import IndexSimpleSections from "@/components/index-page/IndexSimpleSections";
 import IndexDesignerSection from "@/components/index-page/IndexDesignerSection";
 import IndexFooter from "@/components/index-page/IndexFooter";
+import IndexJurySection from "@/components/index-page/IndexJurySection";
 import {
   Contest,
   PublicResult,
@@ -255,6 +256,8 @@ const Index = () => {
           setResultsPage={setResultsPage}
         />
       )}
+
+      {activeSection === "jury" && <IndexJurySection />}
 
       {activeSection === "designer" && (
         <IndexDesignerSection

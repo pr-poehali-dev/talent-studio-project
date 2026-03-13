@@ -199,8 +199,8 @@ const IndexResultsSection = ({
                   </div>
                   <div className="text-sm">
                     <span className="md:hidden font-semibold text-muted-foreground">Поделиться: </span>
-                    <a
-                      href={(() => {
+                    <button
+                      onClick={() => {
                         const resultLabel =
                           result.result === 'grand_prix' ? 'Гран-При' :
                           result.result === 'first_degree' ? 'Диплома 1 степени' :
@@ -210,7 +210,6 @@ const IndexResultsSection = ({
                         const date = result.diploma_issued_at
                           ? new Date(result.diploma_issued_at).toLocaleDateString('ru-RU')
                           : '';
-                        const teacher = result.teacher ? ` под руководством педагога ${result.teacher}` : '';
                         const institution = result.institution ? ` (${result.institution})` : '';
                         const message =
                           `🏆 Студия талантов «Мечтай, твори, дерзай!» поздравляет с заслуженной наградой!\n\n` +
@@ -218,15 +217,16 @@ const IndexResultsSection = ({
                           `${result.teacher ? `\n\nПедагог: ${result.teacher}` : ''}\n\n` +
                           `Поздравляем! Так держать! 🎨✨\n\n` +
                           `Подробнее о конкурсах студии: https://talent-studio-project.poehali.dev`;
-                        return `https://vk.com/wall?act=post&message=${encodeURIComponent(message)}`;
-                      })()}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                        navigator.clipboard.writeText(message).then(() => {
+                          window.open('https://vk.com/wall?act=post', '_blank');
+                        });
+                      }}
                       className="inline-flex items-center gap-1 text-xs font-semibold text-white bg-[#0077FF] hover:bg-[#0060CC] px-2 py-1 rounded-md transition-colors"
+                      title="Текст поста будет скопирован — вставьте его в ВКонтакте"
                     >
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.862-.525-2.048-1.713-1.033-1.01-1.49-.8-1.49.339v1.373c0 .383-.122.613-1.134.613-1.67 0-3.52-1.01-4.82-2.9C6.29 12.5 5.5 9.9 5.5 9.9c0-.383.122-.613.613-.613h1.744c.455 0 .63.214.807.717.888 2.566 2.38 4.813 2.993 4.813.23 0 .337-.107.337-.693V11.84c-.068-1.245-.73-1.352-.73-1.797 0-.214.168-.428.44-.428h2.742c.383 0 .52.2.52.637v3.432c0 .383.168.52.275.52.23 0 .428-.137.857-.566 1.33-1.49 2.277-3.787 2.277-3.787.122-.383.44-.613.888-.613h1.744c.52 0 .635.267.52.63-.215 1.01-2.306 3.946-2.306 3.946-.192.307-.26.44 0 .78.184.245.797.797 1.207 1.28.75.872 1.32 1.606 1.474 2.113.154.498-.107.752-.6.752z"/></svg>
                       ВКонтакте
-                    </a>
+                    </button>
                   </div>
                 </div>
               ))}

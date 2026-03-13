@@ -56,19 +56,19 @@ const juryMembers: JuryMember[] = [
 
 const JuryCard = ({ member, index }: { member: JuryMember; index: number }) => {
   const imgRef = useRef<HTMLImageElement>(null);
-  const textRef = useRef<HTMLParagraphElement>(null);
+  const infoRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [needsExpand, setNeedsExpand] = useState(false);
   const [imgHeight, setImgHeight] = useState<number | null>(null);
 
+  const check = () => {
+    if (!imgRef.current || !infoRef.current) return;
+    const h = imgRef.current.offsetHeight;
+    setImgHeight(h);
+    setNeedsExpand(infoRef.current.scrollHeight > h);
+  };
+
   useEffect(() => {
-    const check = () => {
-      if (!imgRef.current || !textRef.current) return;
-      const h = imgRef.current.offsetHeight;
-      setImgHeight(h);
-      const textEl = textRef.current;
-      setNeedsExpand(textEl.scrollHeight > textEl.offsetHeight);
-    };
     const img = imgRef.current;
     if (img?.complete) {
       check();
@@ -107,8 +107,9 @@ const JuryCard = ({ member, index }: { member: JuryMember; index: number }) => {
 
         {/* Info */}
         <div
-          className="flex-1 p-5 flex flex-col transition-all duration-300"
-          style={!expanded && imgHeight ? { maxHeight: imgHeight, overflow: "hidden" } : {}}
+          ref={infoRef}
+          className="flex-1 p-5 flex flex-col transition-all duration-300 overflow-hidden"
+          style={!expanded && imgHeight ? { maxHeight: imgHeight } : {}}
         >
           <div className="flex items-start justify-between mb-1">
             <div>
@@ -121,11 +122,7 @@ const JuryCard = ({ member, index }: { member: JuryMember; index: number }) => {
               <Icon name="Award" size={14} className="text-orange-500" />
             </div>
           </div>
-          <p
-            ref={textRef}
-            className="text-gray-500 text-sm leading-relaxed mt-2"
-            style={!expanded && imgHeight ? { overflow: "hidden" } : {}}
-          >
+          <p className="text-gray-500 text-sm leading-relaxed mt-2">
             {member.description}
           </p>
           <div className="flex flex-wrap gap-1.5 mt-3">

@@ -134,7 +134,7 @@ const IndexNav = ({
             </button>
 
             <div className="hidden md:flex flex-col gap-3 ml-[20px] flex-1">
-              <div className="flex gap-2 justify-end">
+              <div className="flex justify-between">
                 {navItems.map((item) => (
                   <div
                     key={item.id}

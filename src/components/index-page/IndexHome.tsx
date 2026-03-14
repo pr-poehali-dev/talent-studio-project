@@ -80,7 +80,7 @@ const IndexHome = ({
                   {[1,2,3,4,5].map((n) => (
                     <div key={n} className="flex flex-col items-center gap-1">
                       <div
-                        className={`w-8 rounded-lg flex items-center justify-center text-sm font-bold transition-all ${n <= 4 ? 'bg-white/20 text-white/60 h-8' : 'bg-yellow-300 text-purple-900 h-11 shadow-lg shadow-yellow-400/40'}`}
+                        className={`w-8 rounded-lg flex items-center justify-center text-sm font-bold transition-all ${n <= 4 ? 'bg-white/20 text-white h-8' : 'bg-yellow-300 text-purple-900 h-11 shadow-lg shadow-yellow-400/40'}`}
                         style={n === 5 ? {animation: 'pulse 2s ease-in-out infinite'} : {}}
                       >
                         {n === 5 ? '🏆' : n}
@@ -91,7 +91,7 @@ const IndexHome = ({
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-2 text-center border border-white/20">
                   <div className="text-yellow-300 text-2xl font-bold font-heading">150 ₽</div>
-                  <div className="text-white/70 text-xs">за одного участника</div>
+                  <div className="text-white text-xs">за одного участника</div>
                 </div>
               </div>
             </div>
@@ -99,13 +99,13 @@ const IndexHome = ({
             <div className="flex flex-col gap-3 flex-shrink-0 min-w-[180px]">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
-                  <span className="text-white/50 line-through text-sm">от 200 ₽</span>
-                  <span className="text-white/40 text-xs">→</span>
+                  <span className="text-white line-through text-sm">от 200 ₽</span>
+                  <span className="text-white text-xs">→</span>
                   <span className="text-yellow-300 font-bold text-sm">150 ₽</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
                   <span className="text-lg">⚡</span>
-                  <span className="text-white/80 text-xs">Одна заявка на всех</span>
+                  <span className="text-white text-xs">Одна заявка на всех</span>
                 </div>
               </div>
               <button

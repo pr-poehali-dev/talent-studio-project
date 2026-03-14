@@ -41,7 +41,7 @@ const IndexHome = ({
 
       {/* Рекламный баннер — групповая скидка */}
       <section className="mb-10">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-6 py-5 md:px-8 md:py-6 shadow-2xl">
+        <div className="relative overflow-hidden rounded-2xl px-6 py-5 md:px-8 md:py-6 shadow-2xl" style={{ background: 'linear-gradient(135deg, #0077FF 0%, #00B4D8 100%)' }}>
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {[...Array(12)].map((_, i) => (
               <div

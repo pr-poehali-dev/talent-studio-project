@@ -33,7 +33,7 @@ const juryMembers: JuryMember[] = [
     title: "Инженер-проектировщик, фотограф",
     description:
       "С отличием окончила ПНИПУ, строительный факультет (бакалавриат — ГСХ, магистратура — архитектурное проектирование). Призёр и победитель муниципальных и всероссийских конкурсов по фотографии. В 2024 году вошла в топ 26% международной премии по фотографии 35AWARDS в номинации «Отцы и дети», Россия.",
-    photo: null,
+    photo: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/4af63c88-b3bb-47b1-b081-fa93b84a9537.jpg",
     tags: ["Фотография", "Архитектура", "35AWARDS"],
   },
   {
@@ -212,12 +212,7 @@ const IndexJurySection = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-orange-900/30 to-transparent md:bg-gradient-to-r" />
                   </div>
-                  <div className="absolute top-4 left-4">
-                    <div className="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
-                      <Icon name="Crown" size={12} />
-                      Организатор
-                    </div>
-                  </div>
+
                 </div>
                 {/* Info */}
                 <div className="flex-1 p-8 flex flex-col justify-center">

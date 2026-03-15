@@ -23,7 +23,7 @@ const ReviewModal = ({ isReviewModalOpen, setIsReviewModalOpen }: ReviewModalPro
             ✍️ Напишите отзыв
           </DialogTitle>
           <DialogDescription className="text-base">
-            Ваш отзыв будет опубликован после проверки модератором
+            Поделитесь своим опытом участия в конкурсах студии
           </DialogDescription>
         </DialogHeader>
 
@@ -50,7 +50,7 @@ const ReviewModal = ({ isReviewModalOpen, setIsReviewModalOpen }: ReviewModalPro
               if (response.ok) {
                 toast({
                   title: "Отзыв отправлен!",
-                  description: "Ваш отзыв будет опубликован после модерации. Спасибо!",
+                  description: "Спасибо за ваш отзыв!",
                 });
                 setIsReviewModalOpen(false);
                 e.currentTarget.reset();

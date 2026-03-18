@@ -35,6 +35,7 @@ def handler(event: dict, context) -> dict:
             contest_name = body.get('contest_name')
             work_file_url = body.get('work_file_url')
             gallery_consent = body.get('gallery_consent', True)
+            extra_files = body.get('extra_files', [])
             
             if not all([full_name, age, work_title, email, contest_name, work_file_url]):
                 return {
@@ -43,16 +44,18 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({'error': 'Missing required fields'})
                 }
             
+            extra_files_sql = '{' + ','.join('"' + f.replace('"', '\\"') + '"' for f in extra_files) + '}'
+
             dsn = os.environ.get('DATABASE_URL')
             conn = psycopg2.connect(dsn)
             cursor = conn.cursor()
             
             cursor.execute("""
                 INSERT INTO applications 
-                (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, status, gallery_consent, payment_status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'new', %s, 'paid')
+                (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, status, gallery_consent, payment_status, extra_files)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'new', %s, 'paid', %s)
                 RETURNING id
-            """, (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, gallery_consent))
+            """, (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, gallery_consent, extra_files_sql))
             
             app_id = cursor.fetchone()[0]
             conn.commit()

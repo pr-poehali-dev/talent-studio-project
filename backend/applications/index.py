@@ -33,7 +33,7 @@ def handler(event: dict, context) -> dict:
                     SELECT id, full_name, age, teacher, institution, work_title, 
                            email, contest_id, contest_name, work_file_url, 
                            status, result, gallery_consent, created_at, updated_at, deleted_at,
-                           diploma_issued_at, is_featured, is_collective
+                           diploma_issued_at, is_featured, is_collective, extra_files
                     FROM applications
                     WHERE deleted_at IS NOT NULL
                     ORDER BY deleted_at DESC
@@ -43,7 +43,7 @@ def handler(event: dict, context) -> dict:
                     SELECT id, full_name, age, teacher, institution, work_title, 
                            email, contest_id, contest_name, work_file_url, 
                            status, result, gallery_consent, created_at, updated_at, deleted_at,
-                           diploma_issued_at, is_featured, is_collective
+                           diploma_issued_at, is_featured, is_collective, extra_files
                     FROM applications
                     WHERE deleted_at IS NULL
                     ORDER BY created_at DESC
@@ -72,7 +72,8 @@ def handler(event: dict, context) -> dict:
                     'deleted_at': row[15].isoformat() if row[15] else None,
                     'diploma_issued_at': row[16].isoformat() if row[16] else None,
                     'is_featured': row[17] if row[17] is not None else False,
-                    'is_collective': row[18] if row[18] is not None else False
+                    'is_collective': row[18] if row[18] is not None else False,
+                    'extra_files': list(row[19]) if row[19] else []
                 }
                 applications.append(app_data)
             
@@ -106,50 +107,71 @@ def handler(event: dict, context) -> dict:
             
             conn = psycopg2.connect(dsn)
             cursor = conn.cursor()
-            
+
+            extra_files = body.get('extra_files', None)
+            extra_files_sql = None
+            if extra_files is not None:
+                extra_files_sql = '{' + ','.join('"' + f.replace('"', '\\"') + '"' for f in extra_files) + '}'
+
             if body.get('work_file_url'):
-                cursor.execute("""
-                    UPDATE applications 
-                    SET full_name = %s, age = %s, teacher = %s, institution = %s,
-                        work_title = %s, email = %s, status = %s, result = %s,
-                        diploma_issued_at = %s, is_featured = %s, work_file_url = %s,
-                        updated_at = CURRENT_TIMESTAMP
-                    WHERE id = %s
-                """, (
-                    body.get('full_name'),
-                    body.get('age'),
-                    body.get('teacher'),
-                    body.get('institution'),
-                    body.get('work_title'),
-                    body.get('email'),
-                    body.get('status'),
-                    body.get('result'),
-                    body.get('diploma_issued_at'),
-                    body.get('is_featured', False),
-                    body.get('work_file_url'),
-                    app_id
-                ))
+                if extra_files is not None:
+                    cursor.execute("""
+                        UPDATE applications 
+                        SET full_name = %s, age = %s, teacher = %s, institution = %s,
+                            work_title = %s, email = %s, status = %s, result = %s,
+                            diploma_issued_at = %s, is_featured = %s, work_file_url = %s,
+                            extra_files = %s, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = %s
+                    """, (
+                        body.get('full_name'), body.get('age'), body.get('teacher'),
+                        body.get('institution'), body.get('work_title'), body.get('email'),
+                        body.get('status'), body.get('result'), body.get('diploma_issued_at'),
+                        body.get('is_featured', False), body.get('work_file_url'),
+                        extra_files_sql, app_id
+                    ))
+                else:
+                    cursor.execute("""
+                        UPDATE applications 
+                        SET full_name = %s, age = %s, teacher = %s, institution = %s,
+                            work_title = %s, email = %s, status = %s, result = %s,
+                            diploma_issued_at = %s, is_featured = %s, work_file_url = %s,
+                            updated_at = CURRENT_TIMESTAMP
+                        WHERE id = %s
+                    """, (
+                        body.get('full_name'), body.get('age'), body.get('teacher'),
+                        body.get('institution'), body.get('work_title'), body.get('email'),
+                        body.get('status'), body.get('result'), body.get('diploma_issued_at'),
+                        body.get('is_featured', False), body.get('work_file_url'), app_id
+                    ))
             else:
-                cursor.execute("""
-                    UPDATE applications 
-                    SET full_name = %s, age = %s, teacher = %s, institution = %s,
-                        work_title = %s, email = %s, status = %s, result = %s,
-                        diploma_issued_at = %s, is_featured = %s,
-                        updated_at = CURRENT_TIMESTAMP
-                    WHERE id = %s
-                """, (
-                    body.get('full_name'),
-                    body.get('age'),
-                    body.get('teacher'),
-                    body.get('institution'),
-                    body.get('work_title'),
-                    body.get('email'),
-                    body.get('status'),
-                    body.get('result'),
-                    body.get('diploma_issued_at'),
-                    body.get('is_featured', False),
-                    app_id
-                ))
+                if extra_files is not None:
+                    cursor.execute("""
+                        UPDATE applications 
+                        SET full_name = %s, age = %s, teacher = %s, institution = %s,
+                            work_title = %s, email = %s, status = %s, result = %s,
+                            diploma_issued_at = %s, is_featured = %s,
+                            extra_files = %s, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = %s
+                    """, (
+                        body.get('full_name'), body.get('age'), body.get('teacher'),
+                        body.get('institution'), body.get('work_title'), body.get('email'),
+                        body.get('status'), body.get('result'), body.get('diploma_issued_at'),
+                        body.get('is_featured', False), extra_files_sql, app_id
+                    ))
+                else:
+                    cursor.execute("""
+                        UPDATE applications 
+                        SET full_name = %s, age = %s, teacher = %s, institution = %s,
+                            work_title = %s, email = %s, status = %s, result = %s,
+                            diploma_issued_at = %s, is_featured = %s,
+                            updated_at = CURRENT_TIMESTAMP
+                        WHERE id = %s
+                    """, (
+                        body.get('full_name'), body.get('age'), body.get('teacher'),
+                        body.get('institution'), body.get('work_title'), body.get('email'),
+                        body.get('status'), body.get('result'), body.get('diploma_issued_at'),
+                        body.get('is_featured', False), app_id
+                    ))
             
             conn.commit()
             cursor.close()

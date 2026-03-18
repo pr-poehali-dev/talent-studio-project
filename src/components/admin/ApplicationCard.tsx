@@ -13,6 +13,7 @@ interface Application {
   contest_id: number | null;
   contest_name: string;
   work_file_url: string;
+  extra_files: string[];
   status: 'new' | 'viewed' | 'sent';
   result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant' | null;
   gallery_consent: boolean;

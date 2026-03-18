@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Icon from "@/components/ui/icon";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -6,6 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
 import { Contest, PAYMENT_API_URL } from "../IndexTypes";
+
+const MAX_FILE_SIZE = 15 * 1024 * 1024;
+const CHUNK_SIZE = 2 * 1024 * 1024;
+const UPLOAD_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
+
+interface UploadedFileItem {
+  file: File;
+  url: string;
+  uploading: boolean;
+  progress: number;
+  error: string | null;
+}
 
 interface ApplicationModalProps {
   isModalOpen: boolean;
@@ -21,30 +34,153 @@ interface ApplicationModalProps {
   applicationFormUrl: string | null;
 }
 
+async function uploadFileInChunks(
+  file: File,
+  onProgress: (pct: number) => void
+): Promise<string> {
+  const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+  let uploadId = '';
+  let fileUrl = '';
+
+  for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+    const start = chunkIndex * CHUNK_SIZE;
+    const end = Math.min(start + CHUNK_SIZE, file.size);
+    const chunk = file.slice(start, end);
+
+    const chunkBase64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve((reader.result as string).split(',')[1]);
+      reader.onerror = () => reject(new Error('Ошибка чтения файла'));
+      reader.readAsDataURL(chunk);
+    });
+
+    onProgress(Math.round(((chunkIndex + 0.5) / totalChunks) * 100));
+
+    const res = await fetch(UPLOAD_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chunk: chunkBase64,
+        chunkIndex,
+        totalChunks,
+        fileName: file.name,
+        fileType: file.type,
+        folder: 'works',
+        uploadId: uploadId || undefined
+      })
+    });
+
+    if (!res.ok) throw new Error('Не удалось загрузить файл');
+
+    const result = await res.json();
+    if (!uploadId && result.uploadId) uploadId = result.uploadId;
+    if (result.complete && result.url) fileUrl = result.url;
+  }
+
+  if (!fileUrl) throw new Error('Сервер не вернул URL файла');
+  return fileUrl;
+}
+
 const ApplicationModal = ({
   isModalOpen,
   setIsModalOpen,
   selectedContest,
   contests,
-  uploadedFile,
   setUploadedFile,
-  uploadProgress,
   setUploadProgress,
-  isUploading,
   setIsUploading,
   applicationFormUrl,
 }: ApplicationModalProps) => {
   const { toast } = useToast();
+  const [fileItems, setFileItems] = useState<UploadedFileItem[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitProgress, setSubmitProgress] = useState(0);
+
+  const handleClose = (open: boolean) => {
+    setIsModalOpen(open);
+    if (!open) {
+      setFileItems([]);
+      setIsSubmitting(false);
+      setSubmitProgress(0);
+      setUploadedFile(null);
+      setUploadProgress(0);
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileAdd = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (!files.length) return;
+
+    const valid = files.filter(f => {
+      if (f.size > MAX_FILE_SIZE) {
+        toast({
+          title: "Файл слишком большой",
+          description: `${f.name}: максимум 15 МБ`,
+          variant: "destructive"
+        });
+        return false;
+      }
+      return true;
+    });
+
+    const newItems: UploadedFileItem[] = valid.map(f => ({
+      file: f,
+      url: '',
+      uploading: true,
+      progress: 0,
+      error: null
+    }));
+
+    setFileItems(prev => [...prev, ...newItems]);
+
+    for (const item of newItems) {
+      const idx = newItems.indexOf(item);
+      setFileItems(prev => {
+        const list = [...prev];
+        const globalIdx = list.findIndex(x => x.file === item.file);
+        if (globalIdx !== -1) list[globalIdx] = { ...list[globalIdx], uploading: true, progress: 0 };
+        return list;
+      });
+
+      try {
+        const url = await uploadFileInChunks(item.file, (pct) => {
+          setFileItems(prev => {
+            const list = [...prev];
+            const gi = list.findIndex(x => x.file === item.file);
+            if (gi !== -1) list[gi] = { ...list[gi], progress: pct };
+            return list;
+          });
+        });
+
+        setFileItems(prev => {
+          const list = [...prev];
+          const gi = list.findIndex(x => x.file === item.file);
+          if (gi !== -1) list[gi] = { ...list[gi], uploading: false, progress: 100, url };
+          return list;
+        });
+      } catch {
+        setFileItems(prev => {
+          const list = [...prev];
+          const gi = list.findIndex(x => x.file === item.file);
+          if (gi !== -1) list[gi] = { ...list[gi], uploading: false, error: 'Ошибка загрузки' };
+          return list;
+        });
+      }
+      void idx;
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFileItems(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadedUrls = fileItems.filter(f => f.url && !f.uploading);
+  const anyUploading = fileItems.some(f => f.uploading);
 
   return (
-    <Dialog open={isModalOpen} onOpenChange={(open) => {
-      setIsModalOpen(open);
-      if (!open) {
-        setUploadedFile(null);
-        setUploadProgress(0);
-        setIsUploading(false);
-      }
-    }}>
+    <Dialog open={isModalOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl">
         <DialogHeader>
           <DialogTitle className="text-3xl font-heading font-bold text-primary">
@@ -60,10 +196,19 @@ const ApplicationModal = ({
           onSubmit={async (e) => {
             e.preventDefault();
 
-            if (!uploadedFile) {
+            if (uploadedUrls.length === 0) {
               toast({
                 title: "Ошибка",
-                description: "Пожалуйста, загрузите файл работы",
+                description: "Пожалуйста, загрузите хотя бы один файл работы",
+                variant: "destructive"
+              });
+              return;
+            }
+
+            if (anyUploading) {
+              toast({
+                title: "Подождите",
+                description: "Файлы ещё загружаются",
                 variant: "destructive"
               });
               return;
@@ -71,64 +216,11 @@ const ApplicationModal = ({
 
             const formData = new FormData(e.currentTarget);
             const contestPrice = contests.find(c => c.title === selectedContest)?.price || 300;
+            const [mainFile, ...extraFiles] = uploadedUrls.map(f => f.url);
 
             try {
-              setIsUploading(true);
-              setUploadProgress(10);
-
-              const CHUNK_SIZE = 2 * 1024 * 1024;
-              const totalChunks = Math.ceil(uploadedFile.size / CHUNK_SIZE);
-              let uploadId = '';
-              let file_url = '';
-
-              for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-                const start = chunkIndex * CHUNK_SIZE;
-                const end = Math.min(start + CHUNK_SIZE, uploadedFile.size);
-                const chunk = uploadedFile.slice(start, end);
-
-                const chunkBase64 = await new Promise<string>((resolve, reject) => {
-                  const reader = new FileReader();
-                  reader.onload = () => {
-                    const result = reader.result as string;
-                    resolve(result.split(',')[1]);
-                  };
-                  reader.onerror = () => reject(new Error('Ошибка чтения файла'));
-                  reader.readAsDataURL(chunk);
-                });
-
-                const chunkProgress = 10 + Math.round((chunkIndex / totalChunks) * 70);
-                setUploadProgress(chunkProgress);
-
-                const uploadResponse = await fetch("https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b", {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    chunk: chunkBase64,
-                    chunkIndex,
-                    totalChunks,
-                    fileName: uploadedFile.name,
-                    fileType: uploadedFile.type,
-                    folder: 'works',
-                    uploadId: uploadId || undefined
-                  })
-                });
-
-                if (!uploadResponse.ok) {
-                  throw new Error('Не удалось загрузить файл');
-                }
-
-                const result = await uploadResponse.json();
-
-                if (!uploadId) {
-                  uploadId = result.uploadId;
-                }
-
-                if (result.complete) {
-                  file_url = result.url;
-                }
-              }
-
-              setUploadProgress(85);
+              setIsSubmitting(true);
+              setSubmitProgress(30);
 
               const applicationData = {
                 full_name: formData.get('fullName'),
@@ -138,9 +230,12 @@ const ApplicationModal = ({
                 work_title: formData.get('workTitle'),
                 email: formData.get('email'),
                 contest_name: selectedContest,
-                work_file_url: file_url,
+                work_file_url: mainFile,
+                extra_files: extraFiles,
                 gallery_consent: formData.get('gallery') === 'on'
               };
+
+              setSubmitProgress(60);
 
               const paymentResponse = await fetch(PAYMENT_API_URL, {
                 method: 'POST',
@@ -155,9 +250,8 @@ const ApplicationModal = ({
               });
 
               const paymentResult = await paymentResponse.json();
-
-              setUploadProgress(100);
-              setIsUploading(false);
+              setSubmitProgress(100);
+              setIsSubmitting(false);
 
               if (paymentResponse.ok && paymentResult.confirmation_url) {
                 window.location.href = paymentResult.confirmation_url;
@@ -169,12 +263,11 @@ const ApplicationModal = ({
                 });
               }
             } catch (error) {
-              setIsUploading(false);
-              setUploadProgress(0);
-              console.error('Ошибка при подаче заявки:', error);
+              setIsSubmitting(false);
+              setSubmitProgress(0);
               toast({
                 title: "Ошибка",
-                description: error instanceof Error ? error.message : "Произошла ошибка при загрузке файла или создании платежа",
+                description: error instanceof Error ? error.message : "Произошла ошибка",
                 variant: "destructive"
               });
             }
@@ -210,57 +303,98 @@ const ApplicationModal = ({
             <Input id="email" name="email" type="email" placeholder="example@mail.ru" required className="rounded-xl border-2 focus:border-primary" />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="workFile" className="text-base font-semibold">Загрузить работу *</Label>
-            <div className="relative">
-              <Input
-                id="workFile"
-                type="file"
-                accept="image/*,.pdf"
-                required
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const maxSize = 15 * 1024 * 1024;
-                    if (file.size > maxSize) {
-                      toast({
-                        title: "Файл слишком большой",
-                        description: `Максимальный размер файла — 15 МБ. Ваш файл: ${(file.size / 1024 / 1024).toFixed(1)} МБ`,
-                        variant: "destructive"
-                      });
-                      e.target.value = '';
-                      setUploadedFile(null);
-                      return;
-                    }
-                    setUploadedFile(file);
-                  } else {
-                    setUploadedFile(null);
-                  }
-                }}
-                className="rounded-xl border-2 focus:border-primary h-10 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-primary file:text-white file:text-sm file:cursor-pointer hover:file:bg-primary/90"
-              />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-semibold">
+                Файлы работы *
+                {fileItems.length > 0 && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    ({uploadedUrls.length} из {fileItems.length} загружено)
+                  </span>
+                )}
+              </Label>
+              <Label
+                htmlFor="workFiles"
+                className="flex items-center gap-1.5 text-sm text-primary cursor-pointer hover:underline font-medium"
+              >
+                <Icon name="Plus" size={15} />
+                Добавить файл
+              </Label>
             </div>
-            {uploadedFile && !isUploading && (
-              <div className="flex items-center gap-2 p-3 bg-success/10 rounded-xl text-sm">
-                <Icon name="CheckCircle" className="text-success" size={20} />
-                <span className="text-success font-semibold">Файл выбран: {uploadedFile.name} ({(uploadedFile.size / 1024 / 1024).toFixed(1)} МБ)</span>
-              </div>
-            )}
-            {isUploading && (
-              <div className="space-y-2 p-3 bg-primary/10 rounded-xl">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-semibold text-primary">Загрузка файла...</span>
-                  <span className="text-primary">{uploadProgress}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+
+            <Input
+              id="workFiles"
+              type="file"
+              accept="image/*,.pdf"
+              multiple
+              className="hidden"
+              onChange={handleFileAdd}
+            />
+
+            {fileItems.length === 0 ? (
+              <Label
+                htmlFor="workFiles"
+                className="border-2 border-dashed border-border rounded-xl p-6 flex flex-col items-center gap-2 cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors block text-center"
+              >
+                <Icon name="Upload" size={28} className="text-muted-foreground" />
+                <span className="text-sm font-medium">Нажмите, чтобы выбрать файлы</span>
+                <span className="text-xs text-muted-foreground">JPG, PNG, PDF — до 15 МБ каждый</span>
+              </Label>
+            ) : (
+              <div className="space-y-2">
+                {fileItems.map((item, index) => (
                   <div
-                    className="bg-primary h-2.5 rounded-full transition-all duration-300 ease-out"
-                    style={{ width: `${uploadProgress}%` }}
-                  ></div>
-                </div>
+                    key={index}
+                    className={`flex items-center gap-3 p-3 rounded-xl border-2 text-sm ${
+                      item.error
+                        ? 'border-red-200 bg-red-50'
+                        : item.uploading
+                        ? 'border-primary/30 bg-primary/5'
+                        : 'border-green-200 bg-green-50'
+                    }`}
+                  >
+                    <div className="flex-shrink-0">
+                      {item.error ? (
+                        <Icon name="AlertCircle" size={18} className="text-red-500" />
+                      ) : item.uploading ? (
+                        <Icon name="Loader2" size={18} className="animate-spin text-primary" />
+                      ) : (
+                        <Icon name="CheckCircle" size={18} className="text-green-600" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{item.file.name}</p>
+                      {item.uploading && (
+                        <div className="mt-1 w-full bg-white/60 rounded-full h-1.5">
+                          <div
+                            className="bg-primary h-1.5 rounded-full transition-all"
+                            style={{ width: `${item.progress}%` }}
+                          />
+                        </div>
+                      )}
+                      {item.error && <p className="text-xs text-red-500 mt-0.5">{item.error}</p>}
+                      {!item.uploading && !item.error && index === 0 && (
+                        <p className="text-xs text-green-600 mt-0.5">Основной файл</p>
+                      )}
+                      {!item.uploading && !item.error && index > 0 && (
+                        <p className="text-xs text-muted-foreground mt-0.5">Дополнительный файл</p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      className="flex-shrink-0 text-muted-foreground hover:text-red-500 transition-colors"
+                    >
+                      <Icon name="X" size={16} />
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
-            <p className="text-xs text-muted-foreground">Форматы: JPG, PNG, PDF (макс. 15 МБ)</p>
+
+            <p className="text-xs text-muted-foreground">
+              Первый файл будет основным. Форматы: JPG, PNG, PDF (макс. 15 МБ каждый)
+            </p>
           </div>
 
           <div className="space-y-4 pt-2">
@@ -281,13 +415,18 @@ const ApplicationModal = ({
 
           <Button
             type="submit"
-            disabled={isUploading}
+            disabled={isSubmitting || anyUploading}
             className="w-full text-lg py-6 rounded-xl bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isUploading ? (
+            {anyUploading ? (
               <>
                 <Icon name="Loader2" className="mr-2 animate-spin" />
-                Загрузка файла {uploadProgress}%
+                Загрузка файлов...
+              </>
+            ) : isSubmitting ? (
+              <>
+                <Icon name="Loader2" className="mr-2 animate-spin" />
+                Создание платежа... {submitProgress}%
               </>
             ) : (
               <>

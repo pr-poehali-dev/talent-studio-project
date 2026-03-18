@@ -94,8 +94,27 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
 
   const totalRevenue = useMemo(() => calcRevenue(filtered), [filtered]);
   const totalCount = filtered.length;
-  const collectiveCount = filtered.filter(a => a.is_collective).length;
+  const collectiveApps = filtered.filter(a => a.is_collective);
+  const collectiveCount = collectiveApps.length;
   const singleCount = filtered.filter(a => !a.is_collective).length;
+
+  // Считаем коллективных со скидкой и без (по группам email+день)
+  const collectiveStats = useMemo(() => {
+    const groups: Record<string, Application[]> = {};
+    for (const app of collectiveApps) {
+      const day = app.created_at ? app.created_at.slice(0, 10) : 'unknown';
+      const key = `${app.email}__${day}`;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(app);
+    }
+    let withDiscount = 0;
+    let noDiscount = 0;
+    for (const group of Object.values(groups)) {
+      if (group.length >= BULK_THRESHOLD) withDiscount += group.length;
+      else noDiscount += group.length;
+    }
+    return { withDiscount, noDiscount };
+  }, [collectiveApps]);
 
   // Группировка по дням для таблицы
   const byDay = useMemo(() => {
@@ -258,7 +277,16 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
               <span className="text-sm text-muted-foreground font-medium">Коллективные</span>
             </div>
             <p className="text-2xl font-heading font-bold">{collectiveCount}</p>
-            <p className="text-xs text-muted-foreground">150–200 ₽/уч.</p>
+            <div className="flex flex-col gap-0.5 mt-1">
+              <p className="text-xs text-muted-foreground">
+                <span className="inline-block w-2 h-2 rounded-full bg-violet-400 mr-1" />
+                со скидкой (≥5): <span className="font-semibold text-foreground">{collectiveStats.withDiscount}</span> × 150 ₽
+              </p>
+              <p className="text-xs text-muted-foreground">
+                <span className="inline-block w-2 h-2 rounded-full bg-violet-200 mr-1" />
+                без скидки (&lt;5): <span className="font-semibold text-foreground">{collectiveStats.noDiscount}</span> × 200 ₽
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -89,6 +89,9 @@ const IndexFooter = ({ setActiveSection }: IndexFooterProps) => {
           <p className="text-center text-sm text-muted-foreground">
             © 2026 Студия талантов "Мечтай, твори, дерзай!". Все права защищены.
           </p>
+          <p className="text-center text-sm text-muted-foreground mt-1">
+            Россия, Пермский край, г. Кунгур
+          </p>
         </div>
       </div>
     </footer>

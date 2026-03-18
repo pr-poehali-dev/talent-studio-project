@@ -39,8 +39,8 @@ function calcRevenue(apps: Application[]): number {
   let total = singles.length * PRICE_SINGLE;
   const groups: Record<string, Application[]> = {};
   for (const app of collective) {
-    const day = app.created_at ? app.created_at.slice(0, 10) : 'unknown';
-    const key = `${app.email}__${day}`;
+    const minute = app.created_at ? app.created_at.slice(0, 16) : 'unknown';
+    const key = `${app.email}__${minute}`;
     if (!groups[key]) groups[key] = [];
     groups[key].push(app);
   }
@@ -102,8 +102,8 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
   const collectiveStats = useMemo(() => {
     const groups: Record<string, Application[]> = {};
     for (const app of collectiveApps) {
-      const day = app.created_at ? app.created_at.slice(0, 10) : 'unknown';
-      const key = `${app.email}__${day}`;
+      const minute = app.created_at ? app.created_at.slice(0, 16) : 'unknown';
+      const key = `${app.email}__${minute}`;
       if (!groups[key]) groups[key] = [];
       groups[key].push(app);
     }

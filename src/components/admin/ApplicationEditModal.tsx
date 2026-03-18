@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -122,15 +122,15 @@ const ApplicationEditModal = ({
   const [workFileUploadProgress, setWorkFileUploadProgress] = useState(0);
   const [primaryFileUrl, setPrimaryFileUrl] = useState<string | null>(null);
   const [allFiles, setAllFiles] = useState<string[]>([]);
-  const [initialized, setInitialized] = useState(false);
 
-  if (editingApplication && !initialized) {
-    const existing = editingApplication.extra_files || [];
-    const combined = [editingApplication.work_file_url, ...existing].filter(Boolean);
-    setAllFiles(combined);
-    setPrimaryFileUrl(editingApplication.work_file_url);
-    setInitialized(true);
-  }
+  useEffect(() => {
+    if (editingApplication && isOpen) {
+      const existing = editingApplication.extra_files || [];
+      const combined = [editingApplication.work_file_url, ...existing].filter(Boolean);
+      setAllFiles(combined);
+      setPrimaryFileUrl(editingApplication.work_file_url);
+    }
+  }, [editingApplication?.id, isOpen]);
 
   const handleClose = (open: boolean) => {
     if (!open) {
@@ -138,7 +138,6 @@ const ApplicationEditModal = ({
       setWorkFileUploadProgress(0);
       setPrimaryFileUrl(null);
       setAllFiles([]);
-      setInitialized(false);
     }
     setIsOpen(open);
   };

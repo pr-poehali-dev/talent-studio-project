@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import AdminContestsTab from "@/components/admin/AdminContestsTab";
 import AdminApplicationsTab from "@/components/admin/AdminApplicationsTab";
 import AdminResultsAndReviewsTab from "@/components/admin/AdminResultsAndReviewsTab";
+import AdminRevenueTab from "@/components/admin/AdminRevenueTab";
 
 interface Contest {
   id?: number;
@@ -102,7 +103,7 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const [activeTab, setActiveTab] = useState<'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings'>('contests');
+  const [activeTab, setActiveTab] = useState<'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue'>('contests');
   const [certificatesLog, setCertificatesLog] = useState<{id: number; result_id: number; full_name: string; contest_name: string; issued_at: string}[]>([]);
   const [certLoading, setCertLoading] = useState(false);
   const [applicationsSubTab, setApplicationsSubTab] = useState<'active' | 'archive' | 'trash'>('active');
@@ -674,6 +675,14 @@ const Admin = () => {
             Выданные справки
           </Button>
           <Button
+            variant={activeTab === 'revenue' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('revenue')}
+            className="rounded-t-xl rounded-b-none"
+          >
+            <Icon name="TrendingUp" className="mr-2" />
+            Доходность
+          </Button>
+          <Button
             variant={activeTab === 'settings' ? 'default' : 'ghost'}
             onClick={() => setActiveTab('settings')}
             className="rounded-t-xl rounded-b-none"
@@ -834,6 +843,10 @@ const Admin = () => {
               </div>
             )}
           </div>
+        )}
+
+        {activeTab === 'revenue' && (
+          <AdminRevenueTab applications={[...applications, ...deletedApplications]} />
         )}
 
         {activeTab === 'settings' && (

@@ -61,7 +61,7 @@ export const UPLOAD_PRESIGNED_URL = "https://functions.poehali.dev/be7b31ca-63ff
 
 export const contestCategories = [
   { id: "visual-arts", label: "Конкурсы изобразительного искусства", icon: "Palette", heading: "Конкурсы изобразительного искусства" },
-  { id: "decorative-arts", label: "Конкурсы декоративно-прикладного искусства", icon: "Scissors", heading: "Конкурсы декоративно-прикладного искусства" },
+  { id: "decorative-arts", label: "Конкурсы декоративно-прикладного искусства", icon: "Gem", heading: "Конкурсы декоративно-прикладного искусства" },
   { id: "nature", label: "Конкурсы, посвященные теме природы", icon: "TreePine", heading: "Конкурсы о природе" },
   { id: "animals", label: "Конкурсы, посвященные теме животных", icon: "PawPrint", heading: "Конкурсы о животных" },
   { id: "plants", label: "Конкурсы, посвященные теме растений", icon: "Flower2", heading: "Конкурсы о растениях" },

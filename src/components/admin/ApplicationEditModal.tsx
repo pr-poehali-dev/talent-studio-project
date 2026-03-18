@@ -38,7 +38,7 @@ interface ApplicationEditModalProps {
   setAppResult: (v: string | undefined) => void;
   appStatus: 'new' | 'viewed' | 'sent';
   setAppStatus: (v: 'new' | 'viewed' | 'sent') => void;
-  onPreview: (url: string) => void;
+  onPreview: (files: string[], index: number) => void;
   loadApplications: () => void;
   APPLICATIONS_API_URL: string;
   UPLOAD_URL: string;
@@ -362,7 +362,7 @@ const ApplicationEditModal = ({
                           )}
                           <button
                             type="button"
-                            onClick={() => onPreview(url)}
+                            onClick={() => onPreview(allFiles, index)}
                             className="text-muted-foreground hover:text-primary transition-colors"
                             title="Просмотреть"
                           >

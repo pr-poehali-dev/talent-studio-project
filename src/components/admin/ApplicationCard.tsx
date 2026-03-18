@@ -32,13 +32,13 @@ interface ApplicationCardActiveProps {
   onCreateResult: (app: Application) => void;
   onEdit: (app: Application) => void;
   onDelete: (id: number) => void;
-  onPreview: (url: string) => void;
+  onPreview: (files: string[], index: number) => void;
 }
 
 interface ApplicationCardArchiveProps {
   mode: 'archive';
   app: Application;
-  onPreview: (url: string) => void;
+  onPreview: (files: string[], index: number) => void;
 }
 
 interface ApplicationCardTrashProps {
@@ -114,11 +114,14 @@ const ApplicationCard = (props: ApplicationCardProps) => {
               <div>
                 <p className="text-xs text-muted-foreground">Работа</p>
                 <button
-                  onClick={() => props.onPreview(app.work_file_url)}
+                  onClick={() => {
+                    const allFiles = [app.work_file_url, ...(app.extra_files || [])].filter(Boolean);
+                    props.onPreview(allFiles, 0);
+                  }}
                   className="text-primary hover:underline flex items-center gap-1 text-xs cursor-pointer"
                 >
                   <Icon name="Eye" size={14} />
-                  Посмотреть
+                  Посмотреть{(app.extra_files?.length ?? 0) > 0 && ` (${1 + app.extra_files.length})`}
                 </button>
               </div>
               <div>
@@ -235,11 +238,14 @@ const ApplicationCard = (props: ApplicationCardProps) => {
               <div>
                 <p className="text-xs text-muted-foreground">Работа</p>
                 <button
-                  onClick={() => props.onPreview(app.work_file_url)}
+                  onClick={() => {
+                    const allFiles = [app.work_file_url, ...(app.extra_files || [])].filter(Boolean);
+                    props.onPreview(allFiles, 0);
+                  }}
                   className="text-primary hover:underline flex items-center gap-1 text-xs cursor-pointer"
                 >
                   <Icon name="Eye" size={14} />
-                  Посмотреть
+                  Посмотреть{(app.extra_files?.length ?? 0) > 0 && ` (${1 + app.extra_files.length})`}
                 </button>
               </div>
               <div>

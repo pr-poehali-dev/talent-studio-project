@@ -1,3 +1,4 @@
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -51,8 +52,10 @@ interface AdminApplicationsTabProps {
   setAppStatus: (v: 'new' | 'viewed' | 'sent') => void;
   isWorkPreviewOpen: boolean;
   setIsWorkPreviewOpen: (v: boolean) => void;
-  workPreview: string | null;
-  setWorkPreview: (v: string | null) => void;
+  workPreviewFiles: string[];
+  setWorkPreviewFiles: (v: string[]) => void;
+  workPreviewIndex: number;
+  setWorkPreviewIndex: (v: number) => void;
   isManualAppModalOpen: boolean;
   setIsManualAppModalOpen: (v: boolean) => void;
   manualAppFile: File | null;
@@ -90,8 +93,10 @@ const AdminApplicationsTab = ({
   setAppStatus,
   isWorkPreviewOpen,
   setIsWorkPreviewOpen,
-  workPreview,
-  setWorkPreview,
+  workPreviewFiles,
+  setWorkPreviewFiles,
+  workPreviewIndex,
+  setWorkPreviewIndex,
   isManualAppModalOpen,
   setIsManualAppModalOpen,
   manualAppFile,
@@ -111,10 +116,29 @@ const AdminApplicationsTab = ({
   UPLOAD_URL,
   toast,
 }: AdminApplicationsTabProps) => {
-  const handlePreview = (url: string) => {
-    setWorkPreview(url);
+  const handlePreview = (files: string[], index: number) => {
+    setWorkPreviewFiles(files);
+    setWorkPreviewIndex(index);
     setIsWorkPreviewOpen(true);
   };
+
+  const handlePrev = useCallback(() => {
+    setWorkPreviewIndex((workPreviewIndex - 1 + workPreviewFiles.length) % workPreviewFiles.length);
+  }, [workPreviewIndex, workPreviewFiles.length]);
+
+  const handleNext = useCallback(() => {
+    setWorkPreviewIndex((workPreviewIndex + 1) % workPreviewFiles.length);
+  }, [workPreviewIndex, workPreviewFiles.length]);
+
+  useEffect(() => {
+    if (!isWorkPreviewOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === 'ArrowRight') handleNext();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isWorkPreviewOpen, handlePrev, handleNext]);
 
   return (
     <div>
@@ -248,7 +272,7 @@ const AdminApplicationsTab = ({
       {/* Модал просмотра работы */}
       <Dialog open={isWorkPreviewOpen} onOpenChange={setIsWorkPreviewOpen}>
         <DialogContent className="sm:max-w-[90vw] max-h-[90vh] p-0 overflow-hidden rounded-3xl">
-          <div className="relative w-full h-full flex items-center justify-center bg-black/95">
+          <div className="relative w-full h-full flex items-center justify-center bg-black/95 min-h-[60vh]">
             <Button
               variant="ghost"
               size="icon"
@@ -257,17 +281,57 @@ const AdminApplicationsTab = ({
             >
               <Icon name="X" size={24} />
             </Button>
-            {workPreview && (
+
+            {workPreviewFiles.length > 1 && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-black/50 text-white text-sm px-3 py-1 rounded-full">
+                {workPreviewIndex + 1} / {workPreviewFiles.length}
+              </div>
+            )}
+
+            {workPreviewFiles[workPreviewIndex] && (
               <>
-                {workPreview.toLowerCase().includes('.pdf') ? (
-                  <iframe src={workPreview} className="w-full h-[85vh]" title="Работа участника" />
+                {workPreviewFiles[workPreviewIndex].toLowerCase().includes('.pdf') ? (
+                  <iframe src={workPreviewFiles[workPreviewIndex]} className="w-full h-[85vh]" title="Работа участника" />
                 ) : (
                   <img
-                    src={workPreview}
-                    alt="Работа участника"
+                    src={workPreviewFiles[workPreviewIndex]}
+                    alt={`Файл ${workPreviewIndex + 1}`}
                     className="max-w-full max-h-[85vh] object-contain"
                   />
                 )}
+              </>
+            )}
+
+            {workPreviewFiles.length > 1 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handlePrev}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20 rounded-full w-12 h-12"
+                >
+                  <Icon name="ChevronLeft" size={28} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleNext}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-white hover:bg-white/20 rounded-full w-12 h-12"
+                >
+                  <Icon name="ChevronRight" size={28} />
+                </Button>
+
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                  {workPreviewFiles.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setWorkPreviewIndex(i)}
+                      className={`w-2.5 h-2.5 rounded-full transition-all ${
+                        i === workPreviewIndex ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'
+                      }`}
+                    />
+                  ))}
+                </div>
               </>
             )}
           </div>

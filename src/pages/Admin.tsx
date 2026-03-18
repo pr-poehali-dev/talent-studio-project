@@ -130,7 +130,8 @@ const Admin = () => {
   const [appStatus, setAppStatus] = useState<'new' | 'viewed' | 'sent'>('new');
   const [appResult, setAppResult] = useState<string | undefined>(undefined);
   const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'viewed' | 'sent'>('all');
-  const [workPreview, setWorkPreview] = useState<string | null>(null);
+  const [workPreviewFiles, setWorkPreviewFiles] = useState<string[]>([]);
+  const [workPreviewIndex, setWorkPreviewIndex] = useState(0);
   const [isWorkPreviewOpen, setIsWorkPreviewOpen] = useState(false);
   const [formData, setFormData] = useState<Contest>({
     title: "",
@@ -731,8 +732,10 @@ const Admin = () => {
             setAppStatus={setAppStatus}
             isWorkPreviewOpen={isWorkPreviewOpen}
             setIsWorkPreviewOpen={setIsWorkPreviewOpen}
-            workPreview={workPreview}
-            setWorkPreview={setWorkPreview}
+            workPreviewFiles={workPreviewFiles}
+            setWorkPreviewFiles={setWorkPreviewFiles}
+            workPreviewIndex={workPreviewIndex}
+            setWorkPreviewIndex={setWorkPreviewIndex}
             isManualAppModalOpen={isManualAppModalOpen}
             setIsManualAppModalOpen={setIsManualAppModalOpen}
             manualAppFile={manualAppFile}

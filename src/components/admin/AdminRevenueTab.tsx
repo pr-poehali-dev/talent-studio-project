@@ -3,6 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Icon from "@/components/ui/icon";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 interface Application {
   id: number;
@@ -26,10 +36,7 @@ const BULK_THRESHOLD = 5;
 function calcRevenue(apps: Application[]): number {
   const singles = apps.filter(a => !a.is_collective);
   const collective = apps.filter(a => a.is_collective);
-
   let total = singles.length * PRICE_SINGLE;
-
-  // Группируем коллективные заявки по email + дата (день)
   const groups: Record<string, Application[]> = {};
   for (const app of collective) {
     const day = app.created_at ? app.created_at.slice(0, 10) : 'unknown';
@@ -37,13 +44,11 @@ function calcRevenue(apps: Application[]): number {
     if (!groups[key]) groups[key] = [];
     groups[key].push(app);
   }
-
   for (const group of Object.values(groups)) {
     const count = group.length;
     const price = count >= BULK_THRESHOLD ? PRICE_COLLECTIVE_BULK : PRICE_COLLECTIVE_SMALL;
     total += count * price;
   }
-
   return total;
 }
 
@@ -54,6 +59,17 @@ interface RevenueGroup {
   singleCount: number;
   revenue: number;
 }
+
+interface ChartPoint {
+  date: string;
+  dateLabel: string;
+  dayOfWeek: string;
+  single: number;
+  collective: number;
+  total: number;
+}
+
+const DAY_NAMES = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 
 const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
   const today = new Date();
@@ -101,6 +117,43 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
     return result;
   }, [filtered]);
 
+  // Данные для графика — все дни периода (включая нули)
+  const chartData = useMemo((): ChartPoint[] => {
+    if (!dateFrom || !dateTo) return [];
+
+    const map: Record<string, Application[]> = {};
+    for (const a of filtered) {
+      const day = a.created_at ? a.created_at.slice(0, 10) : 'unknown';
+      if (!map[day]) map[day] = [];
+      map[day].push(a);
+    }
+
+    const from = new Date(dateFrom);
+    const to = new Date(dateTo);
+    const points: ChartPoint[] = [];
+
+    const cur = new Date(from);
+    while (cur <= to) {
+      const key = cur.toISOString().slice(0, 10);
+      const dayApps = map[key] || [];
+      const dow = DAY_NAMES[cur.getDay()];
+      const dateLabel = cur.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+
+      points.push({
+        date: key,
+        dateLabel: `${dateLabel} (${dow})`,
+        dayOfWeek: dow,
+        single: dayApps.filter(a => !a.is_collective).length,
+        collective: dayApps.filter(a => a.is_collective).length,
+        total: dayApps.length,
+      });
+
+      cur.setDate(cur.getDate() + 1);
+    }
+
+    return points;
+  }, [filtered, dateFrom, dateTo]);
+
   // Группировка по конкурсам
   const byContest = useMemo(() => {
     const map: Record<string, Application[]> = {};
@@ -122,6 +175,12 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
 
   const formatMoney = (n: number) =>
     n.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 });
+
+  const periodDays = useMemo(() => {
+    if (!dateFrom || !dateTo) return 0;
+    const diff = new Date(dateTo).getTime() - new Date(dateFrom).getTime();
+    return Math.round(diff / 86400000) + 1;
+  }, [dateFrom, dateTo]);
 
   return (
     <div>
@@ -153,6 +212,7 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
             </div>
             <div className="text-sm text-muted-foreground pb-2">
               Найдено заявок: <span className="font-semibold text-foreground">{totalCount}</span>
+              {periodDays > 0 && <span className="ml-2">за {periodDays} дн.</span>}
             </div>
           </div>
         </CardContent>
@@ -209,95 +269,141 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
           <p>За выбранный период заявок нет</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* По дням */}
-          <Card className="rounded-2xl">
+        <>
+          {/* График по дням */}
+          <Card className="rounded-2xl mb-6">
             <CardHeader>
               <CardTitle className="text-lg font-heading flex items-center gap-2">
-                <Icon name="CalendarDays" size={18} className="text-primary" />
-                По дням
+                <Icon name="BarChart2" size={18} className="text-primary" />
+                График заявок по дням
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted">
-                    <tr>
-                      <th className="text-left px-4 py-2 font-semibold">Дата</th>
-                      <th className="text-center px-3 py-2 font-semibold">Заявок</th>
-                      <th className="text-right px-4 py-2 font-semibold">Доход</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {byDay.map((row, i) => (
-                      <tr key={row.label} className={i % 2 === 0 ? 'bg-white' : 'bg-muted/30'}>
-                        <td className="px-4 py-2 font-medium">{row.label}</td>
-                        <td className="px-3 py-2 text-center text-muted-foreground">
-                          {row.count}
-                          {row.collectiveCount > 0 && (
-                            <span className="ml-1 text-xs text-blue-500">({row.collectiveCount} колл.)</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-2 text-right font-semibold text-primary">{formatMoney(row.revenue)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot className="border-t-2 border-primary/20 bg-primary/5">
-                    <tr>
-                      <td className="px-4 py-2 font-bold">Итого</td>
-                      <td className="px-3 py-2 text-center font-bold">{totalCount}</td>
-                      <td className="px-4 py-2 text-right font-bold text-primary">{formatMoney(totalRevenue)}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 4, right: 8, left: -16, bottom: periodDays > 14 ? 48 : 24 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis
+                    dataKey="dateLabel"
+                    tick={{ fontSize: 11 }}
+                    angle={periodDays > 14 ? -45 : 0}
+                    textAnchor={periodDays > 14 ? 'end' : 'middle'}
+                    interval={periodDays > 60 ? Math.floor(periodDays / 20) : 0}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{ fontSize: 11 }}
+                  />
+                  <Tooltip
+                    formatter={(value: number, name: string) =>
+                      [value, name === 'single' ? 'Одиночные' : 'Коллективные']
+                    }
+                    labelFormatter={(label) => `📅 ${label}`}
+                    contentStyle={{ borderRadius: 12, fontSize: 13 }}
+                  />
+                  <Legend
+                    formatter={(value) => value === 'single' ? 'Одиночные' : 'Коллективные'}
+                    wrapperStyle={{ fontSize: 13 }}
+                  />
+                  <Bar dataKey="single" stackId="a" fill="#7c3aed" radius={[0, 0, 0, 0]} name="single" />
+                  <Bar dataKey="collective" stackId="a" fill="#a78bfa" radius={[4, 4, 0, 0]} name="collective" />
+                </BarChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
 
-          {/* По конкурсам */}
-          <Card className="rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-lg font-heading flex items-center gap-2">
-                <Icon name="Trophy" size={18} className="text-primary" />
-                По конкурсам
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted">
-                    <tr>
-                      <th className="text-left px-4 py-2 font-semibold">Конкурс</th>
-                      <th className="text-center px-3 py-2 font-semibold">Заявок</th>
-                      <th className="text-right px-4 py-2 font-semibold">Доход</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {byContest.map((row, i) => (
-                      <tr key={row.label} className={i % 2 === 0 ? 'bg-white' : 'bg-muted/30'}>
-                        <td className="px-4 py-2 font-medium max-w-[180px] truncate" title={row.label}>{row.label}</td>
-                        <td className="px-3 py-2 text-center text-muted-foreground">
-                          {row.count}
-                          {row.collectiveCount > 0 && (
-                            <span className="ml-1 text-xs text-blue-500">({row.collectiveCount} колл.)</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-2 text-right font-semibold text-primary">{formatMoney(row.revenue)}</td>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* По дням — таблица */}
+            <Card className="rounded-2xl">
+              <CardHeader>
+                <CardTitle className="text-lg font-heading flex items-center gap-2">
+                  <Icon name="CalendarDays" size={18} className="text-primary" />
+                  По дням
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted">
+                      <tr>
+                        <th className="text-left px-4 py-2 font-semibold">Дата</th>
+                        <th className="text-center px-3 py-2 font-semibold">Заявок</th>
+                        <th className="text-right px-4 py-2 font-semibold">Доход</th>
                       </tr>
-                    ))}
-                  </tbody>
-                  <tfoot className="border-t-2 border-primary/20 bg-primary/5">
-                    <tr>
-                      <td className="px-4 py-2 font-bold">Итого</td>
-                      <td className="px-3 py-2 text-center font-bold">{totalCount}</td>
-                      <td className="px-4 py-2 text-right font-bold text-primary">{formatMoney(totalRevenue)}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                    </thead>
+                    <tbody>
+                      {byDay.map((row, i) => (
+                        <tr key={row.label} className={i % 2 === 0 ? 'bg-white' : 'bg-muted/30'}>
+                          <td className="px-4 py-2 font-medium">{row.label}</td>
+                          <td className="px-3 py-2 text-center text-muted-foreground">
+                            {row.count}
+                            {row.collectiveCount > 0 && (
+                              <span className="ml-1 text-xs text-blue-500">({row.collectiveCount} колл.)</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-2 text-right font-semibold text-primary">{formatMoney(row.revenue)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="border-t-2 border-primary/20 bg-primary/5">
+                      <tr>
+                        <td className="px-4 py-2 font-bold">Итого</td>
+                        <td className="px-3 py-2 text-center font-bold">{totalCount}</td>
+                        <td className="px-4 py-2 text-right font-bold text-primary">{formatMoney(totalRevenue)}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* По конкурсам */}
+            <Card className="rounded-2xl">
+              <CardHeader>
+                <CardTitle className="text-lg font-heading flex items-center gap-2">
+                  <Icon name="Trophy" size={18} className="text-primary" />
+                  По конкурсам
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted">
+                      <tr>
+                        <th className="text-left px-4 py-2 font-semibold">Конкурс</th>
+                        <th className="text-center px-3 py-2 font-semibold">Заявок</th>
+                        <th className="text-right px-4 py-2 font-semibold">Доход</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {byContest.map((row, i) => (
+                        <tr key={row.label} className={i % 2 === 0 ? 'bg-white' : 'bg-muted/30'}>
+                          <td className="px-4 py-2 font-medium max-w-[180px] truncate" title={row.label}>{row.label}</td>
+                          <td className="px-3 py-2 text-center text-muted-foreground">
+                            {row.count}
+                            {row.collectiveCount > 0 && (
+                              <span className="ml-1 text-xs text-blue-500">({row.collectiveCount} колл.)</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-2 text-right font-semibold text-primary">{formatMoney(row.revenue)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="border-t-2 border-primary/20 bg-primary/5">
+                      <tr>
+                        <td className="px-4 py-2 font-bold">Итого</td>
+                        <td className="px-3 py-2 text-center font-bold">{totalCount}</td>
+                        <td className="px-4 py-2 text-right font-bold text-primary">{formatMoney(totalRevenue)}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </>
       )}
 
       {/* Пояснение тарифов */}

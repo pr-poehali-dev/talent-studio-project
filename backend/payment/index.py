@@ -63,7 +63,8 @@ def handler(event: dict, context) -> dict:
                 'email': application_data.get('email'),
                 'contest_name': application_data.get('contest_name'),
                 'gallery_consent': application_data.get('gallery_consent', False),
-                'work_file_url': work_file_url
+                'work_file_url': work_file_url,
+                'extra_files': application_data.get('extra_files', [])
             }
             
             s3.put_object(

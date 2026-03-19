@@ -148,11 +148,13 @@ def handler(event: dict, context) -> dict:
             # Одиночная заявка
             conn = psycopg2.connect(dsn)
             cur = conn.cursor()
+            extra_files = app_data.get('extra_files', [])
+            extra_files_sql = '{' + ','.join('"' + f.replace('"', '\\"') + '"' for f in extra_files) + '}' if extra_files else '{}'
             cur.execute(
                 '''INSERT INTO applications 
                    (full_name, age, teacher, institution, work_title, email, contest_name,
-                    file_name, file_type, gallery_consent, payment_status, work_file_url, created_at)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                    file_name, file_type, gallery_consent, payment_status, work_file_url, extra_files, created_at)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
                    RETURNING id''',
                 (
                     app_data.get('full_name'),
@@ -166,7 +168,8 @@ def handler(event: dict, context) -> dict:
                     app_data.get('file_type'),
                     app_data.get('gallery_consent', False),
                     'paid',
-                    app_data.get('work_file_url', '')
+                    app_data.get('work_file_url', ''),
+                    extra_files_sql
                 )
             )
             application_ids.append(cur.fetchone()[0])

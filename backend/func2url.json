@@ -1,4 +1,5 @@
 {
+  "recover-payments": "https://functions.poehali.dev/23b49545-361e-43d0-9764-97f4e7f38947",
   "sync-catalog": "https://functions.poehali.dev/bdd9ab47-bb31-4879-ab3d-84d225683906",
   "orders": "https://functions.poehali.dev/da5207db-b340-41fa-bb94-63a37a6f09f8",
   "survey-submit-stage": "https://functions.poehali.dev/7e9452f6-4a08-4da1-93f7-b8569752755b",

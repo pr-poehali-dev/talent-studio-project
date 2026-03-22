@@ -362,8 +362,6 @@ export default function CollectiveFree() {
                       <Label>Возраст *</Label>
                       <Input
                         type="number"
-                        min={1}
-                        max={99}
                         value={p.age}
                         onChange={(e) => updateParticipant(p.id, { age: e.target.value })}
                         placeholder="Лет"

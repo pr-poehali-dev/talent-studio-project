@@ -11,6 +11,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
 import Coloring from "./pages/Coloring";
 import CollectiveApplication from "./pages/CollectiveApplication";
+import CollectiveFree from "./pages/CollectiveFree";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/designer" element={<Navigate to="/?section=designer" replace />} />
           <Route path="/coloring" element={<Coloring />} />
           <Route path="/collective" element={<CollectiveApplication />} />
+          <Route path="/collective-free" element={<CollectiveFree />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

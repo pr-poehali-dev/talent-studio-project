@@ -148,6 +148,8 @@ const Admin = () => {
   const [uploadingDiploma, setUploadingDiploma] = useState(false);
   const [uploadingAppForm, setUploadingAppForm] = useState(false);
   const [applicationFormUrl, setApplicationFormUrl] = useState<string>('');
+  const [collectiveFreeEnabled, setCollectiveFreeEnabled] = useState(false);
+  const [savingCollectiveFree, setSavingCollectiveFree] = useState(false);
   const [isManualAppModalOpen, setIsManualAppModalOpen] = useState(false);
   const [manualAppFile, setManualAppFile] = useState<File | null>(null);
   const [manualContestName, setManualContestName] = useState("");
@@ -214,6 +216,7 @@ const Admin = () => {
       if (data.application_form_url) {
         setApplicationFormUrl(data.application_form_url);
       }
+      setCollectiveFreeEnabled(data.collective_free_enabled === 'true');
     } catch (error) {
       console.error('Ошибка загрузки настроек:', error);
     }
@@ -934,6 +937,60 @@ const Admin = () => {
                   </div>
                 )}
               </div>
+            </Card>
+
+            <Card className="p-6 rounded-2xl max-w-2xl mt-6">
+              <h3 className="text-xl font-heading font-bold mb-4 flex items-center gap-2">
+                <Icon name="Users" size={20} className="text-primary" />
+                Коллективная заявка без оплаты
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Управляет доступностью страницы <strong>/collective-free</strong>. Когда включено — страница открыта для подачи коллективных заявок без оплаты.
+              </p>
+              <div className="flex items-center gap-4">
+                <div
+                  className={`relative inline-flex h-7 w-12 cursor-pointer rounded-full transition-colors ${collectiveFreeEnabled ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                  onClick={async () => {
+                    if (savingCollectiveFree) return;
+                    const newVal = !collectiveFreeEnabled;
+                    setSavingCollectiveFree(true);
+                    try {
+                      await fetch(SETTINGS_API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ key: 'collective_free_enabled', value: String(newVal) }),
+                      });
+                      setCollectiveFreeEnabled(newVal);
+                      toast({ title: newVal ? 'Страница включена' : 'Страница отключена' });
+                    } catch {
+                      toast({ title: 'Ошибка', variant: 'destructive' });
+                    } finally {
+                      setSavingCollectiveFree(false);
+                    }
+                  }}
+                >
+                  <span
+                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${collectiveFreeEnabled ? 'translate-x-6' : 'translate-x-1'}`}
+                  />
+                </div>
+                <span className="text-sm font-medium">
+                  {collectiveFreeEnabled ? 'Включено' : 'Отключено'}
+                </span>
+                {savingCollectiveFree && <Icon name="Loader2" size={16} className="animate-spin text-muted-foreground" />}
+              </div>
+              {collectiveFreeEnabled && (
+                <div className="mt-4 flex items-center gap-2 p-3 bg-green-50 rounded-xl border border-green-200">
+                  <Icon name="Link" size={16} className="text-green-600" />
+                  <a
+                    href="/collective-free"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Открыть страницу /collective-free
+                  </a>
+                </div>
+              )}
             </Card>
           </div>
         )}

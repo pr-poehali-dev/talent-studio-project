@@ -1,96 +1,30 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/components/ui/use-toast";
 import AdminContestsTab from "@/components/admin/AdminContestsTab";
 import AdminApplicationsTab from "@/components/admin/AdminApplicationsTab";
 import AdminResultsAndReviewsTab from "@/components/admin/AdminResultsAndReviewsTab";
 import AdminRevenueTab from "@/components/admin/AdminRevenueTab";
+import AdminLoginPage from "@/components/admin/AdminLoginPage";
+import AdminNav from "@/components/admin/AdminNav";
+import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
+import {
+  Contest,
+  Application,
+  Result,
+  Review,
+  API_URL,
+  UPLOAD_URL,
+  RESULTS_API_URL,
+  APPLICATIONS_API_URL,
+  SUBMIT_APPLICATION_URL,
+  REVIEWS_API_URL,
+  SETTINGS_API_URL,
+  CERTIFICATES_LOG_URL,
+} from "@/components/admin/AdminTypes";
 
-interface Contest {
-  id?: number;
-  title: string;
-  description: string;
-  categoryId: string;
-  deadline: string;
-  price: number;
-  status: string;
-  rulesLink: string;
-  diplomaImage: string;
-  image: string;
-  isPopular?: boolean;
-}
-
-interface Application {
-  id: number;
-  full_name: string;
-  age: number;
-  teacher: string | null;
-  institution: string | null;
-  work_title: string;
-  email: string;
-  contest_id: number | null;
-  contest_name: string;
-  work_file_url: string;
-  extra_files: string[];
-  status: 'new' | 'viewed' | 'sent';
-  result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant' | null;
-  gallery_consent: boolean;
-  diploma_issued_at: string | null;
-  is_featured: boolean;
-  is_collective: boolean;
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-}
-
-interface Result {
-  id: number;
-  application_id: number | null;
-  full_name: string;
-  age: number | null;
-  teacher: string | null;
-  institution: string | null;
-  work_title: string | null;
-  email: string | null;
-  contest_id: number | null;
-  contest_name: string | null;
-  work_file_url: string | null;
-  result: string | null;
-  place: number | null;
-  score: number | null;
-  diploma_url: string | null;
-  notes: string | null;
-  gallery_consent: boolean;
-  diploma_issued_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface Review {
-  id: number;
-  author_name: string;
-  author_role: string | null;
-  rating: number;
-  text: string;
-  status: 'pending' | 'approved' | 'rejected';
-  created_at: string;
-  updated_at: string;
-  published_at: string | null;
-}
-
-const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
-const UPLOAD_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
-const RESULTS_API_URL = "https://functions.poehali.dev/e1f9698c-ec8a-4b24-89c2-72bb579d7f9b";
-const APPLICATIONS_API_URL = "https://functions.poehali.dev/ff2c7334-750b-418e-8468-152fae1d68ef";
-const SUBMIT_APPLICATION_URL = "https://functions.poehali.dev/2d352955-9c6c-4bbb-ad1e-944c7ea04d84";
-const REVIEWS_API_URL = "https://functions.poehali.dev/3daafc39-174c-4669-8e8a-71172a246929";
-const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
-const CERTIFICATES_LOG_URL = "https://functions.poehali.dev/15416f51-5386-4500-b770-4dea40b824e5";
+type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue';
 
 const Admin = () => {
   useEffect(() => {
@@ -104,7 +38,7 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
-  const [activeTab, setActiveTab] = useState<'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue'>('contests');
+  const [activeTab, setActiveTab] = useState<Tab>('contests');
   const [certificatesLog, setCertificatesLog] = useState<{id: number; result_id: number; full_name: string; contest_name: string; issued_at: string}[]>([]);
   const [certLoading, setCertLoading] = useState(false);
   const [applicationsSubTab, setApplicationsSubTab] = useState<'active' | 'archive' | 'trash'>('active');
@@ -157,12 +91,15 @@ const Admin = () => {
   const [manualAppUploadProgress, setManualAppUploadProgress] = useState(0);
   const { toast } = useToast();
 
+  // Подавляем предупреждение о неиспользуемой переменной
+  void statusFilter;
+
   const loadContests = async () => {
     try {
       const response = await fetch(API_URL);
       const data = await response.json();
       setContests(data);
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось загрузить конкурсы", variant: "destructive" });
     }
   };
@@ -172,7 +109,7 @@ const Admin = () => {
       const response = await fetch(APPLICATIONS_API_URL);
       const data = await response.json();
       setApplications(data);
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось загрузить заявки", variant: "destructive" });
     }
   };
@@ -182,7 +119,7 @@ const Admin = () => {
       const response = await fetch(`${APPLICATIONS_API_URL}?deleted=true`);
       const data = await response.json();
       setDeletedApplications(data);
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось загрузить корзину", variant: "destructive" });
     }
   };
@@ -194,7 +131,7 @@ const Admin = () => {
       setResults(data);
       const appIds = new Set(data.filter((r: Result) => r.application_id).map((r: Result) => r.application_id));
       setApplicationsWithResults(appIds);
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось загрузить результаты", variant: "destructive" });
     }
   };
@@ -204,7 +141,7 @@ const Admin = () => {
       const response = await fetch(`${REVIEWS_API_URL}?status=all`);
       const data = await response.json();
       setReviews(data);
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось загрузить отзывы", variant: "destructive" });
     }
   };
@@ -333,7 +270,7 @@ const Admin = () => {
         setIsModalOpen(false);
         loadContests();
       }
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось сохранить конкурс", variant: "destructive" });
     }
   };
@@ -346,7 +283,7 @@ const Admin = () => {
         toast({ title: "Успешно", description: "Конкурс удален" });
         loadContests();
       }
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось удалить конкурс", variant: "destructive" });
     }
   };
@@ -360,7 +297,7 @@ const Admin = () => {
         loadApplications();
         loadDeletedApplications();
       }
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось удалить заявку", variant: "destructive" });
     }
   };
@@ -373,7 +310,7 @@ const Admin = () => {
         toast({ title: "Удалено", description: "Заявка удалена безвозвратно" });
         loadDeletedApplications();
       }
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось удалить заявку", variant: "destructive" });
     }
   };
@@ -386,7 +323,7 @@ const Admin = () => {
         loadApplications();
         loadDeletedApplications();
       }
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось восстановить заявку", variant: "destructive" });
     }
   };
@@ -410,7 +347,7 @@ const Admin = () => {
         setIsResultModalOpen(false);
         loadResults();
       }
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось сохранить результат", variant: "destructive" });
     }
   };
@@ -423,7 +360,7 @@ const Admin = () => {
         toast({ title: "Успешно", description: "Результат удален" });
         loadResults();
       }
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось удалить результат", variant: "destructive" });
     }
   };
@@ -457,55 +394,46 @@ const Admin = () => {
       if (response.ok) {
         toast({ title: "Успешно", description: "Результат создан из заявки" });
         loadResults();
-      } else if (response.status === 409) {
-        toast({ title: "Дубликат", description: "Результат из этой заявки уже существует", variant: "destructive" });
-      } else {
-        toast({ title: "Ошибка", description: "Не удалось создать результат", variant: "destructive" });
+        loadApplications();
       }
-    } catch (error) {
+    } catch {
       toast({ title: "Ошибка", description: "Не удалось создать результат", variant: "destructive" });
     }
   };
 
-  const handleManualAppSubmit = async (e: React.FormEvent) => {
+  const handleManualAppSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!manualAppFile) {
-      toast({ title: "Ошибка", description: "Загрузите файл работы", variant: "destructive" });
+      toast({ title: "Выберите файл работы", variant: "destructive" });
       return;
     }
     if (!manualContestName) {
-      toast({ title: "Ошибка", description: "Выберите конкурс", variant: "destructive" });
+      toast({ title: "Выберите конкурс", variant: "destructive" });
       return;
     }
+
     setSubmittingManualApp(true);
-    setManualAppUploadProgress(5);
+    setManualAppUploadProgress(10);
 
     try {
-      const formEl = e.currentTarget as HTMLFormElement;
-      const fd = new FormData(formEl);
-
+      const fd = new FormData(e.currentTarget);
       const CHUNK_SIZE = 2 * 1024 * 1024;
       const totalChunks = Math.ceil(manualAppFile.size / CHUNK_SIZE);
-      let uploadId = '';
-      let file_url = '';
+      let uploadId = "";
+      let file_url = "";
 
       for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
         const start = chunkIndex * CHUNK_SIZE;
-        const end = Math.min(start + CHUNK_SIZE, manualAppFile.size);
-        const chunk = manualAppFile.slice(start, end);
+        const chunk = manualAppFile.slice(start, Math.min(start + CHUNK_SIZE, manualAppFile.size));
 
         const chunkBase64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = () => {
-            const result = reader.result as string;
-            resolve(result.split(',')[1]);
-          };
+          reader.onload = () => resolve((reader.result as string).split(',')[1]);
           reader.onerror = () => reject(new Error('Ошибка чтения файла'));
           reader.readAsDataURL(chunk);
         });
 
-        const chunkProgress = 5 + Math.round((chunkIndex / totalChunks) * 45);
-        setManualAppUploadProgress(chunkProgress);
+        setManualAppUploadProgress(Math.round(10 + ((chunkIndex) / totalChunks) * 50));
 
         const uploadResponse = await fetch(UPLOAD_URL, {
           method: 'POST',
@@ -570,133 +498,32 @@ const Admin = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md rounded-3xl shadow-2xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-heading font-bold text-primary">
-              🔐 Вход в админ-панель
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="login" className="text-base font-semibold">Логин</Label>
-                <Input
-                  id="login"
-                  type="text"
-                  placeholder="Введите логин"
-                  value={login}
-                  onChange={(e) => setLogin(e.target.value)}
-                  required
-                  className="rounded-xl border-2 focus:border-primary"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-base font-semibold">Пароль</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Введите пароль"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="rounded-xl border-2 focus:border-primary"
-                />
-              </div>
-              <Button type="submit" className="w-full rounded-xl bg-primary hover:bg-primary/90 text-lg py-6">
-                <Icon name="LogIn" className="mr-2" />
-                Войти
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+      <AdminLoginPage
+        login={login}
+        setLogin={setLogin}
+        password={password}
+        setPassword={setPassword}
+        onSubmit={handleLogin}
+      />
     );
   }
 
   return (
     <div className="min-h-screen bg-white">
-      <nav className="sticky top-0 z-50 backdrop-blur-md shadow-md bg-gradient-to-r from-primary to-secondary">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-heading font-bold text-white">Админ-панель</h1>
-            <Button onClick={handleLogout} variant="ghost" className="text-white hover:bg-white/20 rounded-xl">
-              <Icon name="LogOut" className="mr-2" />
-              Выйти
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <AdminNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onLogout={handleLogout}
+        applicationsCount={applications.length}
+        deletedApplicationsCount={deletedApplications.length}
+        resultsCount={results.length}
+        reviewsCount={reviews.length}
+        certificatesLogLength={certificatesLog.length}
+        setCertificatesLog={setCertificatesLog}
+        setCertLoading={setCertLoading}
+      />
 
       <div className="container mx-auto px-4 py-12">
-        <div className="flex gap-4 mb-8 border-b">
-          <Button
-            variant={activeTab === 'contests' ? 'default' : 'ghost'}
-            onClick={() => setActiveTab('contests')}
-            className="rounded-t-xl rounded-b-none"
-          >
-            <Icon name="Trophy" className="mr-2" />
-            Конкурсы
-          </Button>
-          <Button
-            variant={activeTab === 'applications' ? 'default' : 'ghost'}
-            onClick={() => setActiveTab('applications')}
-            className="rounded-t-xl rounded-b-none"
-          >
-            <Icon name="FileText" className="mr-2" />
-            Заявки ({applications.length + deletedApplications.length})
-          </Button>
-          <Button
-            variant={activeTab === 'results' ? 'default' : 'ghost'}
-            onClick={() => setActiveTab('results')}
-            className="rounded-t-xl rounded-b-none"
-          >
-            <Icon name="Award" className="mr-2" />
-            Результаты ({results.length})
-          </Button>
-          <Button
-            variant={activeTab === 'reviews' ? 'default' : 'ghost'}
-            onClick={() => setActiveTab('reviews')}
-            className="rounded-t-xl rounded-b-none"
-          >
-            <Icon name="MessageSquare" className="mr-2" />
-            Отзывы ({reviews.length})
-          </Button>
-          <Button
-            variant={activeTab === 'certificates' ? 'default' : 'ghost'}
-            onClick={() => {
-              setActiveTab('certificates');
-              if (certificatesLog.length === 0) {
-                setCertLoading(true);
-                fetch(CERTIFICATES_LOG_URL)
-                  .then(r => r.json())
-                  .then(data => setCertificatesLog(data))
-                  .finally(() => setCertLoading(false));
-              }
-            }}
-            className="rounded-t-xl rounded-b-none"
-          >
-            <Icon name="ScrollText" className="mr-2" />
-            Выданные справки
-          </Button>
-          <Button
-            variant={activeTab === 'revenue' ? 'default' : 'ghost'}
-            onClick={() => setActiveTab('revenue')}
-            className="rounded-t-xl rounded-b-none"
-          >
-            <Icon name="TrendingUp" className="mr-2" />
-            Доходность
-          </Button>
-          <Button
-            variant={activeTab === 'settings' ? 'default' : 'ghost'}
-            onClick={() => setActiveTab('settings')}
-            className="rounded-t-xl rounded-b-none"
-          >
-            <Icon name="Settings" className="mr-2" />
-            Настройки
-          </Button>
-        </div>
-
         {activeTab === 'contests' && (
           <AdminContestsTab
             contests={contests}
@@ -772,6 +599,7 @@ const Admin = () => {
             setEditingResult={setEditingResult}
             handleSaveResult={handleSaveResult}
             handleDeleteResult={handleDeleteResult}
+            handleEditResult={handleEditResult}
             reviews={reviews}
             loadReviews={loadReviews}
             REVIEWS_API_URL={REVIEWS_API_URL}
@@ -857,142 +685,16 @@ const Admin = () => {
         )}
 
         {activeTab === 'settings' && (
-          <div>
-            <h2 className="text-3xl font-heading font-bold text-primary mb-8">Настройки</h2>
-            <Card className="p-6 rounded-2xl max-w-2xl">
-              <h3 className="text-xl font-heading font-bold mb-4 flex items-center gap-2">
-                <Icon name="ClipboardList" size={20} className="text-primary" />
-                Лист подачи заявки
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Загрузите файл листа подачи заявки (DOCX, DOC или PDF). Он будет доступен для скачивания в разделе «Документы» на сайте.
-              </p>
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <Input
-                    type="file"
-                    accept=".docx,.doc,.pdf"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      setUploadingAppForm(true);
-                      try {
-                        const reader = new FileReader();
-                        reader.onload = async () => {
-                          const base64 = reader.result?.toString().split(',')[1];
-                          const response = await fetch(UPLOAD_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              file: base64,
-                              fileName: file.name,
-                              fileType: file.type || 'application/octet-stream',
-                              folder: 'application-forms'
-                            })
-                          });
-                          const data = await response.json();
-                          setApplicationFormUrl(data.url);
-                          await fetch(SETTINGS_API_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ key: 'application_form_url', value: data.url })
-                          });
-                          toast({ title: 'Файл загружен', description: 'Лист подачи заявки успешно загружен' });
-                        };
-                        reader.readAsDataURL(file);
-                      } catch (error) {
-                        toast({ title: 'Ошибка', description: 'Не удалось загрузить файл', variant: 'destructive' });
-                      } finally {
-                        setUploadingAppForm(false);
-                      }
-                    }}
-                    disabled={uploadingAppForm}
-                    className="rounded-xl h-10"
-                  />
-                  {uploadingAppForm && <Icon name="Loader2" className="animate-spin" />}
-                </div>
-                {applicationFormUrl && (
-                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-xl border border-green-200">
-                    <Icon name="CheckCircle" size={18} className="text-green-600" />
-                    <a href={applicationFormUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1">
-                      <Icon name="ExternalLink" size={14} />
-                      Просмотреть загруженный файл
-                    </a>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="ml-auto text-destructive hover:text-destructive"
-                      onClick={async () => {
-                        setApplicationFormUrl('');
-                        await fetch(SETTINGS_API_URL, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ key: 'application_form_url', value: '' })
-                        });
-                        toast({ title: 'Удалено', description: 'Ссылка на лист подачи заявки удалена' });
-                      }}
-                    >
-                      <Icon name="Trash2" size={16} />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </Card>
-
-            <Card className="p-6 rounded-2xl max-w-2xl mt-6">
-              <h3 className="text-xl font-heading font-bold mb-4 flex items-center gap-2">
-                <Icon name="Users" size={20} className="text-primary" />
-                Коллективная заявка без оплаты
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Управляет доступностью страницы <strong>/collective-free</strong>. Когда включено — страница открыта для подачи коллективных заявок без оплаты.
-              </p>
-              <div className="flex items-center gap-4">
-                <div
-                  className={`relative inline-flex h-7 w-12 cursor-pointer rounded-full transition-colors ${collectiveFreeEnabled ? 'bg-primary' : 'bg-muted-foreground/30'}`}
-                  onClick={async () => {
-                    if (savingCollectiveFree) return;
-                    const newVal = !collectiveFreeEnabled;
-                    setSavingCollectiveFree(true);
-                    try {
-                      await fetch(SETTINGS_API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ key: 'collective_free_enabled', value: String(newVal) }),
-                      });
-                      setCollectiveFreeEnabled(newVal);
-                      toast({ title: newVal ? 'Страница включена' : 'Страница отключена' });
-                    } catch {
-                      toast({ title: 'Ошибка', variant: 'destructive' });
-                    } finally {
-                      setSavingCollectiveFree(false);
-                    }
-                  }}
-                >
-                  <span
-                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${collectiveFreeEnabled ? 'translate-x-6' : 'translate-x-1'}`}
-                  />
-                </div>
-                <span className="text-sm font-medium">
-                  {collectiveFreeEnabled ? 'Включено' : 'Отключено'}
-                </span>
-                {savingCollectiveFree && <Icon name="Loader2" size={16} className="animate-spin text-muted-foreground" />}
-              </div>
-              {collectiveFreeEnabled && (
-                <div className="mt-4 flex items-center gap-2 p-3 bg-green-50 rounded-xl border border-green-200">
-                  <Icon name="Link" size={16} className="text-green-600" />
-                  <a
-                    href="/collective-free"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline"
-                  >
-                    Открыть страницу /collective-free
-                  </a>
-                </div>
-              )}
-            </Card>
-          </div>
+          <AdminSettingsTab
+            uploadingAppForm={uploadingAppForm}
+            setUploadingAppForm={setUploadingAppForm}
+            applicationFormUrl={applicationFormUrl}
+            setApplicationFormUrl={setApplicationFormUrl}
+            collectiveFreeEnabled={collectiveFreeEnabled}
+            setCollectiveFreeEnabled={setCollectiveFreeEnabled}
+            savingCollectiveFree={savingCollectiveFree}
+            setSavingCollectiveFree={setSavingCollectiveFree}
+          />
         )}
       </div>
     </div>

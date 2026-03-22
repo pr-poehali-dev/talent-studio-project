@@ -237,8 +237,7 @@ export default function CollectiveFree() {
         </div>
         <h1 className="text-2xl font-bold">Заявки успешно поданы!</h1>
         <p className="text-muted-foreground max-w-md">
-          Заявки на {participants.length} {participants.length === 1 ? "участника" : "участников"} приняты. На почту{" "}
-          <strong>{email}</strong> придёт подтверждение.
+          Заявки на {participants.length} {participants.length === 1 ? "участника" : "участников"} успешно приняты.
         </p>
         <Button onClick={() => navigate("/")}>На главную</Button>
       </div>

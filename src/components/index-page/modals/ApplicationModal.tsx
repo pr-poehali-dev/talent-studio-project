@@ -242,7 +242,7 @@ const ApplicationModal = ({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   amount: contestPrice,
-                  description: `Оплата участия в конкурсе "${selectedContest}"`,
+                  description: `${applicationData.full_name} — ${selectedContest}`,
                   contest_name: selectedContest,
                   email: formData.get('email'),
                   application_data: applicationData

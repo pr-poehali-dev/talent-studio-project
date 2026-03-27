@@ -1,25 +1,34 @@
 import { useRef, useEffect, useState } from "react";
 import Icon from "@/components/ui/icon";
 
-interface JuryMember {
+interface TeamMember {
   name: string;
   title: string;
   description: string;
   photo: string | null;
-  isOrganizer?: boolean;
   tags?: string[];
 }
 
-const juryMembers: JuryMember[] = [
+const leadershipMembers: TeamMember[] = [
   {
     name: "Мозжерина Анна Владимировна",
     title: "Руководитель студии «Мечтай, твори, дерзай!»",
     description:
       "Дизайнер-график, дизайнер бисерных украшений. С отличием окончила филиал ФГБОУ ВО «РГХПУ им. С.Г. Строганова», г. Кунгур, (ИМДТ) Институт моды, дизайна и технологий, г. Москва, Россия.",
     photo: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/bbd9fc84-ca51-4c8f-ba8c-6ff319ab0a30.jpg",
-    isOrganizer: true,
     tags: ["Дизайн-график", "Бисерные украшения"],
   },
+  {
+    name: "Мозжерин Илья Вячеславович",
+    title: "Администратор сайта",
+    description:
+      "IT-специалист. Руководитель Центра поддержки детского шахматного спорта «Мир шахмат», Россия.",
+    photo: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/db82454b-add6-4cd6-a1fc-b6356cfa1905.jpg",
+    tags: ["IT-специалист", "Шахматный спорт"],
+  },
+];
+
+const juryMembers: TeamMember[] = [
   {
     name: "Архипова Валентина Николаевна",
     title: "Художник-эмальер, гальванист",
@@ -52,9 +61,17 @@ const juryMembers: JuryMember[] = [
     photo: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/61adbeb0-52ff-4e20-a023-611057ee14ff.jpg",
     tags: ["ИЗО", "Технология", "Педагог"],
   },
+  {
+    name: "Блинов Дмитрий Александрович",
+    title: "Художник по дереву и камню",
+    description:
+      "Окончил Кунгурский государственный художественно‑промышленный колледж (филиал ФГБОУ ВО «Российский государственный художественно‑промышленный университет им. С. Г. Строганова») по специальности «Художественная обработка дерева». Учебное заведение является единственным в России, где ведётся подготовка специалистов по резьбе по мягкому камню (селениту и гипсу). В настоящее время занимается изготовлением настенных часов из виниловых пластинок, сочетая элементы ретро‑дизайна с современными художественными решениями, Россия.",
+    photo: "https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/9eddfdf8-bcda-4f50-a2f4-d0146bed5a1d.jpg",
+    tags: ["Резьба по дереву", "Резьба по камню", "Ретро-дизайн"],
+  },
 ];
 
-const JuryCard = ({ member, index }: { member: JuryMember; index: number }) => {
+const MemberCard = ({ member, index }: { member: TeamMember; index: number }) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const infoRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
@@ -88,7 +105,6 @@ const JuryCard = ({ member, index }: { member: JuryMember; index: number }) => {
       style={{ animationDelay: `${index * 100}ms` }}
     >
       <div className="flex gap-0">
-        {/* Photo */}
         <div className="w-36 flex-shrink-0 overflow-hidden">
           {member.photo ? (
             <img
@@ -105,7 +121,6 @@ const JuryCard = ({ member, index }: { member: JuryMember; index: number }) => {
           )}
         </div>
 
-        {/* Info */}
         <div
           ref={infoRef}
           className="flex-1 p-5 flex flex-col transition-all duration-300 overflow-hidden"
@@ -138,7 +153,6 @@ const JuryCard = ({ member, index }: { member: JuryMember; index: number }) => {
         </div>
       </div>
 
-      {/* Expand button */}
       {needsExpand && !expanded && (
         <button
           onClick={() => setExpanded(true)}
@@ -161,10 +175,17 @@ const JuryCard = ({ member, index }: { member: JuryMember; index: number }) => {
   );
 };
 
-const IndexJurySection = () => {
-  const organizer = juryMembers.find((m) => m.isOrganizer);
-  const members = juryMembers.filter((m) => !m.isOrganizer);
+const SectionDivider = ({ label }: { label: string }) => (
+  <div className="flex items-center gap-3 mb-6">
+    <div className="w-8 h-1 rounded-full bg-orange-400" />
+    <span className="text-orange-500 font-semibold uppercase tracking-widest text-sm">
+      {label}
+    </span>
+    <div className="flex-1 h-px bg-orange-100" />
+  </div>
+);
 
+const IndexJurySection = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
       {/* Hero */}
@@ -176,78 +197,36 @@ const IndexJurySection = () => {
         </div>
         <div className="relative max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-4">
-            <Icon name="Star" size={16} className="text-white" />
-            <span className="text-white text-sm font-medium">Состав жюри</span>
+            <Icon name="Users" size={16} className="text-white" />
+            <span className="text-white text-sm font-medium">Люди студии</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-sm">
-            Жюри конкурсов
+            Наша команда
           </h1>
           <p className="text-orange-100 text-lg max-w-xl mx-auto">
-            Профессионалы в области искусства, педагогики и дизайна, которые оценивают работы участников
+            Профессионалы в области искусства, педагогики и дизайна, которые развивают студию и оценивают работы участников
           </p>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-14">
 
-        {/* Organizer — featured card */}
-        {organizer && (
-          <div className="mb-14">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-1 rounded-full bg-orange-400" />
-              <span className="text-orange-500 font-semibold uppercase tracking-widest text-sm">
-                Руководитель студии
-              </span>
-              <div className="flex-1 h-px bg-orange-100" />
-            </div>
-            <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-orange-100">
-              <div className="flex flex-col md:flex-row">
-                {/* Photo */}
-                <div className="md:w-64 flex-shrink-0 relative">
-                  <div className="aspect-[3/4] md:aspect-auto md:h-full min-h-[280px] relative overflow-hidden">
-                    <img
-                      src={organizer.photo!}
-                      alt={organizer.name}
-                      className="w-full h-full object-cover object-top"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-orange-900/30 to-transparent md:bg-gradient-to-r" />
-                  </div>
-
-                </div>
-                {/* Info */}
-                <div className="flex-1 p-8 flex flex-col justify-center">
-                  <h2 className="text-2xl font-bold text-gray-800 mb-1">{organizer.name}</h2>
-                  <p className="text-orange-500 font-semibold mb-4">{organizer.title}</p>
-                  <p className="text-gray-600 leading-relaxed mb-6">{organizer.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {organizer.tags?.map((tag) => (
-                      <span
-                        key={tag}
-                        className="bg-orange-50 text-orange-600 text-xs font-medium px-3 py-1 rounded-full border border-orange-200"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Members grid */}
-        <div>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-8 h-1 rounded-full bg-orange-400" />
-            <span className="text-orange-500 font-semibold uppercase tracking-widest text-sm">
-              Члены жюри
-            </span>
-            <div className="flex-1 h-px bg-orange-100" />
-          </div>
-
+        {/* Руководство */}
+        <div className="mb-14">
+          <SectionDivider label="Руководство" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {members.map((member, index) => (
-              <JuryCard key={member.name} member={member} index={index} />
+            {leadershipMembers.map((member, index) => (
+              <MemberCard key={member.name} member={member} index={index} />
+            ))}
+          </div>
+        </div>
+
+        {/* Члены жюри */}
+        <div>
+          <SectionDivider label="Члены жюри" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {juryMembers.map((member, index) => (
+              <MemberCard key={member.name} member={member} index={index} />
             ))}
           </div>
         </div>

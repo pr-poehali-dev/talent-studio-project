@@ -279,7 +279,7 @@ const IndexSimpleSections = ({
                     <Icon name="FileText" className="text-primary flex-shrink-0 mt-1" size={24} />
                     <div>
                       <p className="font-semibold text-primary">Благодарственные письма</p>
-                      <p className="text-sm text-muted-foreground">Для педагогов и родителей</p>
+                      <p className="text-sm text-muted-foreground">Для педагогов и руководителей</p>
                     </div>
                   </div>
                 </div>

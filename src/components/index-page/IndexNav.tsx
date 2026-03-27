@@ -23,7 +23,7 @@ const navItems: { id: string; label: string; icon: string; hasDropdown?: boolean
   { id: "gallery", label: "Галерея", icon: "Image" },
   { id: "documents", label: "Документы", icon: "FileText" },
   { id: "results", label: "Итоги", icon: "Award" },
-  { id: "jury", label: "Команда", icon: "Users" },
+  { id: "jury", label: "Наша команда", icon: "Users" },
   { id: "reviews", label: "Отзывы", icon: "MessageSquare" },
   { id: "about", label: "О нас", icon: "Users" },
 ];

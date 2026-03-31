@@ -24,7 +24,7 @@ const IndexOlympiadsSection = () => {
           <button
             onClick={() => navigate("/olympiad/palette")}
             className="group relative overflow-hidden rounded-3xl p-8 text-left shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
-            style={{ background: "linear-gradient(135deg, #FF6B35 0%, #E31E24 100%)" }}
+            style={{ background: "linear-gradient(135deg, #FBBF9A 0%, #F8A07A 100%)" }}
           >
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
             <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-white/5 rounded-full" />
@@ -48,13 +48,13 @@ const IndexOlympiadsSection = () => {
           <button
             onClick={() => navigate("/olympiad/grani")}
             className="group relative overflow-hidden rounded-3xl p-8 text-left shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
-            style={{ background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)" }}
+            style={{ background: "linear-gradient(135deg, #A8D8C8 0%, #7EC8B0 100%)" }}
           >
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
             <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-white/5 rounded-full" />
 
             <div className="relative z-10">
-              <div className="text-5xl mb-5">🏺</div>
+              <div className="text-5xl mb-5">💎</div>
               <div className="inline-flex items-center gap-1.5 bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">
                 ДПИ
               </div>

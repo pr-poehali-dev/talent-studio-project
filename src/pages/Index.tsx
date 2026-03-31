@@ -10,6 +10,7 @@ import IndexSimpleSections from "@/components/index-page/IndexSimpleSections";
 import IndexDesignerSection from "@/components/index-page/IndexDesignerSection";
 import IndexFooter from "@/components/index-page/IndexFooter";
 import IndexJurySection from "@/components/index-page/IndexJurySection";
+import IndexOlympiadsSection from "@/components/index-page/IndexOlympiadsSection";
 import {
   Contest,
   PublicResult,
@@ -258,6 +259,8 @@ const Index = () => {
       )}
 
       {activeSection === "jury" && <IndexJurySection />}
+
+      {activeSection === "olympiads" && <IndexOlympiadsSection />}
 
       {activeSection === "designer" && (
         <IndexDesignerSection

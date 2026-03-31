@@ -20,10 +20,10 @@ interface IndexNavProps {
 const navItems: { id: string; label: string; icon: string; hasDropdown?: boolean }[] = [
   { id: "home", label: "Главная", icon: "Home" },
   { id: "contests", label: "Конкурсы", icon: "Trophy", hasDropdown: true },
+  { id: "olympiads", label: "Олимпиады", icon: "GraduationCap" },
   { id: "gallery", label: "Галерея", icon: "Image" },
   { id: "documents", label: "Документы", icon: "FileText" },
   { id: "results", label: "Итоги", icon: "Award" },
-  { id: "olympiads", label: "Олимпиады", icon: "GraduationCap" },
   { id: "jury", label: "Наша команда", icon: "Users" },
   { id: "reviews", label: "Отзывы", icon: "MessageSquare" },
   { id: "about", label: "О нас", icon: "Users" },
@@ -152,7 +152,7 @@ const IndexNav = ({
                           setShowContestsDropdown(false);
                         }
                       }}
-                      className={`flex items-center gap-1 px-3 py-2 rounded-xl font-semibold transition-all ${
+                      className={`flex items-center gap-1 px-3 py-2 rounded-xl font-semibold transition-all text-sm ${
                         activeSection === item.id
                           ? "bg-primary text-primary-foreground shadow-lg scale-105"
                           : "text-foreground hover:bg-accent hover:scale-105"

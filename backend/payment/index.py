@@ -64,7 +64,9 @@ def handler(event: dict, context) -> dict:
                 'contest_name': application_data.get('contest_name'),
                 'gallery_consent': application_data.get('gallery_consent', False),
                 'work_file_url': work_file_url,
-                'extra_files': application_data.get('extra_files', [])
+                'extra_files': application_data.get('extra_files', []),
+                'olympiad_type': application_data.get('olympiad_type') or body.get('olympiad_type'),
+                'study_year': application_data.get('study_year'),
             }
             
             s3.put_object(

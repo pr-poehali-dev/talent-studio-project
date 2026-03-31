@@ -9,6 +9,7 @@ import AdminRevenueTab from "@/components/admin/AdminRevenueTab";
 import AdminLoginPage from "@/components/admin/AdminLoginPage";
 import AdminNav from "@/components/admin/AdminNav";
 import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
+import AdminOlympiadsTab from "@/components/admin/AdminOlympiadsTab";
 import {
   Contest,
   Application,
@@ -24,7 +25,7 @@ import {
   CERTIFICATES_LOG_URL,
 } from "@/components/admin/AdminTypes";
 
-type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue';
+type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue' | 'olympiads';
 
 const Admin = () => {
   useEffect(() => {
@@ -683,6 +684,8 @@ const Admin = () => {
         {activeTab === 'revenue' && (
           <AdminRevenueTab applications={[...applications, ...deletedApplications]} />
         )}
+
+        {activeTab === 'olympiads' && <AdminOlympiadsTab />}
 
         {activeTab === 'settings' && (
           <AdminSettingsTab

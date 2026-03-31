@@ -1,4 +1,6 @@
 {
+  "olympiad-applications": "https://functions.poehali.dev/64be6370-4826-4077-bfeb-ce5e443733b7",
+  "submit-olympiad-application": "https://functions.poehali.dev/3048f1a8-4577-48d9-a0d8-5b51b0f33573",
   "recover-payments": "https://functions.poehali.dev/23b49545-361e-43d0-9764-97f4e7f38947",
   "sync-catalog": "https://functions.poehali.dev/bdd9ab47-bb31-4879-ab3d-84d225683906",
   "orders": "https://functions.poehali.dev/da5207db-b340-41fa-bb94-63a37a6f09f8",

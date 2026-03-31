@@ -88,6 +88,56 @@ def handler(event: dict, context) -> dict:
         application_ids = []
         failed_participants = []
         
+        olympiad_type = app_data.get('olympiad_type')
+
+        if olympiad_type:
+            # Олимпийская заявка — пишем в olympiad_applications
+            conn = psycopg2.connect(dsn)
+            cur = conn.cursor()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS olympiad_applications (
+                    id SERIAL PRIMARY KEY,
+                    full_name VARCHAR(255) NOT NULL,
+                    age INTEGER NOT NULL,
+                    study_year INTEGER NOT NULL,
+                    teacher VARCHAR(255),
+                    institution VARCHAR(255),
+                    work_title VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) NOT NULL,
+                    olympiad_type VARCHAR(100) NOT NULL DEFAULT 'palette',
+                    status VARCHAR(50) DEFAULT 'new',
+                    payment_status VARCHAR(50) DEFAULT 'pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    deleted_at TIMESTAMP
+                )
+            """)
+            cur.execute("""
+                INSERT INTO olympiad_applications
+                    (full_name, age, study_year, teacher, institution, work_title, email, olympiad_type, status, payment_status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'new', 'paid')
+                RETURNING id
+            """, (
+                app_data.get('full_name'),
+                app_data.get('age'),
+                app_data.get('study_year', 1),
+                app_data.get('teacher'),
+                app_data.get('institution'),
+                app_data.get('work_title'),
+                app_data.get('email'),
+                olympiad_type
+            ))
+            app_id = cur.fetchone()[0]
+            conn.commit()
+            cur.close()
+            conn.close()
+            print(f'[DONE] Olympiad application saved, id={app_id}')
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'status': 'success', 'application_id': app_id, 'payment_status': 'paid'})
+            }
+
         if participants and isinstance(participants, list):
             # Коллективная заявка — каждый участник в отдельной транзакции
             for i, participant in enumerate(participants):

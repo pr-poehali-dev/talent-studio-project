@@ -1,0 +1,37 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "POST missing fields",
+      "method": "POST",
+      "path": "/",
+      "body": {"full_name": "Тест"},
+      "expectedStatus": 400,
+      "expectedBody": {"error": "Missing required fields"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST valid application",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "full_name": "Иванова Мария Петровна",
+        "age": 12,
+        "study_year": 6,
+        "teacher": "Петрова А.В.",
+        "institution": "МБОУ СОШ №5, Пермь",
+        "work_title": "Натюрморт с яблоками",
+        "email": "test@test.ru",
+        "olympiad_type": "palette"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {"success": true},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -31,14 +31,14 @@ const IndexOlympiadsSection = () => {
 
             <div className="relative z-10">
               <div className="text-5xl mb-5">🎨</div>
-              <div className="inline-flex items-center gap-1.5 bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1.5 bg-white/40 text-orange-800 text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">
                 ИЗО
               </div>
-              <h3 className="text-xl md:text-2xl font-heading font-bold text-white leading-snug mb-3">
+              <h3 className="text-xl md:text-2xl font-heading font-bold text-orange-900 leading-snug mb-3">
                 Всероссийская интерактивная олимпиада по ИЗО
               </h3>
-              <p className="text-white/80 text-base font-semibold mb-6">«Палитра талантов»</p>
-              <div className="flex items-center gap-2 text-white font-semibold text-sm group-hover:gap-3 transition-all">
+              <p className="text-orange-800/80 text-base font-semibold mb-6">«Палитра талантов»</p>
+              <div className="flex items-center gap-2 text-orange-800 font-semibold text-sm group-hover:gap-3 transition-all">
                 Узнать подробнее
                 <Icon name="ArrowRight" size={16} />
               </div>
@@ -55,14 +55,14 @@ const IndexOlympiadsSection = () => {
 
             <div className="relative z-10">
               <div className="text-5xl mb-5">💎</div>
-              <div className="inline-flex items-center gap-1.5 bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1.5 bg-white/40 text-teal-800 text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">
                 ДПИ
               </div>
-              <h3 className="text-xl md:text-2xl font-heading font-bold text-white leading-snug mb-3">
+              <h3 className="text-xl md:text-2xl font-heading font-bold text-teal-900 leading-snug mb-3">
                 Всероссийская интерактивная олимпиада по ДПИ
               </h3>
-              <p className="text-white/80 text-base font-semibold mb-6">«Грани мастерства»</p>
-              <div className="flex items-center gap-2 text-white font-semibold text-sm group-hover:gap-3 transition-all">
+              <p className="text-teal-800/80 text-base font-semibold mb-6">«Грани мастерства»</p>
+              <div className="flex items-center gap-2 text-teal-800 font-semibold text-sm group-hover:gap-3 transition-all">
                 Узнать подробнее
                 <Icon name="ArrowRight" size={16} />
               </div>

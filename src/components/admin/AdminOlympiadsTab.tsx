@@ -148,21 +148,60 @@ const AdminOlympiadsTab = () => {
   const uploadFile = async (
     file: File,
     setKey: keyof Settings,
-    setLoading: (v: boolean) => void
+    setLoadingFn: (v: boolean) => void
   ) => {
-    setLoading(true);
+    setLoadingFn(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch(UPLOAD_URL, { method: "POST", body: formData });
-      const data = await res.json();
-      if (data.url) {
-        setSettings((prev) => ({ ...prev, [setKey]: data.url }));
+      const CHUNK_SIZE = 512 * 1024; // 512 KB
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+      const uploadId = crypto.randomUUID();
+
+      const toBase64 = (blob: Blob): Promise<string> =>
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = reader.result as string;
+            resolve(result.split(",")[1]);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
+      let resultUrl = "";
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunk = file.slice(start, end);
+        const chunkBase64 = await toBase64(chunk);
+
+        const res = await fetch(UPLOAD_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chunk: chunkBase64,
+            chunkIndex: i,
+            totalChunks,
+            fileName: file.name,
+            fileType: file.type || "application/octet-stream",
+            folder: "olympiad-docs",
+            uploadId,
+          }),
+        });
+        const data = await res.json();
+        if (data.url) {
+          resultUrl = data.url;
+        }
+      }
+
+      if (resultUrl) {
+        setSettings((prev) => ({ ...prev, [setKey]: resultUrl }));
+      } else {
+        toast({ title: "Ошибка загрузки файла: URL не получен", variant: "destructive" });
       }
     } catch {
       toast({ title: "Ошибка загрузки файла", variant: "destructive" });
     } finally {
-      setLoading(false);
+      setLoadingFn(false);
     }
   };
 

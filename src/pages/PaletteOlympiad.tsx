@@ -305,21 +305,6 @@ export default function PaletteOlympiad() {
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  Название работы <span className="text-orange-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="workTitle"
-                  value={form.workTitle}
-                  onChange={handleChange}
-                  required
-                  placeholder="Натюрморт с яблоками"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
                   Электронная почта <span className="text-orange-500">*</span>
                 </label>
                 <input
@@ -361,7 +346,7 @@ export default function PaletteOlympiad() {
               ) : (
                 <>
                   <Icon name="CreditCard" size={20} />
-                  Оплатить участие — {price} ₽
+                  Оплатить и приступить к выполнению задания — {price} ₽
                 </>
               )}
             </button>

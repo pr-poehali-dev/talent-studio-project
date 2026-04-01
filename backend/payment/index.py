@@ -99,7 +99,11 @@ def handler(event: dict, context) -> dict:
                 },
                 "confirmation": {
                     "type": "redirect",
-                    "return_url": f"https://preview--talent-studio-project.poehali.dev/payment-success?type={pending_data.get('olympiad_type', '')}"
+                    "return_url": (
+                        f"https://preview--talent-studio-project.poehali.dev/payment-success"
+                        f"?type={pending_data.get('olympiad_type', '')}"
+                        f"&study_year={pending_data.get('study_year', '')}"
+                    )
                 },
                 "capture": True,
                 "description": description,

@@ -337,6 +337,7 @@ const AdminOlympiadsTab = () => {
       correct_answer: task.correct_answer || "",
       sort_order: task.sort_order,
       is_active: task.is_active,
+      study_years: task.study_years ? [...task.study_years] : [],
     });
   };
 

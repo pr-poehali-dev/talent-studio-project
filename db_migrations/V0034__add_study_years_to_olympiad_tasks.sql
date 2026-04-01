@@ -1,0 +1,1 @@
+ALTER TABLE olympiad_tasks ADD COLUMN IF NOT EXISTS study_years TEXT[] DEFAULT NULL;

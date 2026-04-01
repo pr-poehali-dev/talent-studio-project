@@ -26,6 +26,7 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const olympiadType = searchParams.get('type') || '';
+  const studyYearParam = searchParams.get('study_year') || '';
 
   const [tasks, setTasks] = useState<OlympiadTask[]>([]);
   const [tasksLoading, setTasksLoading] = useState(false);
@@ -38,14 +39,17 @@ const PaymentSuccess = () => {
   useEffect(() => {
     if (!olympiadType) return;
     setTasksLoading(true);
-    fetch(`${TASKS_API_URL}?type=${olympiadType}`)
+    const url = studyYearParam
+      ? `${TASKS_API_URL}?type=${olympiadType}&study_year=${studyYearParam}`
+      : `${TASKS_API_URL}?type=${olympiadType}`;
+    fetch(url)
       .then((r) => r.json())
       .then((data: OlympiadTask[]) => {
         setTasks(Array.isArray(data) ? data : []);
       })
       .catch(() => setTasks([]))
       .finally(() => setTasksLoading(false));
-  }, [olympiadType]);
+  }, [olympiadType, studyYearParam]);
 
   const toggleTask = (id: number) => {
     setExpandedTask((prev) => (prev === id ? null : id));

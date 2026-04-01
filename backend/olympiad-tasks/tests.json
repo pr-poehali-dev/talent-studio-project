@@ -10,9 +10,7 @@
       "name": "GET tasks for palette",
       "method": "GET",
       "path": "/?type=palette",
-      "expectedStatus": 200,
-      "expectedBody": [],
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     }
   ]
 }

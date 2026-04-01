@@ -9,6 +9,29 @@ CORS_HEADERS = {
     'Access-Control-Max-Age': '86400'
 }
 
+def study_year_matches(study_years, participant_year):
+    """
+    Проверяет, подходит ли задание участнику с указанным годом обучения.
+    study_years — список строк вида ['1-2', '3-4', '5-6', '7+']
+    participant_year — целое число (1-9)
+    Если study_years пустой или None — задание доступно всем.
+    """
+    if not study_years:
+        return True
+    for sy in study_years:
+        if sy == '7+':
+            if participant_year >= 7:
+                return True
+        elif '-' in str(sy):
+            parts = str(sy).split('-')
+            try:
+                lo, hi = int(parts[0]), int(parts[1])
+                if lo <= participant_year <= hi:
+                    return True
+            except (ValueError, IndexError):
+                pass
+    return False
+
 def handler(event: dict, context) -> dict:
     """API для управления заданиями олимпиады"""
 
@@ -25,14 +48,21 @@ def handler(event: dict, context) -> dict:
         # GET: получить список заданий по типу олимпиады
         if method == 'GET':
             olympiad_type = params.get('type', 'palette')
-            # Публичный запрос: только активные, без правильных ответов
             is_admin = params.get('admin') == 'true'
+            # Фильтрация по году обучения участника (для публичного запроса)
+            study_year_param = params.get('study_year')
+            participant_year = None
+            if study_year_param is not None:
+                try:
+                    participant_year = int(study_year_param)
+                except ValueError:
+                    pass
 
             if is_admin:
                 cursor.execute("""
                     SELECT id, olympiad_type, title, description, question,
                            image_url, options, correct_answer, sort_order, is_active,
-                           created_at, updated_at
+                           study_years, created_at, updated_at
                     FROM olympiad_tasks
                     WHERE olympiad_type = %s
                     ORDER BY sort_order ASC, id ASC
@@ -41,7 +71,7 @@ def handler(event: dict, context) -> dict:
                 cursor.execute("""
                     SELECT id, olympiad_type, title, description, question,
                            image_url, options, NULL as correct_answer, sort_order, is_active,
-                           created_at, updated_at
+                           study_years, created_at, updated_at
                     FROM olympiad_tasks
                     WHERE olympiad_type = %s AND is_active = TRUE
                     ORDER BY sort_order ASC, id ASC
@@ -50,6 +80,13 @@ def handler(event: dict, context) -> dict:
             rows = cursor.fetchall()
             result = []
             for row in rows:
+                task_study_years = list(row[10]) if row[10] else []
+
+                # Фильтруем по году обучения участника если передан
+                if participant_year is not None and not is_admin:
+                    if not study_year_matches(task_study_years, participant_year):
+                        continue
+
                 result.append({
                     'id': row[0],
                     'olympiad_type': row[1],
@@ -61,8 +98,9 @@ def handler(event: dict, context) -> dict:
                     'correct_answer': row[7],
                     'sort_order': row[8],
                     'is_active': row[9],
-                    'created_at': row[10].isoformat() if row[10] else None,
-                    'updated_at': row[11].isoformat() if row[11] else None,
+                    'study_years': task_study_years,
+                    'created_at': row[11].isoformat() if row[11] else None,
+                    'updated_at': row[12].isoformat() if row[12] else None,
                 })
 
             cursor.close()
@@ -86,6 +124,7 @@ def handler(event: dict, context) -> dict:
             correct_answer = body.get('correct_answer', '')
             sort_order = body.get('sort_order', 0)
             is_active = body.get('is_active', True)
+            study_years = body.get('study_years') or []  # list of strings e.g. ['1-2', '3-4']
 
             if not title or not question:
                 cursor.close()
@@ -98,15 +137,17 @@ def handler(event: dict, context) -> dict:
 
             cursor.execute("""
                 INSERT INTO olympiad_tasks
-                    (olympiad_type, title, description, question, image_url, options, correct_answer, sort_order, is_active)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    (olympiad_type, title, description, question, image_url, options,
+                     correct_answer, sort_order, is_active, study_years)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             """, (
                 olympiad_type, title, description, question,
                 image_url or None,
                 json.dumps(options) if options is not None else None,
                 correct_answer or None,
-                sort_order, is_active
+                sort_order, is_active,
+                study_years if study_years else None
             ))
             new_id = cursor.fetchone()[0]
             conn.commit()
@@ -140,19 +181,23 @@ def handler(event: dict, context) -> dict:
             correct_answer = body.get('correct_answer', '')
             sort_order = body.get('sort_order', 0)
             is_active = body.get('is_active', True)
+            study_years = body.get('study_years') or []
 
             cursor.execute("""
                 UPDATE olympiad_tasks
                 SET title = %s, description = %s, question = %s,
                     image_url = %s, options = %s, correct_answer = %s,
-                    sort_order = %s, is_active = %s, updated_at = CURRENT_TIMESTAMP
+                    sort_order = %s, is_active = %s, study_years = %s,
+                    updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
             """, (
                 title, description, question,
                 image_url or None,
                 json.dumps(options) if options is not None else None,
                 correct_answer or None,
-                sort_order, is_active, task_id
+                sort_order, is_active,
+                study_years if study_years else None,
+                task_id
             ))
             conn.commit()
             cursor.close()

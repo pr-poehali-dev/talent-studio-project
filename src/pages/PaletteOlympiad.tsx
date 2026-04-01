@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/components/ui/use-toast";
+import PdfModal from "@/components/index-page/modals/PdfModal";
+import ImageModal from "@/components/index-page/modals/ImageModal";
 
 const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
 const PAYMENT_API_URL = "https://functions.poehali.dev/f40bd7c6-a503-4165-8673-e8091832d07c";
@@ -40,6 +42,23 @@ export default function PaletteOlympiad() {
   });
 
   const [submitting, setSubmitting] = useState(false);
+
+  // Модальные окна для документов
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const openDocument = (url: string) => {
+    const isImage = /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(url);
+    if (isImage) {
+      setImagePreview(url);
+      setIsImageModalOpen(true);
+    } else {
+      setPdfUrl(url);
+      setIsPdfModalOpen(true);
+    }
+  };
 
   useEffect(() => {
     fetch(SETTINGS_API_URL)
@@ -167,37 +186,31 @@ export default function PaletteOlympiad() {
             </h3>
             <div className="flex flex-wrap gap-3">
               {settings.olympiad_palette_rules_url && (
-                <a
-                  href={settings.olympiad_palette_rules_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => openDocument(settings.olympiad_palette_rules_url)}
                   className="flex items-center gap-2 px-5 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-2xl transition-colors text-orange-700 font-medium text-sm"
                 >
                   <Icon name="FileText" size={16} className="text-orange-400" />
                   Положение об олимпиаде
-                </a>
+                </button>
               )}
               {settings.olympiad_palette_diploma_url && (
-                <a
-                  href={settings.olympiad_palette_diploma_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => openDocument(settings.olympiad_palette_diploma_url)}
                   className="flex items-center gap-2 px-5 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-2xl transition-colors text-orange-700 font-medium text-sm"
                 >
                   <Icon name="Award" size={16} className="text-orange-400" />
                   Образец диплома
-                </a>
+                </button>
               )}
               {settings.olympiad_palette_gratitude_url && (
-                <a
-                  href={settings.olympiad_palette_gratitude_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => openDocument(settings.olympiad_palette_gratitude_url)}
                   className="flex items-center gap-2 px-5 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-2xl transition-colors text-orange-700 font-medium text-sm"
                 >
                   <Icon name="Mail" size={16} className="text-orange-400" />
                   Образец благодарственного письма
-                </a>
+                </button>
               )}
             </div>
           </div>
@@ -355,6 +368,18 @@ export default function PaletteOlympiad() {
           </form>
         </div>
       </div>
+
+      {/* Модальные окна для документов */}
+      <PdfModal
+        isPdfModalOpen={isPdfModalOpen}
+        setIsPdfModalOpen={setIsPdfModalOpen}
+        pdfUrl={pdfUrl}
+      />
+      <ImageModal
+        isImageModalOpen={isImageModalOpen}
+        setIsImageModalOpen={setIsImageModalOpen}
+        imagePreview={imagePreview}
+      />
     </div>
   );
 }

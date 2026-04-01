@@ -31,6 +31,13 @@ interface Settings {
   olympiad_palette_gratitude_url: string;
 }
 
+const STUDY_YEAR_OPTIONS = [
+  { value: "1-2", label: "1-2 год обучения" },
+  { value: "3-4", label: "3-4 год обучения" },
+  { value: "5-6", label: "5-6 год обучения" },
+  { value: "7+", label: "7 и следующие года обучения" },
+];
+
 interface OlympiadTask {
   id: number;
   olympiad_type: string;
@@ -41,6 +48,7 @@ interface OlympiadTask {
   options: string[] | null;
   correct_answer: string | null;
   sort_order: number;
+  study_years: string[] | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -55,6 +63,7 @@ const EMPTY_TASK: Omit<OlympiadTask, "id" | "created_at" | "updated_at"> = {
   options: ["", "", "", ""],
   correct_answer: "",
   sort_order: 0,
+  study_years: [],
   is_active: true,
 };
 
@@ -337,8 +346,8 @@ const AdminOlympiadsTab = () => {
   };
 
   const handleSaveTask = async () => {
-    if (!taskForm.title.trim() || !taskForm.question.trim()) {
-      toast({ title: "Заполните название и текст вопроса", variant: "destructive" });
+    if (!taskForm.question.trim()) {
+      toast({ title: "Заполните текст вопроса", variant: "destructive" });
       return;
     }
     setSavingTask(true);
@@ -560,29 +569,37 @@ const AdminOlympiadsTab = () => {
               </h3>
 
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      Название задания <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={taskForm.title}
-                      onChange={(e) => setTaskForm((p) => ({ ...p, title: e.target.value }))}
-                      placeholder="Например: Задание 1 — Цветовой круг"
-                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      Порядок (сортировка)
-                    </label>
-                    <input
-                      type="number"
-                      value={taskForm.sort_order}
-                      onChange={(e) => setTaskForm((p) => ({ ...p, sort_order: parseInt(e.target.value) || 0 }))}
-                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm"
-                    />
+                {/* Год обучения — множественный выбор */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Год обучения
+                  </label>
+                  <div className="flex flex-wrap gap-3">
+                    {STUDY_YEAR_OPTIONS.map((opt) => {
+                      const selected = (taskForm.study_years || []).includes(opt.value);
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => {
+                            setTaskForm((p) => {
+                              const current = p.study_years || [];
+                              const updated = selected
+                                ? current.filter((v) => v !== opt.value)
+                                : [...current, opt.value];
+                              return { ...p, study_years: updated };
+                            });
+                          }}
+                          className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${
+                            selected
+                              ? "bg-orange-500 text-white border-orange-500 shadow-sm"
+                              : "bg-white text-gray-600 border-gray-200 hover:border-orange-300 hover:text-orange-500"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -780,8 +797,6 @@ const AdminOlympiadsTab = () => {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1 flex-wrap">
-                        <span className="text-xs text-gray-400 font-mono">#{task.sort_order}</span>
-                        <span className="font-bold text-gray-800">{task.title}</span>
                         <span
                           className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                             task.is_active
@@ -791,6 +806,14 @@ const AdminOlympiadsTab = () => {
                         >
                           {task.is_active ? "Активно" : "Скрыто"}
                         </span>
+                        {task.study_years && task.study_years.length > 0 && task.study_years.map((y) => {
+                          const opt = STUDY_YEAR_OPTIONS.find((o) => o.value === y);
+                          return (
+                            <span key={y} className="text-xs font-medium px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">
+                              {opt ? opt.label : y}
+                            </span>
+                          );
+                        })}
                       </div>
                       <p className="text-sm text-gray-600 line-clamp-2 mb-2">{task.question}</p>
                       <div className="flex items-center gap-4 text-xs text-gray-400">

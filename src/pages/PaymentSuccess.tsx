@@ -27,8 +27,8 @@ const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const olympiadType = searchParams.get('type') || '';
   const studyYearParam = searchParams.get('study_year') || '';
-  // ЮКасса автоматически добавляет paymentId в return_url
-  const paymentId = searchParams.get('paymentId') || '';
+  // Читаем payment_id из URL или из localStorage (сохраняется перед редиректом на ЮКассу)
+  const paymentId = searchParams.get('paymentId') || searchParams.get('payment_id') || localStorage.getItem('olympiad_payment_id') || '';
 
   const [tasks, setTasks] = useState<OlympiadTask[]>([]);
   const [tasksLoading, setTasksLoading] = useState(false);
@@ -48,6 +48,7 @@ const PaymentSuccess = () => {
       .then((r) => r.json())
       .then((data: OlympiadTask[]) => {
         setTasks(Array.isArray(data) ? data : []);
+        localStorage.removeItem('olympiad_payment_id');
       })
       .catch(() => setTasks([]))
       .finally(() => setTasksLoading(false));

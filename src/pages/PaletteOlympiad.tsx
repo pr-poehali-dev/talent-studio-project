@@ -111,6 +111,9 @@ export default function PaletteOlympiad() {
 
       const data = await response.json();
       if (data.confirmation_url) {
+        if (data.payment_id) {
+          localStorage.setItem('olympiad_payment_id', data.payment_id);
+        }
         window.location.href = data.confirmation_url;
       } else {
         throw new Error(data.error || "Ошибка создания платежа");

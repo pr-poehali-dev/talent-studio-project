@@ -6,6 +6,7 @@ const OLYMPIAD_APPLICATIONS_URL = "https://functions.poehali.dev/64be6370-4826-4
 const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
 const UPLOAD_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
 const TASKS_API_URL = "https://functions.poehali.dev/c7eb02a5-bcf1-4ece-91de-d49b4c1e8466";
+const ANSWERS_API_URL = "https://functions.poehali.dev/6e919c14-0327-44c1-827b-d524f0192c73";
 
 interface OlympiadApplication {
   id: number;
@@ -69,6 +70,16 @@ const EMPTY_TASK: Omit<OlympiadTask, "id" | "created_at" | "updated_at"> = {
 
 type SubTab = "applications" | "tasks" | "settings";
 
+interface OlympiadAnswerItem {
+  id: number;
+  task_id: number;
+  title: string;
+  question: string;
+  options: string[] | null;
+  answer: string;
+  submitted_at: string | null;
+}
+
 const STATUS_LABELS: Record<string, string> = {
   new: "Новая",
   viewed: "Просмотрена",
@@ -97,6 +108,24 @@ const AdminOlympiadsTab = () => {
   const [uploadingRules, setUploadingRules] = useState(false);
   const [uploadingDiploma, setUploadingDiploma] = useState(false);
   const [uploadingGratitude, setUploadingGratitude] = useState(false);
+
+  // Answers modal state
+  const [answersModal, setAnswersModal] = useState<{ app: OlympiadApplication; answers: OlympiadAnswerItem[] } | null>(null);
+  const [answersLoading, setAnswersLoading] = useState(false);
+
+  const openAnswers = async (app: OlympiadApplication) => {
+    setAnswersLoading(true);
+    setAnswersModal({ app, answers: [] });
+    try {
+      const res = await fetch(`${ANSWERS_API_URL}?application_id=${app.id}`);
+      const data = await res.json();
+      setAnswersModal({ app, answers: Array.isArray(data) ? data : [] });
+    } catch {
+      setAnswersModal({ app, answers: [] });
+    } finally {
+      setAnswersLoading(false);
+    }
+  };
 
   // Tasks state
   const [tasks, setTasks] = useState<OlympiadTask[]>([]);
@@ -534,6 +563,14 @@ const AdminOlympiadsTab = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => openAnswers(app)}
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-all"
+                        title="Посмотреть ответы участника"
+                      >
+                        <Icon name="ListChecks" size={13} />
+                        Ответы
+                      </button>
                       <select
                         value={app.status}
                         onChange={(e) => updateStatus(app.id, e.target.value)}
@@ -980,6 +1017,62 @@ const AdminOlympiadsTab = () => {
             )}
             Сохранить настройки
           </button>
+        </div>
+      )}
+
+      {/* Модалка ответов участника */}
+      {answersModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setAnswersModal(null)}
+        >
+          <div
+            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <p className="font-bold text-gray-800 text-lg">{answersModal.app.full_name}</p>
+                <p className="text-sm text-gray-400">Ответы на задания олимпиады</p>
+              </div>
+              <button onClick={() => setAnswersModal(null)} className="p-2 hover:bg-gray-100 rounded-xl">
+                <Icon name="X" size={18} />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-6 space-y-4">
+              {answersLoading ? (
+                <div className="flex items-center justify-center py-16 text-gray-400">
+                  <Icon name="Loader2" size={24} className="animate-spin mr-2" />
+                  Загружаем ответы...
+                </div>
+              ) : answersModal.answers.length === 0 ? (
+                <div className="text-center py-16 text-gray-400">
+                  <Icon name="ListChecks" size={40} className="mx-auto mb-3 opacity-30" />
+                  <p>Участник ещё не отправил ответы</p>
+                </div>
+              ) : (
+                answersModal.answers.map((item, i) => (
+                  <div key={item.id} className="border border-gray-100 rounded-2xl overflow-hidden">
+                    <div className="bg-orange-50 px-4 py-3 flex items-center gap-3">
+                      <span className="w-7 h-7 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                        {i + 1}
+                      </span>
+                      <p className="font-semibold text-gray-800 text-sm">{item.title}</p>
+                    </div>
+                    <div className="px-4 py-3 space-y-2">
+                      <p className="text-xs text-gray-500 leading-relaxed">{item.question}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs text-gray-400">Ответ участника:</span>
+                        <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                          {item.answer}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

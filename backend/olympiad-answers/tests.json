@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "GET without params returns 400",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST save answers",
+      "method": "POST",
+      "path": "/",
+      "body": {"payment_id": "test_payment_001", "olympiad_type": "palette", "answers": {}, "submitted": false},
+      "expectedStatus": 400,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

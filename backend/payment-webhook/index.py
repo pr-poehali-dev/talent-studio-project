@@ -112,10 +112,11 @@ def handler(event: dict, context) -> dict:
                     deleted_at TIMESTAMP
                 )
             """)
+            payment_id = payment_obj.get('id')
             cur.execute("""
                 INSERT INTO olympiad_applications
-                    (full_name, age, study_year, teacher, institution, work_title, email, olympiad_type, status, payment_status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'new', 'paid')
+                    (full_name, age, study_year, teacher, institution, work_title, email, olympiad_type, status, payment_status, payment_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'new', 'paid', %s)
                 RETURNING id
             """, (
                 app_data.get('full_name'),
@@ -125,17 +126,18 @@ def handler(event: dict, context) -> dict:
                 app_data.get('institution'),
                 app_data.get('work_title'),
                 app_data.get('email'),
-                olympiad_type
+                olympiad_type,
+                payment_id
             ))
             app_id = cur.fetchone()[0]
             conn.commit()
             cur.close()
             conn.close()
-            print(f'[DONE] Olympiad application saved, id={app_id}')
+            print(f'[DONE] Olympiad application saved, id={app_id}, payment_id={payment_id}')
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'status': 'success', 'application_id': app_id, 'payment_status': 'paid'})
+                'body': json.dumps({'status': 'success', 'application_id': app_id, 'payment_id': payment_id, 'payment_status': 'paid'})
             }
 
         if participants and isinstance(participants, list):

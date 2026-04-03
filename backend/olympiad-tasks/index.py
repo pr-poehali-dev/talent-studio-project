@@ -49,6 +49,7 @@ def handler(event: dict, context) -> dict:
         if method == 'GET':
             olympiad_type = params.get('type', 'palette')
             is_admin = params.get('admin') == 'true'
+            payment_id = params.get('payment_id', '').strip()
             # Фильтрация по году обучения участника (для публичного запроса)
             study_year_param = params.get('study_year')
             participant_year = None
@@ -57,6 +58,30 @@ def handler(event: dict, context) -> dict:
                     participant_year = int(study_year_param)
                 except ValueError:
                     pass
+
+            # Для не-админов требуем подтверждённый payment_id
+            if not is_admin:
+                if not payment_id:
+                    cursor.close()
+                    conn.close()
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Доступ закрыт: необходимо подтверждение оплаты'})
+                    }
+                cursor.execute("""
+                    SELECT id FROM olympiad_applications
+                    WHERE payment_id = %s AND payment_status = 'paid' AND olympiad_type = %s AND deleted_at IS NULL
+                    LIMIT 1
+                """, (payment_id, olympiad_type))
+                if not cursor.fetchone():
+                    cursor.close()
+                    conn.close()
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Доступ закрыт: оплата не подтверждена'})
+                    }
 
             if is_admin:
                 cursor.execute("""

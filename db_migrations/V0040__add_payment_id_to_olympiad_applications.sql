@@ -1,0 +1,1 @@
+ALTER TABLE olympiad_applications ADD COLUMN IF NOT EXISTS payment_id VARCHAR(255);

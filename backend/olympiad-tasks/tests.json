@@ -7,9 +7,15 @@
       "expectedStatus": 200
     },
     {
-      "name": "GET tasks for palette",
+      "name": "GET tasks without payment_id returns 403",
       "method": "GET",
       "path": "/?type=palette",
+      "expectedStatus": 403
+    },
+    {
+      "name": "GET tasks for admin without payment_id returns 200",
+      "method": "GET",
+      "path": "/?type=palette&admin=true",
       "expectedStatus": 200
     }
   ]

@@ -27,6 +27,8 @@ const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const olympiadType = searchParams.get('type') || '';
   const studyYearParam = searchParams.get('study_year') || '';
+  // ЮКасса автоматически добавляет paymentId в return_url
+  const paymentId = searchParams.get('paymentId') || '';
 
   const [tasks, setTasks] = useState<OlympiadTask[]>([]);
   const [tasksLoading, setTasksLoading] = useState(false);
@@ -37,11 +39,11 @@ const PaymentSuccess = () => {
   }, []);
 
   useEffect(() => {
-    if (!olympiadType) return;
+    if (!olympiadType || !paymentId) return;
     setTasksLoading(true);
     const url = studyYearParam
-      ? `${TASKS_API_URL}?type=${olympiadType}&study_year=${studyYearParam}`
-      : `${TASKS_API_URL}?type=${olympiadType}`;
+      ? `${TASKS_API_URL}?type=${olympiadType}&study_year=${studyYearParam}&payment_id=${paymentId}`
+      : `${TASKS_API_URL}?type=${olympiadType}&payment_id=${paymentId}`;
     fetch(url)
       .then((r) => r.json())
       .then((data: OlympiadTask[]) => {
@@ -49,7 +51,7 @@ const PaymentSuccess = () => {
       })
       .catch(() => setTasks([]))
       .finally(() => setTasksLoading(false));
-  }, [olympiadType, studyYearParam]);
+  }, [olympiadType, studyYearParam, paymentId]);
 
   const toggleTask = (id: number) => {
     setExpandedTask((prev) => (prev === id ? null : id));

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, BookOpen, ChevronDown, ChevronUp, Image as ImageIcon, List } from 'lucide-react';
+import { CheckCircle, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 
 const TASKS_API_URL = "https://functions.poehali.dev/c7eb02a5-bcf1-4ece-91de-d49b4c1e8466";
 
@@ -22,17 +23,19 @@ const OLYMPIAD_NAMES: Record<string, string> = {
   grani: '«Грани творчества»',
 };
 
+const OPTION_LABELS = ['А', 'Б', 'В', 'Г', 'Д', 'Е'];
+
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const olympiadType = searchParams.get('type') || '';
   const studyYearParam = searchParams.get('study_year') || '';
-  // Читаем payment_id из URL или из localStorage (сохраняется перед редиректом на ЮКассу)
   const paymentId = searchParams.get('paymentId') || searchParams.get('payment_id') || localStorage.getItem('olympiad_payment_id') || '';
 
   const [tasks, setTasks] = useState<OlympiadTask[]>([]);
   const [tasksLoading, setTasksLoading] = useState(false);
-  const [expandedTask, setExpandedTask] = useState<number | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -54,11 +57,19 @@ const PaymentSuccess = () => {
       .finally(() => setTasksLoading(false));
   }, [olympiadType, studyYearParam, paymentId]);
 
-  const toggleTask = (id: number) => {
-    setExpandedTask((prev) => (prev === id ? null : id));
+  const olympiadName = OLYMPIAD_NAMES[olympiadType] || '';
+  const task = tasks[currentIndex];
+  const total = tasks.length;
+  const answered = Object.keys(answers).length;
+
+  const handleAnswer = (taskId: number, option: string) => {
+    setAnswers((prev) => ({ ...prev, [taskId]: option }));
   };
 
-  const olympiadName = OLYMPIAD_NAMES[olympiadType] || '';
+  const goTo = (index: number) => {
+    setCurrentIndex(index);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white py-10 px-4">
@@ -71,36 +82,16 @@ const PaymentSuccess = () => {
               <CheckCircle className="w-12 h-12 text-green-500" />
             </div>
           </div>
-
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-            Спасибо за оплату!
-          </h1>
-
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Спасибо за оплату!</h1>
           <div className="space-y-3 text-base text-gray-600 mb-6">
-            <p className="font-semibold text-green-600 text-lg">
-              Ваша заявка успешно зарегистрирована
-            </p>
-            {olympiadName && (
-              <p>
-                Олимпиада {olympiadName}
-              </p>
-            )}
-            <p>
-              Оплата прошла успешно. В случае вопросов мы свяжемся с вами по электронной почте.
-            </p>
+            <p className="font-semibold text-green-600 text-lg">Ваша заявка успешно зарегистрирована</p>
+            {olympiadName && <p>Олимпиада {olympiadName}</p>}
+            <p>Оплата прошла успешно. В случае вопросов мы свяжемся с вами по электронной почте.</p>
           </div>
-
           <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5 mb-6 text-left">
-            <p className="text-gray-700 text-sm">
-              Следите за результатами на главной странице. Мы оповестим вас о публикации итогов.
-            </p>
+            <p className="text-gray-700 text-sm">Следите за результатами на главной странице. Мы оповестим вас о публикации итогов.</p>
           </div>
-
-          <Button
-            onClick={() => navigate('/')}
-            size="lg"
-            className="bg-orange-500 hover:bg-orange-600 text-white rounded-2xl"
-          >
+          <Button onClick={() => navigate('/')} size="lg" className="bg-orange-500 hover:bg-orange-600 text-white rounded-2xl">
             Вернуться на главную
           </Button>
         </div>
@@ -133,102 +124,145 @@ const PaymentSuccess = () => {
                   <p className="text-sm">Задания будут опубликованы в ближайшее время</p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {tasks.map((task, index) => {
-                    const isOpen = expandedTask === task.id;
-                    return (
+                <div className="space-y-5">
+
+                  {/* Навигация по вопросам */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <span>Вопрос <span className="font-bold text-gray-800">{currentIndex + 1}</span> из {total}</span>
+                      <span className="text-orange-500 font-medium">{answered} из {total} отвечено</span>
+                    </div>
+                    {/* Прогресс-бар */}
+                    <div className="w-full bg-orange-100 rounded-full h-2">
                       <div
-                        key={task.id}
-                        className="border border-orange-100 rounded-2xl overflow-hidden transition-all"
-                      >
-                        {/* Шапка задания */}
-                        <button
-                          onClick={() => toggleTask(task.id)}
-                          className="w-full flex items-center justify-between px-5 py-4 bg-orange-50 hover:bg-orange-100 transition-colors text-left"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="w-7 h-7 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
-                              {index + 1}
-                            </span>
-                            <div>
-                              <p className="font-semibold text-gray-800 text-sm">{task.title}</p>
-                              {task.description && (
-                                <p className="text-xs text-gray-500 mt-0.5">{task.description}</p>
-                              )}
-                            </div>
+                        className="bg-orange-500 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${total > 0 ? ((currentIndex + 1) / total) * 100 : 0}%` }}
+                      />
+                    </div>
+                    {/* Точки навигации */}
+                    <div className="flex flex-wrap gap-2">
+                      {tasks.map((t, i) => {
+                        const isAnswered = answers[t.id] !== undefined;
+                        const isCurrent = i === currentIndex;
+                        return (
+                          <button
+                            key={t.id}
+                            onClick={() => goTo(i)}
+                            className={`w-8 h-8 rounded-full text-xs font-bold transition-all border-2 ${
+                              isCurrent
+                                ? 'bg-orange-500 text-white border-orange-500 scale-110'
+                                : isAnswered
+                                ? 'bg-green-100 text-green-700 border-green-300 hover:border-green-400'
+                                : 'bg-white text-gray-500 border-gray-200 hover:border-orange-300'
+                            }`}
+                          >
+                            {i + 1}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Карточка текущего задания */}
+                  {task && (
+                    <div className="border border-orange-100 rounded-2xl overflow-hidden">
+                      {/* Заголовок */}
+                      <div className="px-5 py-4 bg-orange-50 flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-full bg-orange-500 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
+                          {currentIndex + 1}
+                        </span>
+                        <div>
+                          <p className="font-semibold text-gray-800 text-sm">{task.title}</p>
+                          {task.description && (
+                            <p className="text-xs text-gray-500 mt-0.5">{task.description}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Тело */}
+                      <div className="px-5 py-5 bg-white space-y-4">
+                        {task.image_url && (
+                          <div className="flex justify-center">
+                            <img
+                              src={task.image_url}
+                              alt={task.title}
+                              className="max-w-full max-h-64 rounded-xl border border-orange-100 object-contain"
+                            />
                           </div>
-                          <div className="flex items-center gap-2 flex-shrink-0 ml-3">
-                            {task.image_url && (
-                              <span className="text-orange-300" title="Есть изображение">
-                                <ImageIcon size={14} />
-                              </span>
-                            )}
-                            {task.options && task.options.length > 0 && (
-                              <span className="text-orange-300" title="Есть варианты ответа">
-                                <List size={14} />
-                              </span>
-                            )}
-                            {isOpen ? (
-                              <ChevronUp size={16} className="text-orange-400" />
-                            ) : (
-                              <ChevronDown size={16} className="text-orange-400" />
-                            )}
-                          </div>
-                        </button>
+                        )}
 
-                        {/* Тело задания */}
-                        {isOpen && (
-                          <div className="px-5 py-5 bg-white space-y-4">
-                            {/* Изображение */}
-                            {task.image_url && (
-                              <div className="flex justify-center">
-                                <img
-                                  src={task.image_url}
-                                  alt={task.title}
-                                  className="max-w-full max-h-64 rounded-xl border border-orange-100 object-contain"
-                                />
-                              </div>
-                            )}
+                        <div className="bg-gray-50 rounded-xl p-4">
+                          <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-line">{task.question}</p>
+                        </div>
 
-                            {/* Вопрос */}
-                            <div className="bg-gray-50 rounded-xl p-4">
-                              <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-line">
-                                {task.question}
-                              </p>
-                            </div>
-
-                            {/* Варианты ответа */}
-                            {task.options && task.options.length > 0 && (
-                              <div>
-                                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                                  Варианты ответа:
-                                </p>
-                                <div className="space-y-2">
-                                  {task.options.map((opt, i) => (
-                                    <div
-                                      key={i}
-                                      className="flex items-start gap-3 p-3 bg-orange-50 border border-orange-100 rounded-xl"
-                                    >
-                                      <span className="w-6 h-6 rounded-full bg-orange-200 text-orange-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
-                                        {i + 1}
-                                      </span>
-                                      <span className="text-sm text-gray-700">{opt}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
+                        {/* Варианты ответа */}
+                        {task.options && task.options.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Выберите ответ:</p>
+                            {task.options.map((opt, i) => {
+                              const label = OPTION_LABELS[i] || String(i + 1);
+                              const isSelected = answers[task.id] === opt;
+                              return (
+                                <button
+                                  key={i}
+                                  onClick={() => handleAnswer(task.id, opt)}
+                                  className={`w-full flex items-start gap-3 p-3 rounded-xl border-2 text-left transition-all ${
+                                    isSelected
+                                      ? 'border-orange-500 bg-orange-50'
+                                      : 'border-gray-100 bg-white hover:border-orange-200 hover:bg-orange-50'
+                                  }`}
+                                >
+                                  <span className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
+                                    isSelected ? 'bg-orange-500 text-white' : 'bg-orange-100 text-orange-600'
+                                  }`}>
+                                    {label}
+                                  </span>
+                                  <span className={`text-sm ${isSelected ? 'text-orange-800 font-medium' : 'text-gray-700'}`}>{opt}</span>
+                                  {isSelected && (
+                                    <Icon name="Check" size={16} className="text-orange-500 ml-auto flex-shrink-0 mt-0.5" />
+                                  )}
+                                </button>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
-                    );
-                  })}
+
+                      {/* Кнопки навигации */}
+                      <div className="px-5 py-4 bg-gray-50 border-t border-orange-50 flex items-center justify-between gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => goTo(currentIndex - 1)}
+                          disabled={currentIndex === 0}
+                          className="flex items-center gap-1 rounded-xl"
+                        >
+                          <ChevronLeft size={16} />
+                          Назад
+                        </Button>
+
+                        {currentIndex < total - 1 ? (
+                          <Button
+                            onClick={() => goTo(currentIndex + 1)}
+                            className="flex items-center gap-1 bg-orange-500 hover:bg-orange-600 text-white rounded-xl"
+                          >
+                            Следующий
+                            <ChevronRight size={16} />
+                          </Button>
+                        ) : (
+                          <span className="text-sm text-green-600 font-medium flex items-center gap-1">
+                            <Icon name="CheckCircle" size={16} className="text-green-500" />
+                            Все задания просмотрены
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               )}
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

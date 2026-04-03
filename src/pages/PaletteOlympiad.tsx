@@ -258,9 +258,7 @@ export default function PaletteOlympiad() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  Год обучения (класс) <span className="text-orange-500">*</span>
-                </label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Год обучения:</label>
                 <select
                   name="studyYear"
                   value={form.studyYear}

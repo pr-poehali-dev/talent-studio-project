@@ -1,0 +1,10 @@
+UPDATE olympiad_tasks SET correct_answer = 'пейзаж' WHERE id = 23;
+UPDATE olympiad_tasks SET correct_answer = 'красный, жёлтый, синий' WHERE id = 24;
+UPDATE olympiad_tasks SET correct_answer = 'палитра' WHERE id = 25;
+UPDATE olympiad_tasks SET correct_answer = 'акварель' WHERE id = 26;
+UPDATE olympiad_tasks SET correct_answer = 'эскиз' WHERE id = 27;
+UPDATE olympiad_tasks SET correct_answer = 'натюрморт' WHERE id = 28;
+UPDATE olympiad_tasks SET correct_answer = 'синий, голубой, фиолетовый' WHERE id = 29;
+UPDATE olympiad_tasks SET correct_answer = 'свет и тень' WHERE id = 30;
+UPDATE olympiad_tasks SET correct_answer = 'мольберт' WHERE id = 31;
+UPDATE olympiad_tasks SET correct_answer = 'оранжевый' WHERE id = 32;

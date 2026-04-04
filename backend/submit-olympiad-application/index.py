@@ -59,6 +59,7 @@ def handler(event: dict, context) -> dict:
     work_title = body.get('work_title')
     email = body.get('email')
     olympiad_type = body.get('olympiad_type', 'palette')
+    payment_id = body.get('payment_id')
 
     if not all([full_name, age, study_year, work_title, email]):
         return {
@@ -73,10 +74,10 @@ def handler(event: dict, context) -> dict:
 
     cursor.execute("""
         INSERT INTO olympiad_applications
-            (full_name, age, study_year, teacher, institution, work_title, email, olympiad_type, status, payment_status)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'new', 'paid')
+            (full_name, age, study_year, teacher, institution, work_title, email, olympiad_type, status, payment_status, payment_id)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'new', 'paid', %s)
         RETURNING id
-    """, (full_name, age, study_year, teacher, institution, work_title, email, olympiad_type))
+    """, (full_name, age, study_year, teacher, institution, work_title, email, olympiad_type, payment_id))
 
     app_id = cursor.fetchone()[0]
     conn.commit()

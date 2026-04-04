@@ -7,6 +7,7 @@ import ImageModal from "@/components/index-page/modals/ImageModal";
 
 const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
 const PAYMENT_API_URL = "https://functions.poehali.dev/f40bd7c6-a503-4165-8673-e8091832d07c";
+const SUBMIT_APPLICATION_URL = "https://functions.poehali.dev/3048f1a8-4577-48d9-a0d8-5b51b0f33573";
 
 interface OlympiadSettings {
   olympiad_palette_price: string;
@@ -86,10 +87,29 @@ export default function PaletteOlympiad() {
 
     // TODO: убрать когда подключим оплату
     setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 600));
-    const demoPaymentId = `demo_${Date.now()}`;
-    localStorage.setItem('olympiad_payment_id', demoPaymentId);
-    window.location.href = `/payment-success?type=palette&study_year=${form.studyYear}&payment_id=${demoPaymentId}`;
+    try {
+      const demoPaymentId = `demo_${Date.now()}`;
+      await fetch(SUBMIT_APPLICATION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: form.fullName,
+          age: parseInt(form.age),
+          study_year: parseInt(form.studyYear),
+          teacher: form.teacher || null,
+          institution: form.institution || null,
+          work_title: form.workTitle,
+          email: form.email,
+          olympiad_type: 'palette',
+          payment_id: demoPaymentId,
+        }),
+      });
+      localStorage.setItem('olympiad_payment_id', demoPaymentId);
+      window.location.href = `/payment-success?type=palette&study_year=${form.studyYear}&payment_id=${demoPaymentId}`;
+    } catch {
+      toast({ title: "Ошибка", description: "Не удалось отправить заявку", variant: "destructive" });
+      setSubmitting(false);
+    }
   };
 
   const hasDocuments =

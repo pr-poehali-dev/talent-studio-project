@@ -14,6 +14,7 @@ import CollectiveApplication from "./pages/CollectiveApplication";
 import CollectiveFree from "./pages/CollectiveFree";
 import PaletteOlympiad from "./pages/PaletteOlympiad";
 import GraniOlympiad from "./pages/GraniOlympiad";
+import OlympiadTasks from "./pages/OlympiadTasks";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/collective-free" element={<CollectiveFree />} />
           <Route path="/olympiad/palette" element={<PaletteOlympiad />} />
           <Route path="/olympiad/grani" element={<GraniOlympiad />} />
+          <Route path="/olympiad/tasks" element={<OlympiadTasks />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

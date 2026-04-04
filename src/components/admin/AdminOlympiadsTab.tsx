@@ -77,6 +77,8 @@ interface OlympiadAnswerItem {
   question: string;
   options: string[] | null;
   answer: string;
+  correct_answer: string | null;
+  is_correct: boolean;
   submitted_at: string | null;
 }
 
@@ -112,14 +114,25 @@ const AdminOlympiadsTab = () => {
   // Answers modal state
   const [answersModal, setAnswersModal] = useState<{ app: OlympiadApplication; answers: OlympiadAnswerItem[] } | null>(null);
   const [answersLoading, setAnswersLoading] = useState(false);
+  const [answersStats, setAnswersStats] = useState<Record<number, { correct: number; wrong: number; total: number }>>({});
 
   const openAnswers = async (app: OlympiadApplication) => {
     setAnswersLoading(true);
     setAnswersModal({ app, answers: [] });
     try {
       const res = await fetch(`${ANSWERS_API_URL}?application_id=${app.id}`);
-      const data = await res.json();
-      setAnswersModal({ app, answers: Array.isArray(data) ? data : [] });
+      const data: OlympiadAnswerItem[] = await res.json();
+      const answers = Array.isArray(data) ? data : [];
+      setAnswersModal({ app, answers });
+      const withCorrect = answers.filter(a => a.correct_answer !== null && a.correct_answer !== undefined);
+      setAnswersStats(prev => ({
+        ...prev,
+        [app.id]: {
+          correct: withCorrect.filter(a => a.is_correct).length,
+          wrong: withCorrect.filter(a => !a.is_correct).length,
+          total: withCorrect.length,
+        }
+      }));
     } catch {
       setAnswersModal({ app, answers: [] });
     } finally {
@@ -562,7 +575,20 @@ const AdminOlympiadsTab = () => {
                         {app.institution && <div className="col-span-2"><span className="text-gray-400">Учреждение:</span> {app.institution}</div>}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
+                      {answersStats[app.id] && answersStats[app.id].total > 0 && (
+                        <div className="flex items-center gap-1.5 text-xs">
+                          <span className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 font-semibold rounded-lg">
+                            <Icon name="Check" size={11} />
+                            {answersStats[app.id].correct}
+                          </span>
+                          <span className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-600 font-semibold rounded-lg">
+                            <Icon name="X" size={11} />
+                            {answersStats[app.id].wrong}
+                          </span>
+                          <span className="text-gray-400">/{answersStats[app.id].total}</span>
+                        </div>
+                      )}
                       <button
                         onClick={() => openAnswers(app)}
                         className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-all"
@@ -1021,60 +1047,111 @@ const AdminOlympiadsTab = () => {
       )}
 
       {/* Модалка ответов участника */}
-      {answersModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setAnswersModal(null)}
-        >
+      {answersModal && (() => {
+        const answers = answersModal.answers;
+        const withCorrect = answers.filter(a => a.correct_answer !== null && a.correct_answer !== undefined);
+        const correctCount = withCorrect.filter(a => a.is_correct).length;
+        const wrongCount = withCorrect.filter(a => !a.is_correct).length;
+        const totalChecked = withCorrect.length;
+        return (
           <div
-            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+            onClick={() => setAnswersModal(null)}
           >
-            <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-              <div>
-                <p className="font-bold text-gray-800 text-lg">{answersModal.app.full_name}</p>
-                <p className="text-sm text-gray-400">Ответы на задания олимпиады</p>
+            <div
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-gray-800 text-lg">{answersModal.app.full_name}</p>
+                  <p className="text-sm text-gray-400">
+                    Год обучения: {answersModal.app.study_year} · Возраст: {answersModal.app.age}
+                  </p>
+                </div>
+                <button onClick={() => setAnswersModal(null)} className="p-2 hover:bg-gray-100 rounded-xl">
+                  <Icon name="X" size={18} />
+                </button>
               </div>
-              <button onClick={() => setAnswersModal(null)} className="p-2 hover:bg-gray-100 rounded-xl">
-                <Icon name="X" size={18} />
-              </button>
-            </div>
-            <div className="overflow-y-auto flex-1 p-6 space-y-4">
-              {answersLoading ? (
-                <div className="flex items-center justify-center py-16 text-gray-400">
-                  <Icon name="Loader2" size={24} className="animate-spin mr-2" />
-                  Загружаем ответы...
-                </div>
-              ) : answersModal.answers.length === 0 ? (
-                <div className="text-center py-16 text-gray-400">
-                  <Icon name="ListChecks" size={40} className="mx-auto mb-3 opacity-30" />
-                  <p>Участник ещё не отправил ответы</p>
-                </div>
-              ) : (
-                answersModal.answers.map((item, i) => (
-                  <div key={item.id} className="border border-gray-100 rounded-2xl overflow-hidden">
-                    <div className="bg-orange-50 px-4 py-3 flex items-center gap-3">
-                      <span className="w-7 h-7 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
-                        {i + 1}
-                      </span>
-                      <p className="font-semibold text-gray-800 text-sm">{item.title}</p>
-                    </div>
-                    <div className="px-4 py-3 space-y-2">
-                      <p className="text-xs text-gray-500 leading-relaxed">{item.question}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="text-xs text-gray-400">Ответ участника:</span>
-                        <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                          {item.answer}
-                        </span>
-                      </div>
-                    </div>
+
+              {/* Счётчики результатов */}
+              {!answersLoading && totalChecked > 0 && (
+                <div className="px-6 py-4 border-b border-gray-50 flex items-center gap-4 flex-wrap bg-gray-50">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-green-100 rounded-xl">
+                    <Icon name="CheckCircle" size={16} className="text-green-600" />
+                    <span className="text-sm font-bold text-green-700">Правильно: {correctCount}</span>
                   </div>
-                ))
+                  <div className="flex items-center gap-2 px-4 py-2 bg-red-100 rounded-xl">
+                    <Icon name="XCircle" size={16} className="text-red-500" />
+                    <span className="text-sm font-bold text-red-600">Ошибок: {wrongCount}</span>
+                  </div>
+                  <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-xl">
+                    <Icon name="ListChecks" size={16} className="text-gray-500" />
+                    <span className="text-sm font-bold text-gray-600">Всего вопросов: {totalChecked}</span>
+                  </div>
+                  <div className="ml-auto text-sm font-semibold text-gray-500">
+                    {Math.round((correctCount / totalChecked) * 100)}%
+                  </div>
+                </div>
               )}
+
+              <div className="overflow-y-auto flex-1 p-6 space-y-3">
+                {answersLoading ? (
+                  <div className="flex items-center justify-center py-16 text-gray-400">
+                    <Icon name="Loader2" size={24} className="animate-spin mr-2" />
+                    Загружаем ответы...
+                  </div>
+                ) : answers.length === 0 ? (
+                  <div className="text-center py-16 text-gray-400">
+                    <Icon name="ListChecks" size={40} className="mx-auto mb-3 opacity-30" />
+                    <p>Участник ещё не отправил ответы</p>
+                  </div>
+                ) : (
+                  answers.map((item, i) => {
+                    const hasCorrect = item.correct_answer !== null && item.correct_answer !== undefined;
+                    return (
+                      <div key={item.id} className={`border rounded-2xl overflow-hidden ${hasCorrect ? (item.is_correct ? 'border-green-200' : 'border-red-200') : 'border-gray-100'}`}>
+                        <div className={`px-4 py-3 flex items-center gap-3 ${hasCorrect ? (item.is_correct ? 'bg-green-50' : 'bg-red-50') : 'bg-orange-50'}`}>
+                          <span className={`w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0 ${hasCorrect ? (item.is_correct ? 'bg-green-500' : 'bg-red-400') : 'bg-orange-500'}`}>
+                            {i + 1}
+                          </span>
+                          <p className="font-semibold text-gray-800 text-sm flex-1">{item.title}</p>
+                          {hasCorrect && (
+                            <Icon
+                              name={item.is_correct ? "CheckCircle" : "XCircle"}
+                              size={16}
+                              className={item.is_correct ? "text-green-500" : "text-red-400"}
+                            />
+                          )}
+                        </div>
+                        <div className="px-4 py-3 space-y-2">
+                          <p className="text-xs text-gray-500 leading-relaxed">{item.question}</p>
+                          <div className="flex flex-wrap items-center gap-3 mt-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-400">Ответ:</span>
+                              <span className={`px-3 py-1 text-xs font-semibold rounded-full ${hasCorrect ? (item.is_correct ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-700') : 'bg-blue-100 text-blue-800'}`}>
+                                {item.answer}
+                              </span>
+                            </div>
+                            {hasCorrect && !item.is_correct && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-400">Правильно:</span>
+                                <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                                  {item.correct_answer}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 };

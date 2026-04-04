@@ -61,7 +61,7 @@ def handler(event: dict, context) -> dict:
     olympiad_type = body.get('olympiad_type', 'palette')
     payment_id = body.get('payment_id')
 
-    if not all([full_name, age, study_year, work_title, email]):
+    if not all([full_name, age, study_year, email]):
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

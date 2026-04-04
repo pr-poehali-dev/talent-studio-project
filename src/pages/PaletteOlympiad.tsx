@@ -84,49 +84,12 @@ export default function PaletteOlympiad() {
       return;
     }
 
+    // TODO: убрать когда подключим оплату
     setSubmitting(true);
-    try {
-      const applicationData = {
-        full_name: form.fullName,
-        age: parseInt(form.age),
-        study_year: parseInt(form.studyYear),
-        teacher: form.teacher || null,
-        institution: form.institution || null,
-        work_title: form.workTitle,
-        email: form.email,
-        olympiad_type: "palette",
-      };
-
-      const response = await fetch(PAYMENT_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: price,
-          description: `Олимпиада по ИЗО «Палитра талантов» — ${form.fullName}`,
-          email: form.email,
-          application_data: applicationData,
-          olympiad_type: "palette",
-        }),
-      });
-
-      const data = await response.json();
-      if (data.confirmation_url) {
-        if (data.payment_id) {
-          localStorage.setItem('olympiad_payment_id', data.payment_id);
-        }
-        window.location.href = data.confirmation_url;
-      } else {
-        throw new Error(data.error || "Ошибка создания платежа");
-      }
-    } catch (err: unknown) {
-      toast({
-        title: "Ошибка",
-        description: err instanceof Error ? err.message : "Не удалось отправить заявку",
-        variant: "destructive",
-      });
-    } finally {
-      setSubmitting(false);
-    }
+    await new Promise((r) => setTimeout(r, 600));
+    const demoPaymentId = `demo_${Date.now()}`;
+    localStorage.setItem('olympiad_payment_id', demoPaymentId);
+    window.location.href = `/payment-success?type=palette&study_year=${form.studyYear}&payment_id=${demoPaymentId}`;
   };
 
   const hasDocuments =

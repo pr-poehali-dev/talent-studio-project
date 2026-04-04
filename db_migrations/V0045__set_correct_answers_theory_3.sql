@@ -1,0 +1,10 @@
+UPDATE olympiad_tasks SET correct_answer = 'натюрморт' WHERE id = 33;
+UPDATE olympiad_tasks SET correct_answer = 'Валентин Серов' WHERE id = 34;
+UPDATE olympiad_tasks SET correct_answer = 'зелёный' WHERE id = 35;
+UPDATE olympiad_tasks SET correct_answer = 'палитра' WHERE id = 36;
+UPDATE olympiad_tasks SET correct_answer = 'пейзаж' WHERE id = 37;
+UPDATE olympiad_tasks SET correct_answer = 'Виктор Васнецов' WHERE id = 38;
+UPDATE olympiad_tasks SET correct_answer = 'анималист' WHERE id = 39;
+UPDATE olympiad_tasks SET correct_answer = '«Грачи прилетели»' WHERE id = 40;
+UPDATE olympiad_tasks SET correct_answer = 'предварительный набросок, фиксирующий замысел художника' WHERE id = 41;
+UPDATE olympiad_tasks SET correct_answer = 'Иван Айвазовский' WHERE id = 42;

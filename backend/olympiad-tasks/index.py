@@ -69,19 +69,21 @@ def handler(event: dict, context) -> dict:
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({'error': 'Доступ закрыт: необходимо подтверждение оплаты'})
                     }
-                cursor.execute("""
-                    SELECT id FROM olympiad_applications
-                    WHERE payment_id = %s AND payment_status = 'paid' AND olympiad_type = %s AND deleted_at IS NULL
-                    LIMIT 1
-                """, (payment_id, olympiad_type))
-                if not cursor.fetchone():
-                    cursor.close()
-                    conn.close()
-                    return {
-                        'statusCode': 403,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Доступ закрыт: оплата не подтверждена'})
-                    }
+                # demo_ — тестовый режим без реальной оплаты
+                if not payment_id.startswith('demo_'):
+                    cursor.execute("""
+                        SELECT id FROM olympiad_applications
+                        WHERE payment_id = %s AND payment_status = 'paid' AND olympiad_type = %s AND deleted_at IS NULL
+                        LIMIT 1
+                    """, (payment_id, olympiad_type))
+                    if not cursor.fetchone():
+                        cursor.close()
+                        conn.close()
+                        return {
+                            'statusCode': 403,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'Доступ закрыт: оплата не подтверждена'})
+                        }
 
             if is_admin:
                 cursor.execute("""

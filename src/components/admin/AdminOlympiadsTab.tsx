@@ -149,18 +149,47 @@ const AdminOlympiadsTab = () => {
   const [savingTask, setSavingTask] = useState(false);
   const [uploadingTaskImage, setUploadingTaskImage] = useState(false);
 
+  const loadAnswersStats = useCallback(async (apps: OlympiadApplication[]) => {
+    const results = await Promise.allSettled(
+      apps.map(app =>
+        fetch(`${ANSWERS_API_URL}?application_id=${app.id}`)
+          .then(r => r.json())
+          .then((data: OlympiadAnswerItem[]) => {
+            const answers = Array.isArray(data) ? data : [];
+            const withCorrect = answers.filter(a => a.correct_answer !== null && a.correct_answer !== undefined);
+            return {
+              id: app.id,
+              correct: withCorrect.filter(a => a.is_correct).length,
+              wrong: withCorrect.filter(a => !a.is_correct).length,
+              total: withCorrect.length,
+            };
+          })
+      )
+    );
+    const stats: Record<number, { correct: number; wrong: number; total: number }> = {};
+    for (const r of results) {
+      if (r.status === 'fulfilled') {
+        stats[r.value.id] = { correct: r.value.correct, wrong: r.value.wrong, total: r.value.total };
+      }
+    }
+    setAnswersStats(stats);
+  }, []);
+
   const loadApplications = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`${OLYMPIAD_APPLICATIONS_URL}?type=palette`);
       const data = await res.json();
       setApplications(data);
+      if (Array.isArray(data) && data.length > 0) {
+        loadAnswersStats(data);
+      }
     } catch {
       toast({ title: "Ошибка загрузки заявок", variant: "destructive" });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, loadAnswersStats]);
 
   const loadSettings = useCallback(async () => {
     try {

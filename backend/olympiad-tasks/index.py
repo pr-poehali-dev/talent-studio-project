@@ -249,14 +249,18 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({'error': 'id is required'})
                 }
 
-            cursor.execute(f"DELETE FROM olympiad_tasks WHERE id = {int(task_id)}")
+            task_id_int = int(task_id)
+            print(f"[DELETE] trying to delete task id={task_id_int}")
+            cursor.execute(f"DELETE FROM olympiad_tasks WHERE id = {task_id_int}")
+            deleted = cursor.rowcount
             conn.commit()
+            print(f"[DELETE] deleted rows: {deleted}")
             cursor.close()
             conn.close()
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'success': True})
+                'body': json.dumps({'success': True, 'deleted': deleted})
             }
 
     except Exception as e:

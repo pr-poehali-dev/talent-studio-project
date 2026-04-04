@@ -1,0 +1,10 @@
+UPDATE olympiad_tasks SET correct_answer = 'карандаш'   WHERE id = 2;
+UPDATE olympiad_tasks SET correct_answer = 'акварель'   WHERE id = 3;
+UPDATE olympiad_tasks SET correct_answer = 'кисть'      WHERE id = 4;
+UPDATE olympiad_tasks SET correct_answer = 'ластик'     WHERE id = 5;
+UPDATE olympiad_tasks SET correct_answer = 'лист бумаги' WHERE id = 6;
+UPDATE olympiad_tasks SET correct_answer = 'гуашь'      WHERE id = 7;
+UPDATE olympiad_tasks SET correct_answer = 'палитра'    WHERE id = 8;
+UPDATE olympiad_tasks SET correct_answer = 'пейзаж'     WHERE id = 9;
+UPDATE olympiad_tasks SET correct_answer = 'натюрморт'  WHERE id = 10;
+UPDATE olympiad_tasks SET correct_answer = 'фломастер'  WHERE id = 11;

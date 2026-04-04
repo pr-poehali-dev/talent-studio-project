@@ -249,7 +249,7 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({'error': 'id is required'})
                 }
 
-            cursor.execute("DELETE FROM olympiad_tasks WHERE id = %s", (task_id,))
+            cursor.execute(f"DELETE FROM olympiad_tasks WHERE id = {int(task_id)}")
             conn.commit()
             cursor.close()
             conn.close()

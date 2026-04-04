@@ -1,0 +1,10 @@
+UPDATE olympiad_tasks SET correct_answer = 'композиция' WHERE id = 13;
+UPDATE olympiad_tasks SET correct_answer = 'красный, жёлтый, синий' WHERE id = 14;
+UPDATE olympiad_tasks SET correct_answer = 'портрет' WHERE id = 15;
+UPDATE olympiad_tasks SET correct_answer = 'В. М. Васнецов' WHERE id = 16;
+UPDATE olympiad_tasks SET correct_answer = 'акварель' WHERE id = 17;
+UPDATE olympiad_tasks SET correct_answer = 'линейная перспектива (схождение линий в одной точке)' WHERE id = 18;
+UPDATE olympiad_tasks SET correct_answer = 'эскиз' WHERE id = 19;
+UPDATE olympiad_tasks SET correct_answer = 'фиолетовый' WHERE id = 20;
+UPDATE olympiad_tasks SET correct_answer = 'палитра' WHERE id = 21;
+UPDATE olympiad_tasks SET correct_answer = 'пейзаж' WHERE id = 22;

@@ -8,6 +8,7 @@ const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-
 const UPLOAD_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
 const TASKS_API_URL = "https://functions.poehali.dev/c7eb02a5-bcf1-4ece-91de-d49b4c1e8466";
 const ANSWERS_API_URL = "https://functions.poehali.dev/6e919c14-0327-44c1-827b-d524f0192c73";
+const REPORT_API_URL = "https://functions.poehali.dev/05b86dce-b0ed-493e-9260-00ca25fd4059";
 
 interface OlympiadApplication {
   id: number;
@@ -129,6 +130,27 @@ const AdminOlympiadsTab = () => {
   const [uploadingRules, setUploadingRules] = useState(false);
   const [uploadingDiploma, setUploadingDiploma] = useState(false);
   const [uploadingGratitude, setUploadingGratitude] = useState(false);
+
+  const [downloadingReport, setDownloadingReport] = useState<number | null>(null);
+
+  const downloadReport = async (app: OlympiadApplication) => {
+    setDownloadingReport(app.id);
+    try {
+      const res = await fetch(`${REPORT_API_URL}?app_id=${app.id}`);
+      if (!res.ok) throw new Error('Ошибка генерации отчёта');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `olympiad_report_${app.full_name.replace(/\s+/g, '_')}_${app.id}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast({ title: 'Ошибка скачивания отчёта', variant: 'destructive' });
+    } finally {
+      setDownloadingReport(null);
+    }
+  };
 
   // Answers modal state
   const [answersModal, setAnswersModal] = useState<{ app: OlympiadApplication; answers: OlympiadAnswerItem[] } | null>(null);
@@ -688,6 +710,22 @@ const AdminOlympiadsTab = () => {
                       >
                         <Icon name="ListChecks" size={13} />
                         Ответы
+                      </button>
+                      <button
+                        onClick={() => downloadReport(app)}
+                        disabled={app.status !== 'sent' || downloadingReport === app.id}
+                        title={app.status !== 'sent' ? 'Доступно только при статусе «Отправлена»' : 'Скачать PDF-отчёт'}
+                        className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                          app.status === 'sent'
+                            ? 'bg-green-50 text-green-700 hover:bg-green-100'
+                            : 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                        }`}
+                      >
+                        {downloadingReport === app.id
+                          ? <Icon name="Loader2" size={13} className="animate-spin" />
+                          : <Icon name="FileDown" size={13} />
+                        }
+                        Отчёт PDF
                       </button>
                       <select
                         value={app.status}

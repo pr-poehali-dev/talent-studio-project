@@ -59,9 +59,10 @@ function getLineCells(start: [number,number], end: [number,number]): [number,num
   return Array.from({ length: len+1 }, (_, i) => [start[0]+sr*i, start[1]+sc*i] as [number,number]);
 }
 
-interface WordSearchProps { taskId: number; words: string[]; onComplete: (taskId: number) => void; isCompleted: boolean; }
+interface WordSearchProps { taskId: number; words: string[]; onComplete: (taskId: number) => void; isCompleted: boolean; studyYear?: number; }
 
-function WordSearchWidget({ taskId, words, onComplete, isCompleted }: WordSearchProps) {
+function WordSearchWidget({ taskId, words, onComplete, isCompleted, studyYear }: WordSearchProps) {
+  const hideHints = studyYear !== undefined && studyYear >= 5;
   const [{ grid, placements }] = useState(() => buildWordSearchGrid(words.map(w => w.toUpperCase())));
   const [foundWords, setFoundWords] = useState<string[]>([]);
   const [foundCells, setFoundCells] = useState<Record<string, number>>({});
@@ -112,17 +113,33 @@ function WordSearchWidget({ taskId, words, onComplete, isCompleted }: WordSearch
 
   return (
     <div className="space-y-3 select-none">
-      {/* Слова */}
-      <div className="flex flex-wrap gap-1.5">
-        {upperWords.map(word => {
-          const fi = foundWords.indexOf(word);
-          return (
-            <span key={word} className={`px-2.5 py-1 rounded-xl text-xs font-bold border-2 transition-all ${fi >= 0 ? `${WS_COLORS[fi % WS_COLORS.length]} border-transparent line-through opacity-60` : 'bg-white text-gray-700 border-gray-200'}`}>
-              {word}
-            </span>
-          );
-        })}
-      </div>
+      {/* Подсказка про направления */}
+      <p className="text-xs text-gray-400 flex items-center gap-1">
+        <span>↔ ↕</span>
+        <span>Слова расположены только по горизонтали и вертикали</span>
+      </p>
+
+      {/* Слова-подсказки — только для 1-4 года */}
+      {!hideHints && (
+        <div className="flex flex-wrap gap-1.5">
+          {upperWords.map(word => {
+            const fi = foundWords.indexOf(word);
+            return (
+              <span key={word} className={`px-2.5 py-1 rounded-xl text-xs font-bold border-2 transition-all ${fi >= 0 ? `${WS_COLORS[fi % WS_COLORS.length]} border-transparent line-through opacity-60` : 'bg-white text-gray-700 border-gray-200'}`}>
+                {word}
+              </span>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Для 5+ показываем только счётчик найденных */}
+      {hideHints && !isCompleted && (
+        <div className="text-xs text-gray-500 font-medium">
+          Найдено слов: <span className="text-orange-500 font-bold">{foundWords.length}</span> из {upperWords.length}
+        </div>
+      )}
+
       {/* Сетка */}
       <div
         className={`rounded-2xl overflow-hidden transition-all ${wrongFlash ? 'ring-2 ring-red-300' : ''} ${isCompleted ? 'opacity-70 pointer-events-none' : ''}`}
@@ -421,6 +438,7 @@ const OlympiadTasks = () => {
                       words={task.options || []}
                       onComplete={handleWordSearchComplete}
                       isCompleted={answers[task.id] === '__wordsearch_done__'}
+                      studyYear={studyYearParam ? parseInt(studyYearParam) : undefined}
                     />
                   ) : (<>
                     {task.image_url && (

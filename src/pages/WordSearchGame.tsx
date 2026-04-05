@@ -318,9 +318,10 @@ export default function WordSearchGame() {
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400 pb-2">
-          Проведи пальцем или мышью по буквам, чтобы выделить слово
-        </p>
+        <div className="text-center space-y-1 pb-2">
+          <p className="text-xs text-gray-400">Проведи пальцем или мышью по буквам, чтобы выделить слово</p>
+          <p className="text-xs text-gray-400">↔ ↕ Слова расположены только по горизонтали и вертикали</p>
+        </div>
       </div>
     </div>
   );

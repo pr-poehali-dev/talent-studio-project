@@ -15,6 +15,7 @@ import CollectiveFree from "./pages/CollectiveFree";
 import PaletteOlympiad from "./pages/PaletteOlympiad";
 import GraniOlympiad from "./pages/GraniOlympiad";
 import OlympiadTasks from "./pages/OlympiadTasks";
+import WordSearchGame from "./pages/WordSearchGame";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/olympiad/palette" element={<PaletteOlympiad />} />
           <Route path="/olympiad/grani" element={<GraniOlympiad />} />
           <Route path="/olympiad/tasks" element={<OlympiadTasks />} />
+          <Route path="/olympiad/word-search" element={<WordSearchGame />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

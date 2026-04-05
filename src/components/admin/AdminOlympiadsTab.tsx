@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/components/ui/use-toast";
+import AdminWordSearchTab from "@/components/admin/AdminWordSearchTab";
 
 const OLYMPIAD_APPLICATIONS_URL = "https://functions.poehali.dev/64be6370-4826-4077-bfeb-ce5e443733b7";
 const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
@@ -71,7 +72,7 @@ const EMPTY_TASK: Omit<OlympiadTask, "id" | "created_at" | "updated_at"> = {
   is_active: true,
 };
 
-type SubTab = "applications" | "tasks" | "settings";
+type SubTab = "applications" | "tasks" | "wordsearch" | "settings";
 
 interface OlympiadAnswerItem {
   id: number;
@@ -559,6 +560,17 @@ const AdminOlympiadsTab = () => {
           </span>
         </button>
         <button
+          onClick={() => setSubTab("wordsearch")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
+            subTab === "wordsearch"
+              ? "bg-orange-500 text-white shadow"
+              : "text-gray-600 hover:bg-orange-50"
+          }`}
+        >
+          <Icon name="Search" size={16} />
+          Искалки слов
+        </button>
+        <button
           onClick={() => setSubTab("settings")}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-all ${
             subTab === "settings"
@@ -997,6 +1009,9 @@ const AdminOlympiadsTab = () => {
           )}
         </>
       )}
+
+      {/* Искалки слов */}
+      {subTab === "wordsearch" && <AdminWordSearchTab />}
 
       {/* Настройки */}
       {subTab === "settings" && (

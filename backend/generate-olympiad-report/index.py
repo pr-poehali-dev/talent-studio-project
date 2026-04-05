@@ -4,6 +4,7 @@ import base64
 import psycopg2
 from io import BytesIO
 from datetime import datetime
+import urllib.request
 
 CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
@@ -22,6 +23,22 @@ STATUS_LABELS = {
     'viewed': 'Просмотрена',
     'sent': 'Отправлена',
 }
+
+FONT_REGULAR_URL = 'https://cdn.jsdelivr.net/gh/dejavu-fonts/dejavu-fonts@master/ttf/DejaVuSans.ttf'
+FONT_BOLD_URL = 'https://cdn.jsdelivr.net/gh/dejavu-fonts/dejavu-fonts@master/ttf/DejaVuSans-Bold.ttf'
+FONT_REGULAR_PATH = '/tmp/DejaVuSans.ttf'
+FONT_BOLD_PATH = '/tmp/DejaVuSans-Bold.ttf'
+
+def ensure_fonts():
+    for path, url in [(FONT_REGULAR_PATH, FONT_REGULAR_URL), (FONT_BOLD_PATH, FONT_BOLD_URL)]:
+        if not os.path.exists(path):
+            print(f'[FONT] Downloading {url} -> {path}')
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=20) as r, open(path, 'wb') as f:
+                f.write(r.read())
+            print(f'[FONT] Done: {path} ({os.path.getsize(path)} bytes)')
+        else:
+            print(f'[FONT] Cached: {path}')
 
 def handler(event: dict, context) -> dict:
     """Генерирует PDF-отчёт по заявке олимпиады с ответами участника"""
@@ -43,7 +60,6 @@ def handler(event: dict, context) -> dict:
     conn.autocommit = True
     cursor = conn.cursor()
 
-    # Данные заявки
     cursor.execute("""
         SELECT id, full_name, age, study_year, teacher, institution,
                work_title, email, olympiad_type, status, payment_status,
@@ -65,10 +81,9 @@ def handler(event: dict, context) -> dict:
         'study_year': app_row[3], 'teacher': app_row[4], 'institution': app_row[5],
         'work_title': app_row[6], 'email': app_row[7], 'olympiad_type': app_row[8],
         'status': app_row[9], 'payment_status': app_row[10],
-        'created_at': app_row[11], 'payment_id': app_row[12], 'olympiad_status': app_row[13],
+        'created_at': app_row[11], 'payment_id': app_row[12],
     }
 
-    # Ответы участника + задания
     cursor.execute("""
         SELECT oa.task_id, oa.answer, ot.question, ot.correct_answer, ot.task_type, ot.sort_order
         FROM olympiad_answers oa
@@ -82,212 +97,206 @@ def handler(event: dict, context) -> dict:
     answers = []
     for row in answer_rows:
         task_type = row[4] or 'quiz'
-        is_wordsearch = task_type == 'wordsearch'
         given = row[1] or ''
         correct = row[3] or ''
-        if is_wordsearch:
+        if task_type == 'wordsearch':
             is_correct = given == '__wordsearch_done__'
         else:
             is_correct = given.strip().lower() == correct.strip().lower() if correct else None
         answers.append({
-            'task_id': row[0], 'answer': given, 'question': row[2] or '',
-            'correct_answer': correct, 'task_type': task_type,
-            'is_correct': is_correct, 'sort_order': row[5] or 0,
+            'task_id': row[0], 'answer': given, 'question': (row[2] or '').replace('\n', ' ').strip(),
+            'correct_answer': correct, 'task_type': task_type, 'is_correct': is_correct,
         })
 
     total = len(answers)
     correct_count = sum(1 for a in answers if a['is_correct'] is True)
     wrong_count = sum(1 for a in answers if a['is_correct'] is False)
-    wordsearch_count = sum(1 for a in answers if a['task_type'] == 'wordsearch')
+    wordsearch_done = sum(1 for a in answers if a['task_type'] == 'wordsearch' and a['is_correct'])
 
-    # Генерация PDF через reportlab
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib import colors
-    from reportlab.lib.units import cm
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.lib.enums import TA_CENTER, TA_LEFT
+    # Загрузка шрифтов
+    ensure_fonts()
 
-    # Шрифт с кириллицей
-    font_path = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
-    font_bold_path = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
-    try:
-        pdfmetrics.registerFont(TTFont('DejaVu', font_path))
-        pdfmetrics.registerFont(TTFont('DejaVu-Bold', font_bold_path))
-        base_font = 'DejaVu'
-        bold_font = 'DejaVu-Bold'
-    except Exception:
-        base_font = 'Helvetica'
-        bold_font = 'Helvetica-Bold'
+    from fpdf import FPDF
 
-    buf = BytesIO()
-    doc = SimpleDocTemplate(
-        buf, pagesize=A4,
-        leftMargin=2*cm, rightMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm
-    )
+    class PDF(FPDF):
+        def header(self):
+            pass
+        def footer(self):
+            self.set_y(-15)
+            self.set_font('PTSerif', '', 8)
+            self.set_text_color(160, 160, 160)
+            self.cell(0, 10, f'Сформировано: {datetime.now().strftime("%d.%m.%Y %H:%M")}', align='C')
 
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle('title', fontName=bold_font, fontSize=16, alignment=TA_CENTER, spaceAfter=6, textColor=colors.HexColor('#1a1a1a'))
-    subtitle_style = ParagraphStyle('subtitle', fontName=base_font, fontSize=10, alignment=TA_CENTER, spaceAfter=16, textColor=colors.HexColor('#666666'))
-    section_style = ParagraphStyle('section', fontName=bold_font, fontSize=12, spaceBefore=12, spaceAfter=6, textColor=colors.HexColor('#c2410c'))
-    body_style = ParagraphStyle('body', fontName=base_font, fontSize=9, spaceAfter=4, leading=13, textColor=colors.HexColor('#1a1a1a'))
-    label_style = ParagraphStyle('label', fontName=bold_font, fontSize=9, textColor=colors.HexColor('#374151'))
-    small_style = ParagraphStyle('small', fontName=base_font, fontSize=8, textColor=colors.HexColor('#6b7280'))
+    pdf = PDF(orientation='P', unit='mm', format='A4')
+    pdf.add_font('PTSerif', '', FONT_REGULAR_PATH)
+    pdf.add_font('PTSerif', 'B', FONT_BOLD_PATH)
+    pdf.set_auto_page_break(auto=True, margin=20)
+    pdf.add_page()
+    pdf.set_margins(20, 20, 20)
 
-    story = []
+    W = 170  # ширина контента
 
-    # Заголовок
-    story.append(Paragraph('ОТЧЁТ ОБ УЧАСТИИ В ОЛИМПИАДЕ', title_style))
-    story.append(Paragraph(OLYMPIAD_NAMES.get(app['olympiad_type'], app['olympiad_type']), subtitle_style))
-    story.append(HRFlowable(width='100%', thickness=1, color=colors.HexColor('#fed7aa')))
-    story.append(Spacer(1, 10))
+    # ===== Заголовок =====
+    pdf.set_font('PTSerif', 'B', 18)
+    pdf.set_text_color(26, 26, 26)
+    pdf.cell(W, 10, 'ОТЧЁТ ОБ УЧАСТИИ В ОЛИМПИАДЕ', align='C', new_x='LMARGIN', new_y='NEXT')
+    pdf.set_font('PTSerif', '', 12)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(W, 8, OLYMPIAD_NAMES.get(app['olympiad_type'], app['olympiad_type']), align='C', new_x='LMARGIN', new_y='NEXT')
+    pdf.set_draw_color(254, 215, 170)
+    pdf.set_line_width(0.8)
+    pdf.line(20, pdf.get_y() + 3, 190, pdf.get_y() + 3)
+    pdf.ln(8)
 
-    # Данные участника
-    story.append(Paragraph('Данные участника', section_style))
-    participant_data = [
-        ['ФИО участника', app['full_name']],
-        ['Возраст', f"{app['age']} лет"],
-        ['Год обучения', f"{app['study_year']} год"],
-        ['Название работы', app['work_title']],
-        ['Email', app['email']],
-        ['Педагог', app['teacher'] or '—'],
-        ['Учреждение', app['institution'] or '—'],
-        ['Дата регистрации', app['created_at'].strftime('%d.%m.%Y %H:%M') if app['created_at'] else '—'],
-        ['ID заявки', str(app['id'])],
-        ['Статус заявки', STATUS_LABELS.get(app['status'], app['status'])],
+    # ===== Данные участника =====
+    pdf.set_font('PTSerif', 'B', 13)
+    pdf.set_text_color(194, 65, 12)
+    pdf.cell(W, 8, 'Данные участника', new_x='LMARGIN', new_y='NEXT')
+    pdf.ln(2)
+
+    fields = [
+        ('ФИО участника', app['full_name']),
+        ('Возраст', f"{app['age']} лет"),
+        ('Год обучения', f"{app['study_year']} год"),
+        ('Название работы', app['work_title']),
+        ('Email', app['email']),
+        ('Педагог', app['teacher'] or '—'),
+        ('Учреждение', app['institution'] or '—'),
+        ('Дата регистрации', app['created_at'].strftime('%d.%m.%Y %H:%M') if app['created_at'] else '—'),
+        ('Статус заявки', STATUS_LABELS.get(app['status'], app['status'])),
     ]
-    pt = Table(
-        [[Paragraph(r[0], label_style), Paragraph(str(r[1]), body_style)] for r in participant_data],
-        colWidths=[5*cm, 11.7*cm]
-    )
-    pt.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (0,-1), colors.HexColor('#fff7ed')),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#e5e7eb')),
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('TOPPADDING', (0,0), (-1,-1), 5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
-        ('LEFTPADDING', (0,0), (-1,-1), 8),
-        ('RIGHTPADDING', (0,0), (-1,-1), 8),
-    ]))
-    story.append(pt)
-    story.append(Spacer(1, 12))
 
-    # Итоговая статистика
-    story.append(Paragraph('Результаты олимпиады', section_style))
-    stat_color_correct = colors.HexColor('#dcfce7')
-    stat_color_wrong = colors.HexColor('#fee2e2')
-    stat_color_ws = colors.HexColor('#dbeafe')
+    for label, value in fields:
+        x = pdf.get_x()
+        y = pdf.get_y()
+        pdf.set_fill_color(255, 247, 237)
+        pdf.rect(x, y, 55, 8, 'F')
+        pdf.set_draw_color(229, 231, 235)
+        pdf.rect(x, y, W, 8)
+        pdf.set_font('PTSerif', 'B', 9)
+        pdf.set_text_color(55, 65, 81)
+        pdf.set_xy(x + 2, y + 1)
+        pdf.cell(51, 6, label)
+        pdf.set_font('PTSerif', '', 9)
+        pdf.set_text_color(26, 26, 26)
+        pdf.set_xy(x + 57, y + 1)
+        pdf.cell(W - 57, 6, str(value)[:80])
+        pdf.set_xy(x, y + 8)
+        pdf.ln(0)
 
-    stat_data = [
-        [
-            Paragraph('Всего заданий', label_style),
-            Paragraph('Правильных', label_style),
-            Paragraph('Неправильных', label_style),
-            Paragraph('Искалок слов', label_style),
-        ],
-        [
-            Paragraph(str(total), ParagraphStyle('v', fontName=bold_font, fontSize=18, alignment=TA_CENTER, textColor=colors.HexColor('#1a1a1a'))),
-            Paragraph(str(correct_count), ParagraphStyle('v', fontName=bold_font, fontSize=18, alignment=TA_CENTER, textColor=colors.HexColor('#15803d'))),
-            Paragraph(str(wrong_count), ParagraphStyle('v', fontName=bold_font, fontSize=18, alignment=TA_CENTER, textColor=colors.HexColor('#dc2626'))),
-            Paragraph(str(wordsearch_count), ParagraphStyle('v', fontName=bold_font, fontSize=18, alignment=TA_CENTER, textColor=colors.HexColor('#1d4ed8'))),
-        ]
+    pdf.ln(10)
+
+    # ===== Статистика =====
+    pdf.set_font('PTSerif', 'B', 13)
+    pdf.set_text_color(194, 65, 12)
+    pdf.cell(W, 8, 'Результаты олимпиады', new_x='LMARGIN', new_y='NEXT')
+    pdf.ln(3)
+
+    col_w = W / 4
+    stat_blocks = [
+        ('Всего заданий', str(total), (243, 244, 246), (26, 26, 26)),
+        ('Правильных', str(correct_count), (220, 252, 231), (21, 128, 61)),
+        ('Неправильных', str(wrong_count), (254, 226, 226), (220, 38, 38)),
+        ('Искалок выполнено', str(wordsearch_done), (219, 234, 254), (29, 78, 216)),
     ]
-    st = Table(stat_data, colWidths=[4.17*cm]*4)
-    st.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#f3f4f6')),
-        ('BACKGROUND', (1,1), (1,1), stat_color_correct),
-        ('BACKGROUND', (2,1), (2,1), stat_color_wrong),
-        ('BACKGROUND', (3,1), (3,1), stat_color_ws),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#e5e7eb')),
-        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('TOPPADDING', (0,0), (-1,-1), 8),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-    ]))
-    story.append(st)
-    story.append(Spacer(1, 14))
+    y0 = pdf.get_y()
+    for i, (lbl, val, bg, fg) in enumerate(stat_blocks):
+        x0 = 20 + i * col_w
+        pdf.set_fill_color(*bg)
+        pdf.set_draw_color(229, 231, 235)
+        pdf.rect(x0, y0, col_w, 20, 'FD')
+        pdf.set_font('PTSerif', 'B', 20)
+        pdf.set_text_color(*fg)
+        pdf.set_xy(x0, y0 + 1)
+        pdf.cell(col_w, 10, val, align='C')
+        pdf.set_font('PTSerif', '', 8)
+        pdf.set_text_color(100, 100, 100)
+        pdf.set_xy(x0, y0 + 12)
+        pdf.cell(col_w, 6, lbl, align='C')
 
-    # Детальные ответы
+    pdf.set_xy(20, y0 + 22)
+    pdf.ln(8)
+
+    # ===== Детальные ответы =====
     if answers:
-        story.append(Paragraph('Детальный отчёт по заданиям', section_style))
+        pdf.set_font('PTSerif', 'B', 13)
+        pdf.set_text_color(194, 65, 12)
+        pdf.cell(W, 8, 'Детальный отчёт по заданиям', new_x='LMARGIN', new_y='NEXT')
+        pdf.ln(3)
 
         for i, ans in enumerate(answers, 1):
             is_ws = ans['task_type'] == 'wordsearch'
             correct = ans['is_correct']
+
             if correct is True:
-                row_bg = colors.HexColor('#f0fdf4')
-                badge_text = '✓ Верно'
-                badge_color = colors.HexColor('#15803d')
+                bg = (240, 253, 244); badge = 'Верно'; badge_color = (21, 128, 61)
             elif correct is False:
-                row_bg = colors.HexColor('#fef2f2')
-                badge_text = '✗ Неверно'
-                badge_color = colors.HexColor('#dc2626')
+                bg = (254, 242, 242); badge = 'Неверно'; badge_color = (220, 38, 38)
             else:
-                row_bg = colors.HexColor('#fffbeb')
-                badge_text = '— Без ответа'
-                badge_color = colors.HexColor('#92400e')
+                bg = (255, 251, 235); badge = 'Нет ответа'; badge_color = (146, 64, 14)
 
-            # Вопрос (обрезаем если длинный)
-            question_text = ans['question'].replace('\n', ' ').strip()
-            if len(question_text) > 200:
-                question_text = question_text[:200] + '...'
+            # Определяем высоту строки
+            q_text = ans['question'][:150] + ('...' if len(ans['question']) > 150 else '')
+            row_h = 22 if not is_ws else 16
 
-            if is_ws:
-                given_text = 'Все слова найдены' if ans['answer'] == '__wordsearch_done__' else 'Не завершено'
-                correct_text = '(задание-искалка)'
-            else:
+            if pdf.get_y() + row_h > 270:
+                pdf.add_page()
+
+            x = 20; y = pdf.get_y()
+
+            # Фон строки
+            pdf.set_fill_color(*bg)
+            pdf.set_draw_color(229, 231, 235)
+            pdf.rect(x, y, W, row_h, 'FD')
+
+            # Номер
+            pdf.set_font('PTSerif', 'B', 9)
+            pdf.set_text_color(55, 65, 81)
+            pdf.set_xy(x + 2, y + 2)
+            pdf.cell(10, 5, f'#{i}')
+
+            # Вопрос
+            pdf.set_font('PTSerif', '', 8)
+            pdf.set_text_color(26, 26, 26)
+            pdf.set_xy(x + 13, y + 2)
+            pdf.multi_cell(W - 13 - 28, 4.5, q_text, max_line_height=4.5)
+
+            # Бейдж
+            pdf.set_font('PTSerif', 'B', 8)
+            pdf.set_text_color(*badge_color)
+            pdf.set_xy(x + W - 26, y + 2)
+            pdf.cell(24, 5, badge, align='C')
+
+            if not is_ws:
                 given_text = ans['answer'] if ans['answer'] else '—'
                 correct_text = ans['correct_answer'] if ans['correct_answer'] else '—'
 
-            task_data = [
-                [
-                    Paragraph(f'<b>№{i}</b>', ParagraphStyle('n', fontName=bold_font, fontSize=9, textColor=colors.HexColor('#374151'))),
-                    Paragraph(question_text, body_style),
-                    Paragraph(badge_text, ParagraphStyle('badge', fontName=bold_font, fontSize=9, alignment=TA_CENTER, textColor=badge_color)),
-                ],
-                [
-                    Paragraph('Ответ:', small_style),
-                    Paragraph(given_text, body_style),
-                    '',
-                ],
-            ]
-            if not is_ws and ans['correct_answer']:
-                task_data.append([
-                    Paragraph('Правильно:', small_style),
-                    Paragraph(correct_text, ParagraphStyle('corr', fontName=bold_font, fontSize=9, textColor=colors.HexColor('#15803d'))),
-                    '',
-                ])
+                pdf.set_font('PTSerif', '', 7.5)
+                pdf.set_text_color(107, 114, 128)
+                pdf.set_xy(x + 13, y + row_h - 8)
+                pdf.cell(20, 4, 'Ответ:')
+                pdf.set_text_color(26, 26, 26)
+                pdf.cell(60, 4, given_text[:50])
 
-            tt = Table(task_data, colWidths=[1.5*cm, 12.5*cm, 2.7*cm])
-            tt.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,-1), row_bg),
-                ('GRID', (0,0), (-1,-1), 0.3, colors.HexColor('#e5e7eb')),
-                ('VALIGN', (0,0), (-1,-1), 'TOP'),
-                ('TOPPADDING', (0,0), (-1,-1), 5),
-                ('BOTTOMPADDING', (0,0), (-1,-1), 5),
-                ('LEFTPADDING', (0,0), (-1,-1), 6),
-                ('RIGHTPADDING', (0,0), (-1,-1), 6),
-                ('SPAN', (0,0), (0,-1)),
-                ('ALIGN', (2,0), (2,0), 'CENTER'),
-                ('VALIGN', (2,0), (2,0), 'MIDDLE'),
-                ('SPAN', (2,0), (2,-1)),
-            ]))
-            story.append(tt)
-            story.append(Spacer(1, 4))
+                if ans['correct_answer']:
+                    pdf.set_text_color(107, 114, 128)
+                    pdf.cell(22, 4, 'Правильно:')
+                    pdf.set_font('PTSerif', 'B', 7.5)
+                    pdf.set_text_color(21, 128, 61)
+                    pdf.cell(50, 4, correct_text[:50])
+            else:
+                given_label = 'Все слова найдены' if ans['answer'] == '__wordsearch_done__' else 'Не завершено'
+                pdf.set_font('PTSerif', '', 7.5)
+                pdf.set_text_color(107, 114, 128)
+                pdf.set_xy(x + 13, y + row_h - 6)
+                pdf.cell(20, 4, 'Результат:')
+                pdf.set_text_color(26, 26, 26)
+                pdf.cell(60, 4, given_label)
 
-    # Футер
-    story.append(Spacer(1, 12))
-    story.append(HRFlowable(width='100%', thickness=0.5, color=colors.HexColor('#e5e7eb')))
-    story.append(Spacer(1, 6))
-    story.append(Paragraph(
-        f'Отчёт сформирован: {datetime.now().strftime("%d.%m.%Y %H:%M")}',
-        ParagraphStyle('footer', fontName=base_font, fontSize=8, alignment=TA_CENTER, textColor=colors.HexColor('#9ca3af'))
-    ))
+            pdf.set_xy(20, y + row_h + 2)
 
-    doc.build(story)
-    pdf_bytes = buf.getvalue()
+    # Генерируем PDF
+    pdf_bytes = bytes(pdf.output())
     pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
 
     safe_name = app['full_name'].replace(' ', '_')

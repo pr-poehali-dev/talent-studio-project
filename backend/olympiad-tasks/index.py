@@ -252,6 +252,8 @@ def handler(event: dict, context) -> dict:
 
             task_id_int = int(task_id)
             print(f"[DELETE] trying to delete task id={task_id_int}")
+            cursor.execute(f"DELETE FROM olympiad_answers WHERE task_id = {task_id_int}")
+            print(f"[DELETE] answers deleted: {cursor.rowcount}")
             cursor.execute(f"DELETE FROM olympiad_tasks WHERE id = {task_id_int}")
             deleted = cursor.rowcount
             print(f"[DELETE] deleted rows: {deleted}")

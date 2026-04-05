@@ -21,9 +21,9 @@ interface OlympiadTask {
 }
 
 // ===== Искалка слов =====
-const WS_GRID_SIZE = 14;
+const WS_GRID_SIZE = 12;
 const WS_ALPHABET = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
-const WS_DIRECTIONS = [[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1],[1,-1],[-1,1]];
+const WS_DIRECTIONS = [[0,1],[1,0],[0,-1],[-1,0]];
 const WS_COLORS = ['bg-green-200 text-green-900','bg-blue-200 text-blue-900','bg-purple-200 text-purple-900','bg-pink-200 text-pink-900','bg-yellow-200 text-yellow-900','bg-teal-200 text-teal-900','bg-orange-200 text-orange-900','bg-red-200 text-red-900','bg-indigo-200 text-indigo-900','bg-emerald-200 text-emerald-900'];
 
 function buildWordSearchGrid(words: string[]) {
@@ -54,7 +54,7 @@ function getLineCells(start: [number,number], end: [number,number]): [number,num
   const dr = end[0]-start[0], dc = end[1]-start[1];
   const len = Math.max(Math.abs(dr), Math.abs(dc));
   if (len === 0) return [start];
-  if (Math.abs(dr) !== 0 && Math.abs(dc) !== 0 && Math.abs(dr) !== Math.abs(dc)) return [start];
+  if (Math.abs(dr) !== 0 && Math.abs(dc) !== 0) return [start];
   const sr = dr === 0 ? 0 : dr/Math.abs(dr), sc = dc === 0 ? 0 : dc/Math.abs(dc);
   return Array.from({ length: len+1 }, (_, i) => [start[0]+sr*i, start[1]+sc*i] as [number,number]);
 }

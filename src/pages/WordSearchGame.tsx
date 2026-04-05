@@ -7,16 +7,12 @@ const WORD_SEARCH_API_URL = "https://functions.poehali.dev/68f0a840-3a59-44e0-b0
 const DIRECTIONS = [
   [0, 1],   // →
   [1, 0],   // ↓
-  [1, 1],   // ↘
   [0, -1],  // ←
   [-1, 0],  // ↑
-  [-1, -1], // ↖
-  [1, -1],  // ↙
-  [-1, 1],  // ↗
 ];
 
 const ALPHABET = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
-const GRID_SIZE = 15;
+const GRID_SIZE = 12;
 
 function buildGrid(words: string[]): { grid: string[][], placements: Record<string, [number, number, number, number][]> } {
   const grid: string[][] = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(""));
@@ -151,7 +147,7 @@ export default function WordSearchGame() {
     if (len === 0) return [start];
     const stepR = dr === 0 ? 0 : dr / Math.abs(dr);
     const stepC = dc === 0 ? 0 : dc / Math.abs(dc);
-    if (Math.abs(dr) !== 0 && Math.abs(dc) !== 0 && Math.abs(dr) !== Math.abs(dc)) return [start];
+    if (Math.abs(dr) !== 0 && Math.abs(dc) !== 0) return [start];
     const cells: [number, number][] = [];
     for (let i = 0; i <= len; i++) {
       cells.push([start[0] + stepR * i, start[1] + stepC * i]);

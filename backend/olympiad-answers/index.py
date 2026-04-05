@@ -36,21 +36,39 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
 
         if application_id:
+            # Получаем olympiad_type участника
             cur.execute("""
-                SELECT a.id, a.task_id, t.title, t.question, t.options, a.answer, a.submitted_at, t.correct_answer, t.task_type
-                FROM t_p93576920_talent_studio_projec.olympiad_answers a
-                JOIN t_p93576920_talent_studio_projec.olympiad_tasks t ON t.id = a.task_id
-                WHERE a.olympiad_application_id = %s
-                ORDER BY t.sort_order
+                SELECT olympiad_type FROM t_p93576920_talent_studio_projec.olympiad_applications
+                WHERE id = %s LIMIT 1
             """, (int(application_id),))
-        elif payment_id:
+            app_row = cur.fetchone()
+            olympiad_type = app_row[0] if app_row else 'palette'
+
             cur.execute("""
-                SELECT a.id, a.task_id, t.title, t.question, t.options, a.answer, a.submitted_at, t.correct_answer, t.task_type
-                FROM t_p93576920_talent_studio_projec.olympiad_answers a
-                JOIN t_p93576920_talent_studio_projec.olympiad_tasks t ON t.id = a.task_id
-                WHERE a.payment_id = %s
+                SELECT a.id, t.id, t.title, t.question, t.options, a.answer, a.submitted_at, t.correct_answer, t.task_type
+                FROM t_p93576920_talent_studio_projec.olympiad_tasks t
+                LEFT JOIN t_p93576920_talent_studio_projec.olympiad_answers a
+                    ON a.task_id = t.id AND a.olympiad_application_id = %s
+                WHERE t.olympiad_type = %s AND t.is_active = TRUE
                 ORDER BY t.sort_order
+            """, (int(application_id), olympiad_type))
+        elif payment_id:
+            # Получаем olympiad_type участника по payment_id
+            cur.execute("""
+                SELECT olympiad_type FROM t_p93576920_talent_studio_projec.olympiad_applications
+                WHERE payment_id = %s LIMIT 1
             """, (payment_id,))
+            app_row = cur.fetchone()
+            olympiad_type = app_row[0] if app_row else 'palette'
+
+            cur.execute("""
+                SELECT a.id, t.id, t.title, t.question, t.options, a.answer, a.submitted_at, t.correct_answer, t.task_type
+                FROM t_p93576920_talent_studio_projec.olympiad_tasks t
+                LEFT JOIN t_p93576920_talent_studio_projec.olympiad_answers a
+                    ON a.task_id = t.id AND a.payment_id = %s
+                WHERE t.olympiad_type = %s AND t.is_active = TRUE
+                ORDER BY t.sort_order
+            """, (payment_id, olympiad_type))
         else:
             cur.close()
             conn.close()
@@ -73,10 +91,11 @@ def handler(event: dict, context) -> dict:
             task_type = row[8] or 'quiz'
             if task_type == 'wordsearch':
                 is_correct = user_answer == '__wordsearch_done__'
+            elif user_answer is None:
+                is_correct = False
             else:
                 is_correct = (
                     correct_answer is not None
-                    and user_answer is not None
                     and str(user_answer).strip().lower() == str(correct_answer).strip().lower()
                 )
             result.append({

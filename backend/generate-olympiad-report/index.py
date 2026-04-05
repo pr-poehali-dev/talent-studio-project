@@ -78,11 +78,11 @@ def handler(event: dict, context) -> dict:
     }
 
     cursor.execute("""
-        SELECT oa.task_id, oa.answer, ot.question, ot.correct_answer, ot.task_type, ot.sort_order
-        FROM olympiad_answers oa
-        LEFT JOIN olympiad_tasks ot ON oa.task_id = ot.id
-        WHERE oa.payment_id = %s AND oa.olympiad_type = %s
-        ORDER BY ot.sort_order ASC, oa.task_id ASC
+        SELECT ot.id, oa.answer, ot.question, ot.correct_answer, ot.task_type, ot.sort_order
+        FROM olympiad_tasks ot
+        LEFT JOIN olympiad_answers oa ON oa.task_id = ot.id AND oa.payment_id = %s
+        WHERE ot.olympiad_type = %s AND ot.is_active = TRUE
+        ORDER BY ot.sort_order ASC, ot.id ASC
     """, (app['payment_id'], app['olympiad_type']))
     answer_rows = cursor.fetchall()
     cursor.close(); conn.close()
@@ -96,7 +96,7 @@ def handler(event: dict, context) -> dict:
         if task_type == 'wordsearch':
             is_correct = given == '__wordsearch_done__'
         else:
-            is_correct = given.strip().lower() == correct.strip().lower() if correct else None
+            is_correct = given.strip().lower() == correct.strip().lower() if correct else False
         answers.append({
             'task_id': row[0], 'answer': given,
             'question': (row[2] or '').replace('\n', ' ').strip(),

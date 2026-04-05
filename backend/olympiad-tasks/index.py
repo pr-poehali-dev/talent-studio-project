@@ -60,6 +60,8 @@ def handler(event: dict, context) -> dict:
                 except ValueError:
                     pass
 
+            participant_full_name = None
+
             # Для не-админов требуем подтверждённый payment_id
             if not is_admin:
                 if not payment_id:
@@ -73,11 +75,12 @@ def handler(event: dict, context) -> dict:
                 # demo_ — тестовый режим без реальной оплаты
                 if not payment_id.startswith('demo_'):
                     cursor.execute("""
-                        SELECT id FROM olympiad_applications
+                        SELECT id, full_name FROM olympiad_applications
                         WHERE payment_id = %s AND payment_status = 'paid' AND olympiad_type = %s AND deleted_at IS NULL
                         LIMIT 1
                     """, (payment_id, olympiad_type))
-                    if not cursor.fetchone():
+                    app_row = cursor.fetchone()
+                    if not app_row:
                         cursor.close()
                         conn.close()
                         return {
@@ -85,6 +88,7 @@ def handler(event: dict, context) -> dict:
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                             'body': json.dumps({'error': 'Доступ закрыт: оплата не подтверждена'})
                         }
+                    participant_full_name = app_row[1]
 
             if is_admin:
                 cursor.execute("""
@@ -136,7 +140,7 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps(result)
+                'body': json.dumps({'tasks': result, 'participant_full_name': participant_full_name})
             }
 
         # POST: создать новое задание

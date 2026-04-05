@@ -48,6 +48,7 @@ const OlympiadTasks = () => {
   const storageKey = paymentId ? `olympiad_progress_${paymentId}` : null;
 
   const [tasks, setTasks] = useState<OlympiadTask[]>([]);
+  const [participantName, setParticipantName] = useState<string | null>(null);
   const [tasksLoading, setTasksLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(() => {
     if (!paymentId) return 0;
@@ -82,7 +83,14 @@ const OlympiadTasks = () => {
       : `${TASKS_API_URL}?type=${olympiadType}&payment_id=${paymentId}`;
     fetch(url)
       .then((r) => r.json())
-      .then((data: OlympiadTask[]) => setTasks(Array.isArray(data) ? data : []))
+      .then((data) => {
+        if (data && Array.isArray(data.tasks)) {
+          setTasks(data.tasks);
+          setParticipantName(data.participant_full_name || null);
+        } else if (Array.isArray(data)) {
+          setTasks(data);
+        }
+      })
       .catch(() => setTasks([]))
       .finally(() => setTasksLoading(false));
   }, [olympiadType, studyYearParam, paymentId]);
@@ -170,6 +178,7 @@ const OlympiadTasks = () => {
           <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-400 font-medium">Олимпиада</p>
             <p className="font-bold text-gray-800 text-base truncate">«{olympiadName}»{studyYearLabel ? ` · ${studyYearLabel}` : ''}</p>
+            {participantName && <p className="text-xs text-gray-500 mt-0.5 truncate">{participantName}</p>}
           </div>
           {!submitted && total > 0 && (
             <div className="text-right flex-shrink-0">

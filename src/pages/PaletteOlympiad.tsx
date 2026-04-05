@@ -105,7 +105,7 @@ export default function PaletteOlympiad() {
         }),
       });
       localStorage.setItem('olympiad_payment_id', demoPaymentId);
-      window.location.href = `/payment-success?type=palette&study_year=${form.studyYear}&payment_id=${demoPaymentId}`;
+      window.location.href = `/payment-success?type=palette&study_year=${form.studyYear}&payment_id=${demoPaymentId}&full_name=${encodeURIComponent(form.fullName)}`;
     } catch {
       toast({ title: "Ошибка", description: "Не удалось отправить заявку", variant: "destructive" });
       setSubmitting(false);

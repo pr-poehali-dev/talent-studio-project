@@ -222,7 +222,7 @@ const AdminOlympiadsTab = () => {
     try {
       const res = await fetch(`${TASKS_API_URL}?type=palette&admin=true`);
       const data = await res.json();
-      setTasks(data);
+      setTasks(Array.isArray(data) ? data : (Array.isArray(data.tasks) ? data.tasks : []));
     } catch {
       toast({ title: "Ошибка загрузки заданий", variant: "destructive" });
     } finally {

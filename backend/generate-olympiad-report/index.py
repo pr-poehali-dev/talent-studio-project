@@ -218,56 +218,76 @@ def handler(event: dict, context) -> dict:
         for i, ans in enumerate(answers, 1):
             is_ws = ans['task_type'] == 'wordsearch'
             if ans['is_correct'] is True:
-                row_bg = colors.HexColor('#f0fdf4')
+                row_bg   = colors.HexColor('#f0fdf4')
                 badge_txt = '✓ Верно'
                 badge_col = colors.HexColor('#15803d')
             elif ans['is_correct'] is False:
-                row_bg = colors.HexColor('#fef2f2')
+                row_bg   = colors.HexColor('#fef2f2')
                 badge_txt = '✗ Неверно'
                 badge_col = colors.HexColor('#dc2626')
             else:
-                row_bg = colors.HexColor('#fffbeb')
+                row_bg   = colors.HexColor('#fffbeb')
                 badge_txt = '— Нет ответа'
                 badge_col = colors.HexColor('#92400e')
 
-            q_text = ans['question'][:180] + ('…' if len(ans['question']) > 180 else '')
+            q_text = ans['question'][:200] + ('…' if len(ans['question']) > 200 else '')
+            badge_ps = ParagraphStyle(f'badge{i}', fontName='B', fontSize=8,
+                                      alignment=TA_CENTER, textColor=badge_col)
 
             if is_ws:
-                given_txt = 'Все слова найдены' if ans['answer'] == '__wordsearch_done__' else 'Не завершено'
-                detail_row = [Paragraph('Результат:', small_s),
-                              Paragraph(given_txt, val_s), '']
-            else:
-                given_txt = ans['answer'][:60] if ans['answer'] else '—'
-                correct_txt = ans['correct_answer'][:60] if ans['correct_answer'] else '—'
-                detail_row = [
-                    Paragraph('Ответ:', small_s),
-                    Paragraph(given_txt, wrong_s),
-                    Paragraph(f"Правильно: {correct_txt}", corr_s) if ans['correct_answer'] else '',
+                given_txt   = 'Все слова найдены' if ans['answer'] == '__wordsearch_done__' else 'Не завершено'
+                # Для искалки: 2 строки — вопрос + результат
+                rows = [
+                    [Paragraph(f'#{i}', lbl_s),  Paragraph(q_text, body_s),            Paragraph(badge_txt, badge_ps)],
+                    ['',                           Paragraph(f'Результат: {given_txt}', small_s), ''],
                 ]
+                spans = [('SPAN',(0,0),(0,1)), ('SPAN',(2,0),(2,1))]
+                num_rows = 2
+            else:
+                given_txt   = ans['answer'][:80]   if ans['answer']        else '—'
+                correct_txt = ans['correct_answer'][:80] if ans['correct_answer'] else '—'
 
-            badge_ps = ParagraphStyle('badge', fontName='B', fontSize=8,
-                                      alignment=TA_CENTER, textColor=badge_col)
-            task_tbl = Table([
-                [Paragraph(f'#{i}', lbl_s), Paragraph(q_text, body_s), Paragraph(badge_txt, badge_ps)],
-                ['', detail_row[1] if not is_ws else Paragraph(given_txt, val_s),
-                      detail_row[2] if not is_ws else ''],
-            ], colWidths=[1.2*cm, 12.3*cm, 3.2*cm])
+                given_label_ps   = ParagraphStyle(f'gl{i}', fontName='R', fontSize=8, textColor=colors.HexColor('#1a1a1a'), leading=11)
+                correct_label_ps = ParagraphStyle(f'cl{i}', fontName='B', fontSize=8, textColor=colors.HexColor('#15803d'), leading=11)
 
-            task_tbl.setStyle(TableStyle([
-                ('BACKGROUND',  (0,0),(-1,-1), row_bg),
-                ('GRID',        (0,0),(-1,-1), 0.3, colors.HexColor('#e5e7eb')),
-                ('VALIGN',      (0,0),(-1,-1), 'TOP'),
-                ('TOPPADDING',  (0,0),(-1,-1), 4),
+                # 3 строки: вопрос / ответ участника / правильный ответ
+                rows = [
+                    [Paragraph(f'#{i}', lbl_s),
+                     Paragraph(q_text, body_s),
+                     Paragraph(badge_txt, badge_ps)],
+                    ['',
+                     Table([[Paragraph('Ответ участника:', small_s), Paragraph(given_txt, given_label_ps)]], colWidths=[3.5*cm, 8.5*cm]),
+                     ''],
+                    ['',
+                     Table([[Paragraph('Правильный ответ:', small_s), Paragraph(correct_txt, correct_label_ps)]], colWidths=[3.5*cm, 8.5*cm]),
+                     ''],
+                ]
+                spans = [('SPAN',(0,0),(0,2)), ('SPAN',(2,0),(2,2))]
+                num_rows = 3
+
+            col_w = [1.2*cm, 12.3*cm, 3.2*cm]
+            task_tbl = Table(rows, colWidths=col_w)
+
+            style_cmds = [
+                ('BACKGROUND',   (0,0),(-1,-1), row_bg),
+                ('GRID',         (0,0),(-1,-1), 0.3, colors.HexColor('#e5e7eb')),
+                ('VALIGN',       (0,0),(-1,-1), 'TOP'),
+                ('TOPPADDING',   (0,0),(-1,-1), 4),
                 ('BOTTOMPADDING',(0,0),(-1,-1), 4),
-                ('LEFTPADDING', (0,0),(-1,-1), 5),
-                ('RIGHTPADDING',(0,0),(-1,-1), 5),
-                ('SPAN',        (0,0),(0,1)),
-                ('VALIGN',      (0,0),(0,1), 'MIDDLE'),
-                ('ALIGN',       (2,0),(2,0), 'CENTER'),
-                ('SPAN',        (2,0),(2,1)),
-                ('VALIGN',      (2,0),(2,1), 'MIDDLE'),
-            ]))
-            story += [task_tbl, Spacer(1, 3)]
+                ('LEFTPADDING',  (0,0),(-1,-1), 5),
+                ('RIGHTPADDING', (0,0),(-1,-1), 5),
+                ('ALIGN',        (2,0),(2,0),   'CENTER'),
+                ('VALIGN',       (0,0),(0,-1),  'MIDDLE'),
+                ('VALIGN',       (2,0),(2,-1),  'MIDDLE'),
+                # Подсветка строки с правильным ответом
+            ] + [('SPAN', s[1], s[2]) for s in spans]
+
+            if not is_ws:
+                # Чуть другой фон для строки с правильным ответом
+                style_cmds.append(('BACKGROUND', (1,2),(1,2), colors.HexColor('#f0fdf4')))
+
+            task_tbl.setStyle(TableStyle(style_cmds))
+            story += [task_tbl, Spacer(1, 4)]
 
     # Футер
     story += [

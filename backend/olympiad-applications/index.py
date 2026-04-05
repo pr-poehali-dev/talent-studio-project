@@ -53,7 +53,7 @@ def handler(event: dict, context) -> dict:
             cursor.execute("""
                 SELECT id, full_name, age, study_year, teacher, institution,
                        work_title, email, olympiad_type, status, payment_status,
-                       created_at, updated_at, deleted_at
+                       created_at, updated_at, deleted_at, payment_id, olympiad_status
                 FROM olympiad_applications
                 WHERE deleted_at IS NOT NULL AND olympiad_type = %s
                 ORDER BY deleted_at DESC
@@ -62,7 +62,7 @@ def handler(event: dict, context) -> dict:
             cursor.execute("""
                 SELECT id, full_name, age, study_year, teacher, institution,
                        work_title, email, olympiad_type, status, payment_status,
-                       created_at, updated_at, deleted_at
+                       created_at, updated_at, deleted_at, payment_id, olympiad_status
                 FROM olympiad_applications
                 WHERE deleted_at IS NULL AND olympiad_type = %s
                 ORDER BY created_at DESC
@@ -71,6 +71,12 @@ def handler(event: dict, context) -> dict:
         rows = cursor.fetchall()
         result = []
         for row in rows:
+            pid = row[14]
+            otype = row[8]
+            study_yr = row[3]
+            task_url = None
+            if pid:
+                task_url = f"https://talentpalette.ru/olympiad/tasks?type={otype}&study_year={study_yr}&payment_id={pid}"
             result.append({
                 'id': row[0],
                 'full_name': row[1],
@@ -86,6 +92,9 @@ def handler(event: dict, context) -> dict:
                 'created_at': row[11].isoformat() if row[11] else None,
                 'updated_at': row[12].isoformat() if row[12] else None,
                 'deleted_at': row[13].isoformat() if row[13] else None,
+                'payment_id': pid,
+                'olympiad_status': row[15] or 'paid',
+                'task_url': task_url,
             })
 
         cursor.close()

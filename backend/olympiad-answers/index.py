@@ -122,13 +122,21 @@ def handler(event: dict, context) -> dict:
                 DO UPDATE SET answer = EXCLUDED.answer, submitted_at = NOW()
             """, (application_id, payment_id, olympiad_type or "", task_id, answer_text))
 
-        # Если финальная отправка — обновить статус заявки
-        if submitted and application_id:
-            cur.execute("""
-                UPDATE t_p93576920_talent_studio_projec.olympiad_applications
-                SET status = 'sent'
-                WHERE id = %s
-            """, (application_id,))
+        # Обновить olympiad_status: 'started' при любом сохранении, 'finished' при финальной отправке
+        if application_id:
+            if submitted:
+                cur.execute("""
+                    UPDATE t_p93576920_talent_studio_projec.olympiad_applications
+                    SET status = 'sent', olympiad_status = 'finished', updated_at = NOW()
+                    WHERE id = %s
+                """, (application_id,))
+            else:
+                cur.execute("""
+                    UPDATE t_p93576920_talent_studio_projec.olympiad_applications
+                    SET olympiad_status = CASE WHEN olympiad_status = 'finished' THEN 'finished' ELSE 'started' END,
+                        updated_at = NOW()
+                    WHERE id = %s
+                """, (application_id,))
 
         conn.commit()
         cur.close()

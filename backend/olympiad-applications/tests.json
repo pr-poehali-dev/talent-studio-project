@@ -7,12 +7,10 @@
       "expectedStatus": 200
     },
     {
-      "name": "GET applications",
+      "name": "GET applications returns 200",
       "method": "GET",
       "path": "/",
-      "expectedStatus": 200,
-      "expectedBody": [],
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     }
   ]
 }

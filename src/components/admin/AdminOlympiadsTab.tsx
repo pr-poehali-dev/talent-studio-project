@@ -22,6 +22,9 @@ interface OlympiadApplication {
   payment_status: string;
   created_at: string;
   deleted_at: string | null;
+  payment_id: string | null;
+  olympiad_status: string;
+  task_url: string | null;
 }
 
 interface Settings {
@@ -94,11 +97,24 @@ const STATUS_COLORS: Record<string, string> = {
   sent: "bg-green-100 text-green-700",
 };
 
+const OLYMPIAD_STATUS_LABELS: Record<string, string> = {
+  paid: "Оплачена",
+  started: "Начата",
+  finished: "Завершена",
+};
+
+const OLYMPIAD_STATUS_COLORS: Record<string, string> = {
+  paid: "bg-orange-100 text-orange-700",
+  started: "bg-yellow-100 text-yellow-700",
+  finished: "bg-green-100 text-green-700",
+};
+
 const AdminOlympiadsTab = () => {
   const { toast } = useToast();
   const [subTab, setSubTab] = useState<SubTab>("applications");
   const [applications, setApplications] = useState<OlympiadApplication[]>([]);
   const [loading, setLoading] = useState(false);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
   const [settings, setSettings] = useState<Settings>({
     olympiad_palette_price: "",
     olympiad_palette_description: "",
@@ -591,6 +607,9 @@ const AdminOlympiadsTab = () => {
                         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[app.status] || "bg-gray-100 text-gray-600"}`}>
                           {STATUS_LABELS[app.status] || app.status}
                         </span>
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${OLYMPIAD_STATUS_COLORS[app.olympiad_status] || "bg-gray-100 text-gray-600"}`}>
+                          {OLYMPIAD_STATUS_LABELS[app.olympiad_status] || app.olympiad_status}
+                        </span>
                         <span className="text-xs text-gray-400">
                           {new Date(app.created_at).toLocaleDateString("ru-RU")}
                         </span>
@@ -603,6 +622,25 @@ const AdminOlympiadsTab = () => {
                         {app.teacher && <div><span className="text-gray-400">Педагог:</span> {app.teacher}</div>}
                         {app.institution && <div className="col-span-2"><span className="text-gray-400">Учреждение:</span> {app.institution}</div>}
                       </div>
+                      {app.task_url && (
+                        <div className="mt-3 flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
+                          <Icon name="Link" size={13} className="text-blue-400 flex-shrink-0" />
+                          <span className="text-xs text-gray-500 truncate flex-1 font-mono">{app.task_url}</span>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(app.task_url!);
+                              setCopiedId(app.id);
+                              setTimeout(() => setCopiedId(null), 2000);
+                            }}
+                            className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                          >
+                            {copiedId === app.id
+                              ? <><Icon name="Check" size={13} className="text-green-500" /><span className="text-green-600">Скопировано</span></>
+                              : <><Icon name="Copy" size={13} /><span>Копировать</span></>
+                            }
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
                       {answersStats[app.id] && answersStats[app.id].total > 0 && (

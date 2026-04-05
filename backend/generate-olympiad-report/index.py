@@ -23,6 +23,24 @@ STATUS_LABELS = {
     'sent': 'Отправлена',
 }
 
+def study_year_matches(study_years, participant_year):
+    if not study_years:
+        return True
+    for sy in study_years:
+        if sy == '7+':
+            if participant_year >= 7:
+                return True
+        elif '-' in str(sy):
+            parts = str(sy).split('-')
+            try:
+                lo, hi = int(parts[0]), int(parts[1])
+                if lo <= participant_year <= hi:
+                    return True
+            except (ValueError, IndexError):
+                pass
+    return False
+
+
 def get_font_paths():
     """Берём DejaVuSans из пакета matplotlib — он всегда там есть"""
     import matplotlib
@@ -78,7 +96,7 @@ def handler(event: dict, context) -> dict:
     }
 
     cursor.execute("""
-        SELECT ot.id, oa.answer, ot.question, ot.correct_answer, ot.task_type, ot.sort_order
+        SELECT ot.id, oa.answer, ot.question, ot.correct_answer, ot.task_type, ot.sort_order, ot.study_years
         FROM olympiad_tasks ot
         LEFT JOIN olympiad_answers oa ON oa.task_id = ot.id AND oa.payment_id = %s
         WHERE ot.olympiad_type = %s AND ot.is_active = TRUE
@@ -87,8 +105,13 @@ def handler(event: dict, context) -> dict:
     answer_rows = cursor.fetchall()
     cursor.close(); conn.close()
 
+    participant_study_year = int(app['study_year']) if app['study_year'] else None
+
     answers = []
     for row in answer_rows:
+        task_study_years = row[6]
+        if participant_study_year is not None and not study_year_matches(task_study_years, participant_study_year):
+            continue
         task_type = row[4] or 'quiz'
         given = row[1] or ''
         correct = row[3] or ''

@@ -13,6 +13,24 @@ def get_conn():
     return psycopg2.connect(os.environ["DATABASE_URL"])
 
 
+def study_year_matches(study_years, participant_year):
+    if not study_years:
+        return True
+    for sy in study_years:
+        if sy == '7+':
+            if participant_year >= 7:
+                return True
+        elif '-' in str(sy):
+            parts = str(sy).split('-')
+            try:
+                lo, hi = int(parts[0]), int(parts[1])
+                if lo <= participant_year <= hi:
+                    return True
+            except (ValueError, IndexError):
+                pass
+    return False
+
+
 CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -36,16 +54,16 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
 
         if application_id:
-            # Получаем olympiad_type участника
             cur.execute("""
-                SELECT olympiad_type FROM t_p93576920_talent_studio_projec.olympiad_applications
+                SELECT olympiad_type, study_year FROM t_p93576920_talent_studio_projec.olympiad_applications
                 WHERE id = %s LIMIT 1
             """, (int(application_id),))
             app_row = cur.fetchone()
             olympiad_type = app_row[0] if app_row else 'palette'
+            study_year = int(app_row[1]) if app_row and app_row[1] else None
 
             cur.execute("""
-                SELECT a.id, t.id, t.title, t.question, t.options, a.answer, a.submitted_at, t.correct_answer, t.task_type
+                SELECT a.id, t.id, t.title, t.question, t.options, a.answer, a.submitted_at, t.correct_answer, t.task_type, t.study_years
                 FROM t_p93576920_talent_studio_projec.olympiad_tasks t
                 LEFT JOIN t_p93576920_talent_studio_projec.olympiad_answers a
                     ON a.task_id = t.id AND a.olympiad_application_id = %s
@@ -53,16 +71,16 @@ def handler(event: dict, context) -> dict:
                 ORDER BY t.sort_order
             """, (int(application_id), olympiad_type))
         elif payment_id:
-            # Получаем olympiad_type участника по payment_id
             cur.execute("""
-                SELECT olympiad_type FROM t_p93576920_talent_studio_projec.olympiad_applications
+                SELECT olympiad_type, study_year FROM t_p93576920_talent_studio_projec.olympiad_applications
                 WHERE payment_id = %s LIMIT 1
             """, (payment_id,))
             app_row = cur.fetchone()
             olympiad_type = app_row[0] if app_row else 'palette'
+            study_year = int(app_row[1]) if app_row and app_row[1] else None
 
             cur.execute("""
-                SELECT a.id, t.id, t.title, t.question, t.options, a.answer, a.submitted_at, t.correct_answer, t.task_type
+                SELECT a.id, t.id, t.title, t.question, t.options, a.answer, a.submitted_at, t.correct_answer, t.task_type, t.study_years
                 FROM t_p93576920_talent_studio_projec.olympiad_tasks t
                 LEFT JOIN t_p93576920_talent_studio_projec.olympiad_answers a
                     ON a.task_id = t.id AND a.payment_id = %s
@@ -80,6 +98,9 @@ def handler(event: dict, context) -> dict:
 
         result = []
         for row in rows:
+            task_study_years = row[9]
+            if study_year is not None and not study_year_matches(task_study_years, study_year):
+                continue
             opts = row[4]
             if isinstance(opts, str):
                 try:

@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, PlayCircle, Trophy } from 'lucide-react';
+import { CheckCircle, PlayCircle, Trophy, Copy, Check, Link } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const OLYMPIAD_NAMES: Record<string, string> = {
@@ -24,6 +24,8 @@ const STUDY_YEAR_LABELS: Record<string, string> = {
 const PaymentSuccess = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [copied, setCopied] = useState(false);
+
   const olympiadType = searchParams.get('type') || '';
   const studyYearParam = searchParams.get('study_year') || '';
   const paymentId =
@@ -39,12 +41,21 @@ const PaymentSuccess = () => {
   const olympiadName = OLYMPIAD_NAMES[olympiadType] || 'Олимпиада';
   const studyYearLabel = STUDY_YEAR_LABELS[studyYearParam] || (studyYearParam ? `${studyYearParam} год обучения` : '');
 
+  const taskParams = new URLSearchParams();
+  if (olympiadType) taskParams.set('type', olympiadType);
+  if (studyYearParam) taskParams.set('study_year', studyYearParam);
+  if (paymentId) taskParams.set('payment_id', paymentId);
+  const taskUrl = `${window.location.origin}/olympiad/tasks?${taskParams.toString()}`;
+
   const handleStartTasks = () => {
-    const params = new URLSearchParams();
-    if (olympiadType) params.set('type', olympiadType);
-    if (studyYearParam) params.set('study_year', studyYearParam);
-    if (paymentId) params.set('payment_id', paymentId);
-    window.open(`/olympiad/tasks?${params.toString()}`, '_blank');
+    window.open(taskUrl, '_blank');
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(taskUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   };
 
   return (
@@ -86,18 +97,43 @@ const PaymentSuccess = () => {
             )}
           </div>
 
-          <p className="text-sm text-gray-500 mb-8">
+          <p className="text-sm text-gray-500 mb-6">
             Нажмите кнопку ниже, чтобы перейти к заданиям. Они откроются в новой вкладке.
           </p>
 
           <Button
             onClick={handleStartTasks}
             size="lg"
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-2xl py-6 text-base font-bold flex items-center justify-center gap-2 mb-4"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-2xl py-6 text-base font-bold flex items-center justify-center gap-2 mb-5"
           >
             <PlayCircle className="w-5 h-5" />
             Начать выполнение олимпиады
           </Button>
+
+          {paymentId && (
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-5 text-left">
+              <div className="flex items-start gap-2 mb-2">
+                <Link className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-blue-700 font-semibold">Ваша личная ссылка на олимпиаду</p>
+              </div>
+              <p className="text-xs text-blue-600 mb-3 leading-relaxed">
+                Если потеряете интернет или закроете вкладку — вернитесь по этой ссылке и продолжите с того же места.
+              </p>
+              <div className="flex items-center gap-2 bg-white border border-blue-200 rounded-xl px-3 py-2">
+                <span className="text-xs text-gray-500 truncate flex-1 font-mono">{taskUrl}</span>
+                <button
+                  onClick={handleCopyLink}
+                  className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  {copied ? (
+                    <><Check className="w-3.5 h-3.5 text-green-500" /><span className="text-green-600">Скопировано</span></>
+                  ) : (
+                    <><Copy className="w-3.5 h-3.5" /><span>Копировать</span></>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
 
           <button
             onClick={() => navigate('/')}

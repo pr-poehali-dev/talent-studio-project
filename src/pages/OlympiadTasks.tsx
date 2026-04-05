@@ -45,10 +45,24 @@ const OlympiadTasks = () => {
   const studyYearParam = searchParams.get('study_year') || '';
   const paymentId = searchParams.get('payment_id') || searchParams.get('paymentId') || '';
 
+  const storageKey = paymentId ? `olympiad_progress_${paymentId}` : null;
+
   const [tasks, setTasks] = useState<OlympiadTask[]>([]);
   const [tasksLoading, setTasksLoading] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    if (!paymentId) return 0;
+    try {
+      const saved = localStorage.getItem(`olympiad_progress_${paymentId}`);
+      return saved ? (JSON.parse(saved).currentIndex ?? 0) : 0;
+    } catch { return 0; }
+  });
+  const [answers, setAnswers] = useState<Record<number, string>>(() => {
+    if (!paymentId) return {};
+    try {
+      const saved = localStorage.getItem(`olympiad_progress_${paymentId}`);
+      return saved ? (JSON.parse(saved).answers ?? {}) : {};
+    } catch { return {}; }
+  });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -72,6 +86,15 @@ const OlympiadTasks = () => {
       .catch(() => setTasks([]))
       .finally(() => setTasksLoading(false));
   }, [olympiadType, studyYearParam, paymentId]);
+
+  useEffect(() => {
+    if (!storageKey) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify({ answers, currentIndex }));
+    } catch (e) {
+      console.warn('localStorage save failed', e);
+    }
+  }, [answers, currentIndex, storageKey]);
 
   const task = tasks[currentIndex];
   const total = tasks.length;
@@ -126,6 +149,7 @@ const OlympiadTasks = () => {
         }),
       });
       setSubmitted(true);
+      if (storageKey) localStorage.removeItem(storageKey);
       window.scrollTo(0, 0);
     } catch {
       // ignore

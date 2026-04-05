@@ -92,6 +92,7 @@ def handler(event: dict, context) -> dict:
         task_type = row[4] or 'quiz'
         given = row[1] or ''
         correct = row[3] or ''
+        print(f'[ROW] task_id={row[0]} task_type={task_type!r} answer={given!r} correct={correct!r}')
         if task_type == 'wordsearch':
             is_correct = given == '__wordsearch_done__'
         else:

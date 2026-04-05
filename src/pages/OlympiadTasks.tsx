@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CheckCircle, BookOpen, ChevronLeft, ChevronRight, Send, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,145 @@ interface OlympiadTask {
   options: string[] | null;
   sort_order: number;
   is_active: boolean;
+  task_type?: string;
+}
+
+// ===== Искалка слов =====
+const WS_GRID_SIZE = 14;
+const WS_ALPHABET = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
+const WS_DIRECTIONS = [[0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1],[1,-1],[-1,1]];
+const WS_COLORS = ['bg-green-200 text-green-900','bg-blue-200 text-blue-900','bg-purple-200 text-purple-900','bg-pink-200 text-pink-900','bg-yellow-200 text-yellow-900','bg-teal-200 text-teal-900','bg-orange-200 text-orange-900','bg-red-200 text-red-900','bg-indigo-200 text-indigo-900','bg-emerald-200 text-emerald-900'];
+
+function buildWordSearchGrid(words: string[]) {
+  const grid: string[][] = Array.from({ length: WS_GRID_SIZE }, () => Array(WS_GRID_SIZE).fill(''));
+  const placements: Record<string, string> = {};
+  for (const word of [...words].sort((a, b) => b.length - a.length)) {
+    let placed = false; let attempts = 0;
+    while (!placed && attempts++ < 400) {
+      const [dr, dc] = WS_DIRECTIONS[Math.floor(Math.random() * WS_DIRECTIONS.length)];
+      const minR = dr < 0 ? word.length - 1 : 0, maxR = dr > 0 ? WS_GRID_SIZE - word.length : WS_GRID_SIZE - 1;
+      const minC = dc < 0 ? word.length - 1 : 0, maxC = dc > 0 ? WS_GRID_SIZE - word.length : WS_GRID_SIZE - 1;
+      if (maxR < minR || maxC < minC) continue;
+      const r0 = minR + Math.floor(Math.random() * (maxR - minR + 1));
+      const c0 = minC + Math.floor(Math.random() * (maxC - minC + 1));
+      let ok = true;
+      for (let i = 0; i < word.length; i++) { const r = r0+dr*i, c = c0+dc*i; if (grid[r][c] !== '' && grid[r][c] !== word[i]) { ok = false; break; } }
+      if (!ok) continue;
+      for (let i = 0; i < word.length; i++) { grid[r0+dr*i][c0+dc*i] = word[i]; placements[`${r0+dr*i}-${c0+dc*i}`] = word; }
+      placed = true;
+    }
+  }
+  for (let r = 0; r < WS_GRID_SIZE; r++) for (let c = 0; c < WS_GRID_SIZE; c++)
+    if (grid[r][c] === '') grid[r][c] = WS_ALPHABET[Math.floor(Math.random() * WS_ALPHABET.length)];
+  return { grid, placements };
+}
+
+function getLineCells(start: [number,number], end: [number,number]): [number,number][] {
+  const dr = end[0]-start[0], dc = end[1]-start[1];
+  const len = Math.max(Math.abs(dr), Math.abs(dc));
+  if (len === 0) return [start];
+  if (Math.abs(dr) !== 0 && Math.abs(dc) !== 0 && Math.abs(dr) !== Math.abs(dc)) return [start];
+  const sr = dr === 0 ? 0 : dr/Math.abs(dr), sc = dc === 0 ? 0 : dc/Math.abs(dc);
+  return Array.from({ length: len+1 }, (_, i) => [start[0]+sr*i, start[1]+sc*i] as [number,number]);
+}
+
+interface WordSearchProps { taskId: number; words: string[]; onComplete: (taskId: number) => void; isCompleted: boolean; }
+
+function WordSearchWidget({ taskId, words, onComplete, isCompleted }: WordSearchProps) {
+  const [{ grid, placements }] = useState(() => buildWordSearchGrid(words.map(w => w.toUpperCase())));
+  const [foundWords, setFoundWords] = useState<string[]>([]);
+  const [foundCells, setFoundCells] = useState<Record<string, number>>({});
+  const [selecting, setSelecting] = useState(false);
+  const [startCell, setStartCell] = useState<[number,number]|null>(null);
+  const [selection, setSelection] = useState<[number,number][]>([]);
+  const [wrongFlash, setWrongFlash] = useState(false);
+  const upperWords = words.map(w => w.toUpperCase());
+
+  useEffect(() => { if (foundWords.length === upperWords.length && upperWords.length > 0 && !isCompleted) onComplete(taskId); }, [foundWords, upperWords.length, taskId, onComplete, isCompleted]);
+
+  const getCellFromPoint = (clientX: number, clientY: number): [number,number]|null => {
+    const el = document.elementFromPoint(clientX, clientY);
+    const r = el?.getAttribute('data-wsrow'), c = el?.getAttribute('data-wscol');
+    return r !== null && r !== undefined && c !== null && c !== undefined ? [parseInt(r), parseInt(c)] : null;
+  };
+
+  const onDown = useCallback((e: React.MouseEvent|React.TouchEvent) => {
+    e.preventDefault();
+    const t = 'touches' in e ? e.touches[0] : e as React.MouseEvent;
+    const cell = getCellFromPoint(t.clientX, t.clientY);
+    if (!cell) return; setSelecting(true); setStartCell(cell); setSelection([cell]);
+  }, []);
+
+  const onMove = useCallback((e: React.MouseEvent|React.TouchEvent) => {
+    e.preventDefault();
+    if (!selecting || !startCell) return;
+    const t = 'touches' in e ? e.touches[0] : e as React.MouseEvent;
+    const cell = getCellFromPoint(t.clientX, t.clientY);
+    if (cell) setSelection(getLineCells(startCell, cell));
+  }, [selecting, startCell]);
+
+  const onUp = useCallback((e: React.MouseEvent|React.TouchEvent) => {
+    e.preventDefault(); setSelecting(false);
+    if (selection.length < 2) { setSelection([]); setStartCell(null); return; }
+    const fwd = selection.map(([r,c]) => grid[r][c]).join('');
+    const bwd = [...selection].reverse().map(([r,c]) => grid[r][c]).join('');
+    const match = upperWords.find(w => !foundWords.includes(w) && (w === fwd || w === bwd));
+    if (match) {
+      const ci = foundWords.length % WS_COLORS.length;
+      const nc = { ...foundCells }; selection.forEach(([r,c]) => { nc[`${r}-${c}`] = ci; }); setFoundCells(nc);
+      setFoundWords(p => [...p, match]);
+    } else { setWrongFlash(true); setTimeout(() => setWrongFlash(false), 350); }
+    setSelection([]); setStartCell(null);
+  }, [selection, grid, upperWords, foundWords, foundCells]);
+
+  const selSet = new Set(selection.map(([r,c]) => `${r}-${c}`));
+
+  return (
+    <div className="space-y-3 select-none">
+      {/* Слова */}
+      <div className="flex flex-wrap gap-1.5">
+        {upperWords.map(word => {
+          const fi = foundWords.indexOf(word);
+          return (
+            <span key={word} className={`px-2.5 py-1 rounded-xl text-xs font-bold border-2 transition-all ${fi >= 0 ? `${WS_COLORS[fi % WS_COLORS.length]} border-transparent line-through opacity-60` : 'bg-white text-gray-700 border-gray-200'}`}>
+              {word}
+            </span>
+          );
+        })}
+      </div>
+      {/* Сетка */}
+      <div
+        className={`rounded-2xl overflow-hidden transition-all ${wrongFlash ? 'ring-2 ring-red-300' : ''} ${isCompleted ? 'opacity-70 pointer-events-none' : ''}`}
+        onMouseDown={onDown} onMouseMove={onMove} onMouseUp={onUp} onMouseLeave={onUp}
+        onTouchStart={onDown} onTouchMove={onMove} onTouchEnd={onUp}
+      >
+        <div className="grid gap-0.5 p-1 bg-orange-50" style={{ gridTemplateColumns: `repeat(${WS_GRID_SIZE}, minmax(0,1fr))` }}>
+          {grid.map((row, r) => row.map((letter, c) => {
+            const key = `${r}-${c}`;
+            const isSel = selSet.has(key), ci = foundCells[key];
+            let cls = 'bg-white text-gray-600';
+            if (ci !== undefined) cls = WS_COLORS[ci % WS_COLORS.length];
+            if (isSel) cls = 'bg-orange-400 text-white scale-105 shadow-sm z-10';
+            return (
+              <div key={key} data-wsrow={r} data-wscol={c}
+                className={`aspect-square flex items-center justify-center rounded text-gray-800 font-bold cursor-default transition-all relative ${cls}`}
+                style={{ fontSize: 'clamp(8px, 2vw, 13px)' }}
+              >{letter}</div>
+            );
+          }))}
+        </div>
+      </div>
+      {isCompleted && (
+        <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-2xl px-4 py-3">
+          <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+          <span className="text-sm font-semibold text-green-700">Все слова найдены! Задание выполнено.</span>
+        </div>
+      )}
+      {!isCompleted && (
+        <p className="text-xs text-gray-400 text-center">Проведи пальцем или мышью по буквам чтобы выделить слово</p>
+      )}
+    </div>
+  );
 }
 
 const OLYMPIAD_NAMES: Record<string, string> = {
@@ -118,6 +257,10 @@ const OlympiadTasks = () => {
   const handleAnswer = (taskId: number, option: string) => {
     setAnswers((prev) => ({ ...prev, [taskId]: option }));
   };
+
+  const handleWordSearchComplete = useCallback((taskId: number) => {
+    setAnswers((prev) => ({ ...prev, [taskId]: '__wordsearch_done__' }));
+  }, []);
 
   const goTo = (index: number) => {
     setCurrentIndex(index);
@@ -272,46 +415,38 @@ const OlympiadTasks = () => {
                 </div>
 
                 <div className="px-6 py-5 space-y-4">
-                  {task.image_url && (
-                    <div className="flex justify-center">
-                      <img
-                        src={task.image_url}
-                        alt={task.title}
-                        className="max-w-full max-h-72 rounded-2xl border border-orange-100 object-contain"
-                      />
-                    </div>
-                  )}
-
-                  {task.options && task.options.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Выберите ответ:</p>
-                      {task.options.map((opt, i) => {
-                        const label = OPTION_LABELS[i] || String(i + 1);
-                        const isSelected = answers[task.id] === opt;
-                        return (
-                          <button
-                            key={i}
-                            onClick={() => handleAnswer(task.id, opt)}
-                            className={`w-full flex items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all ${
-                              isSelected
-                                ? 'border-orange-500 bg-orange-50'
-                                : 'border-gray-100 bg-white hover:border-orange-200 hover:bg-orange-50'
-                            }`}
-                          >
-                            <span className={`w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center flex-shrink-0 transition-all ${
-                              isSelected ? 'bg-orange-500 text-white' : 'bg-orange-100 text-orange-600'
-                            }`}>
-                              {label}
-                            </span>
-                            <span className={`text-sm leading-relaxed pt-1 ${isSelected ? 'text-orange-800 font-medium' : 'text-gray-700'}`}>{opt}</span>
-                            {isSelected && (
-                              <Icon name="Check" size={18} className="text-orange-500 ml-auto flex-shrink-0 mt-1" />
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+                  {task.task_type === 'wordsearch' ? (
+                    <WordSearchWidget
+                      taskId={task.id}
+                      words={task.options || []}
+                      onComplete={handleWordSearchComplete}
+                      isCompleted={answers[task.id] === '__wordsearch_done__'}
+                    />
+                  ) : (<>
+                    {task.image_url && (
+                      <div className="flex justify-center">
+                        <img src={task.image_url} alt={task.title} className="max-w-full max-h-72 rounded-2xl border border-orange-100 object-contain" />
+                      </div>
+                    )}
+                    {task.options && task.options.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Выберите ответ:</p>
+                        {task.options.map((opt, i) => {
+                          const label = OPTION_LABELS[i] || String(i + 1);
+                          const isSelected = answers[task.id] === opt;
+                          return (
+                            <button key={i} onClick={() => handleAnswer(task.id, opt)}
+                              className={`w-full flex items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-gray-100 bg-white hover:border-orange-200 hover:bg-orange-50'}`}
+                            >
+                              <span className={`w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center flex-shrink-0 transition-all ${isSelected ? 'bg-orange-500 text-white' : 'bg-orange-100 text-orange-600'}`}>{label}</span>
+                              <span className={`text-sm leading-relaxed pt-1 ${isSelected ? 'text-orange-800 font-medium' : 'text-gray-700'}`}>{opt}</span>
+                              {isSelected && <Icon name="Check" size={18} className="text-orange-500 ml-auto flex-shrink-0 mt-1" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>)}
                 </div>
 
                 <div className="px-6 py-4 bg-gray-50 border-t border-orange-50 flex items-center justify-between gap-3">

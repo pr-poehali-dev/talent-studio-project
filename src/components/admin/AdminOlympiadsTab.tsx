@@ -55,6 +55,7 @@ interface OlympiadTask {
   sort_order: number;
   study_years: string[] | null;
   is_active: boolean;
+  task_type: string;
   created_at: string;
   updated_at: string;
 }
@@ -70,6 +71,7 @@ const EMPTY_TASK: Omit<OlympiadTask, "id" | "created_at" | "updated_at"> = {
   sort_order: 0,
   study_years: [],
   is_active: true,
+  task_type: "quiz",
 };
 
 type SubTab = "applications" | "tasks" | "wordsearch" | "settings";
@@ -426,6 +428,7 @@ const AdminOlympiadsTab = () => {
       sort_order: task.sort_order,
       is_active: task.is_active,
       study_years: task.study_years ? [...task.study_years] : [],
+      task_type: task.task_type || "quiz",
     });
   };
 
@@ -439,6 +442,14 @@ const AdminOlympiadsTab = () => {
       toast({ title: "Заполните текст вопроса", variant: "destructive" });
       return;
     }
+    const isWordSearch = taskForm.task_type === "wordsearch";
+    if (isWordSearch) {
+      const filledWords = (taskForm.options || []).filter((w) => w.trim());
+      if (filledWords.length < 3) {
+        toast({ title: "Введите хотя бы 3 слова для искалки", variant: "destructive" });
+        return;
+      }
+    }
     setSavingTask(true);
     try {
       const filteredOptions = taskForm.options?.filter((o) => o.trim()) || null;
@@ -446,6 +457,7 @@ const AdminOlympiadsTab = () => {
         ...taskForm,
         title: taskForm.question,
         options: filteredOptions && filteredOptions.length > 0 ? filteredOptions : null,
+        correct_answer: isWordSearch ? "__wordsearch__" : taskForm.correct_answer,
         ...(editingTask ? { id: editingTask.id } : {}),
       };
 
@@ -713,6 +725,28 @@ const AdminOlympiadsTab = () => {
               </h3>
 
               <div className="space-y-4">
+                {/* Тип задания */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Тип задания</label>
+                  <div className="flex gap-2">
+                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }].map(({ value, label, icon }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setTaskForm((p) => ({ ...p, task_type: value }))}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all ${
+                          taskForm.task_type === value
+                            ? "bg-orange-500 text-white border-orange-500 shadow-sm"
+                            : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"
+                        }`}
+                      >
+                        <Icon name={icon} size={15} />
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Год обучения — множественный выбор */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -760,101 +794,120 @@ const AdminOlympiadsTab = () => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Вопрос / Текст задания <span className="text-red-400">*</span>
-                  </label>
-                  <textarea
-                    value={taskForm.question}
-                    onChange={(e) => setTaskForm((p) => ({ ...p, question: e.target.value }))}
-                    rows={3}
-                    placeholder="Текст вопроса или задания..."
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm resize-none"
-                  />
-                </div>
+                {/* Поля для обычного вопроса */}
+                {taskForm.task_type !== "wordsearch" && (<>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      Вопрос / Текст задания <span className="text-red-400">*</span>
+                    </label>
+                    <textarea
+                      value={taskForm.question}
+                      onChange={(e) => setTaskForm((p) => ({ ...p, question: e.target.value }))}
+                      rows={3}
+                      placeholder="Текст вопроса или задания..."
+                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm resize-none"
+                    />
+                  </div>
 
-                {/* Изображение */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Изображение к заданию (необязательно)
-                  </label>
-                  <div className="flex gap-2 items-start">
+                  {/* Изображение */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      Изображение к заданию (необязательно)
+                    </label>
+                    <div className="flex gap-2 items-start">
+                      <input
+                        type="text"
+                        value={taskForm.image_url || ""}
+                        onChange={(e) => setTaskForm((p) => ({ ...p, image_url: e.target.value }))}
+                        placeholder="https://... или загрузите файл"
+                        className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm"
+                      />
+                      <label className="flex items-center gap-1.5 px-4 py-2.5 bg-white hover:bg-orange-50 border border-orange-200 rounded-xl cursor-pointer text-orange-700 text-sm font-medium transition whitespace-nowrap">
+                        {uploadingTaskImage ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
+                        Загрузить
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadTaskImage(f); }} />
+                      </label>
+                    </div>
+                    {taskForm.image_url && (
+                      <img src={taskForm.image_url} alt="preview" className="mt-2 max-h-32 rounded-xl border border-orange-100 object-contain" />
+                    )}
+                  </div>
+
+                  {/* Варианты ответа */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Варианты ответа (необязательно)</label>
+                    <div className="space-y-2">
+                      {(taskForm.options || []).map((opt, idx) => (
+                        <div key={idx} className="flex gap-2 items-center">
+                          <span className="text-xs text-gray-400 w-5 text-center">{idx + 1}.</span>
+                          <input
+                            type="text" value={opt} onChange={(e) => updateOption(idx, e.target.value)}
+                            placeholder={`Вариант ${idx + 1}`}
+                            className="flex-1 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm"
+                          />
+                          <button onClick={() => removeOption(idx)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors">
+                            <Icon name="X" size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      <button onClick={addOption} className="flex items-center gap-1.5 text-sm text-orange-500 hover:text-orange-600 font-medium mt-1">
+                        <Icon name="Plus" size={14} /> Добавить вариант
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Правильный ответ */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Правильный ответ (не отображается участникам)</label>
+                    <input
+                      type="text" value={taskForm.correct_answer || ""}
+                      onChange={(e) => setTaskForm((p) => ({ ...p, correct_answer: e.target.value }))}
+                      placeholder="Например: 2 или текст ответа"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm"
+                    />
+                  </div>
+                </>)}
+
+                {/* Поля для искалки слов */}
+                {taskForm.task_type === "wordsearch" && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      Название / инструкция <span className="text-red-400">*</span>
+                    </label>
                     <input
                       type="text"
-                      value={taskForm.image_url || ""}
-                      onChange={(e) => setTaskForm((p) => ({ ...p, image_url: e.target.value }))}
-                      placeholder="https://... или загрузите файл"
-                      className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm"
+                      value={taskForm.question}
+                      onChange={(e) => setTaskForm((p) => ({ ...p, question: e.target.value }))}
+                      placeholder="Например: Найди виды изобразительного искусства"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm mb-4"
                     />
-                    <label className="flex items-center gap-1.5 px-4 py-2.5 bg-white hover:bg-orange-50 border border-orange-200 rounded-xl cursor-pointer text-orange-700 text-sm font-medium transition whitespace-nowrap">
-                      {uploadingTaskImage ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
-                      Загрузить
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) uploadTaskImage(f);
-                        }}
-                      />
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Слова для поиска <span className="text-gray-400 font-normal">(до 10, только буквы)</span>
                     </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Array.from({ length: 10 }).map((_, i) => {
+                        const words: string[] = (taskForm.options || []);
+                        return (
+                          <div key={i} className="flex items-center gap-2">
+                            <span className="w-5 text-right text-xs text-gray-400 font-bold flex-shrink-0">{i + 1}.</span>
+                            <input
+                              type="text"
+                              value={words[i] || ""}
+                              onChange={(e) => {
+                                const updated = [...(taskForm.options || Array(10).fill(""))];
+                                updated[i] = e.target.value.replace(/[^а-яёА-ЯЁa-zA-Z]/g, "").toUpperCase();
+                                setTaskForm((p) => ({ ...p, options: updated }));
+                              }}
+                              placeholder={`Слово ${i + 1}`}
+                              maxLength={15}
+                              className="flex-1 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm bg-white uppercase font-mono"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  {taskForm.image_url && (
-                    <img
-                      src={taskForm.image_url}
-                      alt="preview"
-                      className="mt-2 max-h-32 rounded-xl border border-orange-100 object-contain"
-                    />
-                  )}
-                </div>
-
-                {/* Варианты ответа */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Варианты ответа (необязательно)
-                  </label>
-                  <div className="space-y-2">
-                    {(taskForm.options || []).map((opt, idx) => (
-                      <div key={idx} className="flex gap-2 items-center">
-                        <span className="text-xs text-gray-400 w-5 text-center">{idx + 1}.</span>
-                        <input
-                          type="text"
-                          value={opt}
-                          onChange={(e) => updateOption(idx, e.target.value)}
-                          placeholder={`Вариант ${idx + 1}`}
-                          className="flex-1 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm"
-                        />
-                        <button
-                          onClick={() => removeOption(idx)}
-                          className="p-1.5 text-gray-300 hover:text-red-400 transition-colors"
-                        >
-                          <Icon name="X" size={14} />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      onClick={addOption}
-                      className="flex items-center gap-1.5 text-sm text-orange-500 hover:text-orange-600 font-medium mt-1"
-                    >
-                      <Icon name="Plus" size={14} /> Добавить вариант
-                    </button>
-                  </div>
-                </div>
-
-                {/* Правильный ответ */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Правильный ответ (не отображается участникам)
-                  </label>
-                  <input
-                    type="text"
-                    value={taskForm.correct_answer || ""}
-                    onChange={(e) => setTaskForm((p) => ({ ...p, correct_answer: e.target.value }))}
-                    placeholder="Например: 2 или текст ответа"
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm"
-                  />
-                </div>
+                )}
 
                 <div className="flex items-center gap-3">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -959,9 +1012,22 @@ const AdminOlympiadsTab = () => {
                           );
                         })}
                       </div>
+                      <div className="flex items-center gap-2 mb-1">
+                        {task.task_type === "wordsearch" && (
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 flex items-center gap-1">
+                            <Icon name="Search" size={10} /> Искалка слов
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-gray-600 line-clamp-2 mb-2">{task.question}</p>
                       <div className="flex items-center gap-4 text-xs text-gray-400">
-                        {task.options && task.options.length > 0 && (
+                        {task.task_type === "wordsearch" && task.options && task.options.length > 0 && (
+                          <span className="flex items-center gap-1">
+                            <Icon name="Search" size={12} />
+                            {task.options.length} слов
+                          </span>
+                        )}
+                        {task.task_type !== "wordsearch" && task.options && task.options.length > 0 && (
                           <span className="flex items-center gap-1">
                             <Icon name="List" size={12} />
                             {task.options.length} вариантов
@@ -973,7 +1039,7 @@ const AdminOlympiadsTab = () => {
                             Есть изображение
                           </span>
                         )}
-                        {task.correct_answer && (
+                        {task.correct_answer && task.correct_answer !== "__wordsearch__" && (
                           <span className="flex items-center gap-1">
                             <Icon name="CheckCircle" size={12} className="text-green-400" />
                             Ответ задан

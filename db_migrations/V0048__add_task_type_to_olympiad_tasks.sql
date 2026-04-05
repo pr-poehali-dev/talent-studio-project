@@ -1,0 +1,1 @@
+ALTER TABLE olympiad_tasks ADD COLUMN IF NOT EXISTS task_type VARCHAR(50) NOT NULL DEFAULT 'quiz';

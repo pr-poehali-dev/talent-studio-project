@@ -103,7 +103,7 @@ def handler(event: dict, context) -> dict:
                 cursor.execute("""
                     SELECT id, olympiad_type, title, description, question,
                            image_url, options, correct_answer, sort_order, is_active,
-                           study_years, created_at, updated_at
+                           study_years, created_at, updated_at, task_type
                     FROM olympiad_tasks
                     WHERE olympiad_type = %s
                     ORDER BY sort_order ASC, id ASC
@@ -112,7 +112,7 @@ def handler(event: dict, context) -> dict:
                 cursor.execute("""
                     SELECT id, olympiad_type, title, description, question,
                            image_url, options, NULL as correct_answer, sort_order, is_active,
-                           study_years, created_at, updated_at
+                           study_years, created_at, updated_at, task_type
                     FROM olympiad_tasks
                     WHERE olympiad_type = %s AND is_active = TRUE
                     ORDER BY sort_order ASC, id ASC
@@ -142,6 +142,7 @@ def handler(event: dict, context) -> dict:
                     'study_years': task_study_years,
                     'created_at': row[11].isoformat() if row[11] else None,
                     'updated_at': row[12].isoformat() if row[12] else None,
+                    'task_type': row[13] or 'quiz',
                 })
 
             cursor.close()
@@ -161,34 +162,36 @@ def handler(event: dict, context) -> dict:
             description = body.get('description', '')
             question = body.get('question', '').strip()
             image_url = body.get('image_url', '')
-            options = body.get('options')  # JSONB: list of strings or null
+            options = body.get('options')
             correct_answer = body.get('correct_answer', '')
             sort_order = body.get('sort_order', 0)
             is_active = body.get('is_active', True)
-            study_years = body.get('study_years') or []  # list of strings e.g. ['1-2', '3-4']
+            study_years = body.get('study_years') or []
+            task_type = body.get('task_type', 'quiz')
 
-            if not title or not question:
+            if not title:
                 cursor.close()
                 conn.close()
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'title and question are required'})
+                    'body': json.dumps({'error': 'title is required'})
                 }
 
             cursor.execute("""
                 INSERT INTO olympiad_tasks
                     (olympiad_type, title, description, question, image_url, options,
-                     correct_answer, sort_order, is_active, study_years)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                     correct_answer, sort_order, is_active, study_years, task_type)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
             """, (
-                olympiad_type, title, description, question,
+                olympiad_type, title, description, question or title,
                 image_url or None,
                 json.dumps(options) if options is not None else None,
                 correct_answer or None,
                 sort_order, is_active,
-                study_years if study_years else None
+                study_years if study_years else None,
+                task_type
             ))
             new_id = cursor.fetchone()[0]
             conn.commit()
@@ -223,21 +226,23 @@ def handler(event: dict, context) -> dict:
             sort_order = body.get('sort_order', 0)
             is_active = body.get('is_active', True)
             study_years = body.get('study_years') or []
+            task_type = body.get('task_type', 'quiz')
 
             cursor.execute("""
                 UPDATE olympiad_tasks
                 SET title = %s, description = %s, question = %s,
                     image_url = %s, options = %s, correct_answer = %s,
                     sort_order = %s, is_active = %s, study_years = %s,
-                    updated_at = CURRENT_TIMESTAMP
+                    task_type = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
             """, (
-                title, description, question,
+                title, description, question or title,
                 image_url or None,
                 json.dumps(options) if options is not None else None,
                 correct_answer or None,
                 sort_order, is_active,
                 study_years if study_years else None,
+                task_type,
                 task_id
             ))
             conn.commit()

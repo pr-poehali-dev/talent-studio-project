@@ -73,7 +73,16 @@ def handler(event: dict, context) -> dict:
                         'body': json.dumps({'error': 'Доступ закрыт: необходимо подтверждение оплаты'})
                     }
                 # demo_ — тестовый режим без реальной оплаты
-                if not payment_id.startswith('demo_'):
+                if payment_id.startswith('demo_'):
+                    cursor.execute("""
+                        SELECT full_name FROM olympiad_applications
+                        WHERE payment_id = %s AND deleted_at IS NULL
+                        LIMIT 1
+                    """, (payment_id,))
+                    demo_row = cursor.fetchone()
+                    if demo_row:
+                        participant_full_name = demo_row[0]
+                else:
                     cursor.execute("""
                         SELECT id, full_name FROM olympiad_applications
                         WHERE payment_id = %s AND payment_status = 'paid' AND olympiad_type = %s AND deleted_at IS NULL

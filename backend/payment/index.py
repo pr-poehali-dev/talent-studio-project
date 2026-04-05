@@ -103,6 +103,7 @@ def handler(event: dict, context) -> dict:
                         f"https://preview--talent-studio-project.poehali.dev/payment-success"
                         f"?type={pending_data.get('olympiad_type', '')}"
                         f"&study_year={pending_data.get('study_year', '')}"
+                        f"&full_name={requests.utils.quote(pending_data.get('full_name', '') or '')}"
                     )
                 },
                 "capture": True,

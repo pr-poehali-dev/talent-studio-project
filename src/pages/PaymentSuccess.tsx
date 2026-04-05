@@ -28,6 +28,7 @@ const PaymentSuccess = () => {
 
   const olympiadType = searchParams.get('type') || '';
   const studyYearParam = searchParams.get('study_year') || '';
+  const fullName = searchParams.get('full_name') || '';
   const paymentId =
     searchParams.get('paymentId') ||
     searchParams.get('payment_id') ||
@@ -82,6 +83,7 @@ const PaymentSuccess = () => {
               <div>
                 <p className="text-xs text-gray-400 font-medium">Олимпиада</p>
                 <p className="text-gray-800 font-bold text-base">«{olympiadName}»</p>
+                {fullName && <p className="text-sm text-gray-600 font-semibold mt-0.5">{fullName}</p>}
               </div>
             </div>
             {studyYearLabel && (

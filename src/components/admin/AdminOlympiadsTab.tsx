@@ -625,10 +625,10 @@ const AdminOlympiadsTab = () => {
                       {app.task_url && (
                         <div className="mt-3 flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
                           <Icon name="Link" size={13} className="text-blue-400 flex-shrink-0" />
-                          <span className="text-xs text-gray-500 truncate flex-1 font-mono">{app.task_url}</span>
+                          <span className="text-xs text-gray-500 truncate flex-1 font-mono">{window.location.origin + app.task_url}</span>
                           <button
                             onClick={() => {
-                              navigator.clipboard.writeText(app.task_url!);
+                              navigator.clipboard.writeText(window.location.origin + app.task_url!);
                               setCopiedId(app.id);
                               setTimeout(() => setCopiedId(null), 2000);
                             }}

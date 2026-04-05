@@ -49,6 +49,7 @@ def handler(event: dict, context) -> dict:
         olympiad_type = params.get('type', 'palette')
         show_deleted = params.get('deleted') == 'true'
 
+
         if show_deleted:
             cursor.execute("""
                 SELECT id, full_name, age, study_year, teacher, institution,
@@ -76,7 +77,7 @@ def handler(event: dict, context) -> dict:
             study_yr = row[3]
             task_url = None
             if pid:
-                task_url = f"https://talentpalette.ru/olympiad/tasks?type={otype}&study_year={study_yr}&payment_id={pid}"
+                task_url = f"/olympiad/tasks?type={otype}&study_year={study_yr}&payment_id={pid}"
             result.append({
                 'id': row[0],
                 'full_name': row[1],

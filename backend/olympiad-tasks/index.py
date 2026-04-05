@@ -39,6 +39,7 @@ def handler(event: dict, context) -> dict:
         return {'statusCode': 200, 'headers': CORS_HEADERS, 'body': ''}
 
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    conn.autocommit = True
     cursor = conn.cursor()
 
     method = event.get('httpMethod', 'GET')

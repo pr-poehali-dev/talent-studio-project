@@ -254,7 +254,6 @@ def handler(event: dict, context) -> dict:
             print(f"[DELETE] trying to delete task id={task_id_int}")
             cursor.execute(f"DELETE FROM olympiad_tasks WHERE id = {task_id_int}")
             deleted = cursor.rowcount
-            conn.commit()
             print(f"[DELETE] deleted rows: {deleted}")
             cursor.close()
             conn.close()
@@ -265,6 +264,9 @@ def handler(event: dict, context) -> dict:
             }
 
     except Exception as e:
+        print(f"[ERROR] {type(e).__name__}: {e}")
+        import traceback
+        traceback.print_exc()
         if not cursor.closed:
             cursor.close()
         if not conn.closed:

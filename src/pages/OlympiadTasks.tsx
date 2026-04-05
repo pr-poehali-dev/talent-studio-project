@@ -350,14 +350,34 @@ const OlympiadTasks = () => {
 
         {/* Состояние: завершено */}
         {submitted ? (
-          <div className="bg-white rounded-3xl shadow-md border border-green-100 p-12 text-center space-y-4">
+          <div className="bg-white rounded-3xl shadow-md border border-green-100 p-10 text-center space-y-5">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
               <CheckCircle className="w-12 h-12 text-green-500" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800">Ответы отправлены!</h2>
-            <p className="text-gray-500 text-sm max-w-xs mx-auto">
-              Спасибо за участие. Результаты будут опубликованы на главной странице сайта.
-            </p>
+            <div className="space-y-1">
+              <h2 className="text-2xl font-bold text-gray-800">Ответы отправлены!</h2>
+              <p className="text-gray-500 text-sm">Спасибо за участие в олимпиаде!</p>
+            </div>
+            <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5 text-left space-y-3 max-w-sm mx-auto">
+              <div className="flex items-start gap-3">
+                <span className="text-orange-400 text-lg flex-shrink-0">📊</span>
+                <p className="text-sm text-gray-700">
+                  <span className="font-semibold">Результаты</span> будут опубликованы в разделе «Итоги» в течение <span className="font-semibold">2–3 дней</span>.
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-orange-400 text-lg flex-shrink-0">📧</span>
+                <p className="text-sm text-gray-700">
+                  <span className="font-semibold">Наградные документы</span> будут отправлены на электронную почту, указанную при регистрации.
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-orange-400 text-lg flex-shrink-0">📝</span>
+                <p className="text-sm text-gray-700">
+                  <span className="font-semibold">Отчёт о выполненных заданиях</span> олимпиады также будет отправлен на вашу электронную почту.
+                </p>
+              </div>
+            </div>
             <p className="text-xs text-gray-400">Это окно можно закрыть.</p>
           </div>
         ) : tasksLoading ? (

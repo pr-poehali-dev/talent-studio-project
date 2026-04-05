@@ -266,7 +266,7 @@ const OlympiadTasks = () => {
                     {currentIndex + 1}
                   </span>
                   <div>
-                    <p className="font-bold text-gray-800">{task.title}</p>
+                    <p className="font-bold text-gray-800">{task.question || task.title}</p>
                     {task.description && <p className="text-xs text-gray-500 mt-0.5">{task.description}</p>}
                   </div>
                 </div>
@@ -281,10 +281,6 @@ const OlympiadTasks = () => {
                       />
                     </div>
                   )}
-
-                  <div className="bg-gray-50 rounded-2xl p-4">
-                    <p className="text-gray-800 leading-relaxed whitespace-pre-line">{task.question}</p>
-                  </div>
 
                   {task.options && task.options.length > 0 && (
                     <div className="space-y-2">

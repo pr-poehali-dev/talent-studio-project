@@ -443,6 +443,7 @@ const AdminOlympiadsTab = () => {
       const filteredOptions = taskForm.options?.filter((o) => o.trim()) || null;
       const payload = {
         ...taskForm,
+        title: taskForm.question,
         options: filteredOptions && filteredOptions.length > 0 ? filteredOptions : null,
         ...(editingTask ? { id: editingTask.id } : {}),
       };

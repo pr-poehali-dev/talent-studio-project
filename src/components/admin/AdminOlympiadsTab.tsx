@@ -86,6 +86,7 @@ interface OlympiadAnswerItem {
   answer: string;
   correct_answer: string | null;
   is_correct: boolean;
+  task_type: string;
   submitted_at: string | null;
 }
 
@@ -157,6 +158,16 @@ const AdminOlympiadsTab = () => {
   const [answersLoading, setAnswersLoading] = useState(false);
   const [answersStats, setAnswersStats] = useState<Record<number, { correct: number; wrong: number; total: number }>>({});
 
+  const calcStats = (answers: OlympiadAnswerItem[]) => {
+    const quizAnswers = answers.filter(a => a.task_type !== 'wordsearch' && a.correct_answer !== null && a.correct_answer !== undefined);
+    const wsAnswers = answers.filter(a => a.task_type === 'wordsearch');
+    return {
+      correct: quizAnswers.filter(a => a.is_correct).length + wsAnswers.filter(a => a.is_correct).length,
+      wrong: quizAnswers.filter(a => !a.is_correct).length + wsAnswers.filter(a => !a.is_correct).length,
+      total: quizAnswers.length + wsAnswers.length,
+    };
+  };
+
   const openAnswers = async (app: OlympiadApplication) => {
     setAnswersLoading(true);
     setAnswersModal({ app, answers: [] });
@@ -165,15 +176,7 @@ const AdminOlympiadsTab = () => {
       const data: OlympiadAnswerItem[] = await res.json();
       const answers = Array.isArray(data) ? data : [];
       setAnswersModal({ app, answers });
-      const withCorrect = answers.filter(a => a.correct_answer !== null && a.correct_answer !== undefined);
-      setAnswersStats(prev => ({
-        ...prev,
-        [app.id]: {
-          correct: withCorrect.filter(a => a.is_correct).length,
-          wrong: withCorrect.filter(a => !a.is_correct).length,
-          total: withCorrect.length,
-        }
-      }));
+      setAnswersStats(prev => ({ ...prev, [app.id]: calcStats(answers) }));
     } catch {
       setAnswersModal({ app, answers: [] });
     } finally {
@@ -197,13 +200,7 @@ const AdminOlympiadsTab = () => {
           .then(r => r.json())
           .then((data: OlympiadAnswerItem[]) => {
             const answers = Array.isArray(data) ? data : [];
-            const withCorrect = answers.filter(a => a.correct_answer !== null && a.correct_answer !== undefined);
-            return {
-              id: app.id,
-              correct: withCorrect.filter(a => a.is_correct).length,
-              wrong: withCorrect.filter(a => !a.is_correct).length,
-              total: withCorrect.length,
-            };
+            return { id: app.id, ...calcStats(answers) };
           })
       )
     );

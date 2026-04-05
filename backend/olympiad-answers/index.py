@@ -37,7 +37,7 @@ def handler(event: dict, context) -> dict:
 
         if application_id:
             cur.execute("""
-                SELECT a.id, a.task_id, t.title, t.question, t.options, a.answer, a.submitted_at, t.correct_answer
+                SELECT a.id, a.task_id, t.title, t.question, t.options, a.answer, a.submitted_at, t.correct_answer, t.task_type
                 FROM t_p93576920_talent_studio_projec.olympiad_answers a
                 JOIN t_p93576920_talent_studio_projec.olympiad_tasks t ON t.id = a.task_id
                 WHERE a.olympiad_application_id = %s
@@ -45,7 +45,7 @@ def handler(event: dict, context) -> dict:
             """, (int(application_id),))
         elif payment_id:
             cur.execute("""
-                SELECT a.id, a.task_id, t.title, t.question, t.options, a.answer, a.submitted_at, t.correct_answer
+                SELECT a.id, a.task_id, t.title, t.question, t.options, a.answer, a.submitted_at, t.correct_answer, t.task_type
                 FROM t_p93576920_talent_studio_projec.olympiad_answers a
                 JOIN t_p93576920_talent_studio_projec.olympiad_tasks t ON t.id = a.task_id
                 WHERE a.payment_id = %s
@@ -70,11 +70,15 @@ def handler(event: dict, context) -> dict:
                     opts = None
             correct_answer = row[7]
             user_answer = row[5]
-            is_correct = (
-                correct_answer is not None
-                and user_answer is not None
-                and str(user_answer).strip().lower() == str(correct_answer).strip().lower()
-            )
+            task_type = row[8] or 'quiz'
+            if task_type == 'wordsearch':
+                is_correct = user_answer == '__wordsearch_done__'
+            else:
+                is_correct = (
+                    correct_answer is not None
+                    and user_answer is not None
+                    and str(user_answer).strip().lower() == str(correct_answer).strip().lower()
+                )
             result.append({
                 "id": row[0],
                 "task_id": row[1],
@@ -84,6 +88,7 @@ def handler(event: dict, context) -> dict:
                 "answer": user_answer,
                 "correct_answer": correct_answer,
                 "is_correct": is_correct,
+                "task_type": task_type,
                 "submitted_at": row[6].isoformat() if row[6] else None,
             })
 

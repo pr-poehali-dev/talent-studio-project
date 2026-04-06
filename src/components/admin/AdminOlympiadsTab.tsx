@@ -192,6 +192,7 @@ const AdminOlympiadsTab = () => {
   const [taskForm, setTaskForm] = useState<typeof EMPTY_TASK>({ ...EMPTY_TASK });
   const [savingTask, setSavingTask] = useState(false);
   const [uploadingTaskImage, setUploadingTaskImage] = useState(false);
+  const [uploadingPairImage, setUploadingPairImage] = useState<Record<number, boolean>>({});
 
   const loadAnswersStats = useCallback(async (apps: OlympiadApplication[]) => {
     const results = await Promise.allSettled(
@@ -424,6 +425,48 @@ const AdminOlympiadsTab = () => {
       toast({ title: "Ошибка загрузки изображения", variant: "destructive" });
     } finally {
       setUploadingTaskImage(false);
+    }
+  };
+
+  const uploadPairImage = async (file: File, pairIndex: number) => {
+    setUploadingPairImage(prev => ({ ...prev, [pairIndex]: true }));
+    try {
+      const CHUNK_SIZE = 512 * 1024;
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+      const uploadId = crypto.randomUUID();
+      const toBase64 = (blob: Blob): Promise<string> =>
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve((reader.result as string).split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      let resultUrl = "";
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunkBase64 = await toBase64(file.slice(start, end));
+        const res = await fetch(UPLOAD_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chunk: chunkBase64, chunkIndex: i, totalChunks, fileName: file.name, fileType: file.type || "image/jpeg", folder: "olympiad-matching", uploadId }),
+        });
+        const data = await res.json();
+        if (data.url) resultUrl = data.url;
+      }
+      if (resultUrl) {
+        setTaskForm(prev => {
+          const updated = [...(prev.options || Array(8).fill(""))];
+          const parts = (updated[pairIndex] || "").split("|");
+          updated[pairIndex] = `${parts[0] || ""}|${parts[1] || ""}|${resultUrl}`;
+          return { ...prev, options: updated };
+        });
+        toast({ title: "Картина загружена" });
+      }
+    } catch {
+      toast({ title: "Ошибка загрузки картины", variant: "destructive" });
+    } finally {
+      setUploadingPairImage(prev => ({ ...prev, [pairIndex]: false }));
     }
   };
 
@@ -977,33 +1020,67 @@ const AdminOlympiadsTab = () => {
                       </div>
                       {Array.from({ length: 8 }).map((_, i) => {
                         const raw = (taskForm.options || [])[i] || "";
-                        const [leftVal, rightVal] = raw.split("|");
+                        const [leftVal, rightVal, imageUrl] = raw.split("|");
+                        const hasContent = (leftVal || "").trim() || (rightVal || "").trim();
                         return (
-                          <div key={i} className="grid grid-cols-2 gap-2 items-center">
-                            <input
-                              type="text"
-                              value={leftVal || ""}
-                              onChange={(e) => {
-                                const updated = [...(taskForm.options || Array(8).fill(""))];
-                                const [, r] = (updated[i] || "").split("|");
-                                updated[i] = `${e.target.value}|${r || ""}`;
-                                setTaskForm((p) => ({ ...p, options: updated }));
-                              }}
-                              placeholder={`Художник ${i + 1}`}
-                              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm"
-                            />
-                            <input
-                              type="text"
-                              value={rightVal || ""}
-                              onChange={(e) => {
-                                const updated = [...(taskForm.options || Array(8).fill(""))];
-                                const [l] = (updated[i] || "").split("|");
-                                updated[i] = `${l || ""}|${e.target.value}`;
-                                setTaskForm((p) => ({ ...p, options: updated }));
-                              }}
-                              placeholder={`Картина ${i + 1}`}
-                              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm"
-                            />
+                          <div key={i} className={`border rounded-2xl p-3 space-y-2 ${hasContent ? 'border-orange-100 bg-orange-50/30' : 'border-gray-100'}`}>
+                            <div className="grid grid-cols-2 gap-2">
+                              <input
+                                type="text"
+                                value={leftVal || ""}
+                                onChange={(e) => {
+                                  const updated = [...(taskForm.options || Array(8).fill(""))];
+                                  const parts = (updated[i] || "").split("|");
+                                  updated[i] = `${e.target.value}|${parts[1] || ""}|${parts[2] || ""}`;
+                                  setTaskForm((p) => ({ ...p, options: updated }));
+                                }}
+                                placeholder={`Художник ${i + 1}`}
+                                className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm bg-white"
+                              />
+                              <input
+                                type="text"
+                                value={rightVal || ""}
+                                onChange={(e) => {
+                                  const updated = [...(taskForm.options || Array(8).fill(""))];
+                                  const parts = (updated[i] || "").split("|");
+                                  updated[i] = `${parts[0] || ""}|${e.target.value}|${parts[2] || ""}`;
+                                  setTaskForm((p) => ({ ...p, options: updated }));
+                                }}
+                                placeholder={`Название картины ${i + 1}`}
+                                className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm bg-white"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {imageUrl ? (
+                                <div className="flex items-center gap-2 flex-1">
+                                  <img src={imageUrl} alt="" className="h-12 w-16 object-cover rounded-lg border border-orange-200" />
+                                  <span className="text-xs text-green-600 font-medium">Картина загружена</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const updated = [...(taskForm.options || Array(8).fill(""))];
+                                      const parts = (updated[i] || "").split("|");
+                                      updated[i] = `${parts[0] || ""}|${parts[1] || ""}|`;
+                                      setTaskForm((p) => ({ ...p, options: updated }));
+                                    }}
+                                    className="text-xs text-red-400 hover:text-red-600 ml-auto"
+                                  >
+                                    Удалить
+                                  </button>
+                                </div>
+                              ) : (
+                                <label className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-violet-50 border border-violet-200 rounded-xl cursor-pointer text-violet-700 text-xs font-medium transition whitespace-nowrap">
+                                  {uploadingPairImage[i] ? <Icon name="Loader2" size={12} className="animate-spin" /> : <Icon name="ImagePlus" size={12} />}
+                                  Загрузить картину
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPairImage(f, i); }}
+                                  />
+                                </label>
+                              )}
+                            </div>
                           </div>
                         );
                       })}

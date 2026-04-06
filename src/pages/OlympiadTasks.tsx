@@ -189,7 +189,7 @@ const MATCHING_COLORS = [
 
 interface MatchingProps {
   taskId: number;
-  pairs: Array<{ left: string; right: string }>;
+  pairs: Array<{ left: string; right: string; imageUrl?: string }>;
   onComplete: (taskId: number) => void;
   isCompleted: boolean;
 }
@@ -199,6 +199,8 @@ function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProp
   const [selectedRight, setSelectedRight] = useState<number | null>(null);
   const [matched, setMatched] = useState<Record<number, number>>({});
   const [wrongPair, setWrongPair] = useState<[number, number] | null>(null);
+
+  const hasImages = pairs.some(p => p.imageUrl);
 
   const [shuffledRight] = useState(() => {
     const arr = pairs.map((_, i) => i);
@@ -239,26 +241,26 @@ function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProp
     }
   };
 
-  const getLeftColor = (idx: number): string => {
+  const getLeftBorder = (idx: number): string => {
     if (matched[idx] !== undefined) return MATCHING_COLORS[idx % MATCHING_COLORS.length];
     if (selectedLeft === idx) return 'bg-orange-400 text-white border-orange-400';
     if (wrongPair && wrongPair[0] === idx) return 'bg-red-100 text-red-700 border-red-300';
     return 'bg-white text-gray-700 border-gray-200 hover:border-orange-300 hover:bg-orange-50';
   };
 
-  const getRightColor = (pos: number): string => {
+  const getRightBorder = (pos: number): string => {
     const origIdx = rightToOrig[pos];
     if (matched[origIdx] !== undefined) return MATCHING_COLORS[origIdx % MATCHING_COLORS.length];
-    if (selectedRight === pos) return 'bg-orange-400 text-white border-orange-400';
-    if (wrongPair && wrongPair[1] === pos) return 'bg-red-100 text-red-700 border-red-300';
-    return 'bg-white text-gray-700 border-gray-200 hover:border-orange-300 hover:bg-orange-50';
+    if (selectedRight === pos) return 'border-orange-400 ring-2 ring-orange-300';
+    if (wrongPair && wrongPair[1] === pos) return 'border-red-300 ring-2 ring-red-200';
+    return 'border-gray-200 hover:border-orange-300';
   };
 
   const matchedCount = Object.keys(matched).length;
 
   return (
     <div className="space-y-3 select-none">
-      <p className="text-xs text-gray-400">Нажми на элемент слева, затем на подходящий элемент справа</p>
+      <p className="text-xs text-gray-400">Нажми на художника слева, затем на его картину справа</p>
 
       {!isCompleted && (
         <div className="text-xs text-gray-500 font-medium">
@@ -273,23 +275,45 @@ function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProp
               key={idx}
               onClick={() => handleLeftClick(idx)}
               disabled={matched[idx] !== undefined || isCompleted}
-              className={`w-full text-left px-3 py-2.5 rounded-2xl border-2 text-sm font-medium transition-all leading-snug ${getLeftColor(idx)}`}
+              className={`w-full text-left px-3 py-2.5 rounded-2xl border-2 text-sm font-medium transition-all leading-snug ${getLeftBorder(idx)}`}
             >
               {pair.left}
             </button>
           ))}
         </div>
         <div className="space-y-2">
-          {shuffledRight.map((origIdx, pos) => (
-            <button
-              key={pos}
-              onClick={() => handleRightClick(pos)}
-              disabled={matched[origIdx] !== undefined || isCompleted}
-              className={`w-full text-left px-3 py-2.5 rounded-2xl border-2 text-sm font-medium transition-all leading-snug ${getRightColor(pos)}`}
-            >
-              {pairs[origIdx].right}
-            </button>
-          ))}
+          {shuffledRight.map((origIdx, pos) => {
+            const pair = pairs[origIdx];
+            const borderCls = getRightBorder(pos);
+            const isMatched = matched[origIdx] !== undefined;
+            const matchColor = isMatched ? MATCHING_COLORS[origIdx % MATCHING_COLORS.length] : '';
+            return (
+              <button
+                key={pos}
+                onClick={() => handleRightClick(pos)}
+                disabled={isMatched || isCompleted}
+                className={`w-full rounded-2xl border-2 transition-all overflow-hidden ${borderCls} ${isMatched ? matchColor : ''}`}
+              >
+                {hasImages && pair.imageUrl ? (
+                  <div className="relative">
+                    <img
+                      src={pair.imageUrl}
+                      alt={pair.right}
+                      className="w-full object-cover"
+                      style={{ height: '90px' }}
+                    />
+                    <div className={`px-2 py-1 text-xs font-medium text-center ${isMatched ? '' : 'text-gray-600 bg-white/90'}`}>
+                      {isMatched ? pair.right : '?'}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="px-3 py-2.5 text-sm font-medium text-left leading-snug">
+                    {pair.right}
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -591,7 +615,7 @@ const OlympiadTasks = () => {
                   ) : task.task_type === 'matching' ? (
                     <MatchingWidget
                       taskId={task.id}
-                      pairs={(task.options || []).map(opt => { const [left, right] = opt.split('|'); return { left: left || '', right: right || '' }; })}
+                      pairs={(task.options || []).map(opt => { const [left, right, imageUrl] = opt.split('|'); return { left: left || '', right: right || '', imageUrl: imageUrl || undefined }; })}
                       onComplete={(id) => { setAnswers(prev => ({ ...prev, [id]: '__matching_done__' })); }}
                       isCompleted={answers[task.id] === '__matching_done__'}
                     />

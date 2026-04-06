@@ -128,6 +128,13 @@ def handler(event: dict, context) -> dict:
                     if not study_year_matches(task_study_years, participant_year):
                         continue
 
+                opts = row[6]
+                if isinstance(opts, str):
+                    try:
+                        opts = json.loads(opts)
+                    except Exception:
+                        pass
+
                 result.append({
                     'id': row[0],
                     'olympiad_type': row[1],
@@ -135,7 +142,7 @@ def handler(event: dict, context) -> dict:
                     'description': row[3],
                     'question': row[4],
                     'image_url': row[5],
-                    'options': row[6],
+                    'options': opts,
                     'correct_answer': row[7],
                     'sort_order': row[8],
                     'is_active': row[9],

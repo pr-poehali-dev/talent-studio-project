@@ -175,6 +175,134 @@ function WordSearchWidget({ taskId, words, onComplete, isCompleted, studyYear }:
   );
 }
 
+// ===== Соответствие =====
+const MATCHING_COLORS = [
+  'bg-rose-100 text-rose-800 border-rose-300',
+  'bg-blue-100 text-blue-800 border-blue-300',
+  'bg-emerald-100 text-emerald-800 border-emerald-300',
+  'bg-amber-100 text-amber-800 border-amber-300',
+  'bg-violet-100 text-violet-800 border-violet-300',
+  'bg-cyan-100 text-cyan-800 border-cyan-300',
+  'bg-pink-100 text-pink-800 border-pink-300',
+  'bg-lime-100 text-lime-800 border-lime-300',
+];
+
+interface MatchingProps {
+  taskId: number;
+  pairs: Array<{ left: string; right: string }>;
+  onComplete: (taskId: number) => void;
+  isCompleted: boolean;
+}
+
+function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProps) {
+  const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
+  const [selectedRight, setSelectedRight] = useState<number | null>(null);
+  const [matched, setMatched] = useState<Record<number, number>>({});
+  const [wrongPair, setWrongPair] = useState<[number, number] | null>(null);
+
+  const [shuffledRight] = useState(() => {
+    const arr = pairs.map((_, i) => i);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  });
+
+  const rightToOrig = Object.fromEntries(shuffledRight.map((orig, pos) => [pos, orig]));
+
+  useEffect(() => {
+    if (Object.keys(matched).length === pairs.length && pairs.length > 0 && !isCompleted) {
+      onComplete(taskId);
+    }
+  }, [matched, pairs.length, taskId, onComplete, isCompleted]);
+
+  const handleLeftClick = (idx: number) => {
+    if (isCompleted) return;
+    if (Object.values(matched).includes(idx)) return;
+    setSelectedLeft(idx === selectedLeft ? null : idx);
+    setSelectedRight(null);
+  };
+
+  const handleRightClick = (pos: number) => {
+    if (isCompleted) return;
+    const origIdx = rightToOrig[pos];
+    if (matched[origIdx] !== undefined) return;
+    if (selectedLeft === null) { setSelectedRight(pos === selectedRight ? null : pos); return; }
+    if (selectedLeft === origIdx) {
+      const nm = { ...matched, [origIdx]: origIdx };
+      setMatched(nm);
+      setSelectedLeft(null); setSelectedRight(null);
+    } else {
+      setWrongPair([selectedLeft, pos]);
+      setTimeout(() => { setWrongPair(null); setSelectedLeft(null); setSelectedRight(null); }, 500);
+    }
+  };
+
+  const getLeftColor = (idx: number): string => {
+    if (matched[idx] !== undefined) return MATCHING_COLORS[idx % MATCHING_COLORS.length];
+    if (selectedLeft === idx) return 'bg-orange-400 text-white border-orange-400';
+    if (wrongPair && wrongPair[0] === idx) return 'bg-red-100 text-red-700 border-red-300';
+    return 'bg-white text-gray-700 border-gray-200 hover:border-orange-300 hover:bg-orange-50';
+  };
+
+  const getRightColor = (pos: number): string => {
+    const origIdx = rightToOrig[pos];
+    if (matched[origIdx] !== undefined) return MATCHING_COLORS[origIdx % MATCHING_COLORS.length];
+    if (selectedRight === pos) return 'bg-orange-400 text-white border-orange-400';
+    if (wrongPair && wrongPair[1] === pos) return 'bg-red-100 text-red-700 border-red-300';
+    return 'bg-white text-gray-700 border-gray-200 hover:border-orange-300 hover:bg-orange-50';
+  };
+
+  const matchedCount = Object.keys(matched).length;
+
+  return (
+    <div className="space-y-3 select-none">
+      <p className="text-xs text-gray-400">Нажми на элемент слева, затем на подходящий элемент справа</p>
+
+      {!isCompleted && (
+        <div className="text-xs text-gray-500 font-medium">
+          Соединено пар: <span className="text-orange-500 font-bold">{matchedCount}</span> из {pairs.length}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-2">
+          {pairs.map((pair, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleLeftClick(idx)}
+              disabled={matched[idx] !== undefined || isCompleted}
+              className={`w-full text-left px-3 py-2.5 rounded-2xl border-2 text-sm font-medium transition-all leading-snug ${getLeftColor(idx)}`}
+            >
+              {pair.left}
+            </button>
+          ))}
+        </div>
+        <div className="space-y-2">
+          {shuffledRight.map((origIdx, pos) => (
+            <button
+              key={pos}
+              onClick={() => handleRightClick(pos)}
+              disabled={matched[origIdx] !== undefined || isCompleted}
+              className={`w-full text-left px-3 py-2.5 rounded-2xl border-2 text-sm font-medium transition-all leading-snug ${getRightColor(pos)}`}
+            >
+              {pairs[origIdx].right}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {isCompleted && (
+        <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-2xl px-4 py-3">
+          <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+          <span className="text-sm font-semibold text-green-700">Все пары найдены! Задание выполнено.</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const OLYMPIAD_NAMES: Record<string, string> = {
   palette: 'Палитра талантов',
   grani: 'Грани творчества',
@@ -459,6 +587,13 @@ const OlympiadTasks = () => {
                       onComplete={handleWordSearchComplete}
                       isCompleted={answers[task.id] === '__wordsearch_done__'}
                       studyYear={studyYearParam ? parseInt(studyYearParam) : undefined}
+                    />
+                  ) : task.task_type === 'matching' ? (
+                    <MatchingWidget
+                      taskId={task.id}
+                      pairs={(task.options || []).map(opt => { const [left, right] = opt.split('|'); return { left: left || '', right: right || '' }; })}
+                      onComplete={(id) => { setAnswers(prev => ({ ...prev, [id]: '__matching_done__' })); }}
+                      isCompleted={answers[task.id] === '__matching_done__'}
                     />
                   ) : (<>
                     {task.image_url && (

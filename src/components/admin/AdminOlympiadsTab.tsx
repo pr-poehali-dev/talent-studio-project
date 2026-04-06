@@ -462,6 +462,7 @@ const AdminOlympiadsTab = () => {
       return;
     }
     const isWordSearch = taskForm.task_type === "wordsearch";
+    const isMatching = taskForm.task_type === "matching";
     if (isWordSearch) {
       const filledWords = (taskForm.options || []).filter((w) => w.trim());
       if (filledWords.length < 3) {
@@ -469,14 +470,23 @@ const AdminOlympiadsTab = () => {
         return;
       }
     }
+    if (isMatching) {
+      const filledPairs = (taskForm.options || []).filter((o) => { const [l, r] = o.split("|"); return l?.trim() && r?.trim(); });
+      if (filledPairs.length < 2) {
+        toast({ title: "Введите хотя бы 2 пары для соответствия", variant: "destructive" });
+        return;
+      }
+    }
     setSavingTask(true);
     try {
-      const filteredOptions = taskForm.options?.filter((o) => o.trim()) || null;
+      const filteredOptions = isMatching
+        ? (taskForm.options || []).filter((o) => { const [l, r] = o.split("|"); return l?.trim() && r?.trim(); })
+        : taskForm.options?.filter((o) => o.trim()) || null;
       const payload = {
         ...taskForm,
         title: taskForm.question,
         options: filteredOptions && filteredOptions.length > 0 ? filteredOptions : null,
-        correct_answer: isWordSearch ? "__wordsearch__" : taskForm.correct_answer,
+        correct_answer: isWordSearch ? "__wordsearch__" : isMatching ? "__matching__" : taskForm.correct_answer,
         ...(editingTask ? { id: editingTask.id } : {}),
       };
 
@@ -764,7 +774,7 @@ const AdminOlympiadsTab = () => {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Тип задания</label>
                   <div className="flex gap-2">
-                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }].map(({ value, label, icon }) => (
+                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }, { value: "matching", label: "Соответствие", icon: "GitCompare" }].map(({ value, label, icon }) => (
                       <button
                         key={value}
                         type="button"
@@ -944,6 +954,63 @@ const AdminOlympiadsTab = () => {
                   </div>
                 )}
 
+                {/* Поля для соответствия */}
+                {taskForm.task_type === "matching" && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      Название / инструкция <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={taskForm.question}
+                      onChange={(e) => setTaskForm((p) => ({ ...p, question: e.target.value }))}
+                      placeholder="Например: Соедини художника с его картиной"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm mb-4"
+                    />
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Пары для соответствия <span className="text-gray-400 font-normal">(до 8 пар)</span>
+                    </label>
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2 mb-1">
+                        <span className="text-xs text-gray-400 font-semibold text-center">Левая колонка (художник)</span>
+                        <span className="text-xs text-gray-400 font-semibold text-center">Правая колонка (картина)</span>
+                      </div>
+                      {Array.from({ length: 8 }).map((_, i) => {
+                        const raw = (taskForm.options || [])[i] || "";
+                        const [leftVal, rightVal] = raw.split("|");
+                        return (
+                          <div key={i} className="grid grid-cols-2 gap-2 items-center">
+                            <input
+                              type="text"
+                              value={leftVal || ""}
+                              onChange={(e) => {
+                                const updated = [...(taskForm.options || Array(8).fill(""))];
+                                const [, r] = (updated[i] || "").split("|");
+                                updated[i] = `${e.target.value}|${r || ""}`;
+                                setTaskForm((p) => ({ ...p, options: updated }));
+                              }}
+                              placeholder={`Художник ${i + 1}`}
+                              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm"
+                            />
+                            <input
+                              type="text"
+                              value={rightVal || ""}
+                              onChange={(e) => {
+                                const updated = [...(taskForm.options || Array(8).fill(""))];
+                                const [l] = (updated[i] || "").split("|");
+                                updated[i] = `${l || ""}|${e.target.value}`;
+                                setTaskForm((p) => ({ ...p, options: updated }));
+                              }}
+                              placeholder={`Картина ${i + 1}`}
+                              className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-3">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -1051,6 +1118,11 @@ const AdminOlympiadsTab = () => {
                         {task.task_type === "wordsearch" && (
                           <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 flex items-center gap-1">
                             <Icon name="Search" size={10} /> Искалка слов
+                          </span>
+                        )}
+                        {task.task_type === "matching" && (
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 flex items-center gap-1">
+                            <Icon name="GitCompare" size={10} /> Соответствие
                           </span>
                         )}
                       </div>

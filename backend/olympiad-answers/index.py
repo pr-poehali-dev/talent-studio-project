@@ -112,6 +112,8 @@ def handler(event: dict, context) -> dict:
             task_type = row[8] or 'quiz'
             if task_type == 'wordsearch':
                 is_correct = user_answer == '__wordsearch_done__'
+            elif task_type == 'matching':
+                is_correct = user_answer == '__matching_done__'
             elif user_answer is None:
                 is_correct = False
             else:

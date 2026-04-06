@@ -118,6 +118,8 @@ def handler(event: dict, context) -> dict:
         print(f'[ROW] task_id={row[0]} task_type={task_type!r} answer={given!r} correct={correct!r}')
         if task_type == 'wordsearch':
             is_correct = given == '__wordsearch_done__'
+        elif task_type == 'matching':
+            is_correct = given == '__matching_done__'
         else:
             is_correct = given.strip().lower() == correct.strip().lower() if correct else False
         answers.append({

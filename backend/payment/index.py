@@ -92,6 +92,22 @@ def handler(event: dict, context) -> dict:
             
             idempotence_key = str(uuid.uuid4())
             
+            import urllib.parse
+            base_url = "https://preview--talent-studio-project.poehali.dev/payment-success"
+            full_name_enc = urllib.parse.quote(pending_data.get('full_name', '') or '')
+            if pending_data.get('contest_name'):
+                return_url = (
+                    f"{base_url}?mode=contest"
+                    f"&contest_name={urllib.parse.quote(pending_data.get('contest_name', '') or '')}"
+                    f"&full_name={full_name_enc}"
+                )
+            else:
+                return_url = (
+                    f"{base_url}?type={pending_data.get('olympiad_type', '')}"
+                    f"&study_year={pending_data.get('study_year', '')}"
+                    f"&full_name={full_name_enc}"
+                )
+
             payment_data = {
                 "amount": {
                     "value": str(amount),
@@ -99,12 +115,7 @@ def handler(event: dict, context) -> dict:
                 },
                 "confirmation": {
                     "type": "redirect",
-                    "return_url": (
-                        f"https://preview--talent-studio-project.poehali.dev/payment-success"
-                        f"?type={pending_data.get('olympiad_type', '')}"
-                        f"&study_year={pending_data.get('study_year', '')}"
-                        f"&full_name={requests.utils.quote(pending_data.get('full_name', '') or '')}"
-                    )
+                    "return_url": return_url
                 },
                 "capture": True,
                 "description": description,

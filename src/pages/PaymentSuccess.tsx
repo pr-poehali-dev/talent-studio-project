@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, PlayCircle, Trophy, Copy, Check, Link } from 'lucide-react';
+import { CheckCircle, PlayCircle, Trophy, Copy, Check, Link, Mail, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const OLYMPIAD_NAMES: Record<string, string> = {
@@ -26,9 +26,13 @@ const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
 
+  const mode = searchParams.get('mode') || '';
+  const isContest = mode === 'contest';
+
   const olympiadType = searchParams.get('type') || '';
   const studyYearParam = searchParams.get('study_year') || '';
   const fullName = searchParams.get('full_name') || '';
+  const contestName = searchParams.get('contest_name') || '';
   const paymentId =
     searchParams.get('paymentId') ||
     searchParams.get('payment_id') ||
@@ -58,6 +62,72 @@ const PaymentSuccess = () => {
       setTimeout(() => setCopied(false), 2000);
     });
   };
+
+  if (isContest) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-orange-50 flex items-center justify-center py-10 px-4">
+        <div className="max-w-lg w-full space-y-4">
+          <div className="bg-white rounded-3xl shadow-xl p-8 md:p-10 text-center border border-green-100">
+
+            <div className="mb-6 flex justify-center">
+              <div className="relative">
+                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-14 h-14 text-green-500" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center">
+                  <Star className="w-4 h-4 text-white fill-white" />
+                </div>
+              </div>
+            </div>
+
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Заявка принята!</h1>
+            <p className="text-green-600 font-semibold text-base mb-1">Оплата прошла успешно</p>
+            <p className="text-gray-400 text-sm mb-7">Спасибо за участие в конкурсе</p>
+
+            <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 rounded-2xl p-5 mb-6 text-left space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 bg-orange-200 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Trophy className="w-5 h-5 text-orange-600" />
+                </div>
+                <div>
+                  {contestName && (
+                    <>
+                      <p className="text-xs text-gray-400 font-medium mb-0.5">Конкурс</p>
+                      <p className="text-gray-800 font-bold text-base leading-snug">«{contestName}»</p>
+                    </>
+                  )}
+                  {fullName && (
+                    <p className="text-sm text-gray-600 font-semibold mt-1">{fullName}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 mb-7 text-left">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Mail className="w-5 h-5 text-blue-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-800 mb-1">Что будет дальше?</p>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    После рассмотрения вашей работы мы направим уведомление на электронную почту, указанную при регистрации.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => navigate('/')}
+              className="w-full py-3.5 rounded-2xl border-2 border-orange-200 text-orange-600 font-semibold text-sm hover:bg-orange-50 transition-colors"
+            >
+              Вернуться на главную
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white flex items-center justify-center py-10 px-4">

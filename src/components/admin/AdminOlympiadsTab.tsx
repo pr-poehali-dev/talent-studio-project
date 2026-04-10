@@ -1442,39 +1442,67 @@ const AdminOlympiadsTab = () => {
                 ) : (
                   answers.map((item, i) => {
                     const hasCorrect = item.correct_answer !== null && item.correct_answer !== undefined;
+                    const isMatching = item.task_type === 'matching';
+
+                    // Парсим matching-ответ: "leftIdx:rightOrigIdx,..."
+                    const parseMatchingPairs = (answer: string, options: string[] | null) => {
+                      if (!answer || !options) return [];
+                      return answer.split(',').map(p => {
+                        const [li, ri] = p.split(':').map(Number);
+                        const left = options[li] ? options[li].split('|')[0] : `#${li}`;
+                        const right = options[ri] ? options[ri].split('|')[1] || options[ri].split('|')[0] : `#${ri}`;
+                        const correct = li === ri;
+                        return { left, right, correct };
+                      });
+                    };
+
+                    const matchingPairs = isMatching ? parseMatchingPairs(item.answer, item.options) : [];
+
                     return (
-                      <div key={item.id} className={`border rounded-2xl overflow-hidden ${hasCorrect ? (item.is_correct ? 'border-green-200' : 'border-red-200') : 'border-gray-100'}`}>
-                        <div className={`px-4 py-3 flex items-center gap-3 ${hasCorrect ? (item.is_correct ? 'bg-green-50' : 'bg-red-50') : 'bg-orange-50'}`}>
-                          <span className={`w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0 ${hasCorrect ? (item.is_correct ? 'bg-green-500' : 'bg-red-400') : 'bg-orange-500'}`}>
+                      <div key={item.id} className={`border rounded-2xl overflow-hidden ${item.is_correct ? 'border-green-200' : 'border-red-200'}`}>
+                        <div className={`px-4 py-3 flex items-center gap-3 ${item.is_correct ? 'bg-green-50' : 'bg-red-50'}`}>
+                          <span className={`w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center flex-shrink-0 ${item.is_correct ? 'bg-green-500' : 'bg-red-400'}`}>
                             {i + 1}
                           </span>
                           <p className="font-semibold text-gray-800 text-sm flex-1">{item.title}</p>
-                          {hasCorrect && (
-                            <Icon
-                              name={item.is_correct ? "CheckCircle" : "XCircle"}
-                              size={16}
-                              className={item.is_correct ? "text-green-500" : "text-red-400"}
-                            />
-                          )}
+                          <Icon
+                            name={item.is_correct ? "CheckCircle" : "XCircle"}
+                            size={16}
+                            className={item.is_correct ? "text-green-500" : "text-red-400"}
+                          />
                         </div>
                         <div className="px-4 py-3 space-y-2">
                           <p className="text-xs text-gray-500 leading-relaxed">{item.question}</p>
-                          <div className="flex flex-wrap items-center gap-3 mt-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-gray-400">Ответ:</span>
-                              <span className={`px-3 py-1 text-xs font-semibold rounded-full ${hasCorrect ? (item.is_correct ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-700') : 'bg-blue-100 text-blue-800'}`}>
-                                {item.answer}
-                              </span>
+                          {isMatching ? (
+                            <div className="mt-2 space-y-1">
+                              <p className="text-xs text-gray-400 font-semibold mb-1">Соединения участника:</p>
+                              {matchingPairs.map((pair, pi) => (
+                                <div key={pi} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium ${pair.correct ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+                                  <Icon name={pair.correct ? "CheckCircle" : "XCircle"} size={12} className={pair.correct ? "text-green-500 flex-shrink-0" : "text-red-400 flex-shrink-0"} />
+                                  <span className="font-semibold">{pair.left}</span>
+                                  <span className="text-gray-400">→</span>
+                                  <span>{pair.right}</span>
+                                </div>
+                              ))}
                             </div>
-                            {hasCorrect && !item.is_correct && (
+                          ) : (
+                            <div className="flex flex-wrap items-center gap-3 mt-2">
                               <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-400">Правильно:</span>
-                                <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                                  {item.correct_answer}
+                                <span className="text-xs text-gray-400">Ответ:</span>
+                                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${hasCorrect ? (item.is_correct ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-700') : 'bg-blue-100 text-blue-800'}`}>
+                                  {item.answer}
                                 </span>
                               </div>
-                            )}
-                          </div>
+                              {hasCorrect && !item.is_correct && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-gray-400">Правильно:</span>
+                                  <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                                    {item.correct_answer}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     );

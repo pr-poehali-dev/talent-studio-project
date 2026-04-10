@@ -96,7 +96,7 @@ def handler(event: dict, context) -> dict:
     }
 
     cursor.execute("""
-        SELECT ot.id, oa.answer, ot.question, ot.correct_answer, ot.task_type, ot.sort_order, ot.study_years
+        SELECT ot.id, oa.answer, ot.question, ot.correct_answer, ot.task_type, ot.sort_order, ot.study_years, ot.options
         FROM olympiad_tasks ot
         LEFT JOIN olympiad_answers oa ON oa.task_id = ot.id AND oa.payment_id = %s
         WHERE ot.olympiad_type = %s AND ot.is_active = TRUE
@@ -107,6 +107,25 @@ def handler(event: dict, context) -> dict:
 
     participant_study_year = int(app['study_year']) if app['study_year'] else None
 
+    def parse_matching_pairs(answer, options):
+        """Разбирает ответ matching "leftIdx:rightOrigIdx,..." в список пар с именами."""
+        if not answer or not options:
+            return []
+        pairs = []
+        for p in answer.split(','):
+            parts = p.split(':')
+            if len(parts) != 2:
+                continue
+            try:
+                li, ri = int(parts[0]), int(parts[1])
+                left_name = options[li].split('|')[0] if li < len(options) else f'#{li}'
+                right_opt = options[ri].split('|') if ri < len(options) else []
+                right_name = right_opt[1] if len(right_opt) > 1 else (right_opt[0] if right_opt else f'#{ri}')
+                pairs.append({'left': left_name, 'right': right_name, 'correct': li == ri})
+            except Exception:
+                continue
+        return pairs
+
     answers = []
     for row in answer_rows:
         task_study_years = row[6]
@@ -115,17 +134,23 @@ def handler(event: dict, context) -> dict:
         task_type = row[4] or 'quiz'
         given = row[1] or ''
         correct = row[3] or ''
-        print(f'[ROW] task_id={row[0]} task_type={task_type!r} answer={given!r} correct={correct!r}')
+        raw_options = row[7]
+        options = raw_options if isinstance(raw_options, list) else (json.loads(raw_options) if raw_options else [])
         if task_type == 'wordsearch':
             is_correct = given == '__wordsearch_done__'
         elif task_type == 'matching':
-            is_correct = given == '__matching_done__'
+            try:
+                pairs_list = [p.split(':') for p in given.split(',') if ':' in p]
+                is_correct = len(pairs_list) > 0 and all(l == r for l, r in pairs_list)
+            except Exception:
+                is_correct = False
         else:
             is_correct = given.strip().lower() == correct.strip().lower() if correct else False
         answers.append({
             'task_id': row[0], 'answer': given,
             'question': (row[2] or '').replace('\n', ' ').strip(),
             'correct_answer': correct, 'task_type': task_type, 'is_correct': is_correct,
+            'options': options,
         })
 
     total = len(answers)
@@ -260,6 +285,8 @@ def handler(event: dict, context) -> dict:
             badge_ps = ParagraphStyle(f'badge{i}', fontName='B', fontSize=8,
                                       alignment=TA_CENTER, textColor=badge_col)
 
+            is_matching = ans['task_type'] == 'matching'
+
             if is_ws:
                 given_txt   = 'Все слова найдены' if ans['answer'] == '__wordsearch_done__' else 'Не завершено'
                 # Для искалки: 2 строки — вопрос + результат
@@ -269,6 +296,18 @@ def handler(event: dict, context) -> dict:
                 ]
                 spans = [('SPAN',(0,0),(0,1)), ('SPAN',(2,0),(2,1))]
                 num_rows = 2
+            elif is_matching:
+                # Matching: вопрос + строки по каждой паре
+                pairs_decoded = parse_matching_pairs(ans['answer'], ans.get('options', []))
+                pair_rows_data = [[Paragraph(f'#{i}', lbl_s), Paragraph(q_text, body_s), Paragraph(badge_txt, badge_ps)]]
+                for pair in pairs_decoded:
+                    tick = '✓' if pair['correct'] else '✗'
+                    col = colors.HexColor('#15803d') if pair['correct'] else colors.HexColor('#dc2626')
+                    pair_label_ps = ParagraphStyle(f'pair{i}_{pair["left"]}', fontName='R', fontSize=8, textColor=col, leading=11)
+                    pair_rows_data.append(['', Paragraph(f'{tick}  {pair["left"]}  →  {pair["right"]}', pair_label_ps), ''])
+                rows = pair_rows_data
+                spans = [('SPAN',(0,0),(0,len(pair_rows_data)-1)), ('SPAN',(2,0),(2,len(pair_rows_data)-1))]
+                num_rows = len(pair_rows_data)
             else:
                 given_txt   = ans['answer'][:80]   if ans['answer']        else '—'
                 correct_txt = ans['correct_answer'][:80] if ans['correct_answer'] else '—'
@@ -308,7 +347,7 @@ def handler(event: dict, context) -> dict:
                 # Подсветка строки с правильным ответом
             ] + [('SPAN', s[1], s[2]) for s in spans]
 
-            if not is_ws:
+            if not is_ws and not is_matching:
                 # Чуть другой фон для строки с правильным ответом
                 style_cmds.append(('BACKGROUND', (1,2),(1,2), colors.HexColor('#f0fdf4')))
 

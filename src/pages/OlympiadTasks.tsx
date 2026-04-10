@@ -692,6 +692,8 @@ const OlympiadTasks = () => {
   const taskCardRef = useRef<HTMLDivElement>(null);
   // Refs для ColoringWidget — по taskId
   const coloringRefs = useRef<Record<number, React.RefObject<ColoringHandle | null>>>({});
+  // Отслеживаем какие coloring-задания участник уже видел
+  const [seenColoring, setSeenColoring] = useState<Set<number>>(new Set());
 
   const olympiadName = OLYMPIAD_NAMES[olympiadType] || 'Олимпиада';
   const studyYearLabel = STUDY_YEAR_LABELS[studyYearParam] || (studyYearParam ? `${studyYearParam} год обучения` : '');
@@ -730,9 +732,17 @@ const OlympiadTasks = () => {
 
   const task = tasks[currentIndex];
   const total = tasks.length;
-  // Раскраски считаются отвеченными всегда (участник рисует)
-  const coloringCount = tasks.filter(t => t.task_type === 'coloring').length;
-  const answered = Object.keys(answers).length + coloringCount;
+
+  // Помечаем coloring-задание как увиденное когда оно становится текущим
+  useEffect(() => {
+    if (task?.task_type === 'coloring') {
+      setSeenColoring(prev => { const next = new Set(prev); next.add(task.id); return next; });
+    }
+  }, [task?.id, task?.task_type]);
+
+  const answered = tasks.filter(t =>
+    answers[t.id] !== undefined || (t.task_type === 'coloring' && seenColoring.has(t.id))
+  ).length;
 
   const scrollToCard = () => {
     if (taskCardRef.current) {
@@ -920,7 +930,7 @@ const OlympiadTasks = () => {
               </div>
               <div className="flex flex-wrap gap-2">
                 {tasks.map((t, i) => {
-                  const isAnswered = answers[t.id] !== undefined || t.task_type === 'coloring';
+                  const isAnswered = answers[t.id] !== undefined || (t.task_type === 'coloring' && seenColoring.has(t.id));
                   const isCurrent = i === currentIndex;
                   return (
                     <button

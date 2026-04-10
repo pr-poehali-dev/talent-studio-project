@@ -176,15 +176,15 @@ function WordSearchWidget({ taskId, words, onComplete, isCompleted, studyYear }:
 }
 
 // ===== Соответствие =====
-const MATCHING_COLORS = [
-  'bg-rose-100 text-rose-800 border-rose-300',
-  'bg-blue-100 text-blue-800 border-blue-300',
-  'bg-emerald-100 text-emerald-800 border-emerald-300',
-  'bg-amber-100 text-amber-800 border-amber-300',
-  'bg-violet-100 text-violet-800 border-violet-300',
-  'bg-cyan-100 text-cyan-800 border-cyan-300',
-  'bg-pink-100 text-pink-800 border-pink-300',
-  'bg-lime-100 text-lime-800 border-lime-300',
+const MATCHING_BADGE_COLORS = [
+  { bg: '#fce7f3', text: '#9d174d', border: '#f9a8d4' },
+  { bg: '#dbeafe', text: '#1e3a8a', border: '#93c5fd' },
+  { bg: '#d1fae5', text: '#065f46', border: '#6ee7b7' },
+  { bg: '#fef3c7', text: '#78350f', border: '#fcd34d' },
+  { bg: '#ede9fe', text: '#4c1d95', border: '#c4b5fd' },
+  { bg: '#cffafe', text: '#164e63', border: '#67e8f9' },
+  { bg: '#fce7f3', text: '#831843', border: '#f472b6' },
+  { bg: '#ecfccb', text: '#365314', border: '#a3e635' },
 ];
 
 interface MatchingProps {
@@ -195,9 +195,11 @@ interface MatchingProps {
 }
 
 function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProps) {
-  const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
-  // matched: leftIdx -> rightOrigIdx (какую правую выбрал для этого левого)
+  // matched: leftIdx -> rightOrigIdx
   const [matched, setMatched] = useState<Record<number, number>>({});
+  const [draggingLeft, setDraggingLeft] = useState<number | null>(null);
+  const [dragOverRight, setDragOverRight] = useState<number | null>(null);
+  const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
 
   const hasImages = pairs.some(p => p.imageUrl);
 
@@ -210,64 +212,77 @@ function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProp
     return arr;
   });
 
-  // pos -> origIdx
+  // shuffledRight[pos] = origIdx
   const rightToOrig = Object.fromEntries(shuffledRight.map((orig, pos) => [pos, orig]));
-  // origIdx -> уже занят каким leftIdx
+  // origIdx -> leftIdx (кто занял)
   const origToLeft = Object.fromEntries(Object.entries(matched).map(([l, r]) => [r, Number(l)]));
 
   useEffect(() => {
     if (Object.keys(matched).length === pairs.length && pairs.length > 0 && !isCompleted) {
-      // Формируем строку соединений: "leftIdx:rightOrigIdx,..."
       const answerStr = Object.entries(matched).map(([l, r]) => `${l}:${r}`).join(',');
       onComplete(taskId, answerStr);
     }
   }, [matched, pairs.length, taskId, onComplete, isCompleted]);
 
-  const handleLeftClick = (idx: number) => {
-    if (isCompleted) return;
-    setSelectedLeft(idx === selectedLeft ? null : idx);
-  };
-
-  const handleRightClick = (pos: number) => {
-    if (isCompleted) return;
-    const origIdx = rightToOrig[pos];
-    if (selectedLeft === null) return;
-
-    // Если правая уже занята другим левым — снимаем ту связь
-    const prevLeft = origToLeft[origIdx];
+  const applyMatch = (leftIdx: number, origIdx: number) => {
     const newMatched = { ...matched };
-    if (prevLeft !== undefined && prevLeft !== selectedLeft) {
-      delete newMatched[prevLeft];
-    }
-    // Если у выбранного левого уже была правая — снимаем
-    if (newMatched[selectedLeft] !== undefined) {
-      delete newMatched[newMatched[selectedLeft]]; // не нужно, просто перезаписываем
-    }
-    newMatched[selectedLeft] = origIdx;
+    // Если кто-то уже занял эту правую — освобождаем
+    const prevLeft = origToLeft[origIdx];
+    if (prevLeft !== undefined) delete newMatched[prevLeft];
+    newMatched[leftIdx] = origIdx;
     setMatched(newMatched);
+  };
+
+  // === Drag handlers ===
+  const onDragStart = (e: React.DragEvent, leftIdx: number) => {
+    if (isCompleted) return;
+    setDraggingLeft(leftIdx);
     setSelectedLeft(null);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(leftIdx));
   };
 
-  const getLeftStyle = (idx: number): string => {
-    const isLinked = matched[idx] !== undefined;
-    if (isLinked) return MATCHING_COLORS[idx % MATCHING_COLORS.length];
-    if (selectedLeft === idx) return 'bg-orange-400 text-white border-orange-400';
-    return 'bg-white text-gray-700 border-gray-200 hover:border-orange-300 hover:bg-orange-50';
+  const onDragEnd = () => {
+    setDraggingLeft(null);
+    setDragOverRight(null);
   };
 
-  const getRightStyle = (pos: number): string => {
+  const onDragOver = (e: React.DragEvent, pos: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverRight(pos);
+  };
+
+  const onDragLeave = () => setDragOverRight(null);
+
+  const onDrop = (e: React.DragEvent, pos: number) => {
+    e.preventDefault();
+    const leftIdx = Number(e.dataTransfer.getData('text/plain'));
     const origIdx = rightToOrig[pos];
-    const linkedLeft = origToLeft[origIdx];
-    if (linkedLeft !== undefined) return MATCHING_COLORS[linkedLeft % MATCHING_COLORS.length];
-    if (selectedLeft !== null) return 'border-orange-200 hover:border-orange-400 hover:bg-orange-50 cursor-pointer';
-    return 'border-gray-200';
+    applyMatch(leftIdx, origIdx);
+    setDraggingLeft(null);
+    setDragOverRight(null);
+  };
+
+  // === Click fallback ===
+  const onLeftClick = (idx: number) => {
+    if (isCompleted) return;
+    setSelectedLeft(prev => prev === idx ? null : idx);
+  };
+
+  const onRightClick = (pos: number) => {
+    if (isCompleted || selectedLeft === null) return;
+    applyMatch(selectedLeft, rightToOrig[pos]);
+    setSelectedLeft(null);
   };
 
   const matchedCount = Object.keys(matched).length;
 
   return (
     <div className="space-y-3 select-none">
-      <p className="text-xs text-gray-400">Нажми на элемент слева, затем выбери подходящий справа. Можно пересоединять.</p>
+      <p className="text-xs text-gray-400">
+        Перетащи имя художника на нужную картину. Можно перетащить повторно, чтобы исправить.
+      </p>
 
       {!isCompleted && (
         <div className="text-xs text-gray-500 font-medium">
@@ -275,50 +290,122 @@ function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProp
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2">
-        <div className="space-y-2">
-          {pairs.map((pair, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleLeftClick(idx)}
-              disabled={isCompleted}
-              className={`w-full text-left px-3 py-2.5 rounded-2xl border-2 text-sm font-medium transition-all leading-snug ${getLeftStyle(idx)}`}
-            >
-              {pair.left}
-            </button>
-          ))}
-        </div>
-        <div className="space-y-2">
+      <div className="space-y-3">
+        {/* Картины — сверху, в сетке */}
+        <div className={`grid gap-2 ${pairs.length <= 4 ? 'grid-cols-2' : 'grid-cols-2'}`}>
           {shuffledRight.map((origIdx, pos) => {
             const pair = pairs[origIdx];
             const linkedLeft = origToLeft[origIdx];
             const isLinked = linkedLeft !== undefined;
-            const colorCls = isLinked ? MATCHING_COLORS[linkedLeft % MATCHING_COLORS.length] : '';
+            const isDragTarget = dragOverRight === pos;
+            const color = isLinked ? MATCHING_BADGE_COLORS[linkedLeft % MATCHING_BADGE_COLORS.length] : null;
+
             return (
-              <button
+              <div
                 key={pos}
-                onClick={() => handleRightClick(pos)}
-                disabled={isCompleted}
-                className={`w-full rounded-2xl border-2 transition-all overflow-hidden ${getRightStyle(pos)} ${isLinked ? colorCls : 'bg-white'}`}
+                onClick={() => onRightClick(pos)}
+                onDragOver={e => onDragOver(e, pos)}
+                onDragLeave={onDragLeave}
+                onDrop={e => onDrop(e, pos)}
+                className={`
+                  relative rounded-2xl border-2 overflow-hidden transition-all cursor-pointer
+                  ${isDragTarget
+                    ? 'border-orange-400 shadow-lg shadow-orange-200 scale-[1.03]'
+                    : isLinked
+                      ? 'shadow-md'
+                      : selectedLeft !== null
+                        ? 'border-orange-200 hover:border-orange-400'
+                        : 'border-gray-200 hover:border-gray-300'
+                  }
+                `}
+                style={
+                  isLinked && color
+                    ? { borderColor: color.border, backgroundColor: color.bg }
+                    : isDragTarget
+                      ? { backgroundColor: '#fff7ed' }
+                      : { backgroundColor: '#fff' }
+                }
               >
+                {/* Значок "бросить сюда" */}
+                {isDragTarget && (
+                  <div className="absolute inset-0 flex items-center justify-center z-10 bg-orange-400/20 backdrop-blur-[1px]">
+                    <div className="bg-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow">
+                      Отпустить здесь
+                    </div>
+                  </div>
+                )}
+
                 {hasImages && pair.imageUrl ? (
-                  <div>
+                  <>
                     <img
                       src={pair.imageUrl}
                       alt=""
                       className="w-full object-cover"
-                      style={{ height: '90px' }}
+                      style={{ height: '100px' }}
+                      draggable={false}
                     />
-                    <div className="px-2 py-1 text-xs font-medium text-center text-gray-600">
+                    <div
+                      className="px-2 py-1.5 text-xs font-semibold text-center leading-tight"
+                      style={isLinked && color ? { color: color.text } : { color: '#6b7280' }}
+                    >
                       {pair.right}
                     </div>
-                  </div>
+                  </>
                 ) : (
-                  <div className="px-3 py-2.5 text-sm font-medium text-left leading-snug">
+                  <div
+                    className="px-3 py-3 text-sm font-medium text-center leading-snug"
+                    style={isLinked && color ? { color: color.text } : { color: '#374151' }}
+                  >
                     {pair.right}
                   </div>
                 )}
-              </button>
+
+                {/* Бейдж с именем художника если привязан */}
+                {isLinked && color && (
+                  <div
+                    className="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-lg text-[10px] font-bold shadow-sm border"
+                    style={{ backgroundColor: color.bg, color: color.text, borderColor: color.border }}
+                  >
+                    {pairs[linkedLeft].left}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Художники — снизу, перетаскиваемые чипы */}
+        <div className="flex flex-wrap gap-2 pt-1">
+          {pairs.map((pair, idx) => {
+            const isLinked = matched[idx] !== undefined;
+            const isDragging = draggingLeft === idx;
+            const isSelected = selectedLeft === idx;
+            const color = MATCHING_BADGE_COLORS[idx % MATCHING_BADGE_COLORS.length];
+
+            return (
+              <div
+                key={idx}
+                draggable={!isCompleted}
+                onDragStart={e => onDragStart(e, idx)}
+                onDragEnd={onDragEnd}
+                onClick={() => onLeftClick(idx)}
+                className={`
+                  cursor-grab active:cursor-grabbing
+                  px-3 py-1.5 rounded-xl border-2 text-xs font-bold
+                  transition-all duration-150 select-none
+                  ${isDragging ? 'opacity-40 scale-95' : ''}
+                  ${isSelected ? 'scale-105 shadow-lg' : 'hover:scale-105 hover:shadow-md'}
+                `}
+                style={{
+                  backgroundColor: color.bg,
+                  color: color.text,
+                  borderColor: isSelected ? color.text : isLinked ? color.border : color.border,
+                  boxShadow: isSelected ? `0 0 0 3px ${color.border}` : undefined,
+                  opacity: isDragging ? 0.4 : 1,
+                }}
+              >
+                ☰ {pair.left}
+              </div>
             );
           })}
         </div>

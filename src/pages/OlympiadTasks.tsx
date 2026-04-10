@@ -431,14 +431,17 @@ const COLORING_COLORS = [
   "#3F51B5","#009688","#CDDC39","#FFC107","#F44336",
 ];
 
+interface ColoringHandle {
+  exportImage: () => Promise<string | null>;
+}
+
 interface ColoringProps {
   taskId: number;
   imageUrl: string;
-  onComplete: (taskId: number, imageDataUrl: string) => void;
-  isCompleted: boolean;
+  coloringRef: React.RefObject<ColoringHandle | null>;
 }
 
-function ColoringWidget({ taskId, imageUrl, onComplete, isCompleted }: ColoringProps) {
+function ColoringWidget({ imageUrl, coloringRef }: ColoringProps) {
   const drawCanvasRef = useRef<HTMLCanvasElement>(null);
   const catImgEl = useRef<HTMLImageElement | null>(null);
   const lastPos = useRef<{ x: number; y: number } | null>(null);
@@ -448,7 +451,6 @@ function ColoringWidget({ taskId, imageUrl, onComplete, isCompleted }: ColoringP
   const [isDrawing, setIsDrawing] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgBlobUrl, setImgBlobUrl] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
 
   const proxyImgUrl = imageUrl
     ? `${PROXY_URL}?url=${encodeURIComponent(imageUrl)}`
@@ -467,6 +469,33 @@ function ColoringWidget({ taskId, imageUrl, onComplete, isCompleted }: ColoringP
       })
       .catch(() => { setImgLoaded(true); });
   }, [imageUrl]);
+
+  // Экспортируем метод получения картинки наружу
+  useEffect(() => {
+    if (coloringRef) {
+      (coloringRef as React.MutableRefObject<ColoringHandle>).current = {
+        exportImage: async () => {
+          const drawCanvas = drawCanvasRef.current;
+          if (!drawCanvas) return null;
+          const merged = document.createElement("canvas");
+          merged.width = drawCanvas.width;
+          merged.height = drawCanvas.height;
+          const ctx = merged.getContext("2d");
+          if (!ctx) return null;
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, merged.width, merged.height);
+          if (catImgEl.current) ctx.drawImage(catImgEl.current, 0, 0, merged.width, merged.height);
+          ctx.drawImage(drawCanvas, 0, 0);
+          return new Promise(res => merged.toBlob(b => {
+            if (!b) { res(null); return; }
+            const reader = new FileReader();
+            reader.onload = () => res((reader.result as string).split(",")[1]);
+            reader.readAsDataURL(b);
+          }, "image/jpeg", 0.85));
+        }
+      };
+    }
+  }, [coloringRef, imgLoaded]);
 
   const getPos = (e: React.MouseEvent | React.TouchEvent) => {
     const canvas = drawCanvasRef.current;
@@ -512,7 +541,6 @@ function ColoringWidget({ taskId, imageUrl, onComplete, isCompleted }: ColoringP
   };
 
   const startDraw = (e: React.MouseEvent | React.TouchEvent) => {
-    if (isCompleted) return;
     e.preventDefault();
     setIsDrawing(true);
     const pos = getPos(e);
@@ -521,7 +549,7 @@ function ColoringWidget({ taskId, imageUrl, onComplete, isCompleted }: ColoringP
   };
 
   const moveDraw = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDrawing || isCompleted) return;
+    if (!isDrawing) return;
     e.preventDefault();
     const pos = getPos(e);
     if (lastPos.current) paintLine(lastPos.current.x, lastPos.current.y, pos.x, pos.y);
@@ -537,64 +565,9 @@ function ColoringWidget({ taskId, imageUrl, onComplete, isCompleted }: ColoringP
     if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
-  const handleDone = async () => {
-    const drawCanvas = drawCanvasRef.current;
-    if (!drawCanvas) return;
-    setUploading(true);
-    try {
-      const merged = document.createElement("canvas");
-      merged.width = drawCanvas.width;
-      merged.height = drawCanvas.height;
-      const ctx = merged.getContext("2d");
-      if (!ctx) return;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, merged.width, merged.height);
-      if (catImgEl.current) ctx.drawImage(catImgEl.current, 0, 0, merged.width, merged.height);
-      ctx.drawImage(drawCanvas, 0, 0);
-
-      const blob: Blob = await new Promise(res => merged.toBlob(b => res(b!), "image/jpeg", 0.85));
-      const reader = new FileReader();
-      const base64: string = await new Promise(res => {
-        reader.onload = () => res((reader.result as string).split(",")[1]);
-        reader.readAsDataURL(blob);
-      });
-
-      const uploadId = crypto.randomUUID();
-      const res = await fetch(UPLOAD_FILE_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chunk: base64, chunkIndex: 0, totalChunks: 1,
-          fileName: `coloring_${taskId}_${uploadId}.jpg`,
-          fileType: "image/jpeg",
-          folder: "olympiad-coloring",
-          uploadId,
-        }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        onComplete(taskId, data.url);
-      }
-    } catch {
-      // fallback — сохраняем без загрузки
-      onComplete(taskId, '__coloring_done__');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  if (isCompleted) {
-    return (
-      <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-2xl px-4 py-3">
-        <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-        <span className="text-sm font-semibold text-green-700">Раскраска сохранена! Задание выполнено.</span>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-3">
-      <p className="text-xs text-gray-400">Раскрась картинку кистью. Когда закончишь — нажми «Готово».</p>
+      <p className="text-xs text-gray-400">Раскрась картинку кистью. Раскраска сохранится автоматически при отправке ответов.</p>
 
       <div className="relative rounded-2xl overflow-hidden border-2 border-orange-100 bg-white"
         style={{ touchAction: 'none' }}>
@@ -602,7 +575,6 @@ function ColoringWidget({ taskId, imageUrl, onComplete, isCompleted }: ColoringP
           src={imgBlobUrl || proxyImgUrl}
           alt="Раскраска"
           className="block w-full select-none pointer-events-none"
-          style={{ display: imgLoaded ? 'block' : 'block' }}
           draggable={false}
           onLoad={() => setImgLoaded(true)}
         />
@@ -626,7 +598,6 @@ function ColoringWidget({ taskId, imageUrl, onComplete, isCompleted }: ColoringP
 
       {/* Инструменты */}
       <div className="bg-orange-50 rounded-2xl p-3 space-y-3">
-        {/* Палитра */}
         <div className="flex flex-wrap gap-1.5">
           {COLORING_COLORS.map(color => (
             <button
@@ -642,8 +613,6 @@ function ColoringWidget({ taskId, imageUrl, onComplete, isCompleted }: ColoringP
             />
           ))}
         </div>
-
-        {/* Размер + инструменты */}
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <input
@@ -668,17 +637,6 @@ function ColoringWidget({ taskId, imageUrl, onComplete, isCompleted }: ColoringP
           </button>
         </div>
       </div>
-
-      <button
-        onClick={handleDone}
-        disabled={uploading}
-        className="w-full py-3 rounded-2xl bg-green-500 hover:bg-green-600 text-white font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-60"
-      >
-        {uploading
-          ? <><Icon name="Loader2" size={16} className="animate-spin" />Сохраняем раскраску...</>
-          : <><Icon name="CheckCircle" size={16} />Готово — отправить раскраску</>
-        }
-      </button>
     </div>
   );
 }
@@ -732,6 +690,8 @@ const OlympiadTasks = () => {
   const [submitted, setSubmitted] = useState(false);
 
   const taskCardRef = useRef<HTMLDivElement>(null);
+  // Refs для ColoringWidget — по taskId
+  const coloringRefs = useRef<Record<number, React.RefObject<ColoringHandle | null>>>({});
 
   const olympiadName = OLYMPIAD_NAMES[olympiadType] || 'Олимпиада';
   const studyYearLabel = STUDY_YEAR_LABELS[studyYearParam] || (studyYearParam ? `${studyYearParam} год обучения` : '');
@@ -770,7 +730,9 @@ const OlympiadTasks = () => {
 
   const task = tasks[currentIndex];
   const total = tasks.length;
-  const answered = Object.keys(answers).length;
+  // Раскраски считаются отвеченными всегда (участник рисует)
+  const coloringCount = tasks.filter(t => t.task_type === 'coloring').length;
+  const answered = Object.keys(answers).length + coloringCount;
 
   const scrollToCard = () => {
     if (taskCardRef.current) {
@@ -811,9 +773,42 @@ const OlympiadTasks = () => {
     setSubmitting(true);
     try {
       const answersPayload: Record<string, string> = {};
-      for (const [taskId, answer] of Object.entries(answers)) {
-        answersPayload[taskId] = answer;
+
+      // Сначала загружаем все раскраски на S3
+      const coloringTasks = tasks.filter(t => t.task_type === 'coloring');
+      for (const ct of coloringTasks) {
+        const ref = coloringRefs.current[ct.id];
+        const base64 = ref?.current ? await ref.current.exportImage() : null;
+        if (base64) {
+          try {
+            const uploadId = crypto.randomUUID();
+            const res = await fetch(UPLOAD_FILE_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chunk: base64, chunkIndex: 0, totalChunks: 1,
+                fileName: `coloring_${ct.id}_${uploadId}.jpg`,
+                fileType: 'image/jpeg',
+                folder: 'olympiad-coloring',
+                uploadId,
+              }),
+            });
+            const data = await res.json();
+            if (data.url) answersPayload[String(ct.id)] = data.url;
+            else answersPayload[String(ct.id)] = '__coloring_done__';
+          } catch {
+            answersPayload[String(ct.id)] = '__coloring_done__';
+          }
+        } else {
+          answersPayload[String(ct.id)] = '__coloring_done__';
+        }
       }
+
+      // Остальные ответы
+      for (const [taskId, answer] of Object.entries(answers)) {
+        if (!answersPayload[taskId]) answersPayload[taskId] = answer;
+      }
+
       await fetch(ANSWERS_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -925,7 +920,7 @@ const OlympiadTasks = () => {
               </div>
               <div className="flex flex-wrap gap-2">
                 {tasks.map((t, i) => {
-                  const isAnswered = answers[t.id] !== undefined;
+                  const isAnswered = answers[t.id] !== undefined || t.task_type === 'coloring';
                   const isCurrent = i === currentIndex;
                   return (
                     <button
@@ -979,8 +974,12 @@ const OlympiadTasks = () => {
                     <ColoringWidget
                       taskId={task.id}
                       imageUrl={task.image_url || ''}
-                      onComplete={(id, url) => { setAnswers(prev => ({ ...prev, [id]: url })); }}
-                      isCompleted={!!answers[task.id]}
+                      coloringRef={(() => {
+                        if (!coloringRefs.current[task.id]) {
+                          coloringRefs.current[task.id] = { current: null } as React.RefObject<ColoringHandle | null>;
+                        }
+                        return coloringRefs.current[task.id];
+                      })()}
                     />
                   ) : (<>
                     {task.image_url && (

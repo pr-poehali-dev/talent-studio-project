@@ -190,15 +190,14 @@ const MATCHING_COLORS = [
 interface MatchingProps {
   taskId: number;
   pairs: Array<{ left: string; right: string; imageUrl?: string }>;
-  onComplete: (taskId: number) => void;
+  onComplete: (taskId: number, answer: string) => void;
   isCompleted: boolean;
 }
 
 function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProps) {
   const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
-  const [selectedRight, setSelectedRight] = useState<number | null>(null);
+  // matched: leftIdx -> rightOrigIdx (какую правую выбрал для этого левого)
   const [matched, setMatched] = useState<Record<number, number>>({});
-  const [wrongPair, setWrongPair] = useState<[number, number] | null>(null);
 
   const hasImages = pairs.some(p => p.imageUrl);
 
@@ -211,56 +210,64 @@ function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProp
     return arr;
   });
 
+  // pos -> origIdx
   const rightToOrig = Object.fromEntries(shuffledRight.map((orig, pos) => [pos, orig]));
+  // origIdx -> уже занят каким leftIdx
+  const origToLeft = Object.fromEntries(Object.entries(matched).map(([l, r]) => [r, Number(l)]));
 
   useEffect(() => {
     if (Object.keys(matched).length === pairs.length && pairs.length > 0 && !isCompleted) {
-      onComplete(taskId);
+      // Формируем строку соединений: "leftIdx:rightOrigIdx,..."
+      const answerStr = Object.entries(matched).map(([l, r]) => `${l}:${r}`).join(',');
+      onComplete(taskId, answerStr);
     }
   }, [matched, pairs.length, taskId, onComplete, isCompleted]);
 
   const handleLeftClick = (idx: number) => {
     if (isCompleted) return;
-    if (Object.values(matched).includes(idx)) return;
     setSelectedLeft(idx === selectedLeft ? null : idx);
-    setSelectedRight(null);
   };
 
   const handleRightClick = (pos: number) => {
     if (isCompleted) return;
     const origIdx = rightToOrig[pos];
-    if (matched[origIdx] !== undefined) return;
-    if (selectedLeft === null) { setSelectedRight(pos === selectedRight ? null : pos); return; }
-    if (selectedLeft === origIdx) {
-      const nm = { ...matched, [origIdx]: origIdx };
-      setMatched(nm);
-      setSelectedLeft(null); setSelectedRight(null);
-    } else {
-      setWrongPair([selectedLeft, pos]);
-      setTimeout(() => { setWrongPair(null); setSelectedLeft(null); setSelectedRight(null); }, 500);
+    if (selectedLeft === null) return;
+
+    // Если правая уже занята другим левым — снимаем ту связь
+    const prevLeft = origToLeft[origIdx];
+    const newMatched = { ...matched };
+    if (prevLeft !== undefined && prevLeft !== selectedLeft) {
+      delete newMatched[prevLeft];
     }
+    // Если у выбранного левого уже была правая — снимаем
+    if (newMatched[selectedLeft] !== undefined) {
+      delete newMatched[newMatched[selectedLeft]]; // не нужно, просто перезаписываем
+    }
+    newMatched[selectedLeft] = origIdx;
+    setMatched(newMatched);
+    setSelectedLeft(null);
   };
 
-  const getLeftBorder = (idx: number): string => {
-    if (matched[idx] !== undefined) return MATCHING_COLORS[idx % MATCHING_COLORS.length];
+  const getLeftStyle = (idx: number): string => {
+    const isLinked = matched[idx] !== undefined;
+    if (isLinked) return MATCHING_COLORS[idx % MATCHING_COLORS.length];
     if (selectedLeft === idx) return 'bg-orange-400 text-white border-orange-400';
-    if (wrongPair && wrongPair[0] === idx) return 'bg-red-100 text-red-700 border-red-300';
     return 'bg-white text-gray-700 border-gray-200 hover:border-orange-300 hover:bg-orange-50';
   };
 
-  const getRightBorder = (pos: number): string => {
+  const getRightStyle = (pos: number): string => {
     const origIdx = rightToOrig[pos];
-    if (matched[origIdx] !== undefined) return MATCHING_COLORS[origIdx % MATCHING_COLORS.length];
-    if (selectedRight === pos) return 'border-orange-400 ring-2 ring-orange-300';
-    if (wrongPair && wrongPair[1] === pos) return 'border-red-300 ring-2 ring-red-200';
-    return 'border-gray-200 hover:border-orange-300';
+    const linkedLeft = origToLeft[origIdx];
+    if (linkedLeft !== undefined) return MATCHING_COLORS[linkedLeft % MATCHING_COLORS.length];
+    if (selectedLeft !== null) return 'border-orange-200 hover:border-orange-400 hover:bg-orange-50 cursor-pointer';
+    return 'border-gray-200';
   };
 
   const matchedCount = Object.keys(matched).length;
 
   return (
     <div className="space-y-3 select-none">
-      <p className="text-xs text-gray-400">Нажми на художника слева, затем на его картину справа</p>
+      <p className="text-xs text-gray-400">Нажми на элемент слева, затем выбери подходящий справа. Можно пересоединять.</p>
 
       {!isCompleted && (
         <div className="text-xs text-gray-500 font-medium">
@@ -274,8 +281,8 @@ function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProp
             <button
               key={idx}
               onClick={() => handleLeftClick(idx)}
-              disabled={matched[idx] !== undefined || isCompleted}
-              className={`w-full text-left px-3 py-2.5 rounded-2xl border-2 text-sm font-medium transition-all leading-snug ${getLeftBorder(idx)}`}
+              disabled={isCompleted}
+              className={`w-full text-left px-3 py-2.5 rounded-2xl border-2 text-sm font-medium transition-all leading-snug ${getLeftStyle(idx)}`}
             >
               {pair.left}
             </button>
@@ -284,26 +291,26 @@ function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProp
         <div className="space-y-2">
           {shuffledRight.map((origIdx, pos) => {
             const pair = pairs[origIdx];
-            const borderCls = getRightBorder(pos);
-            const isMatched = matched[origIdx] !== undefined;
-            const matchColor = isMatched ? MATCHING_COLORS[origIdx % MATCHING_COLORS.length] : '';
+            const linkedLeft = origToLeft[origIdx];
+            const isLinked = linkedLeft !== undefined;
+            const colorCls = isLinked ? MATCHING_COLORS[linkedLeft % MATCHING_COLORS.length] : '';
             return (
               <button
                 key={pos}
                 onClick={() => handleRightClick(pos)}
-                disabled={isMatched || isCompleted}
-                className={`w-full rounded-2xl border-2 transition-all overflow-hidden ${borderCls} ${isMatched ? matchColor : ''}`}
+                disabled={isCompleted}
+                className={`w-full rounded-2xl border-2 transition-all overflow-hidden ${getRightStyle(pos)} ${isLinked ? colorCls : 'bg-white'}`}
               >
                 {hasImages && pair.imageUrl ? (
-                  <div className="relative">
+                  <div>
                     <img
                       src={pair.imageUrl}
-                      alt={pair.right}
+                      alt=""
                       className="w-full object-cover"
                       style={{ height: '90px' }}
                     />
-                    <div className={`px-2 py-1 text-xs font-medium text-center ${isMatched ? '' : 'text-gray-600 bg-white/90'}`}>
-                      {isMatched ? pair.right : '?'}
+                    <div className="px-2 py-1 text-xs font-medium text-center text-gray-600">
+                      {pair.right}
                     </div>
                   </div>
                 ) : (
@@ -320,7 +327,7 @@ function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProp
       {isCompleted && (
         <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-2xl px-4 py-3">
           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-          <span className="text-sm font-semibold text-green-700">Все пары найдены! Задание выполнено.</span>
+          <span className="text-sm font-semibold text-green-700">Все пары соединены! Задание выполнено.</span>
         </div>
       )}
     </div>
@@ -616,8 +623,8 @@ const OlympiadTasks = () => {
                     <MatchingWidget
                       taskId={task.id}
                       pairs={(task.options || []).map(opt => { const [left, right, imageUrl] = opt.split('|'); return { left: left || '', right: right || '', imageUrl: imageUrl || undefined }; })}
-                      onComplete={(id) => { setAnswers(prev => ({ ...prev, [id]: '__matching_done__' })); }}
-                      isCompleted={answers[task.id] === '__matching_done__'}
+                      onComplete={(id, answer) => { setAnswers(prev => ({ ...prev, [id]: answer })); }}
+                      isCompleted={!!answers[task.id] && answers[task.id] !== ''}
                     />
                   ) : (<>
                     {task.image_url && (

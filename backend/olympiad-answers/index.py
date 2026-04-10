@@ -113,7 +113,15 @@ def handler(event: dict, context) -> dict:
             if task_type == 'wordsearch':
                 is_correct = user_answer == '__wordsearch_done__'
             elif task_type == 'matching':
-                is_correct = user_answer == '__matching_done__'
+                # Ответ: "leftIdx:rightOrigIdx,..." — правильно если каждый leftIdx == rightOrigIdx
+                if not user_answer or user_answer == '__matching_done__':
+                    is_correct = False
+                else:
+                    try:
+                        pairs = [p.split(':') for p in user_answer.split(',') if ':' in p]
+                        is_correct = len(pairs) > 0 and all(l == r for l, r in pairs)
+                    except Exception:
+                        is_correct = False
             elif user_answer is None:
                 is_correct = False
             else:

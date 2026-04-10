@@ -159,12 +159,13 @@ const AdminOlympiadsTab = () => {
   const [answersStats, setAnswersStats] = useState<Record<number, { correct: number; wrong: number; total: number }>>({});
 
   const calcStats = (answers: OlympiadAnswerItem[]) => {
-    const quizAnswers = answers.filter(a => a.task_type !== 'wordsearch' && a.correct_answer !== null && a.correct_answer !== undefined);
+    const quizAnswers = answers.filter(a => a.task_type !== 'wordsearch' && a.task_type !== 'coloring' && a.correct_answer !== null && a.correct_answer !== undefined);
     const wsAnswers = answers.filter(a => a.task_type === 'wordsearch');
+    const coloringAnswers = answers.filter(a => a.task_type === 'coloring');
     return {
-      correct: quizAnswers.filter(a => a.is_correct).length + wsAnswers.filter(a => a.is_correct).length,
+      correct: quizAnswers.filter(a => a.is_correct).length + wsAnswers.filter(a => a.is_correct).length + coloringAnswers.filter(a => a.is_correct).length,
       wrong: quizAnswers.filter(a => !a.is_correct).length + wsAnswers.filter(a => !a.is_correct).length,
-      total: quizAnswers.length + wsAnswers.length,
+      total: quizAnswers.length + wsAnswers.length + coloringAnswers.length,
     };
   };
 
@@ -506,6 +507,7 @@ const AdminOlympiadsTab = () => {
     }
     const isWordSearch = taskForm.task_type === "wordsearch";
     const isMatching = taskForm.task_type === "matching";
+    const isColoring = taskForm.task_type === "coloring";
     if (isWordSearch) {
       const filledWords = (taskForm.options || []).filter((w) => w.trim());
       if (filledWords.length < 3) {
@@ -520,6 +522,10 @@ const AdminOlympiadsTab = () => {
         return;
       }
     }
+    if (isColoring && !taskForm.image_url?.trim()) {
+      toast({ title: "Загрузите картинку для раскраски", variant: "destructive" });
+      return;
+    }
     setSavingTask(true);
     try {
       const filteredOptions = isMatching
@@ -529,7 +535,7 @@ const AdminOlympiadsTab = () => {
         ...taskForm,
         title: taskForm.question,
         options: filteredOptions && filteredOptions.length > 0 ? filteredOptions : null,
-        correct_answer: isWordSearch ? "__wordsearch__" : isMatching ? "__matching__" : taskForm.correct_answer,
+        correct_answer: isWordSearch ? "__wordsearch__" : isMatching ? "__matching__" : isColoring ? "__coloring__" : taskForm.correct_answer,
         ...(editingTask ? { id: editingTask.id } : {}),
       };
 
@@ -817,7 +823,7 @@ const AdminOlympiadsTab = () => {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Тип задания</label>
                   <div className="flex gap-2">
-                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }, { value: "matching", label: "Соответствие", icon: "GitCompare" }].map(({ value, label, icon }) => (
+                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }, { value: "matching", label: "Соответствие", icon: "GitCompare" }, { value: "coloring", label: "Раскраска", icon: "Paintbrush" }].map(({ value, label, icon }) => (
                       <button
                         key={value}
                         type="button"
@@ -883,7 +889,7 @@ const AdminOlympiadsTab = () => {
                 </div>
 
                 {/* Поля для обычного вопроса */}
-                {taskForm.task_type !== "wordsearch" && (<>
+                {taskForm.task_type !== "wordsearch" && taskForm.task_type !== "coloring" && (<>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">
                       Вопрос / Текст задания <span className="text-red-400">*</span>
@@ -1084,6 +1090,47 @@ const AdminOlympiadsTab = () => {
                           </div>
                         );
                       })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Поля для раскраски */}
+                {taskForm.task_type === "coloring" && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Название / инструкция <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={taskForm.question}
+                        onChange={(e) => setTaskForm((p) => ({ ...p, question: e.target.value }))}
+                        placeholder="Например: Раскрась кота Ван Гога!"
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Картинка для раскраски <span className="text-red-400">*</span>
+                      </label>
+                      <div className="flex gap-2 items-start">
+                        <input
+                          type="text"
+                          value={taskForm.image_url || ""}
+                          onChange={(e) => setTaskForm((p) => ({ ...p, image_url: e.target.value }))}
+                          placeholder="https://... или загрузите файл"
+                          className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm"
+                        />
+                        <label className="flex items-center gap-1.5 px-4 py-2.5 bg-white hover:bg-orange-50 border border-orange-200 rounded-xl cursor-pointer text-orange-700 text-sm font-medium transition whitespace-nowrap">
+                          {uploadingTaskImage ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
+                          Загрузить
+                          <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadTaskImage(f); }} />
+                        </label>
+                      </div>
+                      {taskForm.image_url && (
+                        <img src={taskForm.image_url} alt="preview" className="mt-2 max-h-48 rounded-xl border border-orange-100 object-contain" />
+                      )}
+                      <p className="text-xs text-gray-400 mt-1">Рекомендуется контурный рисунок для раскраски. Ответ всегда будет засчитан как верный.</p>
                     </div>
                   </div>
                 )}
@@ -1443,6 +1490,8 @@ const AdminOlympiadsTab = () => {
                   answers.map((item, i) => {
                     const hasCorrect = item.correct_answer !== null && item.correct_answer !== undefined;
                     const isMatching = item.task_type === 'matching';
+                    const isColoring = item.task_type === 'coloring';
+                    const coloringUrl = isColoring && item.answer && item.answer.startsWith('http') ? item.answer : null;
 
                     // Парсим matching-ответ: "leftIdx:rightOrigIdx,..."
                     const parseMatchingPairs = (answer: string, options: string[] | null) => {
@@ -1473,7 +1522,21 @@ const AdminOlympiadsTab = () => {
                         </div>
                         <div className="px-4 py-3 space-y-2">
                           <p className="text-xs text-gray-500 leading-relaxed">{item.question}</p>
-                          {isMatching ? (
+                          {isColoring ? (
+                            <div className="mt-2">
+                              {coloringUrl ? (
+                                <>
+                                  <p className="text-xs text-gray-400 font-semibold mb-2">Раскрашенная картина участника:</p>
+                                  <img src={coloringUrl} alt="Раскраска" className="max-h-64 rounded-xl border border-green-200 object-contain" />
+                                  <a href={coloringUrl} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs text-blue-500 hover:underline">
+                                    <Icon name="ExternalLink" size={11} /> Открыть полную картину
+                                  </a>
+                                </>
+                              ) : (
+                                <p className="text-xs text-gray-400">Раскраска не сохранена</p>
+                              )}
+                            </div>
+                          ) : isMatching ? (
                             <div className="mt-2 space-y-1">
                               <p className="text-xs text-gray-400 font-semibold mb-1">Соединения участника:</p>
                               {matchingPairs.map((pair, pi) => (

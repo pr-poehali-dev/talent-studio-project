@@ -2,6 +2,7 @@ import json
 import os
 import base64
 import psycopg2
+import requests as req_lib
 from io import BytesIO
 from datetime import datetime
 
@@ -138,6 +139,8 @@ def handler(event: dict, context) -> dict:
         options = raw_options if isinstance(raw_options, list) else (json.loads(raw_options) if raw_options else [])
         if task_type == 'wordsearch':
             is_correct = given == '__wordsearch_done__'
+        elif task_type == 'coloring':
+            is_correct = bool(given and given != '__coloring__')
         elif task_type == 'matching':
             try:
                 pairs_list = [p.split(':') for p in given.split(',') if ':' in p]
@@ -286,8 +289,29 @@ def handler(event: dict, context) -> dict:
                                       alignment=TA_CENTER, textColor=badge_col)
 
             is_matching = ans['task_type'] == 'matching'
+            is_coloring = ans['task_type'] == 'coloring'
 
-            if is_ws:
+            if is_coloring:
+                # Раскраска: показываем картинку если есть URL
+                coloring_url = ans['answer'] if ans['answer'] and ans['answer'].startswith('http') else None
+                rows = [
+                    [Paragraph(f'#{i}', lbl_s), Paragraph(q_text, body_s), Paragraph(badge_txt, badge_ps)],
+                ]
+                if coloring_url:
+                    try:
+                        img_resp = req_lib.get(coloring_url, timeout=10)
+                        img_data = BytesIO(img_resp.content)
+                        from reportlab.platypus import Image as RLImage
+                        rl_img = RLImage(img_data, width=8*cm, height=8*cm)
+                        rl_img.hAlign = 'LEFT'
+                        rows.append(['', rl_img, ''])
+                    except Exception:
+                        rows.append(['', Paragraph('Изображение недоступно', small_s), ''])
+                else:
+                    rows.append(['', Paragraph('Раскраска не была завершена', small_s), ''])
+                spans = [('SPAN',(0,0),(0,len(rows)-1)), ('SPAN',(2,0),(2,len(rows)-1))]
+                num_rows = len(rows)
+            elif is_ws:
                 given_txt   = 'Все слова найдены' if ans['answer'] == '__wordsearch_done__' else 'Не завершено'
                 # Для искалки: 2 строки — вопрос + результат
                 rows = [
@@ -347,7 +371,7 @@ def handler(event: dict, context) -> dict:
                 # Подсветка строки с правильным ответом
             ] + [('SPAN', s[1], s[2]) for s in spans]
 
-            if not is_ws and not is_matching:
+            if not is_ws and not is_matching and not is_coloring:
                 # Чуть другой фон для строки с правильным ответом
                 style_cmds.append(('BACKGROUND', (1,2),(1,2), colors.HexColor('#f0fdf4')))
 

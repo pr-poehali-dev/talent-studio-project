@@ -6,6 +6,8 @@ import Icon from '@/components/ui/icon';
 
 const TASKS_API_URL = "https://functions.poehali.dev/c7eb02a5-bcf1-4ece-91de-d49b4c1e8466";
 const ANSWERS_API_URL = "https://functions.poehali.dev/6e919c14-0327-44c1-827b-d524f0192c73";
+const UPLOAD_FILE_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
+const PROXY_URL = "https://functions.poehali.dev/86688b07-9265-42b9-8dad-f85c7b8b5d6f";
 
 interface OlympiadTask {
   id: number;
@@ -421,6 +423,266 @@ function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProp
   );
 }
 
+// ===== Раскраска =====
+const COLORING_COLORS = [
+  "#E31E24","#FF6B35","#FFD700","#4CAF50","#2196F3",
+  "#9C27B0","#FF69B4","#00BCD4","#795548","#FF9800",
+  "#000000","#FFFFFF","#9E9E9E","#8BC34A","#E91E63",
+  "#3F51B5","#009688","#CDDC39","#FFC107","#F44336",
+];
+
+interface ColoringProps {
+  taskId: number;
+  imageUrl: string;
+  onComplete: (taskId: number, imageDataUrl: string) => void;
+  isCompleted: boolean;
+}
+
+function ColoringWidget({ taskId, imageUrl, onComplete, isCompleted }: ColoringProps) {
+  const drawCanvasRef = useRef<HTMLCanvasElement>(null);
+  const catImgEl = useRef<HTMLImageElement | null>(null);
+  const lastPos = useRef<{ x: number; y: number } | null>(null);
+  const [selectedColor, setSelectedColor] = useState("#FFD700");
+  const [brushSize, setBrushSize] = useState(18);
+  const [tool, setTool] = useState<"brush" | "eraser">("brush");
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgBlobUrl, setImgBlobUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const proxyImgUrl = imageUrl
+    ? `${PROXY_URL}?url=${encodeURIComponent(imageUrl)}`
+    : '';
+
+  useEffect(() => {
+    if (!imageUrl) return;
+    fetch(`${PROXY_URL}?url=${encodeURIComponent(imageUrl)}`)
+      .then(r => r.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        setImgBlobUrl(url);
+        const img = new Image();
+        img.onload = () => { catImgEl.current = img; setImgLoaded(true); };
+        img.src = url;
+      })
+      .catch(() => { setImgLoaded(true); });
+  }, [imageUrl]);
+
+  const getPos = (e: React.MouseEvent | React.TouchEvent) => {
+    const canvas = drawCanvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    if ("touches" in e) {
+      const touch = e.touches[0];
+      return { x: (touch.clientX - rect.left) * scaleX, y: (touch.clientY - rect.top) * scaleY };
+    }
+    return { x: (e.clientX - rect.left) * scaleX, y: (e.clientY - rect.top) * scaleY };
+  };
+
+  const paintDot = (x: number, y: number) => {
+    const canvas = drawCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.globalCompositeOperation = tool === "eraser" ? "destination-out" : "source-over";
+    ctx.globalAlpha = tool === "eraser" ? 1 : 0.85;
+    ctx.beginPath();
+    ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
+    ctx.fillStyle = tool === "eraser" ? "rgba(0,0,0,1)" : selectedColor;
+    ctx.fill();
+  };
+
+  const paintLine = (x1: number, y1: number, x2: number, y2: number) => {
+    const canvas = drawCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.globalCompositeOperation = tool === "eraser" ? "destination-out" : "source-over";
+    ctx.globalAlpha = tool === "eraser" ? 1 : 0.85;
+    ctx.strokeStyle = tool === "eraser" ? "rgba(0,0,0,1)" : selectedColor;
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  };
+
+  const startDraw = (e: React.MouseEvent | React.TouchEvent) => {
+    if (isCompleted) return;
+    e.preventDefault();
+    setIsDrawing(true);
+    const pos = getPos(e);
+    lastPos.current = pos;
+    paintDot(pos.x, pos.y);
+  };
+
+  const moveDraw = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDrawing || isCompleted) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    if (lastPos.current) paintLine(lastPos.current.x, lastPos.current.y, pos.x, pos.y);
+    lastPos.current = pos;
+  };
+
+  const stopDraw = () => { setIsDrawing(false); lastPos.current = null; };
+
+  const handleReset = () => {
+    const canvas = drawCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const handleDone = async () => {
+    const drawCanvas = drawCanvasRef.current;
+    if (!drawCanvas) return;
+    setUploading(true);
+    try {
+      const merged = document.createElement("canvas");
+      merged.width = drawCanvas.width;
+      merged.height = drawCanvas.height;
+      const ctx = merged.getContext("2d");
+      if (!ctx) return;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, merged.width, merged.height);
+      if (catImgEl.current) ctx.drawImage(catImgEl.current, 0, 0, merged.width, merged.height);
+      ctx.drawImage(drawCanvas, 0, 0);
+
+      const blob: Blob = await new Promise(res => merged.toBlob(b => res(b!), "image/jpeg", 0.85));
+      const reader = new FileReader();
+      const base64: string = await new Promise(res => {
+        reader.onload = () => res((reader.result as string).split(",")[1]);
+        reader.readAsDataURL(blob);
+      });
+
+      const uploadId = crypto.randomUUID();
+      const res = await fetch(UPLOAD_FILE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chunk: base64, chunkIndex: 0, totalChunks: 1,
+          fileName: `coloring_${taskId}_${uploadId}.jpg`,
+          fileType: "image/jpeg",
+          folder: "olympiad-coloring",
+          uploadId,
+        }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        onComplete(taskId, data.url);
+      }
+    } catch {
+      // fallback — сохраняем без загрузки
+      onComplete(taskId, '__coloring_done__');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (isCompleted) {
+    return (
+      <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-2xl px-4 py-3">
+        <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+        <span className="text-sm font-semibold text-green-700">Раскраска сохранена! Задание выполнено.</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-gray-400">Раскрась картинку кистью. Когда закончишь — нажми «Готово».</p>
+
+      <div className="relative rounded-2xl overflow-hidden border-2 border-orange-100 bg-white"
+        style={{ touchAction: 'none' }}>
+        <img
+          src={imgBlobUrl || proxyImgUrl}
+          alt="Раскраска"
+          className="block w-full select-none pointer-events-none"
+          style={{ display: imgLoaded ? 'block' : 'block' }}
+          draggable={false}
+          onLoad={() => setImgLoaded(true)}
+        />
+        {imgLoaded && (
+          <canvas
+            ref={drawCanvasRef}
+            width={700}
+            height={700}
+            className="absolute top-0 left-0 w-full h-full"
+            style={{ cursor: tool === 'eraser' ? 'cell' : 'crosshair' }}
+            onMouseDown={startDraw}
+            onMouseMove={moveDraw}
+            onMouseUp={stopDraw}
+            onMouseLeave={stopDraw}
+            onTouchStart={startDraw}
+            onTouchMove={moveDraw}
+            onTouchEnd={stopDraw}
+          />
+        )}
+      </div>
+
+      {/* Инструменты */}
+      <div className="bg-orange-50 rounded-2xl p-3 space-y-3">
+        {/* Палитра */}
+        <div className="flex flex-wrap gap-1.5">
+          {COLORING_COLORS.map(color => (
+            <button
+              key={color}
+              onClick={() => { setSelectedColor(color); setTool("brush"); }}
+              className="w-7 h-7 rounded-full border-2 transition-all hover:scale-110 flex-shrink-0"
+              style={{
+                backgroundColor: color,
+                borderColor: selectedColor === color && tool === "brush" ? "#f97316" : "#e2e8f0",
+                boxShadow: selectedColor === color && tool === "brush" ? "0 0 0 2px #f97316" : undefined,
+                transform: selectedColor === color && tool === "brush" ? "scale(1.2)" : undefined,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Размер + инструменты */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <input
+              type="range" min={4} max={40} value={brushSize}
+              onChange={e => setBrushSize(Number(e.target.value))}
+              className="w-full accent-orange-500"
+            />
+          </div>
+          <button
+            onClick={() => setTool(t => t === "eraser" ? "brush" : "eraser")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border-2 transition-all flex items-center gap-1 ${tool === "eraser" ? "bg-gray-700 text-white border-gray-700" : "bg-white text-gray-600 border-gray-200"}`}
+          >
+            <Icon name="Eraser" size={12} />
+            Ластик
+          </button>
+          <button
+            onClick={handleReset}
+            className="px-3 py-1.5 rounded-xl text-xs font-semibold border-2 bg-white text-gray-600 border-gray-200 hover:border-red-300 hover:text-red-600 transition-all flex items-center gap-1"
+          >
+            <Icon name="RotateCcw" size={12} />
+            Очистить
+          </button>
+        </div>
+      </div>
+
+      <button
+        onClick={handleDone}
+        disabled={uploading}
+        className="w-full py-3 rounded-2xl bg-green-500 hover:bg-green-600 text-white font-bold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+      >
+        {uploading
+          ? <><Icon name="Loader2" size={16} className="animate-spin" />Сохраняем раскраску...</>
+          : <><Icon name="CheckCircle" size={16} />Готово — отправить раскраску</>
+        }
+      </button>
+    </div>
+  );
+}
+
 const OLYMPIAD_NAMES: Record<string, string> = {
   palette: 'Палитра талантов',
   grani: 'Грани творчества',
@@ -712,6 +974,13 @@ const OlympiadTasks = () => {
                       pairs={(task.options || []).map(opt => { const [left, right, imageUrl] = opt.split('|'); return { left: left || '', right: right || '', imageUrl: imageUrl || undefined }; })}
                       onComplete={(id, answer) => { setAnswers(prev => ({ ...prev, [id]: answer })); }}
                       isCompleted={!!answers[task.id] && answers[task.id] !== ''}
+                    />
+                  ) : task.task_type === 'coloring' ? (
+                    <ColoringWidget
+                      taskId={task.id}
+                      imageUrl={task.image_url || ''}
+                      onComplete={(id, url) => { setAnswers(prev => ({ ...prev, [id]: url })); }}
+                      isCompleted={!!answers[task.id]}
                     />
                   ) : (<>
                     {task.image_url && (

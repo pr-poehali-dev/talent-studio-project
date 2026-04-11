@@ -510,6 +510,7 @@ const AdminOlympiadsTab = () => {
     }
     const isWordSearch = taskForm.task_type === "wordsearch";
     const isMatching = taskForm.task_type === "matching";
+    const isPictureMatching = taskForm.task_type === "picture-matching";
     const isColoring = taskForm.task_type === "coloring";
     if (isWordSearch) {
       const filledWords = (taskForm.options || []).filter((w) => w.trim());
@@ -525,20 +526,27 @@ const AdminOlympiadsTab = () => {
         return;
       }
     }
+    if (isPictureMatching) {
+      const filledPairs = (taskForm.options || []).filter((o) => { const [l, , img] = o.split("|"); return l?.trim() && img?.trim(); });
+      if (filledPairs.length < 2) {
+        toast({ title: "Введите хотя бы 2 пары (название + картина)", variant: "destructive" });
+        return;
+      }
+    }
     if (isColoring && !taskForm.image_url?.trim()) {
       toast({ title: "Загрузите картинку для раскраски", variant: "destructive" });
       return;
     }
     setSavingTask(true);
     try {
-      const filteredOptions = isMatching
-        ? (taskForm.options || []).filter((o) => { const [l, r] = o.split("|"); return l?.trim() && r?.trim(); })
+      const filteredOptions = (isMatching || isPictureMatching)
+        ? (taskForm.options || []).filter((o) => { const parts = o.split("|"); return parts[0]?.trim(); })
         : taskForm.options?.filter((o) => o.trim()) || null;
       const payload = {
         ...taskForm,
         title: taskForm.question,
         options: filteredOptions && filteredOptions.length > 0 ? filteredOptions : null,
-        correct_answer: isWordSearch ? "__wordsearch__" : isMatching ? "__matching__" : isColoring ? "__coloring__" : taskForm.correct_answer,
+        correct_answer: isWordSearch ? "__wordsearch__" : isMatching ? "__matching__" : isPictureMatching ? "__picture-matching__" : isColoring ? "__coloring__" : taskForm.correct_answer,
         ...(editingTask ? { id: editingTask.id } : {}),
       };
 
@@ -839,7 +847,7 @@ const AdminOlympiadsTab = () => {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Тип задания</label>
                   <div className="flex gap-2">
-                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }, { value: "matching", label: "Соответствие", icon: "GitCompare" }, { value: "coloring", label: "Раскраска", icon: "Paintbrush" }].map(({ value, label, icon }) => (
+                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }, { value: "matching", label: "Соответствие (текст)", icon: "GitCompare" }, { value: "picture-matching", label: "Название → Картина", icon: "Image" }, { value: "coloring", label: "Раскраска", icon: "Paintbrush" }].map(({ value, label, icon }) => (
                       <button
                         key={value}
                         type="button"
@@ -905,7 +913,7 @@ const AdminOlympiadsTab = () => {
                 </div>
 
                 {/* Поля для обычного вопроса */}
-                {taskForm.task_type !== "wordsearch" && taskForm.task_type !== "coloring" && (<>
+                {taskForm.task_type !== "wordsearch" && taskForm.task_type !== "coloring" && taskForm.task_type !== "picture-matching" && taskForm.task_type !== "matching" && (<>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">
                       Вопрос / Текст задания <span className="text-red-400">*</span>
@@ -1110,6 +1118,84 @@ const AdminOlympiadsTab = () => {
                   </div>
                 )}
 
+                {/* Поля для picture-matching (название → картина) */}
+                {taskForm.task_type === "picture-matching" && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      Название / инструкция <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={taskForm.question}
+                      onChange={(e) => setTaskForm((p) => ({ ...p, question: e.target.value }))}
+                      placeholder="Например: Соедини название картины с изображением"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm mb-4"
+                    />
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Пары «Название → Картина» <span className="text-gray-400 font-normal">(до 8 пар)</span>
+                    </label>
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2 mb-1">
+                        <span className="text-xs text-gray-400 font-semibold text-center">Название картины</span>
+                        <span className="text-xs text-gray-400 font-semibold text-center">Изображение</span>
+                      </div>
+                      {Array.from({ length: 8 }).map((_, i) => {
+                        const raw = (taskForm.options || [])[i] || "";
+                        const [leftVal, , imageUrl] = raw.split("|");
+                        const hasContent = (leftVal || "").trim() || (imageUrl || "").trim();
+                        return (
+                          <div key={i} className={`border rounded-2xl p-3 space-y-2 ${hasContent ? 'border-orange-100 bg-orange-50/30' : 'border-gray-100'}`}>
+                            <div className="grid grid-cols-2 gap-2 items-center">
+                              <input
+                                type="text"
+                                value={leftVal || ""}
+                                onChange={(e) => {
+                                  const updated = [...(taskForm.options || Array(8).fill(""))];
+                                  const parts = (updated[i] || "").split("|");
+                                  updated[i] = `${e.target.value}||${parts[2] || ""}`;
+                                  setTaskForm((p) => ({ ...p, options: updated }));
+                                }}
+                                placeholder={`Название ${i + 1}`}
+                                className="border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm bg-white"
+                              />
+                              <div className="flex items-center gap-2">
+                                {imageUrl ? (
+                                  <div className="flex items-center gap-2 flex-1">
+                                    <img src={imageUrl} alt="" className="h-12 w-16 object-cover rounded-lg border border-orange-200" />
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const updated = [...(taskForm.options || Array(8).fill(""))];
+                                        const parts = (updated[i] || "").split("|");
+                                        updated[i] = `${parts[0] || ""}||`;
+                                        setTaskForm((p) => ({ ...p, options: updated }));
+                                      }}
+                                      className="text-xs text-red-400 hover:text-red-600"
+                                    >
+                                      Удалить
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <label className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-violet-50 border border-violet-200 rounded-xl cursor-pointer text-violet-700 text-xs font-medium transition whitespace-nowrap">
+                                    {uploadingPairImage[i] ? <Icon name="Loader2" size={12} className="animate-spin" /> : <Icon name="ImagePlus" size={12} />}
+                                    Загрузить картину
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPairImage(f, i); }}
+                                    />
+                                  </label>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 {/* Поля для раскраски */}
                 {taskForm.task_type === "coloring" && (
                   <div className="space-y-4">
@@ -1291,6 +1377,16 @@ const AdminOlympiadsTab = () => {
                         {task.task_type === "matching" && (
                           <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 flex items-center gap-1">
                             <Icon name="GitCompare" size={10} /> Соответствие
+                          </span>
+                        )}
+                        {task.task_type === "picture-matching" && (
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-pink-100 text-pink-700 flex items-center gap-1">
+                            <Icon name="Image" size={10} /> Название → Картина
+                          </span>
+                        )}
+                        {task.task_type === "coloring" && (
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 flex items-center gap-1">
+                            <Icon name="Paintbrush" size={10} /> Раскраска
                           </span>
                         )}
                       </div>

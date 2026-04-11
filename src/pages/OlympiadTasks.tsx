@@ -423,6 +423,171 @@ function MatchingWidget({ taskId, pairs, onComplete, isCompleted }: MatchingProp
   );
 }
 
+// ===== Соответствие: название → картина =====
+interface PictureMatchingProps {
+  taskId: number;
+  pairs: Array<{ left: string; right: string; imageUrl?: string }>;
+  onComplete: (taskId: number, answer: string) => void;
+  isCompleted: boolean;
+}
+
+function PictureMatchingWidget({ taskId, pairs, onComplete, isCompleted }: PictureMatchingProps) {
+  const [matched, setMatched] = useState<Record<number, number>>({});
+  const [draggingLeft, setDraggingLeft] = useState<number | null>(null);
+  const [dragOverRight, setDragOverRight] = useState<number | null>(null);
+  const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
+
+  const [shuffledRight] = useState(() => {
+    const arr = pairs.map((_, i) => i);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  });
+
+  const rightToOrig = Object.fromEntries(shuffledRight.map((orig, pos) => [pos, orig]));
+  const origToLeft = Object.fromEntries(Object.entries(matched).map(([l, r]) => [r, Number(l)]));
+
+  useEffect(() => {
+    if (Object.keys(matched).length === pairs.length && pairs.length > 0 && !isCompleted) {
+      const answerStr = Object.entries(matched).map(([l, r]) => `${l}:${r}`).join(',');
+      onComplete(taskId, answerStr);
+    }
+  }, [matched, pairs.length, taskId, onComplete, isCompleted]);
+
+  const applyMatch = (leftIdx: number, origIdx: number) => {
+    const newMatched = { ...matched };
+    const prevLeft = origToLeft[origIdx];
+    if (prevLeft !== undefined) delete newMatched[prevLeft];
+    newMatched[leftIdx] = origIdx;
+    setMatched(newMatched);
+  };
+
+  const onDragStart = (e: React.DragEvent, leftIdx: number) => {
+    if (isCompleted) return;
+    setDraggingLeft(leftIdx);
+    setSelectedLeft(null);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(leftIdx));
+  };
+  const onDragEnd = () => { setDraggingLeft(null); setDragOverRight(null); };
+  const onDragOver = (e: React.DragEvent, pos: number) => { e.preventDefault(); setDragOverRight(pos); };
+  const onDragLeave = () => setDragOverRight(null);
+  const onDrop = (e: React.DragEvent, pos: number) => {
+    e.preventDefault();
+    const leftIdx = Number(e.dataTransfer.getData('text/plain'));
+    applyMatch(leftIdx, rightToOrig[pos]);
+    setDraggingLeft(null);
+    setDragOverRight(null);
+  };
+  const onLeftClick = (idx: number) => {
+    if (isCompleted) return;
+    setSelectedLeft(prev => prev === idx ? null : idx);
+  };
+  const onRightClick = (pos: number) => {
+    if (isCompleted || selectedLeft === null) return;
+    applyMatch(selectedLeft, rightToOrig[pos]);
+    setSelectedLeft(null);
+  };
+
+  const matchedCount = Object.keys(matched).length;
+
+  return (
+    <div className="space-y-3 select-none">
+      <p className="text-xs text-gray-400">
+        Перетащи название на нужную картину или нажми на название, затем на картину.
+      </p>
+      {!isCompleted && (
+        <div className="text-xs text-gray-500 font-medium">
+          Соединено пар: <span className="text-orange-500 font-bold">{matchedCount}</span> из {pairs.length}
+        </div>
+      )}
+
+      {/* Картины сверху — без подписи */}
+      <div className="grid grid-cols-2 gap-2">
+        {shuffledRight.map((origIdx, pos) => {
+          const pair = pairs[origIdx];
+          const linkedLeft = origToLeft[origIdx];
+          const isLinked = linkedLeft !== undefined;
+          const isDragTarget = dragOverRight === pos;
+          const color = isLinked ? MATCHING_BADGE_COLORS[linkedLeft % MATCHING_BADGE_COLORS.length] : null;
+
+          return (
+            <div
+              key={pos}
+              onClick={() => onRightClick(pos)}
+              onDragOver={e => onDragOver(e, pos)}
+              onDragLeave={onDragLeave}
+              onDrop={e => onDrop(e, pos)}
+              className={`relative rounded-2xl border-2 overflow-hidden transition-all cursor-pointer aspect-[4/3]
+                ${isDragTarget ? 'border-orange-400 shadow-lg scale-[1.03]' : isLinked ? 'shadow-md' : selectedLeft !== null ? 'border-orange-200 hover:border-orange-400' : 'border-gray-200 hover:border-gray-300'}
+              `}
+              style={isLinked && color ? { borderColor: color.border } : isDragTarget ? { backgroundColor: '#fff7ed' } : {}}
+            >
+              {isDragTarget && (
+                <div className="absolute inset-0 flex items-center justify-center z-10 bg-orange-400/20 backdrop-blur-[1px]">
+                  <div className="bg-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow">Отпустить здесь</div>
+                </div>
+              )}
+              {pair.imageUrl ? (
+                <img src={pair.imageUrl} alt="" className="w-full h-full object-cover" draggable={false} />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 text-xs text-center p-2">{pair.right}</div>
+              )}
+              {/* Бейдж с названием если привязан */}
+              {isLinked && color && (
+                <div
+                  className="absolute bottom-0 left-0 right-0 px-2 py-1 text-[10px] font-bold text-center truncate border-t-2"
+                  style={{ backgroundColor: color.bg, color: color.text, borderColor: color.border }}
+                >
+                  {pairs[linkedLeft].left}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Названия снизу — перетаскиваемые чипы */}
+      <div className="flex flex-wrap gap-2 pt-1">
+        {pairs.map((pair, idx) => {
+          const isLinked = matched[idx] !== undefined;
+          const isDragging = draggingLeft === idx;
+          const isSelected = selectedLeft === idx;
+          const color = MATCHING_BADGE_COLORS[idx % MATCHING_BADGE_COLORS.length];
+          return (
+            <div
+              key={idx}
+              draggable={!isCompleted}
+              onDragStart={e => onDragStart(e, idx)}
+              onDragEnd={onDragEnd}
+              onClick={() => onLeftClick(idx)}
+              className="cursor-grab active:cursor-grabbing px-3 py-1.5 rounded-xl border-2 text-xs font-bold transition-all duration-150 select-none hover:scale-105 hover:shadow-md"
+              style={{
+                backgroundColor: color.bg,
+                color: color.text,
+                borderColor: isSelected ? color.text : color.border,
+                boxShadow: isSelected ? `0 0 0 3px ${color.border}` : undefined,
+                opacity: isDragging ? 0.4 : 1,
+              }}
+            >
+              ☰ {pair.left}
+            </div>
+          );
+        })}
+      </div>
+
+      {isCompleted && (
+        <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-2xl px-4 py-3">
+          <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+          <span className="text-sm font-semibold text-green-700">Все пары соединены! Задание выполнено.</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ===== Раскраска =====
 const COLORING_COLORS = [
   "#E31E24","#FF6B35","#FFD700","#4CAF50","#2196F3",
@@ -975,6 +1140,13 @@ const OlympiadTasks = () => {
                     />
                   ) : task.task_type === 'matching' ? (
                     <MatchingWidget
+                      taskId={task.id}
+                      pairs={(task.options || []).map(opt => { const [left, right, imageUrl] = opt.split('|'); return { left: left || '', right: right || '', imageUrl: imageUrl || undefined }; })}
+                      onComplete={(id, answer) => { setAnswers(prev => ({ ...prev, [id]: answer })); }}
+                      isCompleted={!!answers[task.id] && answers[task.id] !== ''}
+                    />
+                  ) : task.task_type === 'picture-matching' ? (
+                    <PictureMatchingWidget
                       taskId={task.id}
                       pairs={(task.options || []).map(opt => { const [left, right, imageUrl] = opt.split('|'); return { left: left || '', right: right || '', imageUrl: imageUrl || undefined }; })}
                       onComplete={(id, answer) => { setAnswers(prev => ({ ...prev, [id]: answer })); }}

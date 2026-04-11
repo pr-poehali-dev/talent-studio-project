@@ -75,6 +75,7 @@ const EMPTY_TASK: Omit<OlympiadTask, "id" | "created_at" | "updated_at"> = {
   task_type: "quiz",
 };
 
+type OlympiadSection = "izo" | "dpi";
 type SubTab = "applications" | "tasks" | "wordsearch" | "settings";
 
 interface OlympiadAnswerItem {
@@ -116,7 +117,9 @@ const OLYMPIAD_STATUS_COLORS: Record<string, string> = {
 
 const AdminOlympiadsTab = () => {
   const { toast } = useToast();
+  const [olympiadSection, setOlympiadSection] = useState<OlympiadSection>("izo");
   const [subTab, setSubTab] = useState<SubTab>("applications");
+  const [studyYearFilter, setStudyYearFilter] = useState<string | null>(null);
   const [applications, setApplications] = useState<OlympiadApplication[]>([]);
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
@@ -241,10 +244,10 @@ const AdminOlympiadsTab = () => {
     }
   }, []);
 
-  const loadTasks = useCallback(async () => {
+  const loadTasks = useCallback(async (section: OlympiadSection = "izo") => {
     setTasksLoading(true);
     try {
-      const res = await fetch(`${TASKS_API_URL}?type=palette&admin=true`);
+      const res = await fetch(`${TASKS_API_URL}?type=${section}&admin=true`);
       const data = await res.json();
       setTasks(Array.isArray(data) ? data : (Array.isArray(data.tasks) ? data.tasks : []));
     } catch {
@@ -261,9 +264,9 @@ const AdminOlympiadsTab = () => {
 
   useEffect(() => {
     if (subTab === "tasks") {
-      loadTasks();
+      loadTasks(olympiadSection);
     }
-  }, [subTab, loadTasks]);
+  }, [subTab, olympiadSection, loadTasks]);
 
   const updateStatus = async (id: number, status: string) => {
     try {
@@ -472,7 +475,7 @@ const AdminOlympiadsTab = () => {
   };
 
   const openCreateTask = () => {
-    setTaskForm({ ...EMPTY_TASK });
+    setTaskForm({ ...EMPTY_TASK, olympiad_type: olympiadSection });
     setEditingTask(null);
     setIsCreating(true);
   };
@@ -549,7 +552,7 @@ const AdminOlympiadsTab = () => {
 
       toast({ title: editingTask ? "Задание обновлено" : "Задание создано" });
       closeTaskForm();
-      loadTasks();
+      loadTasks(olympiadSection);
     } catch {
       toast({ title: "Ошибка сохранения задания", variant: "destructive" });
     } finally {
@@ -612,11 +615,24 @@ const AdminOlympiadsTab = () => {
 
   return (
     <div className="p-6">
-      {/* Заголовок + подвкладки */}
+      {/* Переключатель ИЗО / ДПИ */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Олимпиада «Палитра талантов»</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Олимпиады</h2>
           <p className="text-gray-500 text-sm mt-1">Управление заявками, заданиями и настройками</p>
+        </div>
+        <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
+          {([{ value: "izo", label: "ИЗО" }, { value: "dpi", label: "ДПИ" }] as { value: OlympiadSection; label: string }[]).map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => { setOlympiadSection(value); setStudyYearFilter(null); }}
+              className={`px-5 py-2 rounded-lg font-semibold text-sm transition-all ${
+                olympiadSection === value ? "bg-white text-orange-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -1167,6 +1183,34 @@ const AdminOlympiadsTab = () => {
             </div>
           )}
 
+          {/* Фильтр по годам обучения (только ИЗО) */}
+          {olympiadSection === "izo" && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              <button
+                onClick={() => setStudyYearFilter(null)}
+                className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${
+                  studyYearFilter === null ? "bg-orange-500 text-white border-orange-500 shadow-sm" : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"
+                }`}
+              >
+                Все ({tasks.length})
+              </button>
+              {STUDY_YEAR_OPTIONS.map((opt) => {
+                const count = tasks.filter(t => (t.study_years || []).includes(opt.value)).length;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => setStudyYearFilter(opt.value)}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${
+                      studyYearFilter === opt.value ? "bg-orange-500 text-white border-orange-500 shadow-sm" : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"
+                    }`}
+                  >
+                    {opt.label} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {/* Список заданий */}
           <div className="flex justify-between items-center mb-4">
             <p className="text-sm text-gray-500">
@@ -1174,7 +1218,7 @@ const AdminOlympiadsTab = () => {
             </p>
             <div className="flex gap-2">
               <button
-                onClick={loadTasks}
+                onClick={() => loadTasks(olympiadSection)}
                 className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-orange-500 hover:bg-orange-50 rounded-xl transition-all"
               >
                 <Icon name="RefreshCw" size={14} />
@@ -1210,7 +1254,7 @@ const AdminOlympiadsTab = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              {tasks.map((task) => (
+              {tasks.filter(task => !studyYearFilter || (task.study_years || []).includes(studyYearFilter)).map((task) => (
                 <div
                   key={task.id}
                   className={`bg-white border rounded-2xl p-5 shadow-sm transition-all ${

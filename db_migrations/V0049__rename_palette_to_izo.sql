@@ -1,0 +1,1 @@
+UPDATE olympiad_tasks SET olympiad_type = 'izo' WHERE olympiad_type = 'palette';

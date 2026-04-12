@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 
 const OLYMPIAD_NAMES: Record<string, string> = {
   palette: 'Палитра талантов',
+  izo: 'Палитра талантов',
   grani: 'Грани творчества',
+  dpi: 'Грани мастерства',
 };
 
 const STUDY_YEAR_LABELS: Record<string, string> = {

@@ -100,12 +100,12 @@ export default function PaletteOlympiad() {
           institution: form.institution || null,
           work_title: form.workTitle,
           email: form.email,
-          olympiad_type: 'palette',
+          olympiad_type: 'izo',
           payment_id: demoPaymentId,
         }),
       });
       localStorage.setItem('olympiad_payment_id', demoPaymentId);
-      window.location.href = `/payment-success?type=palette&study_year=${form.studyYear}&payment_id=${demoPaymentId}&full_name=${encodeURIComponent(form.fullName)}`;
+      window.location.href = `/payment-success?type=izo&study_year=${form.studyYear}&payment_id=${demoPaymentId}&full_name=${encodeURIComponent(form.fullName)}`;
     } catch {
       toast({ title: "Ошибка", description: "Не удалось отправить заявку", variant: "destructive" });
       setSubmitting(false);

@@ -1169,24 +1169,49 @@ const OlympiadTasks = () => {
                         <img src={task.image_url} alt={task.title} className="max-w-full max-h-72 rounded-2xl border border-orange-100 object-contain" />
                       </div>
                     )}
-                    {task.options && task.options.length > 0 && (
-                      <div className="space-y-2">
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Выберите ответ:</p>
-                        {task.options.map((opt, i) => {
-                          const label = OPTION_LABELS[i] || String(i + 1);
-                          const isSelected = answers[task.id] === opt;
-                          return (
-                            <button key={i} onClick={() => handleAnswer(task.id, opt)}
-                              className={`w-full flex items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-gray-100 bg-white hover:border-orange-200 hover:bg-orange-50'}`}
-                            >
-                              <span className={`w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center flex-shrink-0 transition-all ${isSelected ? 'bg-orange-500 text-white' : 'bg-orange-100 text-orange-600'}`}>{label}</span>
-                              <span className={`text-sm leading-relaxed pt-1 ${isSelected ? 'text-orange-800 font-medium' : 'text-gray-700'}`}>{opt}</span>
-                              {isSelected && <Icon name="Check" size={18} className="text-orange-500 ml-auto flex-shrink-0 mt-1" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
+                    {task.options && task.options.length > 0 && (() => {
+                      const isImageOptions = task.options.some(opt => opt.startsWith('http'));
+                      if (isImageOptions) {
+                        return (
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Выберите ответ:</p>
+                            <div className="grid grid-cols-2 gap-3">
+                              {task.options.map((opt, i) => {
+                                const [imgUrl, label] = opt.includes('||') ? opt.split('||') : [opt, ''];
+                                const isSelected = answers[task.id] === opt;
+                                return (
+                                  <button key={i} onClick={() => handleAnswer(task.id, opt)}
+                                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-gray-100 bg-white hover:border-orange-200 hover:bg-orange-50'}`}
+                                  >
+                                    <img src={imgUrl} alt={label} className="w-full aspect-square object-cover rounded-xl" />
+                                    {label && <span className={`text-sm font-semibold ${isSelected ? 'text-orange-700' : 'text-gray-700'}`}>{label}</span>}
+                                    {isSelected && <Icon name="Check" size={16} className="text-orange-500" />}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="space-y-2">
+                          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Выберите ответ:</p>
+                          {task.options.map((opt, i) => {
+                            const label = OPTION_LABELS[i] || String(i + 1);
+                            const isSelected = answers[task.id] === opt;
+                            return (
+                              <button key={i} onClick={() => handleAnswer(task.id, opt)}
+                                className={`w-full flex items-start gap-3 p-4 rounded-2xl border-2 text-left transition-all ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-gray-100 bg-white hover:border-orange-200 hover:bg-orange-50'}`}
+                              >
+                                <span className={`w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center flex-shrink-0 transition-all ${isSelected ? 'bg-orange-500 text-white' : 'bg-orange-100 text-orange-600'}`}>{label}</span>
+                                <span className={`text-sm leading-relaxed pt-1 ${isSelected ? 'text-orange-800 font-medium' : 'text-gray-700'}`}>{opt}</span>
+                                {isSelected && <Icon name="Check" size={18} className="text-orange-500 ml-auto flex-shrink-0 mt-1" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
                   </>)}
                 </div>
 

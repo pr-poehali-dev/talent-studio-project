@@ -294,6 +294,14 @@ def handler(event: dict, context) -> dict:
 
             is_matching = ans['task_type'] == 'matching'
             is_coloring = ans['task_type'] == 'coloring'
+            is_color_mix = ans['task_type'] == 'color-mix'
+            # quiz с опциями вида "Название||#hex" (задание с радугой и подобные)
+            opts = ans.get('options', [])
+            is_hex_options = (
+                ans['task_type'] == 'quiz' and
+                opts and
+                all('||' in str(o) and str(o).split('||')[1].startswith('#') for o in opts)
+            )
 
             if is_coloring:
                 # Раскраска: показываем картинку если есть URL
@@ -336,6 +344,37 @@ def handler(event: dict, context) -> dict:
                 rows = pair_rows_data
                 spans = [('SPAN',(0,0),(0,len(pair_rows_data)-1)), ('SPAN',(2,0),(2,len(pair_rows_data)-1))]
                 num_rows = len(pair_rows_data)
+            elif is_color_mix or is_hex_options:
+                # Строим маппинг label->hex из опций
+                hex_map = {}
+                for o in (opts or []):
+                    parts = str(o).split('||')
+                    if len(parts) == 2 and parts[1].startswith('#'):
+                        hex_map[parts[0].strip().lower()] = parts[1].strip()
+
+                def color_swatch_text(names_str):
+                    """Возвращает строку вида '● Красный, ● Белый' для PDF"""
+                    if not names_str:
+                        return '—'
+                    parts = [n.strip() for n in names_str.split(',') if n.strip()]
+                    return ',  '.join(parts) if parts else '—'
+
+                given_names = ans['answer'] if ans['answer'] else ''
+                correct_names = ans['correct_answer'] if ans['correct_answer'] else ''
+
+                given_display = color_swatch_text(given_names)
+                correct_display = color_swatch_text(correct_names)
+
+                given_label_ps   = ParagraphStyle(f'gl{i}', fontName='R', fontSize=8, textColor=colors.HexColor('#1a1a1a'), leading=11)
+                correct_label_ps = ParagraphStyle(f'cl{i}', fontName='B', fontSize=8, textColor=colors.HexColor('#15803d'), leading=11)
+
+                rows = [
+                    [Paragraph(f'#{i}', lbl_s), Paragraph(q_text, body_s), Paragraph(badge_txt, badge_ps)],
+                    ['', Table([[Paragraph('Ответ участника:', small_s), Paragraph(given_display, given_label_ps)]], colWidths=[3.5*cm, 8.5*cm]), ''],
+                    ['', Table([[Paragraph('Правильный ответ:', small_s), Paragraph(correct_display, correct_label_ps)]], colWidths=[3.5*cm, 8.5*cm]), ''],
+                ]
+                spans = [('SPAN',(0,0),(0,2)), ('SPAN',(2,0),(2,2))]
+                num_rows = 3
             else:
                 given_txt   = ans['answer'][:80]   if ans['answer']        else '—'
                 correct_txt = ans['correct_answer'][:80] if ans['correct_answer'] else '—'
@@ -376,8 +415,8 @@ def handler(event: dict, context) -> dict:
             ] + [('SPAN', s[1], s[2]) for s in spans]
 
             if not is_ws and not is_matching and not is_coloring:
-                # Чуть другой фон для строки с правильным ответом
-                style_cmds.append(('BACKGROUND', (1,2),(1,2), colors.HexColor('#f0fdf4')))
+                if num_rows >= 3:
+                    style_cmds.append(('BACKGROUND', (1,2),(1,2), colors.HexColor('#f0fdf4')))
 
             task_tbl.setStyle(TableStyle(style_cmds))
             story += [task_tbl, Spacer(1, 4)]

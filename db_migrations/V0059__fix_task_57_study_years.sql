@@ -1,0 +1,1 @@
+UPDATE olympiad_tasks SET study_years = ARRAY['1-2'] WHERE id = 57;

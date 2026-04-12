@@ -176,7 +176,7 @@ def handler(event: dict, context) -> dict:
             correct_answer = body.get('correct_answer', '')
             sort_order = body.get('sort_order', 0)
             is_active = body.get('is_active', True)
-            study_years = body.get('study_years') or []
+            study_years = [str(y) for y in (body.get('study_years') or [])]
             task_type = body.get('task_type', 'quiz')
 
             if not title:
@@ -235,7 +235,7 @@ def handler(event: dict, context) -> dict:
             correct_answer = body.get('correct_answer', '')
             sort_order = body.get('sort_order', 0)
             is_active = body.get('is_active', True)
-            study_years = body.get('study_years') or []
+            study_years = [str(y) for y in (body.get('study_years') or [])]
             task_type = body.get('task_type', 'quiz')
 
             cursor.execute("""

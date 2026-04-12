@@ -933,15 +933,25 @@ function IconSearchWidget({ taskId, options, correctCount, onComplete, existingA
     return new Set(existingAnswer.split(',').map(Number).filter(n => !isNaN(n)));
   });
 
-  const positions = useState(() =>
-    options.map((_, i) => ({
-      id: i,
-      x: 5 + Math.random() * 78,
-      y: 5 + Math.random() * 78,
-      rotation: Math.round((Math.random() - 0.5) * 30),
-      scale: 0.85 + Math.random() * 0.3,
-    }))
-  )[0];
+  const positions = useState(() => {
+    // Сетка 5x3, каждая ячейка ~20% x ~33%, иконка занимает ~16%
+    const cols = 5;
+    const rows = 3;
+    const cellW = 100 / cols;
+    const cellH = 100 / rows;
+    return options.map((_, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const jitterX = (Math.random() - 0.5) * cellW * 0.35;
+      const jitterY = (Math.random() - 0.5) * cellH * 0.35;
+      return {
+        id: i,
+        x: cellW * col + cellW / 2 + jitterX,
+        y: cellH * row + cellH / 2 + jitterY,
+        rotation: Math.round((Math.random() - 0.5) * 20),
+      };
+    });
+  })[0];
 
   const toggle = (idx: number) => {
     setSelected(prev => {
@@ -977,8 +987,8 @@ function IconSearchWidget({ taskId, options, correctCount, onComplete, existingA
                 position: 'absolute',
                 left: `${pos.x}%`,
                 top: `${pos.y}%`,
-                transform: `translate(-50%, -50%) rotate(${pos.rotation}deg) scale(${pos.scale})`,
-                width: '13%',
+                transform: `translate(-50%, -50%) rotate(${pos.rotation}deg)`,
+                width: '17%',
                 zIndex: isSel ? 10 : 1,
               }}
               className={`transition-all duration-150 rounded-xl p-1 ${isSel ? 'ring-4 ring-orange-500 bg-orange-100/80 scale-110' : 'hover:scale-110 hover:ring-2 hover:ring-orange-300'}`}
@@ -993,7 +1003,6 @@ function IconSearchWidget({ taskId, options, correctCount, onComplete, existingA
           );
         })}
       </div>
-      {found > 0 && found < correctCount && <p className="text-xs text-orange-500 font-medium">Ищи ещё! Найдено {found} из {correctCount}</p>}
       {found === correctCount && correctCount > 0 && <p className="text-xs text-green-600 font-semibold">Отлично! Все предметы найдены!</p>}
     </div>
   );

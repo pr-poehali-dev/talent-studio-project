@@ -887,6 +887,44 @@ function ImageSelectWidget({ taskId, options, onComplete, existingAnswer }: Imag
   );
 }
 
+interface OddOneOutProps { taskId: number; options: string[]; onComplete: (taskId: number, answer: string) => void; existingAnswer?: string; }
+
+function OddOneOutWidget({ taskId, options, onComplete, existingAnswer }: OddOneOutProps) {
+  const [selected, setSelected] = useState<string>(existingAnswer || "");
+  const pick = (key: string) => {
+    const next = selected === key ? "" : key;
+    setSelected(next);
+    onComplete(taskId, next);
+  };
+  return (
+    <div className="space-y-3">
+      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Выберите лишнюю картину:</p>
+      <div className="grid grid-cols-2 gap-3">
+        {options.map((opt, i) => {
+          const [imgUrl] = opt.split("||");
+          const key = String(i);
+          const isSelected = selected === key;
+          return (
+            <button key={i} type="button" onClick={() => pick(key)}
+              className={`relative rounded-2xl border-2 overflow-hidden transition-all aspect-square ${isSelected ? 'border-red-500 shadow-md' : 'border-gray-200 hover:border-red-300'}`}
+            >
+              <img src={imgUrl} alt={`Картина ${i + 1}`} className="w-full h-full object-cover" />
+              {isSelected && (
+                <div className="absolute inset-0 bg-red-500/20 flex items-end justify-end p-2">
+                  <span className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center">
+                    <Icon name="X" size={14} className="text-white" />
+                  </span>
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {selected !== "" && <p className="text-xs text-red-500 font-medium">Выбрана картина {Number(selected) + 1}</p>}
+    </div>
+  );
+}
+
 const STUDY_YEAR_LABELS: Record<string, string> = {
   '1': '1 год обучения',
   '2': '2 год обучения',
@@ -1260,6 +1298,13 @@ const OlympiadTasks = () => {
                     />
                   ) : task.task_type === 'image-select' ? (
                     <ImageSelectWidget
+                      taskId={task.id}
+                      options={task.options || []}
+                      onComplete={(id, answer) => { setAnswers(prev => ({ ...prev, [id]: answer })); }}
+                      existingAnswer={answers[task.id] || ''}
+                    />
+                  ) : task.task_type === 'odd-one-out' ? (
+                    <OddOneOutWidget
                       taskId={task.id}
                       options={task.options || []}
                       onComplete={(id, answer) => { setAnswers(prev => ({ ...prev, [id]: answer })); }}

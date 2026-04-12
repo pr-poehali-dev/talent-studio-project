@@ -860,7 +860,7 @@ const AdminOlympiadsTab = () => {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Тип задания</label>
                   <div className="flex gap-2">
-                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "color-mix", label: "Состав цвета", icon: "Palette" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }, { value: "matching", label: "Соответствие (текст)", icon: "GitCompare" }, { value: "picture-matching", label: "Название → Картина", icon: "Image" }, { value: "coloring", label: "Раскраска", icon: "Paintbrush" }].map(({ value, label, icon }) => (
+                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "color-mix", label: "Состав цвета", icon: "Palette" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }, { value: "matching", label: "Соответствие (текст)", icon: "GitCompare" }, { value: "picture-matching", label: "Название → Картина", icon: "Image" }, { value: "coloring", label: "Раскраска", icon: "Paintbrush" }, { value: "odd-one-out", label: "Найди лишнее", icon: "CircleX" }].map(({ value, label, icon }) => (
                       <button
                         key={value}
                         type="button"
@@ -1328,6 +1328,145 @@ const AdminOlympiadsTab = () => {
                         className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm"
                       />
                       <p className="text-xs text-gray-400 mt-1">Перечислите названия правильных цветов через запятую — ровно так, как они указаны в вариантах выше.</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Поля для odd-one-out (найди лишнее) */}
+                {taskForm.task_type === "odd-one-out" && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Вопрос / инструкция <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={taskForm.question}
+                        onChange={(e) => setTaskForm((p) => ({ ...p, question: e.target.value }))}
+                        placeholder="Например: Найди лишнюю картину среди натюрмортов"
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Картины <span className="text-gray-400 font-normal">(4 штуки, одна — лишняя)</span>
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {Array.from({ length: 4 }).map((_, i) => {
+                          const raw = (taskForm.options || [])[i] || "";
+                          const [imgUrl, , isOdd] = raw.split("||");
+                          const isMarkedOdd = isOdd === "odd";
+                          return (
+                            <div key={i} className={`border-2 rounded-2xl overflow-hidden transition-all ${isMarkedOdd ? 'border-red-400 bg-red-50/30' : 'border-gray-200'}`}>
+                              <div className="aspect-square bg-gray-50 relative">
+                                {imgUrl ? (
+                                  <>
+                                    <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const updated = [...(taskForm.options || Array(4).fill(""))];
+                                        updated[i] = "";
+                                        setTaskForm((p) => ({ ...p, options: updated }));
+                                      }}
+                                      className="absolute top-1 right-1 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center text-red-400 hover:text-red-600 shadow"
+                                    >
+                                      <Icon name="X" size={12} />
+                                    </button>
+                                  </>
+                                ) : (
+                                  <label className="absolute inset-0 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-orange-50 transition-colors">
+                                    {uploadingPairImage[i] ? (
+                                      <Icon name="Loader2" size={20} className="text-orange-400 animate-spin" />
+                                    ) : (
+                                      <>
+                                        <Icon name="ImagePlus" size={20} className="text-gray-300" />
+                                        <span className="text-xs text-gray-400">Загрузить</span>
+                                      </>
+                                    )}
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const f = e.target.files?.[0];
+                                        if (!f) return;
+                                        setUploadingPairImage(prev => ({ ...prev, [i]: true }));
+                                        (async () => {
+                                          try {
+                                            const CHUNK_SIZE = 512 * 1024;
+                                            const totalChunks = Math.ceil(f.size / CHUNK_SIZE);
+                                            const uploadId = crypto.randomUUID();
+                                            const toBase64 = (blob: Blob): Promise<string> =>
+                                              new Promise((resolve, reject) => {
+                                                const reader = new FileReader();
+                                                reader.onload = () => resolve((reader.result as string).split(",")[1]);
+                                                reader.onerror = reject;
+                                                reader.readAsDataURL(blob);
+                                              });
+                                            let resultUrl = "";
+                                            for (let ci = 0; ci < totalChunks; ci++) {
+                                              const start = ci * CHUNK_SIZE;
+                                              const end = Math.min(start + CHUNK_SIZE, f.size);
+                                              const chunkBase64 = await toBase64(f.slice(start, end));
+                                              const res = await fetch(UPLOAD_URL, {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ chunk: chunkBase64, chunkIndex: ci, totalChunks, fileName: f.name, fileType: f.type || "image/jpeg", folder: "olympiad-oddoneout", uploadId }),
+                                              });
+                                              const data = await res.json();
+                                              if (data.url) resultUrl = data.url;
+                                            }
+                                            if (resultUrl) {
+                                              setTaskForm(prev => {
+                                                const updated = [...(prev.options || Array(4).fill(""))];
+                                                const parts = (updated[i] || "").split("||");
+                                                updated[i] = `${resultUrl}||${parts[1] || ""}||${parts[2] || ""}`;
+                                                return { ...prev, options: updated };
+                                              });
+                                              toast({ title: "Картина загружена" });
+                                            }
+                                          } catch {
+                                            toast({ title: "Ошибка загрузки", variant: "destructive" });
+                                          } finally {
+                                            setUploadingPairImage(prev => ({ ...prev, [i]: false }));
+                                          }
+                                        })();
+                                      }}
+                                    />
+                                  </label>
+                                )}
+                              </div>
+                              <div className="px-2 py-2 flex items-center justify-between gap-2">
+                                <span className="text-xs text-gray-500 font-medium">Картина {i + 1}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...(taskForm.options || Array(4).fill(""))];
+                                    updated[i] = isMarkedOdd
+                                      ? `${imgUrl}||`
+                                      : `${imgUrl}||odd||odd`;
+                                    // если помечаем как лишнее — снимаем с остальных
+                                    if (!isMarkedOdd) {
+                                      for (let j = 0; j < 4; j++) {
+                                        if (j !== i) {
+                                          const [u] = (updated[j] || "").split("||");
+                                          updated[j] = `${u}||`;
+                                        }
+                                      }
+                                    }
+                                    setTaskForm((p) => ({ ...p, options: updated, correct_answer: !isMarkedOdd ? String(i) : "" }));
+                                  }}
+                                  className={`text-xs px-2 py-1 rounded-lg font-semibold border transition-all ${isMarkedOdd ? 'bg-red-500 text-white border-red-500' : 'bg-white text-gray-500 border-gray-200 hover:border-red-300 hover:text-red-500'}`}
+                                >
+                                  {isMarkedOdd ? "Лишняя ✓" : "Лишняя?"}
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <p className="text-xs text-gray-400 mt-2">Загрузи 4 картины и отметь одну как лишнюю — именно её участник должен найти.</p>
                     </div>
                   </div>
                 )}

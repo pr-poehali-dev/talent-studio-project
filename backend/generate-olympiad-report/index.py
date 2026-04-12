@@ -156,6 +156,9 @@ def handler(event: dict, context) -> dict:
             correct_indices = set(str(idx) for idx, o in enumerate(options) if str(o).split('||')[-1].strip() == '1')
             given_indices = set(c.strip() for c in given.split(',') if c.strip())
             is_correct = bool(given_indices) and given_indices == correct_indices if correct_indices else False
+        elif task_type == 'odd-one-out':
+            # Ответ: индекс лишней картины, correct_answer — тоже индекс
+            is_correct = bool(given) and str(given).strip() == str(correct).strip() if correct else False
         else:
             # Для quiz с опциями вида URL||Название или Название||#hex — чистим до названия
             def strip_option(val):

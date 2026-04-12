@@ -140,6 +140,12 @@ def handler(event: dict, context) -> dict:
                     correct_indices = set(str(idx) for idx, o in enumerate(opts) if str(o).split('||')[-1].strip() == '1')
                     given_indices = set(c.strip() for c in user_answer.split(',') if c.strip())
                     is_correct = bool(given_indices) and given_indices == correct_indices if correct_indices else False
+            elif task_type == 'odd-one-out':
+                # Ответ: индекс лишней картины (строка), correct_answer — тоже индекс
+                if not user_answer or correct_answer is None:
+                    is_correct = False
+                else:
+                    is_correct = str(user_answer).strip() == str(correct_answer).strip()
             elif user_answer is None:
                 is_correct = False
             else:

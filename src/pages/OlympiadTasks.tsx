@@ -1218,12 +1218,33 @@ const OlympiadTasks = () => {
                       existingAnswer={answers[task.id] || ''}
                     />
                   ) : (<>
-                    {task.image_url && (
+                    {task.image_url && task.options && task.options.length > 0 && task.options.every(opt => opt.includes('||') && opt.split('||')[1]?.startsWith('#')) ? (
+                      <div className="flex gap-4 items-start">
+                        <img src={task.image_url} alt={task.title} className="flex-1 min-w-0 max-h-64 rounded-2xl border border-orange-100 object-contain" />
+                        <div className="flex flex-col gap-2 flex-shrink-0">
+                          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Ответ:</p>
+                          {task.options.map((opt, i) => {
+                            const [label, hex] = opt.split('||');
+                            const isSelected = answers[task.id] === opt;
+                            return (
+                              <button key={i} onClick={() => handleAnswer(task.id, opt)}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-gray-100 bg-white hover:border-orange-200 hover:bg-orange-50'}`}
+                              >
+                                <span className="w-7 h-7 rounded-md flex-shrink-0 border border-black/10 shadow-inner" style={{ backgroundColor: hex }} />
+                                <span className={`text-sm font-semibold whitespace-nowrap ${isSelected ? 'text-orange-800' : 'text-gray-700'}`}>{label}</span>
+                                {isSelected && <Icon name="Check" size={14} className="text-orange-500 ml-1 flex-shrink-0" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ) : null}
+                    {(!task.image_url || !task.options || !task.options.every(opt => opt.includes('||') && opt.split('||')[1]?.startsWith('#'))) && task.image_url && (
                       <div className="flex justify-center">
                         <img src={task.image_url} alt={task.title} className="max-w-full max-h-72 rounded-2xl border border-orange-100 object-contain" />
                       </div>
                     )}
-                    {task.options && task.options.length > 0 && (() => {
+                    {task.options && task.options.length > 0 && !task.options.every(opt => opt.includes('||') && opt.split('||')[1]?.startsWith('#')) && (() => {
                       const isImageOptions = task.options.some(opt => opt.startsWith('http'));
                       if (isImageOptions) {
                         return (

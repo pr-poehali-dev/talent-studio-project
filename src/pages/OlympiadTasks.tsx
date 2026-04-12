@@ -888,6 +888,7 @@ const OlympiadTasks = () => {
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [wasAlreadySubmitted, setWasAlreadySubmitted] = useState(false);
 
   const taskCardRef = useRef<HTMLDivElement>(null);
   // Refs для ColoringWidget — по taskId
@@ -913,6 +914,10 @@ const OlympiadTasks = () => {
         if (data && Array.isArray(data.tasks)) {
           setTasks(data.tasks);
           setParticipantName(data.participant_full_name || null);
+          if (data.already_submitted) {
+            setSubmitted(true);
+            setWasAlreadySubmitted(true);
+          }
         } else if (Array.isArray(data)) {
           setTasks(data);
         }
@@ -1068,8 +1073,14 @@ const OlympiadTasks = () => {
               <CheckCircle className="w-12 h-12 text-green-500" />
             </div>
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-gray-800">Ответы отправлены!</h2>
-              <p className="text-gray-500 text-sm">Спасибо за участие в олимпиаде!</p>
+              <h2 className="text-2xl font-bold text-gray-800">
+                {wasAlreadySubmitted ? 'Олимпиада уже пройдена!' : 'Ответы отправлены!'}
+              </h2>
+              <p className="text-gray-500 text-sm">
+                {wasAlreadySubmitted
+                  ? 'Вы уже отправили ответы. Повторное прохождение недоступно.'
+                  : 'Спасибо за участие в олимпиаде!'}
+              </p>
             </div>
             <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5 text-left space-y-3 max-w-sm mx-auto">
               <div className="flex items-start gap-3">

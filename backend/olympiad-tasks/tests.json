@@ -15,8 +15,10 @@
     {
       "name": "GET tasks for admin without payment_id returns 200",
       "method": "GET",
-      "path": "/?type=palette&admin=true",
-      "expectedStatus": 200
+      "path": "/?type=izo&admin=true",
+      "expectedStatus": 200,
+      "expectedBody": {"already_submitted": false},
+      "bodyMatcher": "partial"
     }
   ]
 }

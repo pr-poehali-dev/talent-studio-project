@@ -61,6 +61,7 @@ def handler(event: dict, context) -> dict:
                     pass
 
             participant_full_name = None
+            already_submitted = False
 
             # Для не-админов требуем подтверждённый payment_id
             if not is_admin:
@@ -75,16 +76,17 @@ def handler(event: dict, context) -> dict:
                 # demo_ — тестовый режим без реальной оплаты
                 if payment_id.startswith('demo_'):
                     cursor.execute("""
-                        SELECT full_name FROM olympiad_applications
+                        SELECT full_name, olympiad_status FROM olympiad_applications
                         WHERE payment_id = %s AND deleted_at IS NULL
                         LIMIT 1
                     """, (payment_id,))
                     demo_row = cursor.fetchone()
                     if demo_row:
                         participant_full_name = demo_row[0]
+                        already_submitted = demo_row[1] == 'finished'
                 else:
                     cursor.execute("""
-                        SELECT id, full_name FROM olympiad_applications
+                        SELECT id, full_name, olympiad_status FROM olympiad_applications
                         WHERE payment_id = %s AND payment_status = 'paid' AND olympiad_type = %s AND deleted_at IS NULL
                         LIMIT 1
                     """, (payment_id, olympiad_type))
@@ -98,6 +100,7 @@ def handler(event: dict, context) -> dict:
                             'body': json.dumps({'error': 'Доступ закрыт: оплата не подтверждена'})
                         }
                     participant_full_name = app_row[1]
+                    already_submitted = app_row[2] == 'finished'
 
             if is_admin:
                 cursor.execute("""
@@ -157,7 +160,7 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'tasks': result, 'participant_full_name': participant_full_name})
+                'body': json.dumps({'tasks': result, 'participant_full_name': participant_full_name, 'already_submitted': already_submitted})
             }
 
         # POST: создать новое задание

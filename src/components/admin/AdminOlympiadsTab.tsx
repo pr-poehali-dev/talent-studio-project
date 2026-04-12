@@ -1766,6 +1766,16 @@ const AdminOlympiadsTab = () => {
                             <Icon name="Palette" size={10} /> Состав цвета
                           </span>
                         )}
+                        {task.task_type === "odd-one-out" && (
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700 flex items-center gap-1">
+                            <Icon name="CircleX" size={10} /> Найди лишнее
+                          </span>
+                        )}
+                        {task.task_type === "icon-search" && (
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 flex items-center gap-1">
+                            <Icon name="ScanSearch" size={10} /> Найди предметы
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-gray-600 line-clamp-2 mb-2">{task.question}</p>
                       <div className="flex items-center gap-4 text-xs text-gray-400">

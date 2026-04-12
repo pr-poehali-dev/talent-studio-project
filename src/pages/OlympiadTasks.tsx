@@ -806,6 +806,41 @@ function ColoringWidget({ imageUrl, coloringRef }: ColoringProps) {
   );
 }
 
+interface ColorMixProps { taskId: number; options: string[]; onComplete: (taskId: number, answer: string) => void; isCompleted: boolean; existingAnswer?: string; }
+
+function ColorMixWidget({ taskId, options, onComplete, isCompleted, existingAnswer }: ColorMixProps) {
+  const [selected, setSelected] = useState<string[]>(() => existingAnswer ? existingAnswer.split(',').filter(Boolean) : []);
+  const toggle = (name: string) => {
+    if (isCompleted) return;
+    setSelected(prev => {
+      const next = prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name];
+      onComplete(taskId, next.sort().join(','));
+      return next;
+    });
+  };
+  return (
+    <div className="space-y-3">
+      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Выберите нужные цвета:</p>
+      <div className="grid grid-cols-2 gap-3">
+        {options.map(opt => {
+          const [name, hex] = opt.includes('||') ? opt.split('||') : [opt, '#cccccc'];
+          const isSelected = selected.includes(name);
+          return (
+            <button key={name} type="button" onClick={() => toggle(name)} disabled={isCompleted}
+              className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all text-left ${isSelected ? 'border-orange-500 bg-orange-50 shadow-sm' : 'border-gray-100 bg-white hover:border-orange-200 hover:bg-orange-50'} ${isCompleted ? 'opacity-70 cursor-default' : 'cursor-pointer'}`}
+            >
+              <span className="w-10 h-10 rounded-xl flex-shrink-0 shadow-inner border border-black/10" style={{ backgroundColor: hex }} />
+              <span className={`text-sm font-semibold ${isSelected ? 'text-orange-800' : 'text-gray-700'}`}>{name}</span>
+              {isSelected && <Icon name="Check" size={16} className="text-orange-500 ml-auto flex-shrink-0" />}
+            </button>
+          );
+        })}
+      </div>
+      {selected.length > 0 && <p className="text-xs text-orange-600 font-medium">Выбрано: {selected.join(', ')}</p>}
+    </div>
+  );
+}
+
 const OLYMPIAD_NAMES: Record<string, string> = {
   palette: 'Палитра талантов',
   grani: 'Грани творчества',

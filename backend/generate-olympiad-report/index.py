@@ -152,7 +152,16 @@ def handler(event: dict, context) -> dict:
             correct_set = set(c.strip().lower() for c in correct.split(',') if c.strip())
             is_correct = bool(given_set) and given_set == correct_set if correct else False
         else:
-            is_correct = given.strip().lower() == correct.strip().lower() if correct else False
+            # Для quiz с опциями вида URL||Название или hex||Название — чистим до названия
+            def strip_option(val):
+                if val and '||' in val:
+                    return val.split('||')[-1].strip()
+                return val
+            given_clean = strip_option(given)
+            correct_clean = strip_option(correct)
+            is_correct = given_clean.strip().lower() == correct_clean.strip().lower() if correct_clean else False
+            given = given_clean
+            correct = correct_clean
         answers.append({
             'task_id': row[0], 'answer': given,
             'question': (row[2] or '').replace('\n', ' ').strip(),
@@ -353,11 +362,18 @@ def handler(event: dict, context) -> dict:
                         hex_map[parts[0].strip().lower()] = parts[1].strip()
 
                 def color_swatch_text(names_str):
-                    """Возвращает строку вида '● Красный, ● Белый' для PDF"""
+                    """Возвращает строку вида 'Красный, Белый' для PDF, очищая URL||Название и hex||Название"""
                     if not names_str:
                         return '—'
-                    parts = [n.strip() for n in names_str.split(',') if n.strip()]
-                    return ',  '.join(parts) if parts else '—'
+                    result = []
+                    for part in names_str.split(','):
+                        part = part.strip()
+                        if '||' in part:
+                            # Берём последнюю часть после || — это название
+                            part = part.split('||')[-1].strip()
+                        if part:
+                            result.append(part)
+                    return ',  '.join(result) if result else '—'
 
                 given_names = ans['answer'] if ans['answer'] else ''
                 correct_names = ans['correct_answer'] if ans['correct_answer'] else ''

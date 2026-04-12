@@ -1214,7 +1214,7 @@ const OlympiadTasks = () => {
                       taskId={task.id}
                       options={task.options || []}
                       onComplete={(id, answer) => { setAnswers(prev => ({ ...prev, [id]: answer })); }}
-                      isCompleted={!!answers[task.id] && answers[task.id] !== ''}
+                      isCompleted={false}
                       existingAnswer={answers[task.id] || ''}
                     />
                   ) : (<>

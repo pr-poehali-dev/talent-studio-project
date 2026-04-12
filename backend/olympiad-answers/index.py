@@ -132,6 +132,14 @@ def handler(event: dict, context) -> dict:
                     user_set = set(x.strip().lower() for x in user_answer.split(',') if x.strip())
                     correct_set = set(x.strip().lower() for x in correct_answer.split(',') if x.strip())
                     is_correct = user_set == correct_set
+            elif task_type == 'image-select':
+                # Ответ: "0,2,4" (индексы выбранных картин), правильные — с флагом ||1 в опциях
+                if not user_answer:
+                    is_correct = False
+                else:
+                    correct_indices = set(str(idx) for idx, o in enumerate(opts) if str(o).split('||')[-1].strip() == '1')
+                    given_indices = set(c.strip() for c in user_answer.split(',') if c.strip())
+                    is_correct = bool(given_indices) and given_indices == correct_indices if correct_indices else False
             elif user_answer is None:
                 is_correct = False
             else:

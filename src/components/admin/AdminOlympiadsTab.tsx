@@ -218,14 +218,27 @@ const AdminOlympiadsTab = () => {
     setAnswersStats(stats);
   }, []);
 
-  const loadApplications = useCallback(async () => {
+  const loadApplications = useCallback(async (section: OlympiadSection = "izo") => {
+    // Маппинг: для ИЗО загружаем izo + palette, для ДПИ — dpi + grani
+    const typeMap: Record<OlympiadSection, string[]> = {
+      izo: ["izo", "palette"],
+      dpi: ["dpi", "grani"],
+    };
+    const types = typeMap[section];
     setLoading(true);
     try {
-      const res = await fetch(`${OLYMPIAD_APPLICATIONS_URL}?type=palette`);
-      const data = await res.json();
-      setApplications(data);
-      if (Array.isArray(data) && data.length > 0) {
-        loadAnswersStats(data);
+      const results = await Promise.all(
+        types.map((t) => fetch(`${OLYMPIAD_APPLICATIONS_URL}?type=${t}`).then((r) => r.json()))
+      );
+      const merged = results
+        .filter(Array.isArray)
+        .flat()
+        .sort((a: {created_at: string}, b: {created_at: string}) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      setApplications(merged);
+      if (merged.length > 0) {
+        loadAnswersStats(merged);
       }
     } catch {
       toast({ title: "Ошибка загрузки заявок", variant: "destructive" });
@@ -258,15 +271,15 @@ const AdminOlympiadsTab = () => {
   }, [toast]);
 
   useEffect(() => {
-    loadApplications();
     loadSettings();
-  }, [loadApplications, loadSettings]);
+  }, [loadSettings]);
 
   useEffect(() => {
+    loadApplications(olympiadSection);
     if (subTab === "tasks") {
       loadTasks(olympiadSection);
     }
-  }, [subTab, olympiadSection, loadTasks]);
+  }, [subTab, olympiadSection, loadApplications, loadTasks]);
 
   const updateStatus = async (id: number, status: string) => {
     try {
@@ -702,7 +715,7 @@ const AdminOlympiadsTab = () => {
         <>
           <div className="flex justify-end mb-4">
             <button
-              onClick={loadApplications}
+              onClick={() => loadApplications(olympiadSection)}
               className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-orange-500 hover:bg-orange-50 rounded-xl transition-all"
             >
               <Icon name="RefreshCw" size={14} />

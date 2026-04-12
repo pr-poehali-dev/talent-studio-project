@@ -847,7 +847,7 @@ const AdminOlympiadsTab = () => {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Тип задания</label>
                   <div className="flex gap-2">
-                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }, { value: "matching", label: "Соответствие (текст)", icon: "GitCompare" }, { value: "picture-matching", label: "Название → Картина", icon: "Image" }, { value: "coloring", label: "Раскраска", icon: "Paintbrush" }].map(({ value, label, icon }) => (
+                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "color-mix", label: "Состав цвета", icon: "Palette" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }, { value: "matching", label: "Соответствие (текст)", icon: "GitCompare" }, { value: "picture-matching", label: "Название → Картина", icon: "Image" }, { value: "coloring", label: "Раскраска", icon: "Paintbrush" }].map(({ value, label, icon }) => (
                       <button
                         key={value}
                         type="button"
@@ -913,7 +913,7 @@ const AdminOlympiadsTab = () => {
                 </div>
 
                 {/* Поля для обычного вопроса */}
-                {taskForm.task_type !== "wordsearch" && taskForm.task_type !== "coloring" && taskForm.task_type !== "picture-matching" && taskForm.task_type !== "matching" && (<>
+                {taskForm.task_type !== "wordsearch" && taskForm.task_type !== "coloring" && taskForm.task_type !== "picture-matching" && taskForm.task_type !== "matching" && taskForm.task_type !== "color-mix" && (<>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">
                       Вопрос / Текст задания <span className="text-red-400">*</span>
@@ -1237,6 +1237,88 @@ const AdminOlympiadsTab = () => {
                   </div>
                 )}
 
+                {/* Поля для задания "Состав цвета" */}
+                {taskForm.task_type === "color-mix" && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Вопрос / Текст задания <span className="text-red-400">*</span>
+                      </label>
+                      <textarea
+                        value={taskForm.question}
+                        onChange={(e) => setTaskForm((p) => ({ ...p, question: e.target.value }))}
+                        rows={2}
+                        placeholder="Например: Какие два цвета нужно смешать, чтобы получить розовый?"
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm resize-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Варианты цветов <span className="text-gray-400 font-normal">(формат: Название||#RRGGBB)</span>
+                      </label>
+                      <p className="text-xs text-gray-400 mb-3">Например: <code className="bg-gray-100 px-1 rounded">Красный||#FF0000</code> — название и HEX-код через двойную черту</p>
+                      <div className="space-y-2">
+                        {(taskForm.options || []).map((opt, idx) => {
+                          const [name, hex] = opt.includes("||") ? opt.split("||") : [opt, "#cccccc"];
+                          return (
+                            <div key={idx} className="flex gap-2 items-center">
+                              <span
+                                className="w-8 h-8 rounded-lg border border-black/10 flex-shrink-0 cursor-pointer"
+                                style={{ backgroundColor: hex || "#cccccc" }}
+                                title={hex}
+                              />
+                              <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => {
+                                  const updated = [...(taskForm.options || [])];
+                                  updated[idx] = `${e.target.value}||${hex}`;
+                                  setTaskForm((p) => ({ ...p, options: updated }));
+                                }}
+                                placeholder="Название цвета"
+                                className="flex-1 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm"
+                              />
+                              <input
+                                type="color"
+                                value={hex || "#cccccc"}
+                                onChange={(e) => {
+                                  const updated = [...(taskForm.options || [])];
+                                  updated[idx] = `${name}||${e.target.value}`;
+                                  setTaskForm((p) => ({ ...p, options: updated }));
+                                }}
+                                className="w-10 h-9 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                                title="Выбрать цвет"
+                              />
+                              <button onClick={() => removeOption(idx)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors">
+                                <Icon name="X" size={14} />
+                              </button>
+                            </div>
+                          );
+                        })}
+                        <button
+                          onClick={() => setTaskForm((p) => ({ ...p, options: [...(p.options || []), "Новый цвет||#cccccc"] }))}
+                          className="flex items-center gap-1.5 text-sm text-orange-500 hover:text-orange-600 font-medium mt-1"
+                        >
+                          <Icon name="Plus" size={14} /> Добавить цвет
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Правильные ответы <span className="text-gray-400 font-normal">(названия через запятую)</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={taskForm.correct_answer || ""}
+                        onChange={(e) => setTaskForm((p) => ({ ...p, correct_answer: e.target.value }))}
+                        placeholder="Например: Красный,Белый"
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm"
+                      />
+                      <p className="text-xs text-gray-400 mt-1">Перечислите названия правильных цветов через запятую — ровно так, как они указаны в вариантах выше.</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-3">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -1387,6 +1469,11 @@ const AdminOlympiadsTab = () => {
                         {task.task_type === "coloring" && (
                           <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 flex items-center gap-1">
                             <Icon name="Paintbrush" size={10} /> Раскраска
+                          </span>
+                        )}
+                        {task.task_type === "color-mix" && (
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-700 flex items-center gap-1">
+                            <Icon name="Palette" size={10} /> Состав цвета
                           </span>
                         )}
                       </div>

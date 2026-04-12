@@ -1198,6 +1198,14 @@ const OlympiadTasks = () => {
                         return coloringRefs.current[task.id];
                       })()}
                     />
+                  ) : task.task_type === 'color-mix' ? (
+                    <ColorMixWidget
+                      taskId={task.id}
+                      options={task.options || []}
+                      onComplete={(id, answer) => { setAnswers(prev => ({ ...prev, [id]: answer })); }}
+                      isCompleted={!!answers[task.id] && answers[task.id] !== ''}
+                      existingAnswer={answers[task.id] || ''}
+                    />
                   ) : (<>
                     {task.image_url && (
                       <div className="flex justify-center">

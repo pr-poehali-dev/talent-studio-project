@@ -124,6 +124,14 @@ def handler(event: dict, context) -> dict:
                         is_correct = len(pairs) > 0 and all(l == r for l, r in pairs)
                     except Exception:
                         is_correct = False
+            elif task_type == 'color-mix':
+                # Ответ: "Цвет1,Цвет2" (сортированные), правильный ответ тоже через запятую
+                if not user_answer or not correct_answer:
+                    is_correct = False
+                else:
+                    user_set = set(x.strip().lower() for x in user_answer.split(',') if x.strip())
+                    correct_set = set(x.strip().lower() for x in correct_answer.split(',') if x.strip())
+                    is_correct = user_set == correct_set
             elif user_answer is None:
                 is_correct = False
             else:

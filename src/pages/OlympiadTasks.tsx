@@ -1003,7 +1003,7 @@ function IconSearchWidget({ taskId, options, correctCount, onComplete, existingA
           );
         })}
       </div>
-      {found === correctCount && correctCount > 0 && <p className="text-xs text-green-600 font-semibold">Отлично! Все предметы найдены!</p>}
+
     </div>
   );
 }

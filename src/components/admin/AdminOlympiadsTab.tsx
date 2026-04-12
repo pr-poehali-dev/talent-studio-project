@@ -860,7 +860,7 @@ const AdminOlympiadsTab = () => {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Тип задания</label>
                   <div className="flex gap-2">
-                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "color-mix", label: "Состав цвета", icon: "Palette" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }, { value: "matching", label: "Соответствие (текст)", icon: "GitCompare" }, { value: "picture-matching", label: "Название → Картина", icon: "Image" }, { value: "coloring", label: "Раскраска", icon: "Paintbrush" }, { value: "odd-one-out", label: "Найди лишнее", icon: "CircleX" }].map(({ value, label, icon }) => (
+                    {[{ value: "quiz", label: "Вопрос с вариантами", icon: "ListChecks" }, { value: "color-mix", label: "Состав цвета", icon: "Palette" }, { value: "wordsearch", label: "Искалка слов", icon: "Search" }, { value: "matching", label: "Соответствие (текст)", icon: "GitCompare" }, { value: "picture-matching", label: "Название → Картина", icon: "Image" }, { value: "coloring", label: "Раскраска", icon: "Paintbrush" }, { value: "odd-one-out", label: "Найди лишнее", icon: "CircleX" }, { value: "icon-search", label: "Найди предметы", icon: "ScanSearch" }].map(({ value, label, icon }) => (
                       <button
                         key={value}
                         type="button"
@@ -1467,6 +1467,144 @@ const AdminOlympiadsTab = () => {
                         })}
                       </div>
                       <p className="text-xs text-gray-400 mt-2">Загрузи 4 картины и отметь одну как лишнюю — именно её участник должен найти.</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Поля для icon-search (найди предметы ИЗО) */}
+                {taskForm.task_type === "icon-search" && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                        Вопрос / инструкция <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={taskForm.question}
+                        onChange={(e) => setTaskForm((p) => ({ ...p, question: e.target.value }))}
+                        placeholder="Например: Найди все предметы, связанные с ИЗО"
+                        className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-orange-400 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-semibold text-gray-700">
+                          Иконки <span className="text-gray-400 font-normal">(ровно 15 PNG без фона)</span>
+                        </label>
+                        <span className="text-xs text-orange-500 font-semibold">
+                          {(taskForm.options || []).filter(o => o.trim()).length} / 15
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-5 gap-2">
+                        {Array.from({ length: 15 }).map((_, i) => {
+                          const raw = (taskForm.options || [])[i] || "";
+                          const [imgUrl, tag] = raw.split("||");
+                          const isIzo = tag === "izo";
+                          return (
+                            <div key={i} className={`border-2 rounded-xl overflow-hidden transition-all ${isIzo ? 'border-orange-400 bg-orange-50' : imgUrl ? 'border-gray-200 bg-gray-50' : 'border-dashed border-gray-200 bg-gray-50'}`}>
+                              <div className="aspect-square relative flex items-center justify-center">
+                                {imgUrl ? (
+                                  <>
+                                    <img src={imgUrl} alt="" className="w-full h-full object-contain p-1" />
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const updated = [...(taskForm.options || Array(15).fill(""))];
+                                        updated[i] = "";
+                                        setTaskForm((p) => ({ ...p, options: updated }));
+                                      }}
+                                      className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/90 rounded-full flex items-center justify-center text-red-400 hover:text-red-600 shadow text-xs"
+                                    >
+                                      <Icon name="X" size={10} />
+                                    </button>
+                                  </>
+                                ) : (
+                                  <label className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 cursor-pointer hover:bg-orange-50 transition-colors">
+                                    {uploadingPairImage[i] ? (
+                                      <Icon name="Loader2" size={16} className="text-orange-400 animate-spin" />
+                                    ) : (
+                                      <>
+                                        <Icon name="ImagePlus" size={16} className="text-gray-300" />
+                                        <span className="text-[10px] text-gray-300">{i + 1}</span>
+                                      </>
+                                    )}
+                                    <input
+                                      type="file"
+                                      accept="image/png,image/webp,image/svg+xml"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const f = e.target.files?.[0];
+                                        if (!f) return;
+                                        setUploadingPairImage(prev => ({ ...prev, [i]: true }));
+                                        (async () => {
+                                          try {
+                                            const CHUNK_SIZE = 512 * 1024;
+                                            const totalChunks = Math.ceil(f.size / CHUNK_SIZE);
+                                            const uploadId = crypto.randomUUID();
+                                            const toBase64 = (blob: Blob): Promise<string> =>
+                                              new Promise((resolve, reject) => {
+                                                const reader = new FileReader();
+                                                reader.onload = () => resolve((reader.result as string).split(",")[1]);
+                                                reader.onerror = reject;
+                                                reader.readAsDataURL(blob);
+                                              });
+                                            let resultUrl = "";
+                                            for (let ci = 0; ci < totalChunks; ci++) {
+                                              const start = ci * CHUNK_SIZE;
+                                              const end = Math.min(start + CHUNK_SIZE, f.size);
+                                              const chunkBase64 = await toBase64(f.slice(start, end));
+                                              const res = await fetch(UPLOAD_URL, {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ chunk: chunkBase64, chunkIndex: ci, totalChunks, fileName: f.name, fileType: f.type || "image/png", folder: "olympiad-iconsearch", uploadId }),
+                                              });
+                                              const data = await res.json();
+                                              if (data.url) resultUrl = data.url;
+                                            }
+                                            if (resultUrl) {
+                                              setTaskForm(prev => {
+                                                const updated = [...(prev.options || Array(15).fill(""))];
+                                                const oldTag = (updated[i] || "").split("||")[1] || "";
+                                                updated[i] = `${resultUrl}||${oldTag}`;
+                                                return { ...prev, options: updated };
+                                              });
+                                              toast({ title: "Иконка загружена" });
+                                            }
+                                          } catch {
+                                            toast({ title: "Ошибка загрузки", variant: "destructive" });
+                                          } finally {
+                                            setUploadingPairImage(prev => ({ ...prev, [i]: false }));
+                                          }
+                                        })();
+                                      }}
+                                    />
+                                  </label>
+                                )}
+                              </div>
+                              {imgUrl && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...(taskForm.options || Array(15).fill(""))];
+                                    updated[i] = `${imgUrl}||${isIzo ? "" : "izo"}`;
+                                    const correctCount = updated.filter(o => o.split("||")[1] === "izo").length;
+                                    setTaskForm((p) => ({ ...p, options: updated, correct_answer: String(correctCount) }));
+                                  }}
+                                  className={`w-full text-[10px] font-bold py-1 transition-all ${isIzo ? 'bg-orange-500 text-white' : 'bg-white text-gray-400 hover:text-orange-500'}`}
+                                >
+                                  {isIzo ? "ИЗО ✓" : "ИЗО?"}
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <p className="text-xs text-gray-400 mt-2">Загрузи 15 PNG-иконок и отметь те, которые относятся к ИЗО — участник должен их найти.</p>
+                      {(taskForm.options || []).filter(o => o.split("||")[1] === "izo").length > 0 && (
+                        <p className="text-xs text-orange-600 font-semibold mt-1">
+                          Отмечено как ИЗО: {(taskForm.options || []).filter(o => o.split("||")[1] === "izo").length} иконок
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}

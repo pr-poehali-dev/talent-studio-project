@@ -159,6 +159,11 @@ def handler(event: dict, context) -> dict:
         elif task_type == 'odd-one-out':
             # Ответ: индекс лишней картины, correct_answer — тоже индекс
             is_correct = bool(given) and str(given).strip() == str(correct).strip() if correct else False
+        elif task_type == 'icon-search':
+            # Ответ: "0,3,7" — индексы выбранных иконок, правильные — те у кого тег izo
+            izo_indices = set(str(idx) for idx, o in enumerate(options) if str(o).split('||')[1].strip() == 'izo') if options else set()
+            given_indices = set(c.strip() for c in str(given).split(',') if c.strip()) if given else set()
+            is_correct = bool(given_indices) and given_indices == izo_indices if izo_indices else False
         else:
             # Для quiz с опциями вида URL||Название или Название||#hex — чистим до названия
             def strip_option(val):

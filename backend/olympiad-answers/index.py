@@ -146,6 +146,15 @@ def handler(event: dict, context) -> dict:
                     is_correct = False
                 else:
                     is_correct = str(user_answer).strip() == str(correct_answer).strip()
+            elif task_type == 'icon-search':
+                # Ответ: "0,3,7" — индексы выбранных иконок, correct_answer — количество правильных
+                # Проверяем что выбраны именно те иконки с тегом izo
+                if not user_answer:
+                    is_correct = False
+                else:
+                    izo_indices = set(str(idx) for idx, o in enumerate(opts) if str(o).split('||')[1].strip() == 'izo') if opts else set()
+                    given_indices = set(c.strip() for c in user_answer.split(',') if c.strip())
+                    is_correct = bool(given_indices) and given_indices == izo_indices if izo_indices else False
             elif user_answer is None:
                 is_correct = False
             else:

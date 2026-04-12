@@ -925,6 +925,80 @@ function OddOneOutWidget({ taskId, options, onComplete, existingAnswer }: OddOne
   );
 }
 
+interface IconSearchProps { taskId: number; options: string[]; correctCount: number; onComplete: (taskId: number, answer: string) => void; existingAnswer?: string; }
+
+function IconSearchWidget({ taskId, options, correctCount, onComplete, existingAnswer }: IconSearchProps) {
+  const [selected, setSelected] = useState<Set<number>>(() => {
+    if (!existingAnswer) return new Set();
+    return new Set(existingAnswer.split(',').map(Number).filter(n => !isNaN(n)));
+  });
+
+  const positions = useState(() =>
+    options.map((_, i) => ({
+      id: i,
+      x: 5 + Math.random() * 78,
+      y: 5 + Math.random() * 78,
+      rotation: Math.round((Math.random() - 0.5) * 30),
+      scale: 0.85 + Math.random() * 0.3,
+    }))
+  )[0];
+
+  const toggle = (idx: number) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx); else next.add(idx);
+      onComplete(taskId, [...next].join(','));
+      return next;
+    });
+  };
+
+  const found = selected.size;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Кликни на все предметы ИЗО:</p>
+        <span className={`text-xs font-bold px-3 py-1 rounded-full ${found === correctCount ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
+          {found} / {correctCount}
+        </span>
+      </div>
+      <div className="relative w-full rounded-2xl border-2 border-orange-100 bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden" style={{ paddingBottom: '75%' }}>
+        {options.map((opt, i) => {
+          const [imgUrl] = opt.split('||');
+          const pos = positions[i];
+          const isSel = selected.has(i);
+          if (!imgUrl) return null;
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => toggle(i)}
+              style={{
+                position: 'absolute',
+                left: `${pos.x}%`,
+                top: `${pos.y}%`,
+                transform: `translate(-50%, -50%) rotate(${pos.rotation}deg) scale(${pos.scale})`,
+                width: '13%',
+                zIndex: isSel ? 10 : 1,
+              }}
+              className={`transition-all duration-150 rounded-xl p-1 ${isSel ? 'ring-4 ring-orange-500 bg-orange-100/80 scale-110' : 'hover:scale-110 hover:ring-2 hover:ring-orange-300'}`}
+            >
+              <img src={imgUrl} alt="" className="w-full h-full object-contain drop-shadow-md" style={{ aspectRatio: '1' }} />
+              {isSel && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center shadow">
+                  <Icon name="Check" size={10} className="text-white" />
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {found > 0 && found < correctCount && <p className="text-xs text-orange-500 font-medium">Ищи ещё! Найдено {found} из {correctCount}</p>}
+      {found === correctCount && correctCount > 0 && <p className="text-xs text-green-600 font-semibold">Отлично! Все предметы найдены!</p>}
+    </div>
+  );
+}
+
 const STUDY_YEAR_LABELS: Record<string, string> = {
   '1': '1 год обучения',
   '2': '2 год обучения',
@@ -1307,6 +1381,14 @@ const OlympiadTasks = () => {
                     <OddOneOutWidget
                       taskId={task.id}
                       options={task.options || []}
+                      onComplete={(id, answer) => { setAnswers(prev => ({ ...prev, [id]: answer })); }}
+                      existingAnswer={answers[task.id] || ''}
+                    />
+                  ) : task.task_type === 'icon-search' ? (
+                    <IconSearchWidget
+                      taskId={task.id}
+                      options={task.options || []}
+                      correctCount={Number(task.correct_answer) || (task.options || []).filter(o => o.split('||')[1] === 'izo').length}
                       onComplete={(id, answer) => { setAnswers(prev => ({ ...prev, [id]: answer })); }}
                       existingAnswer={answers[task.id] || ''}
                     />

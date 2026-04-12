@@ -147,6 +147,10 @@ def handler(event: dict, context) -> dict:
                 is_correct = len(pairs_list) > 0 and all(l == r for l, r in pairs_list)
             except Exception:
                 is_correct = False
+        elif task_type == 'color-mix':
+            given_set = set(c.strip().lower() for c in given.split(',') if c.strip())
+            correct_set = set(c.strip().lower() for c in correct.split(',') if c.strip())
+            is_correct = bool(given_set) and given_set == correct_set if correct else False
         else:
             is_correct = given.strip().lower() == correct.strip().lower() if correct else False
         answers.append({

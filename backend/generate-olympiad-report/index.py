@@ -152,11 +152,16 @@ def handler(event: dict, context) -> dict:
             correct_set = set(c.strip().lower() for c in correct.split(',') if c.strip())
             is_correct = bool(given_set) and given_set == correct_set if correct else False
         else:
-            # Для quiz с опциями вида URL||Название или hex||Название — чистим до названия
+            # Для quiz с опциями вида URL||Название или Название||#hex — чистим до названия
             def strip_option(val):
-                if val and '||' in val:
-                    return val.split('||')[-1].strip()
-                return val
+                if not val or '||' not in val:
+                    return val
+                parts = val.split('||')
+                # Название||#hex → берём первую часть
+                if parts[-1].startswith('#') or parts[-1].startswith('http'):
+                    return parts[0].strip()
+                # URL||Название → берём последнюю часть
+                return parts[-1].strip()
             given_clean = strip_option(given)
             correct_clean = strip_option(correct)
             is_correct = given_clean.strip().lower() == correct_clean.strip().lower() if correct_clean else False

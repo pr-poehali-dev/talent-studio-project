@@ -143,10 +143,10 @@ def handler(event: dict, context) -> dict:
             elif user_answer is None:
                 is_correct = False
             else:
-                is_correct = (
-                    correct_answer is not None
-                    and str(user_answer).strip().lower() == str(correct_answer).strip().lower()
-                )
+                # Ответ может содержать "Название||доп_данные" — сравниваем только часть до ||
+                normalized_user = str(user_answer).split('||')[0].strip().lower()
+                normalized_correct = str(correct_answer).split('||')[0].strip().lower()
+                is_correct = correct_answer is not None and normalized_user == normalized_correct
             result.append({
                 "id": row[0],
                 "task_id": row[1],

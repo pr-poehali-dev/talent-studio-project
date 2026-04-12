@@ -151,6 +151,11 @@ def handler(event: dict, context) -> dict:
             given_set = set(c.strip().lower() for c in given.split(',') if c.strip())
             correct_set = set(c.strip().lower() for c in correct.split(',') if c.strip())
             is_correct = bool(given_set) and given_set == correct_set if correct else False
+        elif task_type == 'image-select':
+            # Правильные — те у кого флаг ||1 в опциях, ответ — индексы через запятую
+            correct_indices = set(str(idx) for idx, o in enumerate(options) if str(o).split('||')[-1].strip() == '1')
+            given_indices = set(c.strip() for c in given.split(',') if c.strip())
+            is_correct = bool(given_indices) and given_indices == correct_indices if correct_indices else False
         else:
             # Для quiz с опциями вида URL||Название или Название||#hex — чистим до названия
             def strip_option(val):
@@ -309,6 +314,7 @@ def handler(event: dict, context) -> dict:
             is_matching = ans['task_type'] == 'matching'
             is_coloring = ans['task_type'] == 'coloring'
             is_color_mix = ans['task_type'] == 'color-mix'
+            is_image_select = ans['task_type'] == 'image-select'
             # quiz с опциями вида "Название||#hex" (задание с радугой и подобные)
             opts = ans.get('options', [])
             is_hex_options = (
@@ -358,6 +364,24 @@ def handler(event: dict, context) -> dict:
                 rows = pair_rows_data
                 spans = [('SPAN',(0,0),(0,len(pair_rows_data)-1)), ('SPAN',(2,0),(2,len(pair_rows_data)-1))]
                 num_rows = len(pair_rows_data)
+            elif is_image_select:
+                # Выбор картин: показываем индексы выбранных и правильных
+                opts = ans.get('options', [])
+                correct_indices = set(str(idx) for idx, o in enumerate(opts) if str(o).split('||')[-1].strip() == '1')
+                given_indices = set(c.strip() for c in ans['answer'].split(',') if c.strip()) if ans['answer'] else set()
+
+                def idx_to_label(idx_set):
+                    return ', '.join(f'Картина {int(x)+1}' for x in sorted(idx_set, key=lambda x: int(x))) if idx_set else '—'
+
+                given_label_ps   = ParagraphStyle(f'gl{i}', fontName='R', fontSize=8, textColor=colors.HexColor('#1a1a1a'), leading=11)
+                correct_label_ps = ParagraphStyle(f'cl{i}', fontName='B', fontSize=8, textColor=colors.HexColor('#15803d'), leading=11)
+                rows = [
+                    [Paragraph(f'#{i}', lbl_s), Paragraph(q_text, body_s), Paragraph(badge_txt, badge_ps)],
+                    ['', Table([[Paragraph('Ответ участника:', small_s), Paragraph(idx_to_label(given_indices), given_label_ps)]], colWidths=[3.5*cm, 8.5*cm]), ''],
+                    ['', Table([[Paragraph('Правильный ответ:', small_s), Paragraph(idx_to_label(correct_indices), correct_label_ps)]], colWidths=[3.5*cm, 8.5*cm]), ''],
+                ]
+                spans = [('SPAN',(0,0),(0,2)), ('SPAN',(2,0),(2,2))]
+                num_rows = 3
             elif is_color_mix or is_hex_options:
                 # Строим маппинг label->hex из опций
                 hex_map = {}

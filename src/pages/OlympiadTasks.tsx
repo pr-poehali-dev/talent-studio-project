@@ -846,6 +846,47 @@ const OLYMPIAD_NAMES: Record<string, string> = {
   grani: 'Грани творчества',
 };
 
+// ===== Выбор изображений =====
+interface ImageSelectProps { taskId: number; options: string[]; onComplete: (taskId: number, answer: string) => void; existingAnswer?: string; }
+
+function ImageSelectWidget({ taskId, options, onComplete, existingAnswer }: ImageSelectProps) {
+  const [selected, setSelected] = useState<string[]>(() => existingAnswer ? existingAnswer.split(',').filter(Boolean) : []);
+  const toggle = (key: string) => {
+    setSelected(prev => {
+      const next = prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key];
+      onComplete(taskId, next.join(','));
+      return next;
+    });
+  };
+  return (
+    <div className="space-y-3">
+      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Выберите все подходящие картины:</p>
+      <div className="grid grid-cols-2 gap-3">
+        {options.map((opt, i) => {
+          const [imgUrl] = opt.split('||');
+          const key = String(i);
+          const isSelected = selected.includes(key);
+          return (
+            <button key={i} type="button" onClick={() => toggle(key)}
+              className={`relative rounded-2xl border-2 overflow-hidden transition-all aspect-square ${isSelected ? 'border-orange-500 shadow-md' : 'border-gray-200 hover:border-orange-300'}`}
+            >
+              <img src={imgUrl} alt={`Картина ${i + 1}`} className="w-full h-full object-cover" />
+              {isSelected && (
+                <div className="absolute inset-0 bg-orange-500/20 flex items-end justify-end p-2">
+                  <span className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center">
+                    <Icon name="Check" size={14} className="text-white" />
+                  </span>
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {selected.length > 0 && <p className="text-xs text-orange-600 font-medium">Выбрано: {selected.length}</p>}
+    </div>
+  );
+}
+
 const STUDY_YEAR_LABELS: Record<string, string> = {
   '1': '1 год обучения',
   '2': '2 год обучения',
@@ -1215,6 +1256,13 @@ const OlympiadTasks = () => {
                       options={task.options || []}
                       onComplete={(id, answer) => { setAnswers(prev => ({ ...prev, [id]: answer })); }}
                       isCompleted={false}
+                      existingAnswer={answers[task.id] || ''}
+                    />
+                  ) : task.task_type === 'image-select' ? (
+                    <ImageSelectWidget
+                      taskId={task.id}
+                      options={task.options || []}
+                      onComplete={(id, answer) => { setAnswers(prev => ({ ...prev, [id]: answer })); }}
                       existingAnswer={answers[task.id] || ''}
                     />
                   ) : (<>

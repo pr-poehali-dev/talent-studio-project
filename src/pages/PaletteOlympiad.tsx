@@ -17,7 +17,10 @@ interface OlympiadSettings {
   olympiad_palette_gratitude_url: string;
 }
 
-const STUDY_YEARS = Array.from({ length: 9 }, (_, i) => i + 1);
+const STUDY_YEARS = Array.from({ length: 9 }, (_, i) => ({
+  value: String(i + 1),
+  label: `${i + 1}-й год обучения`,
+}));
 
 export default function PaletteOlympiad() {
   const navigate = useNavigate();
@@ -252,9 +255,9 @@ export default function PaletteOlympiad() {
                   required
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition bg-white"
                 >
-                  <option value="">Выберите класс</option>
+                  <option value="">Выберите год обучения</option>
                   {STUDY_YEARS.map((y) => (
-                    <option key={y} value={y}>{y} класс</option>
+                    <option key={y.value} value={y.value}>{y.label}</option>
                   ))}
                 </select>
               </div>

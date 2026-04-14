@@ -118,6 +118,7 @@ const IndexContests = ({
                       <Icon name="FileText" size={16} />
                       Положение конкурса
                     </button>
+                    <p className="text-sm text-muted-foreground mb-1">📅 Сроки проведения: приём заявок открыт на 2026 год</p>
                     <p className="text-sm font-semibold text-success">💰 Стоимость участия: {contest.price} ₽</p>
                   </div>
                   <Button

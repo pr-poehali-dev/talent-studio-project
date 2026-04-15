@@ -97,6 +97,7 @@ export default function PaletteOlympiad() {
           description: `Олимпиада по ИЗО — ${form.fullName}`,
           email: form.email,
           olympiad_type: 'izo',
+          origin: window.location.origin,
           application_data: {
             full_name: form.fullName,
             age: parseInt(form.age),

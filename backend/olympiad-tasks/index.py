@@ -91,6 +91,7 @@ def handler(event: dict, context) -> dict:
                         LIMIT 1
                     """, (payment_id, olympiad_type))
                     app_row = cursor.fetchone()
+                    print(f'[DEBUG] payment_id={payment_id} olympiad_type={olympiad_type} app_row={app_row}')
                     if not app_row:
                         cursor.close()
                         conn.close()
@@ -101,6 +102,7 @@ def handler(event: dict, context) -> dict:
                         }
                     participant_full_name = app_row[1]
                     already_submitted = app_row[2] == 'finished'
+                    print(f'[DEBUG] participant={participant_full_name} already_submitted={already_submitted} olympiad_status={app_row[2]}')
 
             if is_admin:
                 cursor.execute("""

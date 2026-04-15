@@ -93,7 +93,9 @@ def handler(event: dict, context) -> dict:
             idempotence_key = str(uuid.uuid4())
             
             import urllib.parse
-            base_url = "https://preview--talent-studio-project.poehali.dev/payment-success"
+            headers_in = event.get('headers') or {}
+            origin = body.get('origin') or headers_in.get('origin') or headers_in.get('Origin') or 'https://preview--talent-studio-project.poehali.dev'
+            base_url = f"{origin}/payment-success"
             full_name_enc = urllib.parse.quote(pending_data.get('full_name', '') or '')
             if pending_data.get('contest_name'):
                 return_url = (

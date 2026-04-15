@@ -1070,22 +1070,36 @@ const OlympiadTasks = () => {
     const url = studyYearParam
       ? `${TASKS_API_URL}?type=${olympiadType}&study_year=${studyYearParam}&payment_id=${paymentId}`
       : `${TASKS_API_URL}?type=${olympiadType}&payment_id=${paymentId}`;
-    fetch(url)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data && Array.isArray(data.tasks)) {
-          setTasks(data.tasks);
-          setParticipantName(data.participant_full_name || null);
-          if (data.already_submitted) {
-            setSubmitted(true);
-            setWasAlreadySubmitted(true);
+
+    // Повторяем запрос если webhook ещё не успел сработать (до 15 сек)
+    let attempts = 0;
+    const maxAttempts = 5;
+    const tryFetch = () => {
+      fetch(url)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data && Array.isArray(data.tasks)) {
+            setTasks(data.tasks);
+            setParticipantName(data.participant_full_name || null);
+            if (data.already_submitted) {
+              setSubmitted(true);
+              setWasAlreadySubmitted(true);
+            }
+            setTasksLoading(false);
+          } else if (data?.error && data.error.includes('не подтверждена') && attempts < maxAttempts) {
+            // Webhook ещё не пришёл — ждём и пробуем снова
+            attempts++;
+            setTimeout(tryFetch, 3000);
+          } else if (Array.isArray(data)) {
+            setTasks(data);
+            setTasksLoading(false);
+          } else {
+            setTasksLoading(false);
           }
-        } else if (Array.isArray(data)) {
-          setTasks(data);
-        }
-      })
-      .catch(() => setTasks([]))
-      .finally(() => setTasksLoading(false));
+        })
+        .catch(() => { setTasks([]); setTasksLoading(false); });
+    };
+    tryFetch();
   }, [olympiadType, studyYearParam, paymentId]);
 
   useEffect(() => {

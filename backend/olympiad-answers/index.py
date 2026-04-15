@@ -199,16 +199,24 @@ def handler(event: dict, context) -> dict:
         row = cur.fetchone()
         application_id = row[0] if row else 0
 
-        # Сохранить каждый ответ через UPSERT
-        for task_id_str, answer_text in answers.items():
-            task_id = int(task_id_str)
-            cur.execute("""
+        # Сохранить все ответы одним батч-запросом
+        if answers:
+            values = [
+                (application_id, payment_id, olympiad_type or "", int(task_id_str), answer_text)
+                for task_id_str, answer_text in answers.items()
+            ]
+            args = b','.join(
+                cur.mogrify("(%s,%s,%s,%s,%s,NOW())", v) for v in values
+            )
+            cur.execute(
+                b"""
                 INSERT INTO t_p93576920_talent_studio_projec.olympiad_answers
                     (olympiad_application_id, payment_id, olympiad_type, task_id, answer, submitted_at)
-                VALUES (%s, %s, %s, %s, %s, NOW())
+                VALUES """ + args + b"""
                 ON CONFLICT (payment_id, task_id)
                 DO UPDATE SET answer = EXCLUDED.answer, submitted_at = NOW()
-            """, (application_id, payment_id, olympiad_type or "", task_id, answer_text))
+                """
+            )
 
         # Обновить olympiad_status: 'started' при любом сохранении, 'finished' при финальной отправке
         if application_id:

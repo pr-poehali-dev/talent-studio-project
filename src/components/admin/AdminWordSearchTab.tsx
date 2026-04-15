@@ -22,6 +22,7 @@ interface WordSearchPuzzle {
   title: string;
   study_years: string[];
   words: string[];
+  hints: string[];
   is_active: boolean;
   sort_order: number;
   created_at: string;
@@ -33,6 +34,7 @@ const EMPTY_PUZZLE = {
   title: "",
   study_years: [] as string[],
   words: ["", "", "", "", "", "", "", "", "", ""],
+  hints: ["", "", "", "", "", "", "", "", "", ""],
   is_active: true,
   sort_order: 0,
 };
@@ -49,7 +51,7 @@ export default function AdminWordSearchTab() {
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [editingPuzzle, setEditingPuzzle] = useState<WordSearchPuzzle | null>(null);
-  const [form, setForm] = useState({ ...EMPTY_PUZZLE, words: [...EMPTY_PUZZLE.words] });
+  const [form, setForm] = useState({ ...EMPTY_PUZZLE, words: [...EMPTY_PUZZLE.words], hints: [...EMPTY_PUZZLE.hints] });
   const [saving, setSaving] = useState(false);
 
   const loadPuzzles = useCallback(async () => {
@@ -68,7 +70,7 @@ export default function AdminWordSearchTab() {
   useEffect(() => { loadPuzzles(); }, [loadPuzzles]);
 
   const openCreate = () => {
-    setForm({ ...EMPTY_PUZZLE, words: ["", "", "", "", "", "", "", "", "", ""] });
+    setForm({ ...EMPTY_PUZZLE, words: ["", "", "", "", "", "", "", "", "", ""], hints: ["", "", "", "", "", "", "", "", "", ""] });
     setEditingPuzzle(null);
     setIsCreating(true);
   };
@@ -76,11 +78,14 @@ export default function AdminWordSearchTab() {
   const openEdit = (puzzle: WordSearchPuzzle) => {
     const words = [...puzzle.words];
     while (words.length < 10) words.push("");
+    const hints = [...(puzzle.hints || [])];
+    while (hints.length < 10) hints.push("");
     setForm({
       olympiad_type: puzzle.olympiad_type,
       title: puzzle.title,
       study_years: puzzle.study_years || [],
       words,
+      hints,
       is_active: puzzle.is_active,
       sort_order: puzzle.sort_order,
     });
@@ -110,6 +115,14 @@ export default function AdminWordSearchTab() {
     });
   };
 
+  const setHint = (index: number, value: string) => {
+    setForm((p) => {
+      const hints = [...p.hints];
+      hints[index] = value;
+      return { ...p, hints };
+    });
+  };
+
   const handleSave = async () => {
     if (!form.title.trim()) {
       toast({ title: "Введите название задания", variant: "destructive" });
@@ -122,9 +135,13 @@ export default function AdminWordSearchTab() {
     }
     setSaving(true);
     try {
+      const filledWordsWithIndex = form.words
+        .map((w, i) => ({ word: w.trim(), hint: form.hints[i] || "" }))
+        .filter((x) => x.word);
       const payload = {
         ...form,
-        words: form.words.filter((w) => w.trim()),
+        words: filledWordsWithIndex.map((x) => x.word),
+        hints: filledWordsWithIndex.map((x) => x.hint),
         ...(editingPuzzle ? { id: editingPuzzle.id } : {}),
       };
       const res = await fetch(WORD_SEARCH_API_URL, {
@@ -244,12 +261,13 @@ export default function AdminWordSearchTab() {
             </div>
           </div>
 
-          {/* 10 слов */}
+          {/* 10 слов + подсказки */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
               Слова для поиска <span className="text-gray-400 font-normal">(до 10 слов, только буквы)</span>
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <p className="text-xs text-gray-400 mb-3">Подсказка — описание слова, которое видит участник вместо самого слова</p>
+            <div className="space-y-2">
               {form.words.map((word, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <span className="w-6 text-right text-xs text-gray-400 font-bold flex-shrink-0">{i + 1}.</span>
@@ -259,7 +277,14 @@ export default function AdminWordSearchTab() {
                     onChange={(e) => setWord(i, e.target.value.replace(/[^а-яёА-ЯЁa-zA-Z]/g, ""))}
                     placeholder={`Слово ${i + 1}`}
                     maxLength={15}
-                    className="flex-1 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm bg-white uppercase"
+                    className="w-32 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm bg-white uppercase flex-shrink-0"
+                  />
+                  <input
+                    type="text"
+                    value={form.hints[i] || ""}
+                    onChange={(e) => setHint(i, e.target.value)}
+                    placeholder={word ? `Подсказка для «${word}»` : "Подсказка (необязательно)"}
+                    className="flex-1 border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-400 text-sm bg-white"
                   />
                 </div>
               ))}

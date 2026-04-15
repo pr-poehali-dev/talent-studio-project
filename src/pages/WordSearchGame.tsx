@@ -89,6 +89,7 @@ export default function WordSearchGame() {
 
   const [title, setTitle] = useState("");
   const [words, setWords] = useState<string[]>([]);
+  const [hints, setHints] = useState<string[]>([]);
   const [grid, setGrid] = useState<string[][]>([]);
   const [placements, setPlacements] = useState<Record<string, [number, number, number, number][]>>({});
   const [loading, setLoading] = useState(true);
@@ -114,6 +115,7 @@ export default function WordSearchGame() {
         setTitle(puzzle.title);
         const w: string[] = (puzzle.words || []).map((x: string) => x.toUpperCase());
         setWords(w);
+        setHints(puzzle.hints || []);
         const { grid: g, placements: pl } = buildGrid(w);
         setGrid(g);
         setPlacements(pl);
@@ -256,9 +258,10 @@ export default function WordSearchGame() {
         <div className="bg-white rounded-3xl shadow-sm border border-orange-100 px-5 py-4">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Найди эти слова:</p>
           <div className="flex flex-wrap gap-2">
-            {words.map((word) => {
+            {words.map((word, idx) => {
               const found = foundWords.includes(word);
               const colorIdx = foundWords.indexOf(word);
+              const hint = hints[idx];
               return (
                 <span
                   key={word}
@@ -268,7 +271,10 @@ export default function WordSearchGame() {
                       : "bg-white text-gray-700 border-gray-200"
                   }`}
                 >
-                  {word}
+                  {found || !hint ? word : hint}
+                  {found && hint && (
+                    <span className="ml-1.5 text-xs font-normal opacity-70">({hint})</span>
+                  )}
                 </span>
               );
             })}

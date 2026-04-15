@@ -30,7 +30,7 @@ def handler(event: dict, context) -> dict:
 
             if is_admin:
                 cursor.execute("""
-                    SELECT id, olympiad_type, title, study_years, words, is_active, sort_order, created_at, updated_at
+                    SELECT id, olympiad_type, title, study_years, words, hints, is_active, sort_order, created_at, updated_at
                     FROM word_search_puzzles
                     WHERE olympiad_type = %s
                     ORDER BY sort_order ASC, id ASC
@@ -44,7 +44,7 @@ def handler(event: dict, context) -> dict:
 
                     if year is not None:
                         cursor.execute("""
-                            SELECT id, olympiad_type, title, study_years, words, is_active, sort_order, created_at, updated_at
+                            SELECT id, olympiad_type, title, study_years, words, hints, is_active, sort_order, created_at, updated_at
                             FROM word_search_puzzles
                             WHERE olympiad_type = %s AND is_active = TRUE
                               AND (study_years IS NULL OR study_years = '{}' OR %s = ANY(study_years))
@@ -52,14 +52,14 @@ def handler(event: dict, context) -> dict:
                         """, (olympiad_type, study_year_param))
                     else:
                         cursor.execute("""
-                            SELECT id, olympiad_type, title, study_years, words, is_active, sort_order, created_at, updated_at
+                            SELECT id, olympiad_type, title, study_years, words, hints, is_active, sort_order, created_at, updated_at
                             FROM word_search_puzzles
                             WHERE olympiad_type = %s AND is_active = TRUE
                             ORDER BY sort_order ASC, id ASC
                         """, (olympiad_type,))
                 else:
                     cursor.execute("""
-                        SELECT id, olympiad_type, title, study_years, words, is_active, sort_order, created_at, updated_at
+                        SELECT id, olympiad_type, title, study_years, words, hints, is_active, sort_order, created_at, updated_at
                         FROM word_search_puzzles
                         WHERE olympiad_type = %s AND is_active = TRUE
                         ORDER BY sort_order ASC, id ASC
@@ -74,10 +74,11 @@ def handler(event: dict, context) -> dict:
                     'title': row[2],
                     'study_years': list(row[3]) if row[3] else [],
                     'words': row[4] if row[4] else [],
-                    'is_active': row[5],
-                    'sort_order': row[6],
-                    'created_at': row[7].isoformat() if row[7] else None,
-                    'updated_at': row[8].isoformat() if row[8] else None,
+                    'hints': row[5] if row[5] else [],
+                    'is_active': row[6],
+                    'sort_order': row[7],
+                    'created_at': row[8].isoformat() if row[8] else None,
+                    'updated_at': row[9].isoformat() if row[9] else None,
                 })
 
             cursor.close()
@@ -94,6 +95,7 @@ def handler(event: dict, context) -> dict:
             title = body.get('title', '').strip()
             study_years = body.get('study_years') or []
             words = body.get('words') or []
+            hints = body.get('hints') or []
             is_active = body.get('is_active', True)
             sort_order = body.get('sort_order', 0)
 
@@ -107,12 +109,13 @@ def handler(event: dict, context) -> dict:
                 }
 
             words_clean = [w.strip().upper() for w in words if w.strip()]
+            hints_aligned = hints[:len(words_clean)] + [''] * max(0, len(words_clean) - len(hints))
 
             cursor.execute("""
-                INSERT INTO word_search_puzzles (olympiad_type, title, study_years, words, is_active, sort_order)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                INSERT INTO word_search_puzzles (olympiad_type, title, study_years, words, hints, is_active, sort_order)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
-            """, (olympiad_type, title, study_years if study_years else None, json.dumps(words_clean), is_active, sort_order))
+            """, (olympiad_type, title, study_years if study_years else None, json.dumps(words_clean), json.dumps(hints_aligned), is_active, sort_order))
 
             new_id = cursor.fetchone()[0]
             cursor.close()
@@ -138,18 +141,20 @@ def handler(event: dict, context) -> dict:
             title = body.get('title', '').strip()
             study_years = body.get('study_years') or []
             words = body.get('words') or []
+            hints = body.get('hints') or []
             is_active = body.get('is_active', True)
             sort_order = body.get('sort_order', 0)
             olympiad_type = body.get('olympiad_type', 'palette')
 
             words_clean = [w.strip().upper() for w in words if w.strip()]
+            hints_aligned = hints[:len(words_clean)] + [''] * max(0, len(words_clean) - len(hints))
 
             cursor.execute("""
                 UPDATE word_search_puzzles
-                SET title = %s, study_years = %s, words = %s, is_active = %s,
+                SET title = %s, study_years = %s, words = %s, hints = %s, is_active = %s,
                     sort_order = %s, olympiad_type = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
-            """, (title, study_years if study_years else None, json.dumps(words_clean), is_active, sort_order, olympiad_type, puzzle_id))
+            """, (title, study_years if study_years else None, json.dumps(words_clean), json.dumps(hints_aligned), is_active, sort_order, olympiad_type, puzzle_id))
 
             cursor.close()
             conn.close()

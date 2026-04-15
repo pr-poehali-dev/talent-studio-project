@@ -5,7 +5,7 @@
       "method": "GET",
       "path": "/?type=palette&admin=true",
       "expectedStatus": 200,
-      "expectedBody": [],
+      "expectedBody": [{"id": 1}],
       "bodyMatcher": "partial"
     }
   ]

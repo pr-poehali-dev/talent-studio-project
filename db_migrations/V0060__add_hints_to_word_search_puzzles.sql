@@ -1,0 +1,1 @@
+ALTER TABLE t_p93576920_talent_studio_projec.word_search_puzzles ADD COLUMN IF NOT EXISTS hints jsonb NOT NULL DEFAULT '[]'::jsonb;

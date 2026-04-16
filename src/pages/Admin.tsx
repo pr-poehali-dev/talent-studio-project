@@ -10,6 +10,7 @@ import AdminLoginPage from "@/components/admin/AdminLoginPage";
 import AdminNav from "@/components/admin/AdminNav";
 import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
 import AdminOlympiadsTab from "@/components/admin/AdminOlympiadsTab";
+import AdminClientsTab from "@/components/admin/AdminClientsTab";
 import {
   Contest,
   Application,
@@ -25,7 +26,7 @@ import {
   CERTIFICATES_LOG_URL,
 } from "@/components/admin/AdminTypes";
 
-type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue' | 'olympiads';
+type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue' | 'olympiads' | 'clients';
 
 const Admin = () => {
   useEffect(() => {
@@ -686,6 +687,8 @@ const Admin = () => {
         )}
 
         {activeTab === 'olympiads' && <AdminOlympiadsTab />}
+
+        {activeTab === 'clients' && <AdminClientsTab />}
 
         {activeTab === 'settings' && (
           <AdminSettingsTab

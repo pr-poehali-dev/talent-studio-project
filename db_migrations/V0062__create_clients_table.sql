@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS t_p93576920_talent_studio_projec.clients (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  name VARCHAR(255),
+  created_at TIMESTAMP DEFAULT NOW()
+);

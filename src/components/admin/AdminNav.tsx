@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import Icon from "@/components/ui/icon";
 import { CERTIFICATES_LOG_URL } from "./AdminTypes";
 
-type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue' | 'olympiads';
+type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue' | 'olympiads' | 'clients';
 
 interface AdminNavProps {
   activeTab: Tab;
@@ -110,6 +110,14 @@ export default function AdminNav({
         >
           <Icon name="GraduationCap" className="mr-2" />
           Олимпиады
+        </Button>
+        <Button
+          variant={activeTab === 'clients' ? 'default' : 'ghost'}
+          onClick={() => setActiveTab('clients')}
+          className="rounded-t-xl rounded-b-none"
+        >
+          <Icon name="Users" className="mr-2" />
+          Клиенты
         </Button>
         <Button
           variant={activeTab === 'settings' ? 'default' : 'ghost'}

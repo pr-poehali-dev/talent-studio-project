@@ -47,7 +47,7 @@ const IndexHome = ({
           <div
             className="relative overflow-hidden rounded-2xl px-6 py-4 md:px-8 shadow-2xl cursor-pointer"
             style={{ background: 'linear-gradient(135deg, #D97706 0%, #F59E0B 60%, #EF4444 100%)' }}
-            onClick={() => navigate('/olympiad/palette')}
+            onClick={() => setActiveSection('olympiads')}
           >
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               {[...Array(10)].map((_, i) => (

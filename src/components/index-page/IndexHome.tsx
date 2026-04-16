@@ -44,7 +44,7 @@ const IndexHome = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
           {/* Баннер 1 — Коллективная заявка */}
-          <div className="relative overflow-hidden rounded-2xl px-6 py-5 md:px-8 md:py-6 shadow-2xl" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)' }}>
+          <div className="relative overflow-hidden rounded-2xl px-6 py-4 md:px-8 shadow-2xl" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)' }}>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               {[...Array(12)].map((_, i) => (
                 <div
@@ -61,34 +61,29 @@ const IndexHome = ({
               ))}
             </div>
             <div className="absolute -top-8 -right-8 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
-            <div className="absolute -bottom-8 -left-8 w-36 h-36 bg-pink-400/10 rounded-full blur-2xl" />
 
-            <div className="relative z-10 flex flex-col h-full justify-between gap-5">
-              <div>
-                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-widest">
+            <div className="relative z-10 flex flex-row items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="inline-flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-0.5 rounded-full mb-2 uppercase tracking-widest">
                   🔥 Выгодное предложение
                 </div>
-                <h3 className="text-2xl md:text-3xl font-heading font-bold text-white leading-tight mb-2">
+                <h3 className="text-lg md:text-xl font-heading font-bold text-white leading-tight mb-1">
                   Коллективная заявка —{' '}
                   <span className="text-yellow-300">150 ₽ за участника!</span>
                 </h3>
-                <p className="text-white/80 text-sm md:text-base mb-4">
-                  Подайте заявку на <strong className="text-white">5 и более участников</strong> и получите специальную цену вместо стандартной
+                <p className="text-white/80 text-xs">
+                  Заявка на <strong className="text-white">5+</strong> участников по специальной цене
                 </p>
               </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
-                  <span className="text-white line-through text-sm">от 200 ₽</span>
+              <div className="flex flex-col gap-1.5 flex-shrink-0">
+                <div className="flex items-center justify-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 border border-white/10">
+                  <span className="text-white line-through text-xs">от 200 ₽</span>
                   <span className="text-white text-xs">→</span>
-                  <span className="text-yellow-300 font-bold text-sm">150 ₽</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
-                  <span className="text-lg">⚡</span>
-                  <span className="text-white text-xs">Одна заявка на всех</span>
+                  <span className="text-yellow-300 font-bold text-xs">150 ₽</span>
                 </div>
                 <button
                   onClick={() => navigate('/collective')}
-                  className="inline-flex items-center justify-center gap-2 bg-yellow-300 hover:bg-yellow-200 text-purple-900 font-bold px-6 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/30 text-sm w-full mt-1"
+                  className="inline-flex items-center justify-center gap-2 bg-yellow-300 hover:bg-yellow-200 text-purple-900 font-bold px-5 py-2 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/30 text-sm"
                 >
                   Подать заявку
                 </button>
@@ -98,7 +93,7 @@ const IndexHome = ({
 
           {/* Баннер 2 — Интерактивные олимпиады */}
           <div
-            className="relative overflow-hidden rounded-2xl px-6 py-5 md:px-8 md:py-6 shadow-2xl cursor-pointer group"
+            className="relative overflow-hidden rounded-2xl px-6 py-4 md:px-8 shadow-2xl cursor-pointer"
             style={{ background: 'linear-gradient(135deg, #D97706 0%, #F59E0B 60%, #EF4444 100%)' }}
             onClick={() => navigate('/olympiad/palette')}
           >
@@ -118,32 +113,27 @@ const IndexHome = ({
               ))}
             </div>
             <div className="absolute -top-8 -left-8 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
-            <div className="absolute -bottom-8 -right-8 w-36 h-36 bg-red-400/10 rounded-full blur-2xl" />
 
-            <div className="relative z-10 flex flex-col h-full justify-between gap-5">
-              <div>
-                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-widest">
+            <div className="relative z-10 flex flex-row items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="inline-flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-0.5 rounded-full mb-2 uppercase tracking-widest">
                   🎨 Новинка
                 </div>
-                <h3 className="text-2xl md:text-3xl font-heading font-bold text-white leading-tight mb-2">
+                <h3 className="text-lg md:text-xl font-heading font-bold text-white leading-tight mb-1">
                   Интерактивные олимпиады —{' '}
                   <span className="text-yellow-100">онлайн!</span>
                 </h3>
-                <p className="text-white/80 text-sm md:text-base mb-4">
-                  Выполняйте задания прямо в браузере: тесты, раскраски и творческие задания без скачивания файлов
+                <p className="text-white/80 text-xs">
+                  Выполняйте задания прямо в браузере — без скачивания файлов
                 </p>
               </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
-                  <span className="text-lg">🖥️</span>
-                  <span className="text-white text-xs">Всё прямо в браузере</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2 border border-white/10">
-                  <span className="text-lg">🏅</span>
-                  <span className="text-white text-xs">Результат сразу после выполнения</span>
+              <div className="flex flex-col gap-1.5 flex-shrink-0">
+                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 border border-white/10">
+                  <span className="text-base">🖥️</span>
+                  <span className="text-white text-xs">Всё в браузере</span>
                 </div>
                 <button
-                  className="inline-flex items-center justify-center gap-2 bg-white hover:bg-yellow-50 text-orange-700 font-bold px-6 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-900/20 text-sm w-full mt-1"
+                  className="inline-flex items-center justify-center gap-2 bg-white hover:bg-yellow-50 text-orange-700 font-bold px-5 py-2 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-900/20 text-sm"
                 >
                   Участвовать
                 </button>

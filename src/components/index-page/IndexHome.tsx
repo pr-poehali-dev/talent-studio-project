@@ -43,55 +43,7 @@ const IndexHome = ({
       <section className="mb-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-          {/* Баннер 1 — Коллективная заявка */}
-          <div className="relative overflow-hidden rounded-2xl px-6 py-4 md:px-8 shadow-2xl" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)' }}>
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {[...Array(12)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute rounded-full bg-white/10"
-                  style={{
-                    width: `${Math.random() * 60 + 15}px`,
-                    height: `${Math.random() * 60 + 15}px`,
-                    top: `${Math.random() * 100}%`,
-                    left: `-100px`,
-                    animation: `floatRight ${6 + i * 1.2}s linear ${i * 0.8}s infinite`,
-                  }}
-                />
-              ))}
-            </div>
-            <div className="absolute -top-8 -right-8 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
-
-            <div className="relative z-10 flex flex-row items-center justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="inline-flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-0.5 rounded-full mb-2 uppercase tracking-widest">
-                  🔥 Выгодное предложение
-                </div>
-                <h3 className="text-lg md:text-xl font-heading font-bold text-white leading-tight mb-1">
-                  Коллективная заявка —{' '}
-                  <span className="text-yellow-300">150 ₽ за участника!</span>
-                </h3>
-                <p className="text-white/80 text-xs">
-                  Заявка на <strong className="text-white">5+</strong> участников по специальной цене
-                </p>
-              </div>
-              <div className="flex flex-col gap-1.5 flex-shrink-0">
-                <div className="flex items-center justify-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 border border-white/10">
-                  <span className="text-white line-through text-xs">от 200 ₽</span>
-                  <span className="text-white text-xs">→</span>
-                  <span className="text-yellow-300 font-bold text-xs">150 ₽</span>
-                </div>
-                <button
-                  onClick={() => navigate('/collective')}
-                  className="inline-flex items-center justify-center gap-2 bg-yellow-300 hover:bg-yellow-200 text-purple-900 font-bold px-5 py-2 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/30 text-sm"
-                >
-                  Подать заявку
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Баннер 2 — Интерактивные олимпиады */}
+          {/* Баннер 1 — Интерактивные олимпиады */}
           <div
             className="relative overflow-hidden rounded-2xl px-6 py-4 md:px-8 shadow-2xl cursor-pointer"
             style={{ background: 'linear-gradient(135deg, #D97706 0%, #F59E0B 60%, #EF4444 100%)' }}
@@ -136,6 +88,54 @@ const IndexHome = ({
                   className="inline-flex items-center justify-center gap-2 bg-white hover:bg-yellow-50 text-orange-700 font-bold px-5 py-2 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-orange-900/20 text-sm"
                 >
                   Участвовать
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Баннер 2 — Коллективная заявка */}
+          <div className="relative overflow-hidden rounded-2xl px-6 py-4 md:px-8 shadow-2xl" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)' }}>
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {[...Array(12)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute rounded-full bg-white/10"
+                  style={{
+                    width: `${Math.random() * 60 + 15}px`,
+                    height: `${Math.random() * 60 + 15}px`,
+                    top: `${Math.random() * 100}%`,
+                    left: `-100px`,
+                    animation: `floatRight ${6 + i * 1.2}s linear ${i * 0.8}s infinite`,
+                  }}
+                />
+              ))}
+            </div>
+            <div className="absolute -top-8 -right-8 w-48 h-48 bg-white/5 rounded-full blur-2xl" />
+
+            <div className="relative z-10 flex flex-row items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="inline-flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-0.5 rounded-full mb-2 uppercase tracking-widest">
+                  🔥 Выгодное предложение
+                </div>
+                <h3 className="text-lg md:text-xl font-heading font-bold text-white leading-tight mb-1">
+                  Коллективная заявка —{' '}
+                  <span className="text-yellow-300">150 ₽ за участника!</span>
+                </h3>
+                <p className="text-white/80 text-xs">
+                  Заявка на <strong className="text-white">5+</strong> участников по специальной цене
+                </p>
+              </div>
+              <div className="flex flex-col gap-1.5 flex-shrink-0">
+                <div className="flex items-center justify-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 border border-white/10">
+                  <span className="text-white line-through text-xs">от 200 ₽</span>
+                  <span className="text-white text-xs">→</span>
+                  <span className="text-yellow-300 font-bold text-xs">150 ₽</span>
+                </div>
+                <button
+                  onClick={() => navigate('/collective')}
+                  className="inline-flex items-center justify-center gap-2 bg-yellow-300 hover:bg-yellow-200 text-purple-900 font-bold px-5 py-2 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/30 text-sm"
+                >
+                  Подать заявку
                 </button>
               </div>
             </div>

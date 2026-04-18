@@ -49,7 +49,7 @@ export default function AdminParticipantsTab() {
   const olympiadCount = data.filter((p) => p.sources.some((s) => s.startsWith("Олимпиада:"))).length;
 
   const copyAll = () => {
-    const emails = filtered.map((p) => p.email).join("\n");
+    const emails = filtered.map((p) => p.email).join("\n\n");
     navigator.clipboard.writeText(emails);
   };
 

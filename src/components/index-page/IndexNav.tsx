@@ -20,11 +20,11 @@ interface IndexNavProps {
 const navItems: { id: string; label: string; icon: string; hasDropdown?: boolean }[] = [
   { id: "home", label: "Главная", icon: "Home" },
   { id: "contests", label: "Конкурсы", icon: "Trophy", hasDropdown: true },
-  { id: "olympiads", label: "Олимпиады", icon: "GraduationCap" },
   { id: "gallery", label: "Галерея", icon: "Image" },
   { id: "documents", label: "Документы", icon: "FileText" },
   { id: "results", label: "Итоги", icon: "Award" },
   { id: "jury", label: "Наша команда", icon: "Users" },
+  { id: "designer", label: "Услуги дизайнера", icon: "PenTool" },
   { id: "reviews", label: "Отзывы", icon: "MessageSquare" },
   { id: "about", label: "О нас", icon: "Users" },
 ];
@@ -205,8 +205,14 @@ const IndexNav = ({
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between items-center gap-2 mt-2">
-                <div className="flex gap-2 items-center">
+              <style>{`
+                @keyframes olympiadPulse {
+                  0%, 100% { box-shadow: 0 0 0 0 rgba(249,115,22,0.5), 0 4px 15px rgba(249,115,22,0.4); transform: scale(1); }
+                  50% { box-shadow: 0 0 0 8px rgba(249,115,22,0), 0 4px 20px rgba(249,115,22,0.6); transform: scale(1.04); }
+                }
+              `}</style>
+              <div className="flex justify-between items-stretch gap-2 mt-2">
+                <div className="flex gap-2 items-stretch">
                   <a
                     href="/collective"
                     className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg"
@@ -215,32 +221,17 @@ const IndexNav = ({
                     <Icon name="Users" size={18} />
                     Коллективная заявка
                   </a>
-                  {/* Кнопка Олимпиады — максимально заметная */}
-                  <style>{`
-                    @keyframes olympiadPulse {
-                      0%, 100% { box-shadow: 0 0 0 0 rgba(249,115,22,0.5), 0 4px 15px rgba(249,115,22,0.4); transform: scale(1); }
-                      50% { box-shadow: 0 0 0 8px rgba(249,115,22,0), 0 4px 20px rgba(249,115,22,0.6); transform: scale(1.04); }
-                    }
-                  `}</style>
                   <button
                     onClick={() => setActiveSection("olympiads")}
-                    className="relative flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-white transition-all hover:scale-110 shadow-lg overflow-hidden"
+                    className="relative flex items-center gap-2 px-6 py-2 rounded-xl font-bold text-white transition-all hover:scale-110 shadow-lg overflow-hidden"
                     style={{ background: 'linear-gradient(135deg, #F97316 0%, #FB923C 50%, #FBBF24 100%)', animation: 'olympiadPulse 2s ease-in-out infinite' }}
                   >
                     <span className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition-opacity" />
                     <Icon name="GraduationCap" size={18} />
                     🏆 Олимпиады
                   </button>
-                  <button
-                    onClick={() => setActiveSection("designer")}
-                    className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg"
-                    style={{ background: 'linear-gradient(135deg, #10B981 0%, #0EA5E9 100%)' }}
-                  >
-                    <Icon name="PenTool" size={18} />
-                    Услуги дизайнера
-                  </button>
                 </div>
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-2 items-stretch">
                   <button
                     onClick={() => setActiveSection("shop")}
                     className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg"
@@ -249,14 +240,14 @@ const IndexNav = ({
                     <Icon name="ShoppingBag" size={18} />
                     Магазин
                   </button>
-                <button
-                  onClick={() => setIsColoringModalOpen(true)}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg animate-pulse"
-                  style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #E31E24 50%, #9C27B0 100%)', animationDuration: '3s' }}
-                >
-                  <Icon name="Paintbrush" size={18} />
-                  🎨 Раскрась Кота Ван Гога!
-                </button>
+                  <button
+                    onClick={() => setIsColoringModalOpen(true)}
+                    className="flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md hover:shadow-lg animate-pulse"
+                    style={{ background: 'linear-gradient(135deg, #FF6B35 0%, #E31E24 50%, #9C27B0 100%)', animationDuration: '3s' }}
+                  >
+                    <Icon name="Paintbrush" size={18} />
+                    🎨 Раскрась Кота Ван Гога!
+                  </button>
                 </div>
               </div>
             </div>

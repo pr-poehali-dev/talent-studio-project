@@ -173,10 +173,7 @@ const IndexHome = ({
             size="lg"
             className="text-lg px-8 py-6 rounded-2xl bg-primary hover:bg-primary/90 shadow-xl"
             onClick={() => setActiveSection("contests")}
-          >
-            <Icon name="Palette" className="mr-2" />
-            Участвовать в конкурсе
-          </Button>
+          >Участвовать в конкурсах</Button>
           <Button
             size="lg"
             className="text-lg px-8 py-6 rounded-2xl font-bold text-white shadow-lg hover:scale-105 transition-all"

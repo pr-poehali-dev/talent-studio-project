@@ -179,12 +179,12 @@ const IndexHome = ({
           </Button>
           <Button
             size="lg"
-            variant="outline"
-            className="text-lg px-8 py-6 rounded-2xl border-2 border-secondary text-secondary hover:bg-secondary hover:text-white"
-            onClick={() => setActiveSection("gallery")}
+            className="text-lg px-8 py-6 rounded-2xl font-bold text-white shadow-lg hover:scale-105 transition-all"
+            style={{ background: 'linear-gradient(135deg, #84CC16 0%, #65A30D 100%)' }}
+            onClick={() => setActiveSection("olympiads")}
           >
-            <Icon name="Image" className="mr-2" />
-            Смотреть галерею
+            <Icon name="GraduationCap" className="mr-2" />
+            Участвовать в олимпиадах
           </Button>
         </div>
       </section>

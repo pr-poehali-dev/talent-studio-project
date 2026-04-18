@@ -280,7 +280,7 @@ const ApplicationModal = ({
 
           <div className="space-y-2">
             <Label htmlFor="age" className="text-base font-semibold">Возраст, год обучения *</Label>
-            <Input id="age" name="age" type="number" placeholder="Введите возраст" required className="rounded-xl border-2 focus:border-primary" />
+            <Input id="age" name="age" type="number" placeholder="Например: 12 лет, 5-й класс" required className="rounded-xl border-2 focus:border-primary" />
           </div>
 
           <div className="space-y-2">
@@ -295,7 +295,7 @@ const ApplicationModal = ({
 
           <div className="space-y-2">
             <Label htmlFor="workTitle" className="text-base font-semibold">Название работы, техника выполнения *</Label>
-            <Input id="workTitle" name="workTitle" placeholder="Введите название работы" required className="rounded-xl border-2 focus:border-primary" />
+            <Input id="workTitle" name="workTitle" placeholder="Например: Осенний пейзаж, акварель" required className="rounded-xl border-2 focus:border-primary" />
           </div>
 
           <div className="space-y-2">

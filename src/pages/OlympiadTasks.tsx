@@ -1255,26 +1255,20 @@ const OlympiadTasks = () => {
               <p className="text-gray-500 text-sm">
                 {wasAlreadySubmitted
                   ? 'Вы уже отправили ответы. Повторное прохождение недоступно.'
-                  : 'Спасибо за участие в олимпиаде!'}
+                  : 'Благодарим за участие в олимпиаде — Ваши ответы успешно отправлены!'}
               </p>
             </div>
             <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5 text-left space-y-3 max-w-sm mx-auto">
               <div className="flex items-start gap-3">
                 <span className="text-orange-400 text-lg flex-shrink-0">📊</span>
                 <p className="text-sm text-gray-700">
-                  <span className="font-semibold">Результаты</span> будут опубликованы в разделе «Итоги» в течение <span className="font-semibold">2–3 дней</span>.
+                  <span className="font-semibold">Результаты</span> будут опубликованы в разделе «Итоги» через <span className="font-semibold">2–3 рабочих дня</span>.
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-orange-400 text-lg flex-shrink-0">📧</span>
                 <p className="text-sm text-gray-700">
-                  <span className="font-semibold">Наградные документы</span> будут отправлены на электронную почту, указанную при регистрации.
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-orange-400 text-lg flex-shrink-0">📝</span>
-                <p className="text-sm text-gray-700">
-                  <span className="font-semibold">Отчёт о выполненных заданиях</span> олимпиады также будет отправлен на вашу электронную почту.
+                  <span className="font-semibold">Наградные документы</span>, а также отчёт о выполненных заданиях будут направлены на электронный адрес, указанный при регистрации.
                 </p>
               </div>
             </div>

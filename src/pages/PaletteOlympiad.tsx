@@ -146,10 +146,10 @@ export default function PaletteOlympiad() {
           <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-600 text-xs font-bold px-4 py-1.5 rounded-full mb-4 uppercase tracking-widest">
             ИЗО
           </div>
-          <h1 className="text-3xl md:text-4xl font-heading font-bold text-gray-800 mb-2">
+          <h1 className="text-lg md:text-xl font-heading font-semibold text-gray-800 mb-2">
             Всероссийская интерактивная олимпиада по ИЗО
           </h1>
-          <h2 className="text-xl md:text-2xl font-heading font-bold text-orange-500">
+          <h2 className="text-4xl md:text-5xl font-heading font-bold text-orange-500">
             «Палитра талантов»
           </h2>
         </div>

@@ -17,10 +17,10 @@ export default function GraniOlympiad() {
 
         <div className="text-center py-20">
           <div className="text-7xl mb-6">🏺</div>
-          <h1 className="text-3xl md:text-4xl font-heading font-bold text-gray-800 mb-4">
+          <h1 className="text-lg md:text-xl font-heading font-semibold text-gray-800 mb-2">
             Всероссийская интерактивная олимпиада по ДПИ
           </h1>
-          <h2 className="text-2xl md:text-3xl font-heading font-bold text-orange-500 mb-8">
+          <h2 className="text-4xl md:text-5xl font-heading font-bold text-orange-500 mb-8">
             «Грани мастерства»
           </h2>
           <p className="text-gray-500 text-lg">Страница находится в разработке. Скоро здесь появится вся информация об олимпиаде.</p>

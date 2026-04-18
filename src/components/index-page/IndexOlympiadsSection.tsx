@@ -15,9 +15,18 @@ const IndexOlympiadsSection = () => {
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-gray-800 mb-4">
             Интерактивные олимпиады
           </h2>
-          <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-            Проверьте свои знания в области изобразительного и декоративно-прикладного искусства. Участвуйте онлайн и получайте дипломы.
-          </p>
+          <div className="flex flex-col items-center gap-2 mt-2">
+            {[
+              { icon: "Palette", text: "Проверка знаний в области ИЗО и ДПИ" },
+              { icon: "Monitor", text: "Онлайн-участие" },
+              { icon: "Award", text: "Заслуженные награды" },
+            ].map((item) => (
+              <div key={item.text} className="flex items-center gap-2 text-gray-500 text-lg">
+                <Icon name={item.icon} size={18} className="text-orange-400 flex-shrink-0" />
+                {item.text}
+              </div>
+            ))}
+          </div>
         </div>
 
         <style>{`

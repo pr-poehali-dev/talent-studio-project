@@ -20,49 +20,91 @@ const IndexOlympiadsSection = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <style>{`
+          @keyframes floatUp {
+            0% { transform: translateY(0px) scale(1); opacity: 0.15; }
+            50% { transform: translateY(-18px) scale(1.08); opacity: 0.25; }
+            100% { transform: translateY(0px) scale(1); opacity: 0.15; }
+          }
+          @keyframes shimmer {
+            0% { transform: translateX(-100%) skewX(-15deg); }
+            100% { transform: translateX(300%) skewX(-15deg); }
+          }
+          .olympiad-card-shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+            transform: translateX(-100%) skewX(-15deg);
+            transition: none;
+          }
+          .olympiad-card-shimmer:hover::after {
+            animation: shimmer 0.7s ease forwards;
+          }
+        `}</style>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Карточка ИЗО */}
           <button
             onClick={() => navigate("/olympiad/palette")}
-            className="group relative overflow-hidden rounded-3xl p-8 text-left shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
-            style={{ background: "linear-gradient(135deg, #FBBF9A 0%, #F8A07A 100%)" }}
+            className="olympiad-card-shimmer group relative overflow-hidden rounded-3xl p-8 text-left shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02]"
+            style={{ background: "linear-gradient(135deg, #F97316 0%, #FB923C 40%, #FBBF24 100%)" }}
           >
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-white/5 rounded-full" />
+            {/* Плавающие круги */}
+            {[
+              { w: 120, h: 120, top: "-20%", left: "-8%", delay: "0s", dur: "5s" },
+              { w: 80,  h: 80,  top: "60%",  left: "75%", delay: "1.5s", dur: "6s" },
+              { w: 55,  h: 55,  top: "10%",  left: "80%", delay: "0.8s", dur: "4.5s" },
+              { w: 40,  h: 40,  top: "75%",  left: "15%", delay: "2s",   dur: "7s" },
+            ].map((c, i) => (
+              <div key={i} className="absolute rounded-full bg-white/15 pointer-events-none"
+                style={{ width: c.w, height: c.h, top: c.top, left: c.left, animation: `floatUp ${c.dur} ${c.delay} ease-in-out infinite` }} />
+            ))}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none rounded-3xl" />
 
             <div className="relative z-10">
-              <div className="text-5xl mb-5">🎨</div>
-              <div className="inline-flex items-center gap-1.5 bg-white/40 text-orange-800 text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">
+              <div className="text-6xl mb-4 drop-shadow-md transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 inline-block">🎨</div>
+              <div className="inline-flex items-center gap-1.5 bg-white/25 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest block">
                 ИЗО
               </div>
-              <h3 className="text-xl md:text-2xl font-heading font-bold text-orange-900 leading-snug mb-3">
-                Всероссийская интерактивная олимпиада по ИЗО
+              <p className="text-white/80 text-sm font-medium mb-1">Всероссийская интерактивная олимпиада по ИЗО</p>
+              <h3 className="text-3xl md:text-4xl font-heading font-bold text-white leading-tight mb-5 drop-shadow">
+                «Палитра талантов»
               </h3>
-              <p className="text-orange-800/80 text-base font-semibold mb-6">«Палитра талантов»</p>
-              <div className="flex items-center gap-2 text-orange-800 font-semibold text-sm group-hover:gap-3 transition-all">
+              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white font-bold text-sm px-4 py-2 rounded-full w-fit group-hover:bg-white/35 group-hover:gap-4 transition-all duration-300">
                 Узнать подробнее
                 <Icon name="ArrowRight" size={16} />
               </div>
             </div>
           </button>
 
+          {/* Карточка ДПИ */}
           <button
             onClick={() => navigate("/olympiad/grani")}
-            className="group relative overflow-hidden rounded-3xl p-8 text-left shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
-            style={{ background: "linear-gradient(135deg, #A8D8C8 0%, #7EC8B0 100%)" }}
+            className="olympiad-card-shimmer group relative overflow-hidden rounded-3xl p-8 text-left shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02]"
+            style={{ background: "linear-gradient(135deg, #7C3AED 0%, #8B5CF6 40%, #06B6D4 100%)" }}
           >
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-            <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-white/5 rounded-full" />
+            {[
+              { w: 130, h: 130, top: "-15%", left: "-6%", delay: "0.3s", dur: "6s" },
+              { w: 70,  h: 70,  top: "65%",  left: "78%", delay: "1s",   dur: "5s" },
+              { w: 50,  h: 50,  top: "15%",  left: "82%", delay: "2.2s", dur: "7s" },
+              { w: 35,  h: 35,  top: "80%",  left: "10%", delay: "0.5s", dur: "4.5s" },
+            ].map((c, i) => (
+              <div key={i} className="absolute rounded-full bg-white/15 pointer-events-none"
+                style={{ width: c.w, height: c.h, top: c.top, left: c.left, animation: `floatUp ${c.dur} ${c.delay} ease-in-out infinite` }} />
+            ))}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none rounded-3xl" />
 
             <div className="relative z-10">
-              <div className="text-5xl mb-5">💎</div>
-              <div className="inline-flex items-center gap-1.5 bg-white/40 text-teal-800 text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">
+              <div className="text-6xl mb-4 drop-shadow-md transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 inline-block">💎</div>
+              <div className="inline-flex items-center gap-1.5 bg-white/25 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest block">
                 ДПИ
               </div>
-              <h3 className="text-xl md:text-2xl font-heading font-bold text-teal-900 leading-snug mb-3">
-                Всероссийская интерактивная олимпиада по ДПИ
+              <p className="text-white/80 text-sm font-medium mb-1">Всероссийская интерактивная олимпиада по ДПИ</p>
+              <h3 className="text-3xl md:text-4xl font-heading font-bold text-white leading-tight mb-5 drop-shadow">
+                «Грани мастерства»
               </h3>
-              <p className="text-teal-800/80 text-base font-semibold mb-6">«Грани мастерства»</p>
-              <div className="flex items-center gap-2 text-teal-800 font-semibold text-sm group-hover:gap-3 transition-all">
+              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white font-bold text-sm px-4 py-2 rounded-full w-fit group-hover:bg-white/35 group-hover:gap-4 transition-all duration-300">
                 Узнать подробнее
                 <Icon name="ArrowRight" size={16} />
               </div>

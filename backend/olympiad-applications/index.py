@@ -1,6 +1,7 @@
 import json
 import os
 import psycopg2
+import urllib.request
 
 def ensure_table(cursor):
     cursor.execute("""
@@ -54,7 +55,7 @@ def handler(event: dict, context) -> dict:
             cursor.execute("""
                 SELECT id, full_name, age, study_year, teacher, institution,
                        work_title, email, olympiad_type, status, payment_status,
-                       created_at, updated_at, deleted_at, payment_id, olympiad_status, place
+                       created_at, updated_at, deleted_at, payment_id, olympiad_status, place, result_published
                 FROM olympiad_applications
                 WHERE deleted_at IS NOT NULL AND olympiad_type = %s
                 ORDER BY deleted_at DESC
@@ -63,7 +64,7 @@ def handler(event: dict, context) -> dict:
             cursor.execute("""
                 SELECT id, full_name, age, study_year, teacher, institution,
                        work_title, email, olympiad_type, status, payment_status,
-                       created_at, updated_at, deleted_at, payment_id, olympiad_status, place
+                       created_at, updated_at, deleted_at, payment_id, olympiad_status, place, result_published
                 FROM olympiad_applications
                 WHERE deleted_at IS NULL AND olympiad_type = %s
                 ORDER BY created_at DESC
@@ -97,6 +98,7 @@ def handler(event: dict, context) -> dict:
                 'olympiad_status': row[15] or 'paid',
                 'task_url': task_url,
                 'place': row[16],
+                'result_published': row[17] or False,
             })
 
         cursor.close()
@@ -137,6 +139,57 @@ def handler(event: dict, context) -> dict:
                 SET place = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
             """, (place_value, app_id))
+        elif action == 'publish_result':
+            # Получаем данные заявки
+            cursor.execute("""
+                SELECT full_name, age, teacher, institution, work_title, email, olympiad_type, place
+                FROM olympiad_applications WHERE id = %s
+            """, (app_id,))
+            app_row = cursor.fetchone()
+            if not app_row:
+                cursor.close()
+                conn.close()
+                return {'statusCode': 404, 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}, 'body': json.dumps({'error': 'Application not found'})}
+
+            place_to_result = {
+                'grand_prix': 'grand_prix',
+                '1': 'first_degree',
+                '2': 'second_degree',
+                '3': 'third_degree',
+            }
+            place_val = app_row[7] or ''
+            result_val = place_to_result.get(place_val, 'participant')
+
+            olympiad_names = {
+                'izo': 'Олимпиада по ИЗО «Палитра талантов»',
+                'palette': 'Олимпиада по ИЗО «Палитра талантов»',
+                'dpi': 'Олимпиада по ДПИ «Грани таланта»',
+                'grani': 'Олимпиада по ДПИ «Грани таланта»',
+            }
+            contest_name = olympiad_names.get(app_row[6], 'Олимпиада')
+
+            results_url = 'https://functions.poehali.dev/e1f9698c-ec8a-4b24-89c2-72bb579d7f9b'
+            payload = json.dumps({
+                'full_name': app_row[0],
+                'age': app_row[1],
+                'teacher': app_row[2],
+                'institution': app_row[3],
+                'work_title': app_row[4],
+                'email': app_row[5],
+                'contest_name': contest_name,
+                'result': result_val,
+                'place': None,
+                'gallery_consent': True,
+                'diploma_issued_at': None,
+            }).encode('utf-8')
+            req = urllib.request.Request(results_url, data=payload, headers={'Content-Type': 'application/json'}, method='POST')
+            urllib.request.urlopen(req, timeout=10)
+
+            cursor.execute("""
+                UPDATE olympiad_applications
+                SET result_published = TRUE, updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+            """, (app_id,))
         else:
             cursor.execute("""
                 UPDATE olympiad_applications

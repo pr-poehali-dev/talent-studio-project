@@ -27,7 +27,8 @@ interface OlympiadApplication {
   payment_id: string | null;
   olympiad_status: string;
   task_url: string | null;
-  place: number | null;
+  place: string | null;
+  result_published: boolean;
 }
 
 interface Settings {
@@ -297,7 +298,7 @@ const AdminOlympiadsTab = () => {
     }
   };
 
-  const updatePlace = async (id: number, place: number | null) => {
+  const updatePlace = async (id: number, place: string | null) => {
     try {
       await fetch(OLYMPIAD_APPLICATIONS_URL, {
         method: "PUT",
@@ -307,9 +308,30 @@ const AdminOlympiadsTab = () => {
       setApplications((prev) =>
         prev.map((a) => (a.id === id ? { ...a, place } : a))
       );
-      toast({ title: place ? `Место ${place} присвоено` : "Место снято" });
+      const placeLabels: Record<string, string> = { grand_prix: "Гран-при", "1": "1 место", "2": "2 место", "3": "3 место" };
+      toast({ title: place ? `Присвоено: ${placeLabels[place] ?? place}` : "Место снято" });
     } catch {
       toast({ title: "Ошибка сохранения места", variant: "destructive" });
+    }
+  };
+
+  const publishResult = async (app: OlympiadApplication) => {
+    if (!app.place) {
+      toast({ title: "Сначала укажите место участника", variant: "destructive" });
+      return;
+    }
+    try {
+      await fetch(OLYMPIAD_APPLICATIONS_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: app.id, action: "publish_result" }),
+      });
+      setApplications((prev) =>
+        prev.map((a) => (a.id === app.id ? { ...a, result_published: true } : a))
+      );
+      toast({ title: "Результат опубликован в Итогах!" });
+    } catch {
+      toast({ title: "Ошибка публикации", variant: "destructive" });
     }
   };
 
@@ -839,17 +861,31 @@ const AdminOlympiadsTab = () => {
                       </button>
                       <select
                         value={app.place ?? ""}
-                        onChange={(e) => updatePlace(app.id, e.target.value ? parseInt(e.target.value) : null)}
+                        onChange={(e) => updatePlace(app.id, e.target.value || null)}
                         className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:border-orange-400"
                         title="Место участника"
                       >
                         <option value="">— Место</option>
+                        <option value="grand_prix">🏆 Гран-при</option>
                         <option value="1">🥇 1 место</option>
                         <option value="2">🥈 2 место</option>
                         <option value="3">🥉 3 место</option>
-                        <option value="4">4 место</option>
-                        <option value="5">5 место</option>
                       </select>
+                      <button
+                        onClick={() => publishResult(app)}
+                        disabled={!app.place || app.result_published}
+                        title={app.result_published ? "Уже опубликовано в Итогах" : "Опубликовать результат в Итогах"}
+                        className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                          app.result_published
+                            ? "bg-green-100 text-green-700 cursor-default"
+                            : app.place
+                            ? "bg-purple-50 text-purple-700 hover:bg-purple-100"
+                            : "bg-gray-50 text-gray-300 cursor-not-allowed"
+                        }`}
+                      >
+                        <Icon name={app.result_published ? "CheckCircle" : "Send"} size={13} />
+                        {app.result_published ? "Опубликовано" : "В Итоги"}
+                      </button>
                       <select
                         value={app.status}
                         onChange={(e) => updateStatus(app.id, e.target.value)}

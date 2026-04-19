@@ -108,6 +108,7 @@ def handler(event: dict, context) -> dict:
                     f"{base_url}?type={pending_data.get('olympiad_type', '')}"
                     f"&study_year={pending_data.get('study_year', '')}"
                     f"&full_name={full_name_enc}"
+                    f"&pending_id={pending_id}"
                 )
 
             payment_data = {

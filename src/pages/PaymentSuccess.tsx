@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, PlayCircle, Trophy, Copy, Check, Link, Mail, Star } from 'lucide-react';
+import { CheckCircle, PlayCircle, Trophy, Copy, Check, Link, Mail, Star, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+const OLYMPIAD_TASKS_URL = "https://functions.poehali.dev/c7eb02a5-bcf1-4ece-91de-d49b4c1e8466";
 
 const OLYMPIAD_NAMES: Record<string, string> = {
   palette: 'Палитра талантов',
@@ -27,12 +29,21 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
+  const [polling, setPolling] = useState(false);
+  const [pollAttempts, setPollAttempts] = useState(0);
+  const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const mode = searchParams.get('mode') || '';
   const isContest = mode === 'contest';
 
-  const olympiadType = searchParams.get('type') || '';
-  const studyYearParam = searchParams.get('study_year') || '';
+  const olympiadType =
+    searchParams.get('type') ||
+    localStorage.getItem('olympiad_type') ||
+    '';
+  const studyYearParam =
+    searchParams.get('study_year') ||
+    localStorage.getItem('olympiad_study_year') ||
+    '';
   const fullName = searchParams.get('full_name') || '';
   const contestName = searchParams.get('contest_name') || '';
   const paymentId =
@@ -41,25 +52,75 @@ const PaymentSuccess = () => {
     localStorage.getItem('olympiad_payment_id') ||
     '';
 
+  const taskParams = new URLSearchParams();
+  if (olympiadType) taskParams.set('type', olympiadType);
+  if (studyYearParam) taskParams.set('study_year', studyYearParam);
+  if (paymentId) taskParams.set('payment_id', paymentId);
+  const taskUrl = `/olympiad/tasks?${taskParams.toString()}`;
+
+  const clearOlympiadStorage = () => {
+    localStorage.removeItem('olympiad_payment_id');
+    localStorage.removeItem('olympiad_type');
+    localStorage.removeItem('olympiad_study_year');
+  };
+
+  const checkPaymentReady = async (): Promise<boolean> => {
+    if (!paymentId || !olympiadType) return false;
+    try {
+      const res = await fetch(`${OLYMPIAD_TASKS_URL}?type=${olympiadType}&study_year=${studyYearParam}&payment_id=${paymentId}`);
+      if (res.ok) {
+        const data = await res.json();
+        return Array.isArray(data) && data.length > 0;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    if (isContest || !paymentId || !olympiadType) return;
+
+    let attempts = 0;
+    const maxAttempts = 20;
+    setPolling(true);
+
+    const poll = async () => {
+      attempts++;
+      setPollAttempts(attempts);
+      const ready = await checkPaymentReady();
+      if (ready) {
+        setPolling(false);
+        clearOlympiadStorage();
+        navigate(taskUrl, { replace: true });
+        return;
+      }
+      if (attempts < maxAttempts) {
+        pollRef.current = setTimeout(poll, 2000);
+      } else {
+        setPolling(false);
+      }
+    };
+
+    pollRef.current = setTimeout(poll, 1500);
+    return () => {
+      if (pollRef.current) clearTimeout(pollRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const olympiadName = OLYMPIAD_NAMES[olympiadType] || 'Олимпиада';
   const studyYearLabel = STUDY_YEAR_LABELS[studyYearParam] || (studyYearParam ? `${studyYearParam} год обучения` : '');
 
-  const taskParams = new URLSearchParams();
-  if (olympiadType) taskParams.set('type', olympiadType);
-  if (studyYearParam) taskParams.set('study_year', studyYearParam);
-  if (paymentId) taskParams.set('payment_id', paymentId);
-  const taskUrl = `${window.location.origin}/olympiad/tasks?${taskParams.toString()}`;
-
   const handleStartTasks = () => {
-    window.open(taskUrl, '_blank');
+    clearOlympiadStorage();
+    navigate(taskUrl);
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(taskUrl).then(() => {
+    navigator.clipboard.writeText(window.location.origin + taskUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -146,6 +207,16 @@ const PaymentSuccess = () => {
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Оплата прошла!</h1>
           <p className="text-green-600 font-semibold text-base mb-6">Заявка успешно зарегистрирована</p>
 
+          {polling && (
+            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-5 flex items-center gap-3">
+              <Loader2 className="w-5 h-5 text-orange-500 animate-spin flex-shrink-0" />
+              <div className="text-left">
+                <p className="text-sm font-bold text-orange-700">Подготавливаем задания...</p>
+                <p className="text-xs text-orange-500">Через секунду вы будете автоматически перенаправлены</p>
+              </div>
+            </div>
+          )}
+
           {/* Инфо об олимпиаде */}
           <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5 mb-6 space-y-3 text-left">
             <div className="flex items-center gap-3">
@@ -171,17 +242,22 @@ const PaymentSuccess = () => {
             )}
           </div>
 
-          <p className="text-sm text-gray-500 mb-6">
-            Нажмите кнопку ниже, чтобы перейти к заданиям. Они откроются в новой вкладке.
-          </p>
+          {!polling && (
+            <p className="text-sm text-gray-500 mb-6">
+              Нажмите кнопку ниже, чтобы перейти к заданиям.
+            </p>
+          )}
 
           <Button
             onClick={handleStartTasks}
+            disabled={polling}
             size="lg"
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-2xl py-6 text-base font-bold flex items-center justify-center gap-2 mb-5"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-2xl py-6 text-base font-bold flex items-center justify-center gap-2 mb-5 disabled:opacity-60"
           >
-            <PlayCircle className="w-5 h-5" />
-            Начать выполнение олимпиады
+            {polling
+              ? <><Loader2 className="w-5 h-5 animate-spin" /> Подготовка... ({pollAttempts})</>
+              : <><PlayCircle className="w-5 h-5" /> Начать выполнение олимпиады</>
+            }
           </Button>
 
           {paymentId && (

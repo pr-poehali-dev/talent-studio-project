@@ -37,7 +37,8 @@ def handler(event: dict, context) -> dict:
                     id, full_name, age, teacher, institution,
                     work_title, contest_name, contest_id, result,
                     diploma_issued_at, created_at, updated_at
-                FROM results 
+                FROM results
+                WHERE is_hidden = false
                 ORDER BY created_at DESC
             ''')
             results = cur.fetchall()

@@ -185,13 +185,26 @@ def handler(event: dict, context) -> dict:
                 'diploma_issued_at': diploma_issued_at,
             }).encode('utf-8')
             req = urllib.request.Request(results_url, data=payload, headers={'Content-Type': 'application/json'}, method='POST')
-            urllib.request.urlopen(req, timeout=10)
+            resp = urllib.request.urlopen(req, timeout=10)
+            resp_data = json.loads(resp.read().decode('utf-8'))
+            published_result_id = resp_data.get('id')
 
             cursor.execute("""
                 UPDATE olympiad_applications
-                SET result_published = TRUE, diploma_issued_at = %s, updated_at = CURRENT_TIMESTAMP
+                SET result_published = TRUE, diploma_issued_at = %s, published_result_id = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
-            """, (diploma_issued_at, app_id))
+            """, (diploma_issued_at, published_result_id, app_id))
+        elif action == 'unpublish_result':
+            # Скрываем запись в results
+            cursor.execute("SELECT published_result_id FROM olympiad_applications WHERE id = %s", (app_id,))
+            row = cursor.fetchone()
+            if row and row[0]:
+                cursor.execute("UPDATE results SET is_hidden = TRUE WHERE id = %s", (row[0],))
+            cursor.execute("""
+                UPDATE olympiad_applications
+                SET result_published = FALSE, updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+            """, (app_id,))
         else:
             cursor.execute("""
                 UPDATE olympiad_applications

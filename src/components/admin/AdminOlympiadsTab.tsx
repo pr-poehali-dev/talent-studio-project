@@ -317,6 +317,23 @@ const AdminOlympiadsTab = () => {
     }
   };
 
+  const unpublishResult = async (app: OlympiadApplication) => {
+    if (!confirm("Отменить публикацию результата в Итогах?")) return;
+    try {
+      await fetch(OLYMPIAD_APPLICATIONS_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: app.id, action: "unpublish_result" }),
+      });
+      setApplications((prev) =>
+        prev.map((a) => (a.id === app.id ? { ...a, result_published: false } : a))
+      );
+      toast({ title: "Публикация отменена" });
+    } catch {
+      toast({ title: "Ошибка", variant: "destructive" });
+    }
+  };
+
   const publishResult = async (app: OlympiadApplication) => {
     if (!app.place) {
       toast({ title: "Сначала укажите место участника", variant: "destructive" });
@@ -886,21 +903,30 @@ const AdminOlympiadsTab = () => {
                         title="Дата вручения"
                         className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:border-orange-400 disabled:opacity-50"
                       />
-                      <button
-                        onClick={() => publishResult(app)}
-                        disabled={!app.place || app.result_published}
-                        title={app.result_published ? "Уже опубликовано в Итогах" : "Опубликовать результат в Итогах"}
-                        className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                          app.result_published
-                            ? "bg-green-100 text-green-700 cursor-default"
-                            : app.place
-                            ? "bg-purple-50 text-purple-700 hover:bg-purple-100"
-                            : "bg-gray-50 text-gray-300 cursor-not-allowed"
-                        }`}
-                      >
-                        <Icon name={app.result_published ? "CheckCircle" : "Send"} size={13} />
-                        {app.result_published ? "Опубликовано" : "В Итоги"}
-                      </button>
+                      {app.result_published ? (
+                        <button
+                          onClick={() => unpublishResult(app)}
+                          title="Отменить публикацию в Итогах"
+                          className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all bg-green-100 text-green-700 hover:bg-red-50 hover:text-red-600"
+                        >
+                          <Icon name="CheckCircle" size={13} />
+                          Опубликовано
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => publishResult(app)}
+                          disabled={!app.place}
+                          title="Опубликовать результат в Итогах"
+                          className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                            app.place
+                              ? "bg-purple-50 text-purple-700 hover:bg-purple-100"
+                              : "bg-gray-50 text-gray-300 cursor-not-allowed"
+                          }`}
+                        >
+                          <Icon name="Send" size={13} />
+                          В Итоги
+                        </button>
+                      )}
                       <select
                         value={app.status}
                         onChange={(e) => updateStatus(app.id, e.target.value)}

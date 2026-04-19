@@ -129,9 +129,9 @@ export default function PaletteOlympiad() {
     settings.olympiad_palette_gratitude_url;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-lime-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
       {/* Hero-шапка */}
-      <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #84CC16 0%, #65A30D 40%, #A3E635 100%)" }}>
+      <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #F97316 0%, #EA580C 40%, #FB923C 100%)" }}>
         {[
           { w: 160, h: 160, top: "-10%", left: "-5%", delay: "0s",   dur: "5s" },
           { w: 90,  h: 90,  top: "55%",  left: "78%", delay: "1.5s", dur: "6s" },
@@ -173,57 +173,57 @@ export default function PaletteOlympiad() {
       <div className="container mx-auto px-4 md:px-8 py-10 max-w-4xl">
 
         {/* Описание + цена */}
-        <div className="bg-white rounded-3xl shadow-md p-8 mb-6 border border-lime-100">
+        <div className="bg-white rounded-3xl shadow-md p-8 mb-6 border border-orange-100">
           <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <Icon name="Info" size={20} className="text-lime-500" />
+            <Icon name="Info" size={20} className="text-orange-500" />
             Об олимпиаде
           </h3>
           <p className="text-gray-600 leading-relaxed text-base">
             {settings.olympiad_palette_description}
           </p>
-          <div className="mt-6 flex items-center gap-4 p-4 bg-lime-50 rounded-2xl border border-lime-100">
-            <div className="w-12 h-12 rounded-2xl bg-lime-100 flex items-center justify-center flex-shrink-0">
-              <Icon name="CreditCard" size={22} className="text-lime-600" />
+          <div className="mt-6 flex items-center gap-4 p-4 bg-orange-50 rounded-2xl border border-orange-100">
+            <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center flex-shrink-0">
+              <Icon name="CreditCard" size={22} className="text-orange-600" />
             </div>
             <div>
               <div className="text-sm text-gray-500">Стоимость участия</div>
-              <div className="text-2xl font-bold text-lime-600">{price} ₽</div>
+              <div className="text-2xl font-bold text-orange-600">{price} ₽</div>
             </div>
           </div>
         </div>
 
         {/* Документы */}
         {hasDocuments && (
-          <div className="bg-white rounded-3xl shadow-md p-8 mb-6 border border-lime-100">
+          <div className="bg-white rounded-3xl shadow-md p-8 mb-6 border border-orange-100">
             <h3 className="text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
-              <Icon name="FileText" size={20} className="text-lime-500" />
+              <Icon name="FileText" size={20} className="text-orange-500" />
               Документы
             </h3>
             <div className="flex flex-wrap gap-3">
               {settings.olympiad_palette_rules_url && (
                 <button
                   onClick={() => openDocument(settings.olympiad_palette_rules_url)}
-                  className="flex items-center gap-2 px-5 py-3 bg-lime-50 hover:bg-lime-100 border border-lime-200 rounded-2xl transition-colors text-lime-700 font-medium text-sm"
+                  className="flex items-center gap-2 px-5 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-2xl transition-colors text-orange-700 font-medium text-sm"
                 >
-                  <Icon name="FileText" size={16} className="text-lime-500" />
+                  <Icon name="FileText" size={16} className="text-orange-500" />
                   Положение об олимпиаде
                 </button>
               )}
               {settings.olympiad_palette_diploma_url && (
                 <button
                   onClick={() => openDocument(settings.olympiad_palette_diploma_url)}
-                  className="flex items-center gap-2 px-5 py-3 bg-lime-50 hover:bg-lime-100 border border-lime-200 rounded-2xl transition-colors text-lime-700 font-medium text-sm"
+                  className="flex items-center gap-2 px-5 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-2xl transition-colors text-orange-700 font-medium text-sm"
                 >
-                  <Icon name="Award" size={16} className="text-lime-500" />
+                  <Icon name="Award" size={16} className="text-orange-500" />
                   Образец диплома
                 </button>
               )}
               {settings.olympiad_palette_gratitude_url && (
                 <button
                   onClick={() => openDocument(settings.olympiad_palette_gratitude_url)}
-                  className="flex items-center gap-2 px-5 py-3 bg-lime-50 hover:bg-lime-100 border border-lime-200 rounded-2xl transition-colors text-lime-700 font-medium text-sm"
+                  className="flex items-center gap-2 px-5 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-2xl transition-colors text-orange-700 font-medium text-sm"
                 >
-                  <Icon name="Mail" size={16} className="text-lime-500" />
+                  <Icon name="Mail" size={16} className="text-orange-500" />
                   Образец благодарственного письма
                 </button>
               )}
@@ -232,9 +232,9 @@ export default function PaletteOlympiad() {
         )}
 
         {/* Форма заявки */}
-        <div className="bg-white rounded-3xl shadow-md p-8 border border-lime-100">
+        <div className="bg-white rounded-3xl shadow-md p-8 border border-orange-100">
           <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-            <Icon name="ClipboardList" size={22} className="text-lime-500" />
+            <Icon name="ClipboardList" size={22} className="text-orange-500" />
             Принять участие
           </h3>
 
@@ -242,7 +242,7 @@ export default function PaletteOlympiad() {
             <div className="grid md:grid-cols-2 gap-5">
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  ФИО участника <span className="text-lime-600">*</span>
+                  ФИО участника <span className="text-orange-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -251,13 +251,13 @@ export default function PaletteOlympiad() {
                   onChange={handleChange}
                   required
                   placeholder="Иванова Мария Петровна"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-100 transition"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  Возраст <span className="text-lime-600">*</span>
+                  Возраст <span className="text-orange-600">*</span>
                 </label>
                 <input
                   type="number"
@@ -268,7 +268,7 @@ export default function PaletteOlympiad() {
                   min={5}
                   max={20}
                   placeholder="12"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-100 transition"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition"
                 />
               </div>
 
@@ -279,7 +279,7 @@ export default function PaletteOlympiad() {
                   value={form.studyYear}
                   onChange={handleChange}
                   required
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-100 transition bg-white"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition bg-white"
                 >
                   <option value="">Выберите год обучения</option>
                   {STUDY_YEARS.map((y) => (
@@ -298,7 +298,7 @@ export default function PaletteOlympiad() {
                   value={form.teacher}
                   onChange={handleChange}
                   placeholder="Петрова Анна Владимировна"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-100 transition"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition"
                 />
               </div>
 
@@ -312,13 +312,13 @@ export default function PaletteOlympiad() {
                   value={form.institution}
                   onChange={handleChange}
                   placeholder="МБОУ СОШ №5, Пермь, Россия"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-100 transition"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition"
                 />
               </div>
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  Электронная почта <span className="text-lime-600">*</span>
+                  Электронная почта <span className="text-orange-600">*</span>
                 </label>
                 <input
                   type="email"
@@ -327,7 +327,7 @@ export default function PaletteOlympiad() {
                   onChange={handleChange}
                   required
                   placeholder="example@mail.ru"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-lime-400 focus:ring-2 focus:ring-lime-100 transition"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition"
                 />
               </div>
             </div>
@@ -339,7 +339,7 @@ export default function PaletteOlympiad() {
                 name="terms"
                 checked={form.terms}
                 onChange={handleChange}
-                className="mt-1 w-4 h-4 accent-lime-500 cursor-pointer"
+                className="mt-1 w-4 h-4 accent-orange-500 cursor-pointer"
               />
               <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer leading-relaxed">
                 Я принимаю условия участия в олимпиаде и даю согласие на обработку персональных данных
@@ -349,8 +349,8 @@ export default function PaletteOlympiad() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full flex items-center justify-center gap-2 disabled:opacity-60 text-white font-bold text-lg py-4 rounded-2xl transition-all hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-lime-200"
-              style={{ background: "linear-gradient(135deg, #84CC16 0%, #65A30D 100%)" }}
+              className="w-full flex items-center justify-center gap-2 disabled:opacity-60 text-white font-bold text-lg py-4 rounded-2xl transition-all hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-orange-200"
+              style={{ background: "linear-gradient(135deg, #F97316 0%, #EA580C 100%)" }}
             >
               {submitting ? (
                 <>

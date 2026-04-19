@@ -57,7 +57,7 @@ const IndexOlympiadsSection = () => {
           <button
             onClick={() => navigate("/olympiad/palette")}
             className="olympiad-card-shimmer group relative overflow-hidden rounded-3xl p-8 text-left shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02]"
-            style={{ background: "linear-gradient(135deg, #84CC16 0%, #65A30D 40%, #A3E635 100%)" }}
+            style={{ background: "linear-gradient(135deg, #F97316 0%, #EA580C 40%, #FB923C 100%)" }}
           >
             {/* Плавающие круги */}
             {[

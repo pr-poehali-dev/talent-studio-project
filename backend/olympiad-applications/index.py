@@ -134,6 +134,18 @@ def handler(event: dict, context) -> dict:
                 "UPDATE olympiad_applications SET deleted_at = CURRENT_TIMESTAMP WHERE id = %s",
                 (app_id,)
             )
+        elif action == 'edit':
+            fields = {}
+            for field in ('full_name', 'age', 'study_year', 'work_title', 'email', 'teacher', 'institution'):
+                if field in body:
+                    fields[field] = body[field] if body[field] != '' else None
+            if fields:
+                set_clause = ', '.join(f"{k} = %s" for k in fields)
+                values = list(fields.values()) + [app_id]
+                cursor.execute(
+                    f"UPDATE olympiad_applications SET {set_clause}, updated_at = CURRENT_TIMESTAMP WHERE id = %s",
+                    values
+                )
         elif action == 'restore':
             cursor.execute(
                 "UPDATE olympiad_applications SET deleted_at = NULL WHERE id = %s",

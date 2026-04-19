@@ -141,6 +141,45 @@ const AdminOlympiadsTab = () => {
 
   const [downloadingReport, setDownloadingReport] = useState<number | null>(null);
 
+  // Edit application modal
+  const [editingApp, setEditingApp] = useState<OlympiadApplication | null>(null);
+  const [editForm, setEditForm] = useState<Partial<OlympiadApplication>>({});
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const openEditModal = (app: OlympiadApplication) => {
+    setEditingApp(app);
+    setEditForm({
+      full_name: app.full_name,
+      age: app.age,
+      study_year: app.study_year,
+      work_title: app.work_title,
+      email: app.email,
+      teacher: app.teacher ?? "",
+      institution: app.institution ?? "",
+    });
+  };
+
+  const saveEditApp = async () => {
+    if (!editingApp) return;
+    setSavingEdit(true);
+    try {
+      await fetch(OLYMPIAD_APPLICATIONS_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: editingApp.id, action: "edit", ...editForm }),
+      });
+      setApplications((prev) =>
+        prev.map((a) => a.id === editingApp.id ? { ...a, ...editForm } : a)
+      );
+      toast({ title: "Заявка обновлена" });
+      setEditingApp(null);
+    } catch {
+      toast({ title: "Ошибка сохранения", variant: "destructive" });
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   const downloadReport = async (app: OlympiadApplication) => {
     setDownloadingReport(app.id);
     try {
@@ -936,6 +975,13 @@ const AdminOlympiadsTab = () => {
                         <option value="viewed">Просмотрена</option>
                         <option value="sent">Отправлена</option>
                       </select>
+                      <button
+                        onClick={() => openEditModal(app)}
+                        className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all"
+                        title="Редактировать заявку"
+                      >
+                        <Icon name="Pencil" size={14} />
+                      </button>
                       <button
                         onClick={() => deleteApplication(app.id)}
                         className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
@@ -2210,6 +2256,105 @@ const AdminOlympiadsTab = () => {
           </div>
         );
       })()}
+      {/* ===== Модалка редактирования заявки ===== */}
+      {editingApp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <Icon name="Pencil" size={18} className="text-orange-500" />
+                Редактировать заявку
+              </h3>
+              <button onClick={() => setEditingApp(null)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+                <Icon name="X" size={18} className="text-gray-500" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">ФИО</label>
+                <input
+                  type="text"
+                  value={editForm.full_name ?? ""}
+                  onChange={(e) => setEditForm((p) => ({ ...p, full_name: e.target.value }))}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange-400"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">Возраст</label>
+                  <input
+                    type="number"
+                    value={editForm.age ?? ""}
+                    onChange={(e) => setEditForm((p) => ({ ...p, age: Number(e.target.value) }))}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">Год обучения</label>
+                  <input
+                    type="number"
+                    value={editForm.study_year ?? ""}
+                    onChange={(e) => setEditForm((p) => ({ ...p, study_year: Number(e.target.value) }))}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange-400"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">Название работы</label>
+                <input
+                  type="text"
+                  value={editForm.work_title ?? ""}
+                  onChange={(e) => setEditForm((p) => ({ ...p, work_title: e.target.value }))}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange-400"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={editForm.email ?? ""}
+                  onChange={(e) => setEditForm((p) => ({ ...p, email: e.target.value }))}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange-400"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">Педагог</label>
+                <input
+                  type="text"
+                  value={editForm.teacher ?? ""}
+                  onChange={(e) => setEditForm((p) => ({ ...p, teacher: e.target.value }))}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange-400"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">Учреждение</label>
+                <input
+                  type="text"
+                  value={editForm.institution ?? ""}
+                  onChange={(e) => setEditForm((p) => ({ ...p, institution: e.target.value }))}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange-400"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <button
+                onClick={() => setEditingApp(null)}
+                className="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={saveEditApp}
+                disabled={savingEdit}
+                className="flex items-center gap-2 px-5 py-2 text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 rounded-xl transition-colors disabled:opacity-60"
+              >
+                {savingEdit ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Save" size={14} />}
+                Сохранить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

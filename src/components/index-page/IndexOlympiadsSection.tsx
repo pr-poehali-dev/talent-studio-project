@@ -76,7 +76,7 @@ const IndexOlympiadsSection = () => {
               <div className="inline-flex items-center gap-1.5 bg-white/25 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest block">
                 ИЗО
               </div>
-              <p className="text-white/80 text-sm font-medium mb-1">Всероссийская интерактивная олимпиада по ИЗО</p>
+              <p className="text-white text-sm font-medium mb-1">Всероссийская интерактивная олимпиада по ИЗО</p>
               <h3 className="text-3xl md:text-4xl font-heading font-bold text-white leading-tight mb-5 drop-shadow">
                 «Палитра талантов»
               </h3>
@@ -109,7 +109,7 @@ const IndexOlympiadsSection = () => {
               <div className="inline-flex items-center gap-1.5 bg-white/25 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest block">
                 ДПИ
               </div>
-              <p className="text-white/80 text-sm font-medium mb-1">Всероссийская интерактивная олимпиада по ДПИ</p>
+              <p className="text-white text-sm font-medium mb-1">Всероссийская интерактивная олимпиада по ДПИ</p>
               <h3 className="text-3xl md:text-4xl font-heading font-bold text-white leading-tight mb-5 drop-shadow">
                 «Грани мастерства»
               </h3>

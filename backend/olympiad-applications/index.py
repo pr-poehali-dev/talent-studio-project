@@ -49,7 +49,44 @@ def handler(event: dict, context) -> dict:
     if method == 'GET':
         olympiad_type = params.get('type', 'palette')
         show_deleted = params.get('deleted') == 'true'
+        lookup_email = params.get('email', '').strip().lower()
 
+        if lookup_email:
+            # Публичный поиск по email — возвращаем только task_url без персональных данных
+            type_map = {
+                'izo': ['izo', 'palette'],
+                'palette': ['izo', 'palette'],
+                'dpi': ['dpi', 'grani'],
+                'grani': ['dpi', 'grani'],
+            }
+            types = type_map.get(olympiad_type, [olympiad_type])
+            placeholders = ','.join(['%s'] * len(types))
+            cursor.execute(f"""
+                SELECT olympiad_type, study_year, payment_id, full_name
+                FROM olympiad_applications
+                WHERE LOWER(email) = %s AND payment_status = 'paid'
+                  AND deleted_at IS NULL AND olympiad_type IN ({placeholders})
+                ORDER BY created_at DESC
+                LIMIT 5
+            """, (lookup_email, *types))
+            rows = cursor.fetchall()
+            found = []
+            for row in rows:
+                otype, study_yr, pid, fname = row
+                if pid:
+                    found.append({
+                        'task_url': f"/olympiad/tasks?type={otype}&study_year={study_yr}&payment_id={pid}",
+                        'full_name': fname,
+                        'olympiad_type': otype,
+                        'study_year': study_yr,
+                    })
+            cursor.close()
+            conn.close()
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps(found)
+            }
 
         if show_deleted:
             cursor.execute("""

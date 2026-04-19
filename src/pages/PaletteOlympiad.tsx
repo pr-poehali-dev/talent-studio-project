@@ -7,6 +7,7 @@ import ImageModal from "@/components/index-page/modals/ImageModal";
 
 const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
 const PAYMENT_API_URL = "https://functions.poehali.dev/f40bd7c6-a503-4165-8673-e8091832d07c";
+const APPLICATIONS_API_URL = "https://functions.poehali.dev/64be6370-4826-4077-bfeb-ce5e443733b7";
 
 interface OlympiadSettings {
   olympiad_palette_price: string;
@@ -45,6 +46,31 @@ export default function PaletteOlympiad() {
   });
 
   const [submitting, setSubmitting] = useState(false);
+
+  // Восстановление доступа по email
+  const [recoverEmail, setRecoverEmail] = useState("");
+  const [recovering, setRecovering] = useState(false);
+  const [recoveredLinks, setRecoveredLinks] = useState<{ task_url: string; full_name: string }[] | null>(null);
+
+  const handleRecover = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!recoverEmail.trim()) return;
+    setRecovering(true);
+    setRecoveredLinks(null);
+    try {
+      const res = await fetch(`${APPLICATIONS_API_URL}?type=izo&email=${encodeURIComponent(recoverEmail.trim())}`);
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setRecoveredLinks(data);
+      } else {
+        toast({ title: "Заявка не найдена", description: "Проверьте email или обратитесь в поддержку", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Ошибка", description: "Попробуйте снова", variant: "destructive" });
+    } finally {
+      setRecovering(false);
+    }
+  };
 
   // Модальные окна для документов
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
@@ -235,6 +261,72 @@ export default function PaletteOlympiad() {
             </div>
           </div>
         )}
+
+        {/* Восстановление доступа */}
+        <div className="bg-white rounded-3xl shadow-md p-6 mb-6 border border-amber-100">
+          <button
+            type="button"
+            onClick={() => setRecoveredLinks(prev => prev === null ? [] : null)}
+            className="w-full flex items-center justify-between gap-2 text-left"
+          >
+            <div className="flex items-center gap-2">
+              <Icon name="KeyRound" size={18} className="text-amber-500" />
+              <span className="font-semibold text-gray-700 text-sm">Уже оплатили? Восстановить доступ к олимпиаде</span>
+            </div>
+            <Icon name={recoveredLinks !== null ? "ChevronUp" : "ChevronDown"} size={16} className="text-gray-400 flex-shrink-0" />
+          </button>
+
+          {recoveredLinks !== null && (
+            <div className="mt-4">
+              {recoveredLinks.length === 0 ? (
+                <form onSubmit={handleRecover} className="flex gap-2">
+                  <input
+                    type="email"
+                    value={recoverEmail}
+                    onChange={e => setRecoverEmail(e.target.value)}
+                    placeholder="Введите email, указанный при оплате"
+                    required
+                    className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                  />
+                  <button
+                    type="submit"
+                    disabled={recovering}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl text-sm transition-colors disabled:opacity-60"
+                  >
+                    {recovering ? <Icon name="Loader2" size={15} className="animate-spin" /> : <Icon name="Search" size={15} />}
+                    Найти
+                  </button>
+                </form>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-green-700 font-semibold flex items-center gap-1.5">
+                    <Icon name="CheckCircle" size={15} className="text-green-500" />
+                    Найдено {recoveredLinks.length} заявка(-и)
+                  </p>
+                  {recoveredLinks.map((item, i) => (
+                    <div key={i} className="flex items-center justify-between gap-3 bg-orange-50 border border-orange-100 rounded-xl px-4 py-3">
+                      <span className="text-sm font-medium text-gray-700 truncate">{item.full_name}</span>
+                      <a
+                        href={item.task_url}
+                        className="flex items-center gap-1.5 px-4 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-lg transition-colors whitespace-nowrap"
+                      >
+                        <Icon name="PlayCircle" size={14} />
+                        Перейти
+                      </a>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => { setRecoveredLinks([]); setRecoverEmail(""); }}
+                    className="text-xs text-gray-400 hover:text-gray-600 underline"
+                  >
+                    Искать снова
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Форма заявки */}
         <div className="bg-white rounded-3xl shadow-md p-8 border border-orange-100">

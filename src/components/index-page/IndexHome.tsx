@@ -171,13 +171,13 @@ const IndexHome = ({
         <div className="flex gap-4 justify-center flex-wrap">
           <Button
             size="lg"
-            className="text-lg px-8 py-6 rounded-2xl bg-primary hover:bg-primary/90 shadow-xl"
+            className="text-lg px-8 py-6 rounded-2xl font-bold text-white shadow-xl hover:scale-105 transition-all"
+            style={{ background: 'linear-gradient(135deg, #84CC16 0%, #65A30D 100%)' }}
             onClick={() => setActiveSection("contests")}
           >Участвовать в конкурсах</Button>
           <Button
             size="lg"
-            className="text-lg px-8 py-6 rounded-2xl font-bold text-white shadow-lg hover:scale-105 transition-all"
-            style={{ background: 'linear-gradient(135deg, #84CC16 0%, #65A30D 100%)' }}
+            className="text-lg px-8 py-6 rounded-2xl bg-primary hover:bg-primary/90 shadow-lg hover:scale-105 transition-all"
             onClick={() => setActiveSection("olympiads")}
           >
             <Icon name="GraduationCap" className="mr-2" />

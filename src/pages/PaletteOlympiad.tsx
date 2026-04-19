@@ -263,69 +263,72 @@ export default function PaletteOlympiad() {
         )}
 
         {/* Восстановление доступа */}
-        <div className="bg-white rounded-3xl shadow-md p-6 mb-6 border border-amber-100">
-          <button
-            type="button"
-            onClick={() => setRecoveredLinks(prev => prev === null ? [] : null)}
-            className="w-full flex items-center justify-between gap-2 text-left"
-          >
-            <div className="flex items-center gap-2">
-              <Icon name="KeyRound" size={18} className="text-amber-500" />
-              <span className="font-semibold text-gray-700 text-sm">Уже оплатили? Восстановить доступ к олимпиаде</span>
+        <div className="rounded-3xl shadow-md mb-6 border-2 border-amber-300 overflow-hidden">
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-5">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-11 h-11 bg-amber-400 rounded-2xl flex items-center justify-center shadow-sm">
+                <Icon name="KeyRound" size={22} className="text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-bold text-gray-800 mb-1">Уже оплатили участие?</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Если вы оплатили, но случайно закрыли окно с заданиями — введите email, который указывали при регистрации, и мы найдём ваши задания.
+                </p>
+              </div>
             </div>
-            <Icon name={recoveredLinks !== null ? "ChevronUp" : "ChevronDown"} size={16} className="text-gray-400 flex-shrink-0" />
-          </button>
 
-          {recoveredLinks !== null && (
-            <div className="mt-4">
-              {recoveredLinks.length === 0 ? (
+            <div className="mt-4 bg-white/70 rounded-2xl px-4 py-3 border border-amber-200">
+              {recoveredLinks === null || recoveredLinks.length === 0 ? (
                 <form onSubmit={handleRecover} className="flex gap-2">
                   <input
                     type="email"
                     value={recoverEmail}
                     onChange={e => setRecoverEmail(e.target.value)}
-                    placeholder="Введите email, указанный при оплате"
+                    placeholder="Ваш email, указанный при оплате"
                     required
-                    className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                    className="flex-1 border border-amber-200 rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100"
                   />
                   <button
                     type="submit"
                     disabled={recovering}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl text-sm transition-colors disabled:opacity-60"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-sm transition-colors disabled:opacity-60 whitespace-nowrap shadow-sm"
                   >
                     {recovering ? <Icon name="Loader2" size={15} className="animate-spin" /> : <Icon name="Search" size={15} />}
-                    Найти
+                    Найти задания
                   </button>
                 </form>
               ) : (
                 <div className="space-y-3">
                   <p className="text-sm text-green-700 font-semibold flex items-center gap-1.5">
                     <Icon name="CheckCircle" size={15} className="text-green-500" />
-                    Найдено {recoveredLinks.length} заявка(-и)
+                    Найдено участников: {recoveredLinks.length}
                   </p>
                   {recoveredLinks.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between gap-3 bg-orange-50 border border-orange-100 rounded-xl px-4 py-3">
-                      <span className="text-sm font-medium text-gray-700 truncate">{item.full_name}</span>
+                    <div key={i} className="flex items-center justify-between gap-3 bg-white border border-orange-100 rounded-xl px-4 py-3 shadow-sm">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Icon name="User" size={14} className="text-gray-400 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-800 truncate">{item.full_name}</span>
+                      </div>
                       <a
                         href={item.task_url}
-                        className="flex items-center gap-1.5 px-4 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-lg transition-colors whitespace-nowrap"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-lg transition-colors whitespace-nowrap shadow-sm"
                       >
                         <Icon name="PlayCircle" size={14} />
-                        Перейти
+                        Перейти к заданиям
                       </a>
                     </div>
                   ))}
                   <button
                     type="button"
-                    onClick={() => { setRecoveredLinks([]); setRecoverEmail(""); }}
+                    onClick={() => { setRecoveredLinks(null); setRecoverEmail(""); }}
                     className="text-xs text-gray-400 hover:text-gray-600 underline"
                   >
-                    Искать снова
+                    Искать по другому email
                   </button>
                 </div>
               )}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Форма заявки */}

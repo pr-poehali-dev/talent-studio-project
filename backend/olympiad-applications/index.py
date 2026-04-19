@@ -55,7 +55,7 @@ def handler(event: dict, context) -> dict:
             cursor.execute("""
                 SELECT id, full_name, age, study_year, teacher, institution,
                        work_title, email, olympiad_type, status, payment_status,
-                       created_at, updated_at, deleted_at, payment_id, olympiad_status, place, result_published
+                       created_at, updated_at, deleted_at, payment_id, olympiad_status, place, result_published, diploma_issued_at
                 FROM olympiad_applications
                 WHERE deleted_at IS NOT NULL AND olympiad_type = %s
                 ORDER BY deleted_at DESC
@@ -64,7 +64,7 @@ def handler(event: dict, context) -> dict:
             cursor.execute("""
                 SELECT id, full_name, age, study_year, teacher, institution,
                        work_title, email, olympiad_type, status, payment_status,
-                       created_at, updated_at, deleted_at, payment_id, olympiad_status, place, result_published
+                       created_at, updated_at, deleted_at, payment_id, olympiad_status, place, result_published, diploma_issued_at
                 FROM olympiad_applications
                 WHERE deleted_at IS NULL AND olympiad_type = %s
                 ORDER BY created_at DESC
@@ -99,6 +99,7 @@ def handler(event: dict, context) -> dict:
                 'task_url': task_url,
                 'place': row[16],
                 'result_published': row[17] or False,
+                'diploma_issued_at': row[18].isoformat() if row[18] else None,
             })
 
         cursor.close()
@@ -140,6 +141,7 @@ def handler(event: dict, context) -> dict:
                 WHERE id = %s
             """, (place_value, app_id))
         elif action == 'publish_result':
+            diploma_issued_at = body.get('diploma_issued_at')
             # Получаем данные заявки
             cursor.execute("""
                 SELECT full_name, age, teacher, institution, work_title, email, olympiad_type, place
@@ -180,16 +182,16 @@ def handler(event: dict, context) -> dict:
                 'result': result_val,
                 'place': None,
                 'gallery_consent': True,
-                'diploma_issued_at': None,
+                'diploma_issued_at': diploma_issued_at,
             }).encode('utf-8')
             req = urllib.request.Request(results_url, data=payload, headers={'Content-Type': 'application/json'}, method='POST')
             urllib.request.urlopen(req, timeout=10)
 
             cursor.execute("""
                 UPDATE olympiad_applications
-                SET result_published = TRUE, updated_at = CURRENT_TIMESTAMP
+                SET result_published = TRUE, diploma_issued_at = %s, updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
-            """, (app_id,))
+            """, (diploma_issued_at, app_id))
         else:
             cursor.execute("""
                 UPDATE olympiad_applications

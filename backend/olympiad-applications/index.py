@@ -54,7 +54,7 @@ def handler(event: dict, context) -> dict:
             cursor.execute("""
                 SELECT id, full_name, age, study_year, teacher, institution,
                        work_title, email, olympiad_type, status, payment_status,
-                       created_at, updated_at, deleted_at, payment_id, olympiad_status
+                       created_at, updated_at, deleted_at, payment_id, olympiad_status, place
                 FROM olympiad_applications
                 WHERE deleted_at IS NOT NULL AND olympiad_type = %s
                 ORDER BY deleted_at DESC
@@ -63,7 +63,7 @@ def handler(event: dict, context) -> dict:
             cursor.execute("""
                 SELECT id, full_name, age, study_year, teacher, institution,
                        work_title, email, olympiad_type, status, payment_status,
-                       created_at, updated_at, deleted_at, payment_id, olympiad_status
+                       created_at, updated_at, deleted_at, payment_id, olympiad_status, place
                 FROM olympiad_applications
                 WHERE deleted_at IS NULL AND olympiad_type = %s
                 ORDER BY created_at DESC
@@ -96,6 +96,7 @@ def handler(event: dict, context) -> dict:
                 'payment_id': pid,
                 'olympiad_status': row[15] or 'paid',
                 'task_url': task_url,
+                'place': row[16],
             })
 
         cursor.close()
@@ -129,6 +130,13 @@ def handler(event: dict, context) -> dict:
                 "UPDATE olympiad_applications SET deleted_at = NULL WHERE id = %s",
                 (app_id,)
             )
+        elif action == 'set_place':
+            place_value = body.get('place')
+            cursor.execute("""
+                UPDATE olympiad_applications
+                SET place = %s, updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+            """, (place_value, app_id))
         else:
             cursor.execute("""
                 UPDATE olympiad_applications

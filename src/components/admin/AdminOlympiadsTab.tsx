@@ -27,6 +27,7 @@ interface OlympiadApplication {
   payment_id: string | null;
   olympiad_status: string;
   task_url: string | null;
+  place: number | null;
 }
 
 interface Settings {
@@ -293,6 +294,22 @@ const AdminOlympiadsTab = () => {
       );
     } catch {
       toast({ title: "Ошибка обновления статуса", variant: "destructive" });
+    }
+  };
+
+  const updatePlace = async (id: number, place: number | null) => {
+    try {
+      await fetch(OLYMPIAD_APPLICATIONS_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action: "set_place", place }),
+      });
+      setApplications((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, place } : a))
+      );
+      toast({ title: place ? `Место ${place} присвоено` : "Место снято" });
+    } catch {
+      toast({ title: "Ошибка сохранения места", variant: "destructive" });
     }
   };
 
@@ -820,6 +837,19 @@ const AdminOlympiadsTab = () => {
                         }
                         Отчёт PDF
                       </button>
+                      <select
+                        value={app.place ?? ""}
+                        onChange={(e) => updatePlace(app.id, e.target.value ? parseInt(e.target.value) : null)}
+                        className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white text-gray-700 focus:outline-none focus:border-orange-400"
+                        title="Место участника"
+                      >
+                        <option value="">— Место</option>
+                        <option value="1">🥇 1 место</option>
+                        <option value="2">🥈 2 место</option>
+                        <option value="3">🥉 3 место</option>
+                        <option value="4">4 место</option>
+                        <option value="5">5 место</option>
+                      </select>
                       <select
                         value={app.status}
                         onChange={(e) => updateStatus(app.id, e.target.value)}

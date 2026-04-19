@@ -125,6 +125,12 @@ def handler(event: dict, context) -> dict:
         action = body.get('action')
         if action == 'delete':
             cursor.execute(
+                "SELECT published_result_id FROM olympiad_applications WHERE id = %s", (app_id,)
+            )
+            del_row = cursor.fetchone()
+            if del_row and del_row[0]:
+                cursor.execute("UPDATE results SET is_hidden = TRUE WHERE id = %s", (del_row[0],))
+            cursor.execute(
                 "UPDATE olympiad_applications SET deleted_at = CURRENT_TIMESTAMP WHERE id = %s",
                 (app_id,)
             )

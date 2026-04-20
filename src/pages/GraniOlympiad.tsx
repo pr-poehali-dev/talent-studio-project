@@ -40,7 +40,6 @@ export default function GraniOlympiad() {
     studyYear: "",
     teacher: "",
     institution: "",
-    workTitle: "",
     email: "",
     terms: false,
   });
@@ -128,7 +127,7 @@ export default function GraniOlympiad() {
             study_year: parseInt(form.studyYear),
             teacher: form.teacher || null,
             institution: form.institution || null,
-            work_title: form.workTitle,
+            work_title: "",
             email: form.email,
             olympiad_type: "dpi",
           },
@@ -391,22 +390,6 @@ export default function GraniOlympiad() {
                   ))}
                 </select>
               </div>
-            </div>
-
-            {/* Название работы */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Название творческой работы <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                name="workTitle"
-                value={form.workTitle}
-                onChange={handleChange}
-                required
-                placeholder="Например: «Осенний узор»"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 text-sm"
-              />
             </div>
 
             {/* Педагог */}

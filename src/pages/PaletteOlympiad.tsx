@@ -40,7 +40,6 @@ export default function PaletteOlympiad() {
     studyYear: "",
     teacher: "",
     institution: "",
-    workTitle: "",
     email: "",
     terms: false,
   });
@@ -130,7 +129,7 @@ export default function PaletteOlympiad() {
             study_year: parseInt(form.studyYear),
             teacher: form.teacher || null,
             institution: form.institution || null,
-            work_title: form.workTitle,
+            work_title: "",
             email: form.email,
             olympiad_type: 'izo',
           },

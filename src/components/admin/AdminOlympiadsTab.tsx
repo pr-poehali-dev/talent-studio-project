@@ -38,6 +38,11 @@ interface Settings {
   olympiad_palette_rules_url: string;
   olympiad_palette_diploma_url: string;
   olympiad_palette_gratitude_url: string;
+  olympiad_grani_price: string;
+  olympiad_grani_description: string;
+  olympiad_grani_rules_url: string;
+  olympiad_grani_diploma_url: string;
+  olympiad_grani_gratitude_url: string;
 }
 
 const STUDY_YEAR_OPTIONS = [
@@ -133,6 +138,11 @@ const AdminOlympiadsTab = () => {
     olympiad_palette_rules_url: "",
     olympiad_palette_diploma_url: "",
     olympiad_palette_gratitude_url: "",
+    olympiad_grani_price: "",
+    olympiad_grani_description: "",
+    olympiad_grani_rules_url: "",
+    olympiad_grani_diploma_url: "",
+    olympiad_grani_gratitude_url: "",
   });
   const [savingSettings, setSavingSettings] = useState(false);
   const [uploadingRules, setUploadingRules] = useState(false);
@@ -423,13 +433,14 @@ const AdminOlympiadsTab = () => {
 
   const handleSaveSettings = async () => {
     setSavingSettings(true);
+    const prefix = olympiadSection === "izo" ? "olympiad_palette" : "olympiad_grani";
     try {
       await Promise.all([
-        saveSetting("olympiad_palette_price", settings.olympiad_palette_price),
-        saveSetting("olympiad_palette_description", settings.olympiad_palette_description),
-        saveSetting("olympiad_palette_rules_url", settings.olympiad_palette_rules_url),
-        saveSetting("olympiad_palette_diploma_url", settings.olympiad_palette_diploma_url),
-        saveSetting("olympiad_palette_gratitude_url", settings.olympiad_palette_gratitude_url),
+        saveSetting(`${prefix}_price`, settings[`${prefix}_price` as keyof Settings]),
+        saveSetting(`${prefix}_description`, settings[`${prefix}_description` as keyof Settings]),
+        saveSetting(`${prefix}_rules_url`, settings[`${prefix}_rules_url` as keyof Settings]),
+        saveSetting(`${prefix}_diploma_url`, settings[`${prefix}_diploma_url` as keyof Settings]),
+        saveSetting(`${prefix}_gratitude_url`, settings[`${prefix}_gratitude_url` as keyof Settings]),
       ]);
       toast({ title: "Настройки сохранены" });
     } catch {
@@ -1993,103 +2004,193 @@ const AdminOlympiadsTab = () => {
       {/* Настройки */}
       {subTab === "settings" && (
         <div className="max-w-2xl space-y-6">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Стоимость участия (₽)
-            </label>
-            <input
-              type="number"
-              value={settings.olympiad_palette_price}
-              onChange={(e) => setSettings((p) => ({ ...p, olympiad_palette_price: e.target.value }))}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400"
-              placeholder="300"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Описание олимпиады
-            </label>
-            <textarea
-              value={settings.olympiad_palette_description}
-              onChange={(e) => setSettings((p) => ({ ...p, olympiad_palette_description: e.target.value }))}
-              rows={4}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400 resize-none"
-              placeholder="Описание олимпиады..."
-            />
-          </div>
-
-          {/* Положение */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Ссылка на положение
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={settings.olympiad_palette_rules_url}
-                onChange={(e) => setSettings((p) => ({ ...p, olympiad_palette_rules_url: e.target.value }))}
-                className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400 text-sm"
-                placeholder="https://..."
-              />
-              <label className="flex items-center gap-1.5 px-4 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl cursor-pointer text-orange-700 text-sm font-medium transition whitespace-nowrap">
-                {uploadingRules ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
-                Загрузить
-                <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) uploadFile(f, "olympiad_palette_rules_url", setUploadingRules);
-                }} />
-              </label>
-            </div>
-          </div>
-
-          {/* Образец диплома */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Ссылка на образец диплома
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={settings.olympiad_palette_diploma_url}
-                onChange={(e) => setSettings((p) => ({ ...p, olympiad_palette_diploma_url: e.target.value }))}
-                className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400 text-sm"
-                placeholder="https://..."
-              />
-              <label className="flex items-center gap-1.5 px-4 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl cursor-pointer text-orange-700 text-sm font-medium transition whitespace-nowrap">
-                {uploadingDiploma ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
-                Загрузить
-                <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) uploadFile(f, "olympiad_palette_diploma_url", setUploadingDiploma);
-                }} />
-              </label>
-            </div>
-          </div>
-
-          {/* Благодарственное письмо */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Ссылка на образец благодарственного письма
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={settings.olympiad_palette_gratitude_url}
-                onChange={(e) => setSettings((p) => ({ ...p, olympiad_palette_gratitude_url: e.target.value }))}
-                className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400 text-sm"
-                placeholder="https://..."
-              />
-              <label className="flex items-center gap-1.5 px-4 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl cursor-pointer text-orange-700 text-sm font-medium transition whitespace-nowrap">
-                {uploadingGratitude ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
-                Загрузить
-                <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) uploadFile(f, "olympiad_palette_gratitude_url", setUploadingGratitude);
-                }} />
-              </label>
-            </div>
-          </div>
+          {olympiadSection === "izo" ? (
+            <>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Стоимость участия (₽) — ИЗО
+                </label>
+                <input
+                  type="number"
+                  value={settings.olympiad_palette_price}
+                  onChange={(e) => setSettings((p) => ({ ...p, olympiad_palette_price: e.target.value }))}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400"
+                  placeholder="300"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Описание олимпиады
+                </label>
+                <textarea
+                  value={settings.olympiad_palette_description}
+                  onChange={(e) => setSettings((p) => ({ ...p, olympiad_palette_description: e.target.value }))}
+                  rows={4}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400 resize-none"
+                  placeholder="Описание олимпиады..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Ссылка на положение
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={settings.olympiad_palette_rules_url}
+                    onChange={(e) => setSettings((p) => ({ ...p, olympiad_palette_rules_url: e.target.value }))}
+                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400 text-sm"
+                    placeholder="https://..."
+                  />
+                  <label className="flex items-center gap-1.5 px-4 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl cursor-pointer text-orange-700 text-sm font-medium transition whitespace-nowrap">
+                    {uploadingRules ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
+                    Загрузить
+                    <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) uploadFile(f, "olympiad_palette_rules_url", setUploadingRules);
+                    }} />
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Ссылка на образец диплома
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={settings.olympiad_palette_diploma_url}
+                    onChange={(e) => setSettings((p) => ({ ...p, olympiad_palette_diploma_url: e.target.value }))}
+                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400 text-sm"
+                    placeholder="https://..."
+                  />
+                  <label className="flex items-center gap-1.5 px-4 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl cursor-pointer text-orange-700 text-sm font-medium transition whitespace-nowrap">
+                    {uploadingDiploma ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
+                    Загрузить
+                    <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) uploadFile(f, "olympiad_palette_diploma_url", setUploadingDiploma);
+                    }} />
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Ссылка на образец благодарственного письма
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={settings.olympiad_palette_gratitude_url}
+                    onChange={(e) => setSettings((p) => ({ ...p, olympiad_palette_gratitude_url: e.target.value }))}
+                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400 text-sm"
+                    placeholder="https://..."
+                  />
+                  <label className="flex items-center gap-1.5 px-4 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl cursor-pointer text-orange-700 text-sm font-medium transition whitespace-nowrap">
+                    {uploadingGratitude ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
+                    Загрузить
+                    <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) uploadFile(f, "olympiad_palette_gratitude_url", setUploadingGratitude);
+                    }} />
+                  </label>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Стоимость участия (₽) — ДПИ
+                </label>
+                <input
+                  type="number"
+                  value={settings.olympiad_grani_price}
+                  onChange={(e) => setSettings((p) => ({ ...p, olympiad_grani_price: e.target.value }))}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400"
+                  placeholder="300"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Описание олимпиады
+                </label>
+                <textarea
+                  value={settings.olympiad_grani_description}
+                  onChange={(e) => setSettings((p) => ({ ...p, olympiad_grani_description: e.target.value }))}
+                  rows={4}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400 resize-none"
+                  placeholder="Описание олимпиады..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Ссылка на положение
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={settings.olympiad_grani_rules_url}
+                    onChange={(e) => setSettings((p) => ({ ...p, olympiad_grani_rules_url: e.target.value }))}
+                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400 text-sm"
+                    placeholder="https://..."
+                  />
+                  <label className="flex items-center gap-1.5 px-4 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl cursor-pointer text-orange-700 text-sm font-medium transition whitespace-nowrap">
+                    {uploadingRules ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
+                    Загрузить
+                    <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) uploadFile(f, "olympiad_grani_rules_url", setUploadingRules);
+                    }} />
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Ссылка на образец диплома
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={settings.olympiad_grani_diploma_url}
+                    onChange={(e) => setSettings((p) => ({ ...p, olympiad_grani_diploma_url: e.target.value }))}
+                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400 text-sm"
+                    placeholder="https://..."
+                  />
+                  <label className="flex items-center gap-1.5 px-4 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl cursor-pointer text-orange-700 text-sm font-medium transition whitespace-nowrap">
+                    {uploadingDiploma ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
+                    Загрузить
+                    <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) uploadFile(f, "olympiad_grani_diploma_url", setUploadingDiploma);
+                    }} />
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Ссылка на образец благодарственного письма
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={settings.olympiad_grani_gratitude_url}
+                    onChange={(e) => setSettings((p) => ({ ...p, olympiad_grani_gratitude_url: e.target.value }))}
+                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-400 text-sm"
+                    placeholder="https://..."
+                  />
+                  <label className="flex items-center gap-1.5 px-4 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl cursor-pointer text-orange-700 text-sm font-medium transition whitespace-nowrap">
+                    {uploadingGratitude ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
+                    Загрузить
+                    <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) uploadFile(f, "olympiad_grani_gratitude_url", setUploadingGratitude);
+                    }} />
+                  </label>
+                </div>
+              </div>
+            </>
+          )}
 
           <button
             onClick={handleSaveSettings}

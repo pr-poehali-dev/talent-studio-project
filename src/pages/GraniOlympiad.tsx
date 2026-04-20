@@ -480,8 +480,8 @@ export default function GraniOlympiad() {
         </div>
       </div>
 
-      <PdfModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} pdfUrl={pdfUrl || ""} />
-      <ImageModal isOpen={isImageModalOpen} onClose={() => setIsImageModalOpen(false)} imageUrl={imagePreview || ""} />
+      <PdfModal isPdfModalOpen={isPdfModalOpen} setIsPdfModalOpen={setIsPdfModalOpen} pdfUrl={pdfUrl} />
+      <ImageModal isImageModalOpen={isImageModalOpen} setIsImageModalOpen={setIsImageModalOpen} imagePreview={imagePreview} />
     </div>
   );
 }

@@ -156,6 +156,23 @@ export default function GraniOlympiad() {
     settings.olympiad_grani_diploma_url ||
     settings.olympiad_grani_gratitude_url;
 
+  // --- ЗАГЛУШКА (убрать когда нужно) ---
+  const SHOW_STUB = true;
+  if (SHOW_STUB) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white flex flex-col items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <div className="text-6xl mb-6">🏆</div>
+          <h1 className="text-3xl font-bold text-violet-700 mb-4">Грани мастерства</h1>
+          <p className="text-gray-600 text-lg leading-relaxed">
+            Приём заявок скоро откроется.<br />Следите за обновлениями!
+          </p>
+        </div>
+      </div>
+    );
+  }
+  // --- КОНЕЦ ЗАГЛУШКИ ---
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white">
       {/* Hero-шапка */}

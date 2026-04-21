@@ -224,7 +224,7 @@ const ApplicationModal = ({
 
               const applicationData = {
                 full_name: formData.get('fullName'),
-                age: parseInt(formData.get('age') as string),
+                age: formData.get('age'),
                 teacher: formData.get('teacher') || null,
                 institution: formData.get('institution') || null,
                 work_title: formData.get('workTitle'),
@@ -280,7 +280,7 @@ const ApplicationModal = ({
 
           <div className="space-y-2">
             <Label htmlFor="age" className="text-base font-semibold">Возраст, год обучения *</Label>
-            <Input id="age" name="age" type="number" placeholder="Например: 12 лет, 5-й класс" required className="rounded-xl border-2 focus:border-primary" />
+            <Input id="age" name="age" type="text" placeholder="Например: 12 лет, 5-й класс" required className="rounded-xl border-2 focus:border-primary" />
           </div>
 
           <div className="space-y-2">

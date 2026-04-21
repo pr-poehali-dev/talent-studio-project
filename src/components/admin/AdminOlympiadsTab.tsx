@@ -13,8 +13,8 @@ const REPORT_API_URL = "https://functions.poehali.dev/05b86dce-b0ed-493e-9260-00
 interface OlympiadApplication {
   id: number;
   full_name: string;
-  age: number;
-  study_year: number;
+  age: string;
+  study_year: string;
   teacher: string | null;
   institution: string | null;
   work_title: string;
@@ -2384,18 +2384,18 @@ const AdminOlympiadsTab = () => {
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 mb-1">Возраст</label>
                   <input
-                    type="number"
+                    type="text"
                     value={editForm.age ?? ""}
-                    onChange={(e) => setEditForm((p) => ({ ...p, age: Number(e.target.value) }))}
+                    onChange={(e) => setEditForm((p) => ({ ...p, age: e.target.value }))}
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange-400"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 mb-1">Год обучения</label>
                   <input
-                    type="number"
+                    type="text"
                     value={editForm.study_year ?? ""}
-                    onChange={(e) => setEditForm((p) => ({ ...p, study_year: Number(e.target.value) }))}
+                    onChange={(e) => setEditForm((p) => ({ ...p, study_year: e.target.value }))}
                     className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-orange-400"
                   />
                 </div>

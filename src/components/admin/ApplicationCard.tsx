@@ -77,7 +77,7 @@ const ApplicationCard = (props: ApplicationCardProps) => {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Возраст</p>
-                <p className="font-semibold text-sm">{app.age} лет</p>
+                <p className="font-semibold text-sm">{app.age}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Название работы</p>
@@ -217,7 +217,7 @@ const ApplicationCard = (props: ApplicationCardProps) => {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Возраст</p>
-                <p className="font-semibold text-sm">{app.age} лет</p>
+                <p className="font-semibold text-sm">{app.age}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Название работы</p>
@@ -286,7 +286,7 @@ const ApplicationCard = (props: ApplicationCardProps) => {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Возраст</p>
-              <p className="font-semibold text-sm">{app.age} лет</p>
+              <p className="font-semibold text-sm">{app.age}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Название работы</p>

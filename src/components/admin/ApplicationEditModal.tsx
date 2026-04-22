@@ -202,7 +202,7 @@ const ApplicationEditModal = ({
                 const updateData: Record<string, unknown> = {
                   id: editingApplication.id,
                   full_name: formData.get('fullName') as string,
-                  age: parseInt(formData.get('age') as string),
+                  age: formData.get('age') as string,
                   teacher: formData.get('teacher') as string || null,
                   institution: formData.get('institution') as string || null,
                   work_title: formData.get('workTitle') as string,
@@ -237,7 +237,7 @@ const ApplicationEditModal = ({
 
             <div className="space-y-2">
               <Label htmlFor="age" className="text-base font-semibold">Возраст *</Label>
-              <Input id="age" name="age" type="number" defaultValue={editingApplication.age} required className="rounded-xl border-2 focus:border-primary" />
+              <Input id="age" name="age" type="text" defaultValue={editingApplication.age} required className="rounded-xl border-2 focus:border-primary" />
             </div>
 
             <div className="space-y-2">

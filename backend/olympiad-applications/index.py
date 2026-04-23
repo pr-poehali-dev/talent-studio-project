@@ -172,10 +172,14 @@ def handler(event: dict, context) -> dict:
                 (app_id,)
             )
         elif action == 'edit':
+            not_null_fields = {'full_name', 'age', 'study_year', 'work_title', 'email'}
             fields = {}
             for field in ('full_name', 'age', 'study_year', 'work_title', 'email', 'teacher', 'institution'):
                 if field in body:
-                    fields[field] = body[field] if body[field] != '' else None
+                    val = body[field]
+                    if val == '' and field in not_null_fields:
+                        continue
+                    fields[field] = val if val != '' else None
             if fields:
                 set_clause = ', '.join(f"{k} = %s" for k in fields)
                 values = list(fields.values()) + [app_id]

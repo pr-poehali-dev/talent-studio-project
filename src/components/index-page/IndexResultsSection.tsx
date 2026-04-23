@@ -130,7 +130,7 @@ const IndexResultsSection = ({
             <div className="hidden md:grid gap-4 p-4 bg-gray-50 border-b font-semibold text-sm" style={{gridTemplateColumns: '120px 2fr 60px 2fr 1.5fr 1.5fr 2.5fr 140px'}}>
               <div>Дата вручения</div>
               <div>ФИО участника</div>
-              <div>Возраст</div>
+              <div>Возраст/Год обучения</div>
               <div>Конкурс / олимпиада</div>
               <div>Результат</div>
               <div>Педагог</div>
@@ -152,7 +152,7 @@ const IndexResultsSection = ({
                     {result.full_name}
                   </div>
                   <div className="text-sm">
-                    <span className="md:hidden font-semibold text-muted-foreground">Возраст: </span>
+                    <span className="md:hidden font-semibold text-muted-foreground">Возраст/Год обучения: </span>
                     {result.age || '—'}
                   </div>
                   <div className="text-sm">

@@ -294,7 +294,7 @@ const ApplicationModal = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="workTitle" className="text-base font-semibold">Название работы, техника выполнения *</Label>
+            <Label htmlFor="workTitle" className="text-base font-semibold">Название работы, техника исполнения *</Label>
             <Input id="workTitle" name="workTitle" placeholder="Например: Осенний пейзаж, акварель" required className="rounded-xl border-2 focus:border-primary" />
           </div>
 

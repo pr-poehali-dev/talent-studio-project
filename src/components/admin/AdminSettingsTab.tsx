@@ -50,29 +50,43 @@ export default function AdminSettingsTab({
                 if (!file) return;
                 setUploadingAppForm(true);
                 try {
-                  const reader = new FileReader();
-                  reader.onload = async () => {
-                    const base64 = reader.result?.toString().split(',')[1];
+                  const CHUNK_SIZE = 512 * 1024;
+                  const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+                  const uploadId = crypto.randomUUID();
+                  let finalUrl = '';
+
+                  for (let i = 0; i < totalChunks; i++) {
+                    const chunk = file.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+                    const base64 = await new Promise<string>((resolve) => {
+                      const reader = new FileReader();
+                      reader.onload = () => resolve(reader.result?.toString().split(',')[1] || '');
+                      reader.readAsDataURL(chunk);
+                    });
                     const response = await fetch(UPLOAD_URL, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
-                        file: base64,
+                        chunk: base64,
+                        chunkIndex: i,
+                        totalChunks,
+                        uploadId,
                         fileName: file.name,
                         fileType: file.type || 'application/octet-stream',
                         folder: 'application-forms'
                       })
                     });
                     const data = await response.json();
-                    setApplicationFormUrl(data.url);
-                    await fetch(SETTINGS_API_URL, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ key: 'application_form_url', value: data.url })
-                    });
-                    toast({ title: 'Файл загружен', description: 'Лист подачи заявки успешно загружен' });
-                  };
-                  reader.readAsDataURL(file);
+                    if (data.url) finalUrl = data.url;
+                  }
+
+                  if (!finalUrl) throw new Error('Файл не загружен');
+                  setApplicationFormUrl(finalUrl);
+                  await fetch(SETTINGS_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: 'application_form_url', value: finalUrl })
+                  });
+                  toast({ title: 'Файл загружен', description: 'Лист подачи заявки успешно загружен' });
                 } catch {
                   toast({ title: 'Ошибка', description: 'Не удалось загрузить файл', variant: 'destructive' });
                 } finally {

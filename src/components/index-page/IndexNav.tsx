@@ -86,7 +86,7 @@ const IndexNav = ({
               }
             `}</style>
             <img
-              src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/414e01b6-6b15-442b-896a-03e29a3e5b5d.png"
+              src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/8f9f6de3-d9eb-4884-a947-57e6fbb72c46.png"
               alt="Кот Ван Гог"
               className="w-full cursor-pointer drop-shadow-2xl"
               onClick={() => setShowCatWelcome(false)}

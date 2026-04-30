@@ -161,11 +161,18 @@ const IndexHome = ({
       <section className="text-center mb-16 animate-in fade-in duration-700">
         <h2 className="text-5xl md:text-7xl font-heading mb-6 font-bold" style={{ color: '#E31E24' }}>Мечтай, твори, дерзай!</h2>
         <p className="max-w-4xl mx-auto mb-4 py-[3px] text-xl font-normal text-center text-slate-600">Кот Ван Гог и студия талантов «Мечтай, твори, дерзай!» приглашают учащихся и педагогов художественных школ и студий, художников‑любителей и профессионалов, а также всех, кто любит творить и хочет представить свои работы широкой аудитории к участию во Всероссийских конкурсах изобразительного и декоративно-прикладного искусства!</p>
-        <div className="max-w-3xl mx-auto mb-8 flex items-center gap-6 bg-white border-l-8 border-primary rounded-2xl shadow-md px-10 py-6 text-left">
+        <div className="max-w-3xl mx-auto mb-4 flex items-center gap-6 bg-white border-l-8 border-primary rounded-2xl shadow-md px-10 py-6 text-left">
           <span className="text-5xl">🎓</span>
           <p className="text-xl text-slate-700 font-medium leading-relaxed">
             Дипломы, выдаваемые по итогам участия в наших конкурсах и олимпиадах, имеют официальный статус и принимаются в качестве подтверждающих документов при{" "}
             <span className="text-primary font-bold underline decoration-2 underline-offset-4">прохождении педагогами процедуры аттестации</span>
+          </p>
+        </div>
+        <div className="max-w-3xl mx-auto mb-8 flex items-center gap-6 bg-white border-l-8 border-primary rounded-2xl shadow-md px-10 py-6 text-left">
+          <span className="text-5xl">🕊️</span>
+          <p className="text-xl text-slate-700 font-medium leading-relaxed">
+            <span className="text-primary font-bold">Бесплатно:</span> творческие программы для детей с ОВЗ и детей участников СВО.{" "}
+            Отправьте на электронную почту лист подачи заявки, фото работы и подтверждающий документ (справку или удостоверение).
           </p>
         </div>
         <div className="flex gap-4 justify-center flex-wrap">

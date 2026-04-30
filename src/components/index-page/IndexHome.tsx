@@ -17,6 +17,7 @@ interface IndexHomeProps {
   setIsImageModalOpen: (v: boolean) => void;
   setPdfUrl: (url: string) => void;
   setIsPdfModalOpen: (v: boolean) => void;
+  applicationFormUrl?: string | null;
 }
 
 const FEATURED_PER_PAGE = 8;
@@ -33,6 +34,7 @@ const IndexHome = ({
   setIsImageModalOpen,
   setPdfUrl,
   setIsPdfModalOpen,
+  applicationFormUrl,
 }: IndexHomeProps) => {
   const navigate = useNavigate();
 
@@ -171,8 +173,15 @@ const IndexHome = ({
         <div className="max-w-3xl mx-auto mb-8 flex items-center gap-6 bg-white border-l-8 border-primary rounded-2xl shadow-md px-10 py-6 text-left">
           <span className="text-5xl">🕊️</span>
           <p className="text-xl text-slate-700 font-medium leading-relaxed">
-            <span className="text-primary font-bold">Бесплатно:</span> творческие программы для детей с ОВЗ и детей участников СВО.{" "}
-            Отправьте на электронную почту лист подачи заявки, фото работы и подтверждающий документ (справку или удостоверение).
+            <span className="text-primary font-bold">Бесплатное участие</span> для детей с ОВЗ и детей участников СВО.{" "}
+            Отправьте на электронную почту{" "}
+            <a href="mailto:studio-talantov@yandex.ru" className="text-primary font-bold underline decoration-2 underline-offset-4 hover:brightness-110">studio-talantov@yandex.ru</a>:{" "}
+            {applicationFormUrl ? (
+              <a href={applicationFormUrl} target="_blank" rel="noopener noreferrer" className="text-primary font-bold underline decoration-2 underline-offset-4 hover:brightness-110">лист подачи заявки</a>
+            ) : (
+              <span>лист подачи заявки</span>
+            )}
+            , фото работы и подтверждающий документ (справку или удостоверение).
           </p>
         </div>
         <div className="flex gap-4 justify-center flex-wrap">

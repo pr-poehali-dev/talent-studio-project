@@ -231,6 +231,7 @@ const Index = () => {
           setIsImageModalOpen={setIsImageModalOpen}
           setPdfUrl={setPdfUrl}
           setIsPdfModalOpen={setIsPdfModalOpen}
+          applicationFormUrl={applicationFormUrl}
         />
       )}
 

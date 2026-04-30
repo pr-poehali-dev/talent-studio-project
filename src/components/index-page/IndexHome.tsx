@@ -175,9 +175,9 @@ const IndexHome = ({
           <p className="text-xl text-slate-700 font-medium leading-relaxed">
             <span className="text-primary font-bold">Бесплатное участие</span> для детей с ОВЗ и детей участников СВО.{" "}
             Отправьте на электронную почту{" "}
-            <a href="mailto:studio-talantov@yandex.ru" className="text-primary font-bold underline decoration-2 underline-offset-4 hover:brightness-110">studio-talantov@yandex.ru</a>:{" "}
+            <a href="mailto:studio-talantov@yandex.ru" className="text-blue-600 text-lg underline underline-offset-4 hover:text-blue-800 transition-colors">studio-talantov@yandex.ru</a>:{" "}
             {applicationFormUrl ? (
-              <a href={applicationFormUrl} target="_blank" rel="noopener noreferrer" className="text-primary font-bold underline decoration-2 underline-offset-4 hover:brightness-110">лист подачи заявки</a>
+              <a href={applicationFormUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-lg underline underline-offset-4 hover:text-blue-800 transition-colors">лист подачи заявки</a>
             ) : (
               <span>лист подачи заявки</span>
             )}

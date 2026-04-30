@@ -176,12 +176,13 @@ const IndexHome = ({
             <span className="text-primary font-bold">Бесплатное участие</span> для детей с ОВЗ и детей участников СВО.{" "}
             Отправьте на электронную почту{" "}
             <a href="mailto:studio-talantov@yandex.ru" className="text-primary text-lg underline underline-offset-4 hover:brightness-110 transition-colors">studio-talantov@yandex.ru</a>:{" "}
+            фото работы,{" "}
             {applicationFormUrl ? (
               <a href={applicationFormUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-lg underline underline-offset-4 hover:text-blue-800 transition-colors">лист подачи заявки</a>
             ) : (
               <span>лист подачи заявки</span>
             )}
-            , фото работы и подтверждающий документ (справку или удостоверение).
+            {" "}и подтверждающий документ (справку или удостоверение)
           </p>
         </div>
         <div className="flex gap-4 justify-center flex-wrap">

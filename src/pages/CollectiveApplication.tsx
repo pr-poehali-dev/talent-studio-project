@@ -258,7 +258,7 @@ export default function CollectiveApplication() {
                       <Input value={p.fullName} onChange={(e) => updateParticipant(p.id, { fullName: e.target.value })} placeholder="Фамилия Имя Отчество" />
                     </div>
                     <div className="space-y-1">
-                      <Label>Возраст *</Label>
+                      <Label>Возраст, год обучения *</Label>
                       <Input type="number" value={p.age} onChange={(e) => updateParticipant(p.id, { age: e.target.value })} placeholder="Полных лет" />
                     </div>
                   </div>

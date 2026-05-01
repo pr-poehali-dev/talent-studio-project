@@ -290,7 +290,7 @@ const ApplicationModal = ({
 
           <div className="space-y-2">
             <Label htmlFor="institution" className="text-base font-semibold">Учреждение, населённый пункт, страна</Label>
-            <Input id="institution" name="institution" placeholder="Название школы, студии, город, страна" className="rounded-xl border-2 focus:border-primary" />
+            <Input id="institution" name="institution" placeholder="Название школы, студии, населённый пункт, страна" className="rounded-xl border-2 focus:border-primary" />
           </div>
 
           <div className="space-y-2">

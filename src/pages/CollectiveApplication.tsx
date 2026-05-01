@@ -259,7 +259,7 @@ export default function CollectiveApplication() {
                     </div>
                     <div className="space-y-1">
                       <Label>Возраст, год обучения *</Label>
-                      <Input type="number" value={p.age} onChange={(e) => updateParticipant(p.id, { age: e.target.value })} placeholder="Полных лет" />
+                      <Input type="number" value={p.age} onChange={(e) => updateParticipant(p.id, { age: e.target.value })} placeholder="Возраст, год обучения" />
                     </div>
                   </div>
 

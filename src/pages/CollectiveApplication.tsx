@@ -279,7 +279,7 @@ export default function CollectiveApplication() {
 
                   <div className="space-y-1">
                     <Label>Название работы, техника исполнения *</Label>
-                    <Input value={p.workTitle} onChange={(e) => updateParticipant(p.id, { workTitle: e.target.value })} placeholder="Название работы" />
+                    <Input value={p.workTitle} onChange={(e) => updateParticipant(p.id, { workTitle: e.target.value })} placeholder="Название работы, техника исполнения" />
                   </div>
 
                   <div className="space-y-2">

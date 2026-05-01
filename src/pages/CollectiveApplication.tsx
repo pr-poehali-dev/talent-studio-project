@@ -223,7 +223,7 @@ export default function CollectiveApplication() {
                 <Input id="teacher" value={teacher} onChange={(e) => setTeacher(e.target.value)} placeholder="ФИО педагога" required />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="institution">Учреждение *</Label>
+                <Label htmlFor="institution">Название учреждения, населенный пункт *</Label>
                 <Input id="institution" value={institution} onChange={(e) => setInstitution(e.target.value)} placeholder="Название учреждения" required />
               </div>
               <div className="space-y-1">

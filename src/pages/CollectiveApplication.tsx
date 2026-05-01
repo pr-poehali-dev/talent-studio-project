@@ -224,7 +224,7 @@ export default function CollectiveApplication() {
               </div>
               <div className="space-y-1">
                 <Label htmlFor="institution">Название учреждения, населенный пункт, страна *</Label>
-                <Input id="institution" value={institution} onChange={(e) => setInstitution(e.target.value)} placeholder="Название учреждения" required />
+                <Input id="institution" value={institution} onChange={(e) => setInstitution(e.target.value)} placeholder="Название учреждения, населенный пункт, страна" required />
               </div>
               <div className="space-y-1">
                 <Label htmlFor="email">Электронная почта *</Label>

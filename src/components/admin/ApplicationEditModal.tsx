@@ -217,6 +217,9 @@ const ApplicationEditModal = ({
                   work_title: formData.get('workTitle') as string,
                   email: formData.get('email') as string,
                   contest_id: selectedContestId && selectedContestId !== 'none' ? Number(selectedContestId) : null,
+                  contest_name: selectedContestId && selectedContestId !== 'none'
+                    ? (contests.find(c => String(c.id) === selectedContestId)?.title ?? editingApplication.contest_name)
+                    : editingApplication.contest_name,
                   result: appResult && appResult !== 'none' ? appResult : null,
                   diploma_issued_at: diplomaDate || null,
                   is_featured: formData.get('isFeatured') === 'on',

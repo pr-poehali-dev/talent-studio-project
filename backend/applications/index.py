@@ -113,6 +113,8 @@ def handler(event: dict, context) -> dict:
             if extra_files is not None:
                 extra_files_sql = '{' + ','.join('"' + f.replace('"', '\\"') + '"' for f in extra_files) + '}'
 
+            contest_id = body.get('contest_id', None)
+
             if body.get('work_file_url'):
                 if extra_files is not None:
                     cursor.execute("""
@@ -120,14 +122,14 @@ def handler(event: dict, context) -> dict:
                         SET full_name = %s, age = %s, teacher = %s, institution = %s,
                             work_title = %s, email = %s, status = %s, result = %s,
                             diploma_issued_at = %s, is_featured = %s, work_file_url = %s,
-                            extra_files = %s, updated_at = CURRENT_TIMESTAMP
+                            extra_files = %s, contest_id = %s, updated_at = CURRENT_TIMESTAMP
                         WHERE id = %s
                     """, (
                         body.get('full_name'), body.get('age'), body.get('teacher'),
                         body.get('institution'), body.get('work_title'), body.get('email'),
                         body.get('status'), body.get('result'), body.get('diploma_issued_at'),
                         body.get('is_featured', False), body.get('work_file_url'),
-                        extra_files_sql, app_id
+                        extra_files_sql, contest_id, app_id
                     ))
                 else:
                     cursor.execute("""
@@ -135,13 +137,13 @@ def handler(event: dict, context) -> dict:
                         SET full_name = %s, age = %s, teacher = %s, institution = %s,
                             work_title = %s, email = %s, status = %s, result = %s,
                             diploma_issued_at = %s, is_featured = %s, work_file_url = %s,
-                            updated_at = CURRENT_TIMESTAMP
+                            contest_id = %s, updated_at = CURRENT_TIMESTAMP
                         WHERE id = %s
                     """, (
                         body.get('full_name'), body.get('age'), body.get('teacher'),
                         body.get('institution'), body.get('work_title'), body.get('email'),
                         body.get('status'), body.get('result'), body.get('diploma_issued_at'),
-                        body.get('is_featured', False), body.get('work_file_url'), app_id
+                        body.get('is_featured', False), body.get('work_file_url'), contest_id, app_id
                     ))
             else:
                 if extra_files is not None:
@@ -150,13 +152,13 @@ def handler(event: dict, context) -> dict:
                         SET full_name = %s, age = %s, teacher = %s, institution = %s,
                             work_title = %s, email = %s, status = %s, result = %s,
                             diploma_issued_at = %s, is_featured = %s,
-                            extra_files = %s, updated_at = CURRENT_TIMESTAMP
+                            extra_files = %s, contest_id = %s, updated_at = CURRENT_TIMESTAMP
                         WHERE id = %s
                     """, (
                         body.get('full_name'), body.get('age'), body.get('teacher'),
                         body.get('institution'), body.get('work_title'), body.get('email'),
                         body.get('status'), body.get('result'), body.get('diploma_issued_at'),
-                        body.get('is_featured', False), extra_files_sql, app_id
+                        body.get('is_featured', False), extra_files_sql, contest_id, app_id
                     ))
                 else:
                     cursor.execute("""
@@ -164,13 +166,13 @@ def handler(event: dict, context) -> dict:
                         SET full_name = %s, age = %s, teacher = %s, institution = %s,
                             work_title = %s, email = %s, status = %s, result = %s,
                             diploma_issued_at = %s, is_featured = %s,
-                            updated_at = CURRENT_TIMESTAMP
+                            contest_id = %s, updated_at = CURRENT_TIMESTAMP
                         WHERE id = %s
                     """, (
                         body.get('full_name'), body.get('age'), body.get('teacher'),
                         body.get('institution'), body.get('work_title'), body.get('email'),
                         body.get('status'), body.get('result'), body.get('diploma_issued_at'),
-                        body.get('is_featured', False), app_id
+                        body.get('is_featured', False), contest_id, app_id
                     ))
             
             conn.commit()

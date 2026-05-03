@@ -30,6 +30,11 @@ interface Application {
   deleted_at: string | null;
 }
 
+interface Contest {
+  id?: number;
+  title: string;
+}
+
 interface ApplicationEditModalProps {
   isOpen: boolean;
   setIsOpen: (v: boolean) => void;
@@ -42,6 +47,7 @@ interface ApplicationEditModalProps {
   loadApplications: () => void;
   APPLICATIONS_API_URL: string;
   UPLOAD_URL: string;
+  contests: Contest[];
   toast: (opts: { title: string; description?: string; variant?: 'default' | 'destructive' }) => void;
 }
 
@@ -115,8 +121,10 @@ const ApplicationEditModal = ({
   loadApplications,
   APPLICATIONS_API_URL,
   UPLOAD_URL,
+  contests,
   toast,
 }: ApplicationEditModalProps) => {
+  const [selectedContestId, setSelectedContestId] = useState<string>('');
   const [uploadingWorkFile, setUploadingWorkFile] = useState(false);
   const [workFileError, setWorkFileError] = useState<string | null>(null);
   const [workFileUploadProgress, setWorkFileUploadProgress] = useState(0);
@@ -129,6 +137,7 @@ const ApplicationEditModal = ({
       const combined = [editingApplication.work_file_url, ...existing].filter(Boolean);
       setAllFiles(combined);
       setPrimaryFileUrl(editingApplication.work_file_url);
+      setSelectedContestId(editingApplication.contest_id ? String(editingApplication.contest_id) : 'none');
     }
   }, [editingApplication?.id, isOpen]);
 
@@ -207,6 +216,7 @@ const ApplicationEditModal = ({
                   institution: formData.get('institution') as string || null,
                   work_title: formData.get('workTitle') as string,
                   email: formData.get('email') as string,
+                  contest_id: selectedContestId && selectedContestId !== 'none' ? Number(selectedContestId) : null,
                   result: appResult && appResult !== 'none' ? appResult : null,
                   diploma_issued_at: diplomaDate || null,
                   is_featured: formData.get('isFeatured') === 'on',
@@ -258,6 +268,21 @@ const ApplicationEditModal = ({
             <div className="space-y-2">
               <Label htmlFor="email" className="text-base font-semibold">Email *</Label>
               <Input id="email" name="email" type="email" defaultValue={editingApplication.email} required className="rounded-xl border-2 focus:border-primary" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contest" className="text-base font-semibold">Конкурс</Label>
+              <Select value={selectedContestId} onValueChange={setSelectedContestId}>
+                <SelectTrigger className="rounded-xl border-2">
+                  <SelectValue placeholder="Не выбран" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Не выбран</SelectItem>
+                  {contests.map(c => (
+                    <SelectItem key={c.id} value={String(c.id)}>{c.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

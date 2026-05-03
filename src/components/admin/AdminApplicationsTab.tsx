@@ -266,6 +266,7 @@ const AdminApplicationsTab = ({
         loadApplications={loadApplications}
         APPLICATIONS_API_URL={APPLICATIONS_API_URL}
         UPLOAD_URL={UPLOAD_URL}
+        contests={contests}
         toast={toast}
       />
 

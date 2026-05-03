@@ -26,6 +26,33 @@ interface IndexResultsSectionProps {
 
 const RESULTS_PER_PAGE = 20;
 
+function getPageNumbers(current: number, total: number): (number | '...')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages: (number | '...')[] = [];
+  const addPage = (p: number) => { if (!pages.includes(p)) pages.push(p); };
+  addPage(1);
+  if (current > 3) pages.push('...');
+  for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) addPage(i);
+  if (current < total - 2) pages.push('...');
+  addPage(total);
+  return pages;
+}
+
+function SmartPagination({ current, total, onChange }: { current: number; total: number; onChange: (p: number) => void }) {
+  const pages = getPageNumbers(current, total);
+  return (
+    <div className="flex items-center gap-1">
+      <Button variant="outline" size="sm" onClick={() => onChange(current - 1)} disabled={current === 1}>Назад</Button>
+      {pages.map((page, i) =>
+        page === '...'
+          ? <span key={`dots-${i}`} className="px-2 text-muted-foreground select-none">…</span>
+          : <Button key={page} variant={page === current ? "default" : "outline"} size="sm" onClick={() => onChange(page)}>{page}</Button>
+      )}
+      <Button variant="outline" size="sm" onClick={() => onChange(current + 1)} disabled={current === total}>Вперёд</Button>
+    </div>
+  );
+}
+
 const IndexResultsSection = ({
   filteredResults,
   resultFilters,
@@ -114,17 +141,11 @@ const IndexResultsSection = ({
         ) : (
           <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
             {filteredResults.length > RESULTS_PER_PAGE && (
-              <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
+              <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50 flex-wrap gap-2">
                 <p className="text-sm text-muted-foreground">
                   Показано {(resultsPage - 1) * RESULTS_PER_PAGE + 1}–{Math.min(resultsPage * RESULTS_PER_PAGE, filteredResults.length)} из {filteredResults.length}
                 </p>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setResultsPage(resultsPage - 1)} disabled={resultsPage === 1}>Назад</Button>
-                  {Array.from({ length: Math.ceil(filteredResults.length / RESULTS_PER_PAGE) }, (_, i) => i + 1).map(page => (
-                    <Button key={page} variant={page === resultsPage ? "default" : "outline"} size="sm" onClick={() => setResultsPage(page)}>{page}</Button>
-                  ))}
-                  <Button variant="outline" size="sm" onClick={() => setResultsPage(resultsPage + 1)} disabled={resultsPage === Math.ceil(filteredResults.length / RESULTS_PER_PAGE)}>Вперёд</Button>
-                </div>
+                <SmartPagination current={resultsPage} total={Math.ceil(filteredResults.length / RESULTS_PER_PAGE)} onChange={setResultsPage} />
               </div>
             )}
             <div className="hidden md:grid gap-4 p-4 bg-gray-50 border-b font-semibold text-sm" style={{gridTemplateColumns: '120px 2fr 60px 2fr 1.5fr 1.5fr 2.5fr 140px'}}>
@@ -205,17 +226,11 @@ const IndexResultsSection = ({
               })}
             </div>
             {filteredResults.length > RESULTS_PER_PAGE && (
-              <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50">
+              <div className="flex items-center justify-between px-4 py-3 border-t bg-gray-50 flex-wrap gap-2">
                 <p className="text-sm text-muted-foreground">
                   Показано {(resultsPage - 1) * RESULTS_PER_PAGE + 1}–{Math.min(resultsPage * RESULTS_PER_PAGE, filteredResults.length)} из {filteredResults.length}
                 </p>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setResultsPage(resultsPage - 1)} disabled={resultsPage === 1}>Назад</Button>
-                  {Array.from({ length: Math.ceil(filteredResults.length / RESULTS_PER_PAGE) }, (_, i) => i + 1).map(page => (
-                    <Button key={page} variant={page === resultsPage ? "default" : "outline"} size="sm" onClick={() => setResultsPage(page)}>{page}</Button>
-                  ))}
-                  <Button variant="outline" size="sm" onClick={() => setResultsPage(resultsPage + 1)} disabled={resultsPage === Math.ceil(filteredResults.length / RESULTS_PER_PAGE)}>Вперёд</Button>
-                </div>
+                <SmartPagination current={resultsPage} total={Math.ceil(filteredResults.length / RESULTS_PER_PAGE)} onChange={setResultsPage} />
               </div>
             )}
           </div>

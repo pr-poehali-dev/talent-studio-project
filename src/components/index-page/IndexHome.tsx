@@ -172,18 +172,7 @@ const IndexHome = ({
         </div>
         <div className="max-w-4xl mx-auto mb-8 flex items-center gap-6 bg-white border-l-8 border-primary rounded-2xl shadow-md px-10 py-6 text-left">
           <span className="text-5xl">🕊️</span>
-          <p className="text-xl text-slate-700 font-medium leading-relaxed">
-            <span className="text-primary font-bold">Бесплатное участие</span> для детей с ОВЗ и детей участников СВО.{" "}
-            Отправьте на электронную почту{" "}
-            <a href="mailto:studio-talantov@yandex.ru" className="text-primary text-lg underline underline-offset-4 hover:brightness-110 transition-colors">studio-talantov@yandex.ru</a>:{" "}
-            фото работы,{" "}
-            {applicationFormUrl ? (
-              <a href={applicationFormUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-lg underline underline-offset-4 hover:text-blue-800 transition-colors">лист подачи заявки</a>
-            ) : (
-              <span>лист подачи заявки</span>
-            )}
-            {" "}и подтверждающий документ (справку или удостоверение)
-          </p>
+          <p className="text-xl text-slate-700 font-medium leading-relaxed">Бесплатное участие для детей с ОВЗ и детей участников СВО. Отправьте на электронную почту studio-talantov@yandex.ru: фото работы, лист подачи заявки в электронном формате Microsoft Word и отсканированный подтверждающий документ (справка или удостоверение)</p>
         </div>
         <div className="flex gap-4 justify-center flex-wrap">
           <Button

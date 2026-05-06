@@ -472,7 +472,8 @@ const Admin = () => {
           email: fd.get('manualEmail'),
           contest_name: manualContestName,
           work_file_url: file_url,
-          gallery_consent: fd.get('manualGallery') === 'on'
+          gallery_consent: fd.get('manualGallery') === 'on',
+          is_preferential: fd.get('manualPreferential') === 'on'
         })
       });
 

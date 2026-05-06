@@ -25,6 +25,7 @@ interface Application {
   diploma_issued_at: string | null;
   is_featured: boolean;
   is_collective: boolean;
+  is_preferential: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -125,6 +126,7 @@ const ApplicationEditModal = ({
   toast,
 }: ApplicationEditModalProps) => {
   const [selectedContestId, setSelectedContestId] = useState<string>('');
+  const [isPreferential, setIsPreferential] = useState(false);
   const [uploadingWorkFile, setUploadingWorkFile] = useState(false);
   const [workFileError, setWorkFileError] = useState<string | null>(null);
   const [workFileUploadProgress, setWorkFileUploadProgress] = useState(0);
@@ -138,6 +140,7 @@ const ApplicationEditModal = ({
       setAllFiles(combined);
       setPrimaryFileUrl(editingApplication.work_file_url);
       setSelectedContestId(editingApplication.contest_id ? String(editingApplication.contest_id) : 'none');
+      setIsPreferential(editingApplication.is_preferential ?? false);
     }
   }, [editingApplication?.id, isOpen]);
 
@@ -223,6 +226,7 @@ const ApplicationEditModal = ({
                   result: appResult && appResult !== 'none' ? appResult : null,
                   diploma_issued_at: diplomaDate || null,
                   is_featured: formData.get('isFeatured') === 'on',
+                  is_preferential: isPreferential,
                   work_file_url: mainUrl,
                   extra_files: extraUrls
                 };
@@ -322,6 +326,21 @@ const ApplicationEditModal = ({
                   Лучшая работа
                 </Label>
                 <p className="text-xs text-muted-foreground mt-0.5">Работа попадёт в галерею на главной странице</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-orange-200 bg-orange-50">
+              <Checkbox
+                id="isPreferential"
+                checked={isPreferential}
+                onCheckedChange={(v) => setIsPreferential(Boolean(v))}
+              />
+              <div>
+                <Label htmlFor="isPreferential" className="text-base font-semibold cursor-pointer flex items-center gap-2">
+                  <Icon name="BadgePercent" size={16} className="text-orange-500" />
+                  Льготное участие
+                </Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Заявка не учитывается в расчёте доходности</p>
               </div>
             </div>
 

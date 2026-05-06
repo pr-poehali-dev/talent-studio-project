@@ -36,6 +36,7 @@ def handler(event: dict, context) -> dict:
             work_file_url = body.get('work_file_url')
             gallery_consent = body.get('gallery_consent', True)
             extra_files = body.get('extra_files', [])
+            is_preferential = body.get('is_preferential', False)
             
             if not all([full_name, age, work_title, email, contest_name, work_file_url]):
                 return {
@@ -52,10 +53,10 @@ def handler(event: dict, context) -> dict:
             
             cursor.execute("""
                 INSERT INTO applications 
-                (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, status, gallery_consent, payment_status, extra_files)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'new', %s, 'paid', %s)
+                (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, status, gallery_consent, payment_status, extra_files, is_preferential)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'new', %s, 'paid', %s, %s)
                 RETURNING id
-            """, (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, gallery_consent, extra_files_sql))
+            """, (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, gallery_consent, extra_files_sql, is_preferential))
             
             app_id = cursor.fetchone()[0]
             conn.commit()

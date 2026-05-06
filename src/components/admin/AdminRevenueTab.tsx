@@ -20,6 +20,7 @@ interface Application {
   email: string;
   contest_name: string;
   is_collective: boolean;
+  is_preferential: boolean;
   created_at: string;
   deleted_at: string | null;
 }
@@ -78,7 +79,7 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
   const [dateFrom, setDateFrom] = useState<string>(firstOfMonth.toISOString().slice(0, 10));
   const [dateTo, setDateTo] = useState<string>(today.toISOString().slice(0, 10));
 
-  const activeApps = useMemo(() => applications.filter(a => !a.deleted_at), [applications]);
+  const activeApps = useMemo(() => applications.filter(a => !a.deleted_at && !a.is_preferential), [applications]);
 
   const filtered = useMemo(() => {
     const from = dateFrom ? new Date(dateFrom) : null;

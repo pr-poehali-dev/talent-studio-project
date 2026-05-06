@@ -148,6 +148,16 @@ const ApplicationManualModal = ({
             </Label>
           </div>
 
+          <div className="flex items-center space-x-2 p-3 bg-orange-50 border border-orange-200 rounded-xl">
+            <Checkbox id="manualPreferential" name="manualPreferential" />
+            <div>
+              <Label htmlFor="manualPreferential" className="text-sm cursor-pointer font-semibold">
+                Льготное участие
+              </Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Заявка не учитывается в расчёте доходности</p>
+            </div>
+          </div>
+
           <div className="flex gap-3 pt-2">
             <Button
               type="submit"

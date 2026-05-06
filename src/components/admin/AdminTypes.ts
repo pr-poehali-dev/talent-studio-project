@@ -30,6 +30,7 @@ export interface Application {
   diploma_issued_at: string | null;
   is_featured: boolean;
   is_collective: boolean;
+  is_preferential: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;

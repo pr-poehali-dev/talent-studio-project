@@ -112,41 +112,17 @@ function isImageUrl(url: string) {
   return /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(url);
 }
 
-async function rotateImageAndUpload(
-  imageUrl: string,
-  uploadUrl: string,
-  onProgress: (pct: number) => void
-): Promise<string> {
-  const resp = await fetch(imageUrl);
-  if (!resp.ok) throw new Error('Не удалось загрузить изображение');
-  const srcBlob = await resp.blob();
-  const blobUrl = URL.createObjectURL(srcBlob);
+const ROTATE_IMAGE_URL = 'https://functions.poehali.dev/20ea1763-98a0-497b-bf31-731b5d6bbad4';
 
-  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const el = new Image();
-    el.onload = () => resolve(el);
-    el.onerror = reject;
-    el.src = blobUrl;
+async function rotateImageOnServer(imageUrl: string): Promise<string> {
+  const resp = await fetch(ROTATE_IMAGE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image_url: imageUrl }),
   });
-
-  const canvas = document.createElement('canvas');
-  canvas.width = img.height;
-  canvas.height = img.width;
-  const ctx = canvas.getContext('2d')!;
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.rotate(Math.PI / 2);
-  ctx.drawImage(img, -img.width / 2, -img.height / 2);
-  URL.revokeObjectURL(blobUrl);
-
-  const ext = imageUrl.split('?')[0].split('.').pop()?.toLowerCase();
-  const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
-  const blobFinal = await new Promise<Blob>((resolve, reject) =>
-    canvas.toBlob(b => b ? resolve(b) : reject(new Error('Canvas toBlob failed')), mime, 0.92)
-  );
-
-  const fileName = `rotated_${Date.now()}.${ext === 'png' ? 'png' : 'jpg'}`;
-  const file = new File([blobFinal], fileName, { type: mime });
-  return uploadFileInChunks(file, uploadUrl, onProgress);
+  const data = await resp.json();
+  if (!resp.ok || !data.url) throw new Error(data.error || 'Ошибка поворота');
+  return data.url;
 }
 
 const ApplicationEditModal = ({
@@ -232,7 +208,7 @@ const ApplicationEditModal = ({
     setRotatingUrl(url);
     setWorkFileError(null);
     try {
-      const newUrl = await rotateImageAndUpload(url, UPLOAD_URL, () => {});
+      const newUrl = await rotateImageOnServer(url);
       setAllFiles(prev => prev.map(f => f === url ? newUrl : f));
       if (primaryFileUrl === url) setPrimaryFileUrl(newUrl);
     } catch {

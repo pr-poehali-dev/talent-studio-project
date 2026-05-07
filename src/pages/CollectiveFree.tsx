@@ -164,7 +164,7 @@ export default function CollectiveFree() {
     for (const [i, p] of participants.entries()) {
       if (!p.fullName.trim())
         return toast({ title: `Участник ${i + 1}: укажите ФИО`, variant: "destructive" });
-      if (!p.age || isNaN(Number(p.age)))
+      if (!p.age || !p.age.trim())
         return toast({ title: `Участник ${i + 1}: укажите возраст`, variant: "destructive" });
       if (!p.contestId)
         return toast({ title: `Участник ${i + 1}: выберите конкурс`, variant: "destructive" });
@@ -184,7 +184,7 @@ export default function CollectiveFree() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             full_name: p.fullName,
-            age: Number(p.age),
+            age: p.age,
             teacher,
             institution,
             email,
@@ -361,10 +361,9 @@ export default function CollectiveFree() {
                     <div className="space-y-1">
                       <Label>Возраст *</Label>
                       <Input
-                        type="number"
+                        type="text"
                         value={p.age}
                         onChange={(e) => updateParticipant(p.id, { age: e.target.value })}
-                        placeholder="Лет"
                         className="rounded-xl"
                       />
                     </div>

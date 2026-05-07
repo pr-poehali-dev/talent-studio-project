@@ -20,6 +20,7 @@ interface Application {
   diploma_issued_at: string | null;
   is_featured: boolean;
   is_collective: boolean;
+  is_preferential: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -196,6 +197,12 @@ const ApplicationCard = (props: ApplicationCardProps) => {
                 <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-sm font-bold bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md">
                   <Icon name="Users" size={14} />
                   Коллективная
+                </span>
+              )}
+              {app.is_preferential && (
+                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-sm font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md">
+                  <Icon name="Tag" size={14} />
+                  Льготная заявка
                 </span>
               )}
             </div>

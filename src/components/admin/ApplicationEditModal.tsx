@@ -117,12 +117,16 @@ async function rotateImageAndUpload(
   uploadUrl: string,
   onProgress: (pct: number) => void
 ): Promise<string> {
+  const resp = await fetch(imageUrl);
+  if (!resp.ok) throw new Error('Не удалось загрузить изображение');
+  const srcBlob = await resp.blob();
+  const blobUrl = URL.createObjectURL(srcBlob);
+
   const img = await new Promise<HTMLImageElement>((resolve, reject) => {
     const el = new Image();
-    el.crossOrigin = 'anonymous';
     el.onload = () => resolve(el);
     el.onerror = reject;
-    el.src = imageUrl;
+    el.src = blobUrl;
   });
 
   const canvas = document.createElement('canvas');
@@ -132,17 +136,13 @@ async function rotateImageAndUpload(
   ctx.translate(canvas.width / 2, canvas.height / 2);
   ctx.rotate(Math.PI / 2);
   ctx.drawImage(img, -img.width / 2, -img.height / 2);
-
-  const blob = await new Promise<Blob>((resolve, reject) =>
-    canvas.toBlob(b => b ? resolve(b) : reject(new Error('Canvas toBlob failed')), 'image/jpeg', 0.92)
-  );
+  URL.revokeObjectURL(blobUrl);
 
   const ext = imageUrl.split('?')[0].split('.').pop()?.toLowerCase();
   const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
   const blobFinal = await new Promise<Blob>((resolve, reject) =>
     canvas.toBlob(b => b ? resolve(b) : reject(new Error('Canvas toBlob failed')), mime, 0.92)
   );
-  void blob;
 
   const fileName = `rotated_${Date.now()}.${ext === 'png' ? 'png' : 'jpg'}`;
   const file = new File([blobFinal], fileName, { type: mime });

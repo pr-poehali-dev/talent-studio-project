@@ -215,8 +215,14 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
     sign_label_style = S('SL', fontSize=9, textColor=COLORS['text_muted'], fontName=F, spaceAfter=0)
     sign_name_style  = S('SN', fontSize=10, textColor=COLORS['text_dark'], fontName=FB, spaceAfter=0)
 
-    # Левая колонка — должность и ФИО
+    # Левая колонка — организатор, должность и ФИО
+    organizer_label_style = S('OL', fontSize=9, textColor=COLORS['text_muted'], fontName=F, spaceAfter=0)
+    organizer_name_style  = S('ON', fontSize=10, textColor=COLORS['text_dark'], fontName=FB, spaceAfter=4*mm, leading=13)
+
     left_col = [
+        Paragraph('Организатор конкурсов:', organizer_label_style),
+        Spacer(1, 1*mm),
+        Paragraph('Студия талантов «Мечтай, твори, дерзай!»', organizer_name_style),
         Paragraph('Руководитель:', sign_label_style),
         Spacer(1, 2*mm),
         Paragraph('Мозжерина Анна Владимировна', sign_name_style),

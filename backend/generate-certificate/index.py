@@ -182,7 +182,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
     def row(label, value):
         return [Paragraph(label, label_style), Paragraph(str(value), value_style)]
 
-    age_str = f'{age} лет' if age else '—'
+    age_str = str(age) if age else '—'
 
     data = [
         row('ФИО участника',            full_name),

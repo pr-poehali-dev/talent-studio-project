@@ -112,6 +112,43 @@ function isImageUrl(url: string) {
   return /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(url);
 }
 
+async function rotateImageAndUpload(
+  imageUrl: string,
+  uploadUrl: string,
+  onProgress: (pct: number) => void
+): Promise<string> {
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const el = new Image();
+    el.crossOrigin = 'anonymous';
+    el.onload = () => resolve(el);
+    el.onerror = reject;
+    el.src = imageUrl;
+  });
+
+  const canvas = document.createElement('canvas');
+  canvas.width = img.height;
+  canvas.height = img.width;
+  const ctx = canvas.getContext('2d')!;
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.rotate(Math.PI / 2);
+  ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+  const blob = await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob(b => b ? resolve(b) : reject(new Error('Canvas toBlob failed')), 'image/jpeg', 0.92)
+  );
+
+  const ext = imageUrl.split('?')[0].split('.').pop()?.toLowerCase();
+  const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
+  const blobFinal = await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob(b => b ? resolve(b) : reject(new Error('Canvas toBlob failed')), mime, 0.92)
+  );
+  void blob;
+
+  const fileName = `rotated_${Date.now()}.${ext === 'png' ? 'png' : 'jpg'}`;
+  const file = new File([blobFinal], fileName, { type: mime });
+  return uploadFileInChunks(file, uploadUrl, onProgress);
+}
+
 const ApplicationEditModal = ({
   isOpen,
   setIsOpen,
@@ -132,6 +169,7 @@ const ApplicationEditModal = ({
   const [workFileUploadProgress, setWorkFileUploadProgress] = useState(0);
   const [primaryFileUrl, setPrimaryFileUrl] = useState<string | null>(null);
   const [allFiles, setAllFiles] = useState<string[]>([]);
+  const [rotatingUrl, setRotatingUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (editingApplication && isOpen) {
@@ -188,6 +226,20 @@ const ApplicationEditModal = ({
       }
       return next;
     });
+  };
+
+  const handleRotate = async (url: string) => {
+    setRotatingUrl(url);
+    setWorkFileError(null);
+    try {
+      const newUrl = await rotateImageAndUpload(url, UPLOAD_URL, () => {});
+      setAllFiles(prev => prev.map(f => f === url ? newUrl : f));
+      if (primaryFileUrl === url) setPrimaryFileUrl(newUrl);
+    } catch {
+      setWorkFileError('Не удалось повернуть изображение. Попробуйте снова.');
+    } finally {
+      setRotatingUrl(null);
+    }
   };
 
   return (
@@ -405,6 +457,20 @@ const ApplicationEditModal = ({
                               className="text-xs text-primary border border-primary/40 rounded-lg px-2 py-1 hover:bg-primary hover:text-white transition-colors"
                             >
                               Сделать основным
+                            </button>
+                          )}
+                          {isImageUrl(url) && (
+                            <button
+                              type="button"
+                              onClick={() => handleRotate(url)}
+                              disabled={rotatingUrl === url}
+                              className="text-muted-foreground hover:text-amber-500 transition-colors disabled:opacity-50"
+                              title="Повернуть на 90°"
+                            >
+                              {rotatingUrl === url
+                                ? <Icon name="Loader2" size={16} className="animate-spin" />
+                                : <Icon name="RotateCw" size={16} />
+                              }
                             </button>
                           )}
                           <button

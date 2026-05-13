@@ -149,7 +149,7 @@ export default function CollectiveApplication() {
 
     for (const [i, p] of participants.entries()) {
       if (!p.fullName.trim()) return toast({ title: `Участник ${i + 1}: укажите ФИО`, variant: "destructive" });
-      if (!p.age || isNaN(Number(p.age))) return toast({ title: `Участник ${i + 1}: укажите возраст`, variant: "destructive" });
+      if (!p.age || !p.age.trim()) return toast({ title: `Участник ${i + 1}: укажите возраст`, variant: "destructive" });
       if (!p.contestId) return toast({ title: `Участник ${i + 1}: выберите конкурс`, variant: "destructive" });
       if (!p.workTitle.trim()) return toast({ title: `Участник ${i + 1}: укажите название работы`, variant: "destructive" });
       if (!p.fileUrl) return toast({ title: `Участник ${i + 1}: загрузите файл работы`, variant: "destructive" });

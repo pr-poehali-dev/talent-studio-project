@@ -144,10 +144,7 @@ def handler(event: dict, context) -> dict:
             # Коллективная заявка — каждый участник в отдельной транзакции
             for i, participant in enumerate(participants):
                 age_raw = participant.get('age')
-                try:
-                    age = int(age_raw) if age_raw is not None else None
-                except (ValueError, TypeError):
-                    age = None
+                age = str(age_raw).strip() if age_raw is not None else ''
                 
                 print(f'[INFO] Inserting participant {i+1}/{len(participants)}: {participant.get("full_name")}, age={age}, contest_id={participant.get("contest_id")}')
                 

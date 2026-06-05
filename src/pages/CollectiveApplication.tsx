@@ -160,7 +160,7 @@ export default function CollectiveApplication() {
     try {
       const participantsData = participants.map((p) => ({
         full_name: p.fullName,
-        age: Number(p.age),
+        age: p.age,
         contest_id: Number(p.contestId),
         contest_name: contests.find((c) => String(c.id) === p.contestId)?.title || "",
         work_title: p.workTitle,

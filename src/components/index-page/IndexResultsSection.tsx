@@ -118,6 +118,9 @@ const IndexResultsSection = ({
                 <SelectItem value="first_degree">Диплом 1 степени</SelectItem>
                 <SelectItem value="second_degree">Диплом 2 степени</SelectItem>
                 <SelectItem value="third_degree">Диплом 3 степени</SelectItem>
+                <SelectItem value="laureate_1">Лауреат 1 степени</SelectItem>
+                <SelectItem value="laureate_2">Лауреат 2 степени</SelectItem>
+                <SelectItem value="laureate_3">Лауреат 3 степени</SelectItem>
                 <SelectItem value="participant">Участник</SelectItem>
               </SelectContent>
             </Select>
@@ -191,12 +194,21 @@ const IndexResultsSection = ({
                         ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-white'
                         : result.result === 'third_degree'
                         ? 'bg-gradient-to-r from-orange-300 to-orange-400 text-white'
+                        : result.result === 'laureate_1'
+                        ? 'bg-gradient-to-r from-yellow-300 to-yellow-500 text-white'
+                        : result.result === 'laureate_2'
+                        ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-white'
+                        : result.result === 'laureate_3'
+                        ? 'bg-gradient-to-r from-orange-300 to-orange-400 text-white'
                         : 'bg-blue-100 text-blue-800'
                     }`}>
                       {result.result === 'grand_prix' && 'Гран-При'}
                       {result.result === 'first_degree' && 'Диплом 1 степени'}
                       {result.result === 'second_degree' && 'Диплом 2 степени'}
                       {result.result === 'third_degree' && 'Диплом 3 степени'}
+                      {result.result === 'laureate_1' && 'Лауреат 1 степени'}
+                      {result.result === 'laureate_2' && 'Лауреат 2 степени'}
+                      {result.result === 'laureate_3' && 'Лауреат 3 степени'}
                       {result.result === 'participant' && 'Участник'}
                     </span>
                   </div>

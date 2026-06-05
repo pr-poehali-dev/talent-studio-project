@@ -131,10 +131,14 @@ const ResultEditModal = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Не указан</SelectItem>
-                  <SelectItem value="Победитель">Победитель</SelectItem>
-                  <SelectItem value="Призер">Призер</SelectItem>
-                  <SelectItem value="Участник">Участник</SelectItem>
-                  <SelectItem value="Гран-при">Гран-при</SelectItem>
+                  <SelectItem value="grand_prix">Гран-При</SelectItem>
+                  <SelectItem value="first_degree">Диплом 1 степени</SelectItem>
+                  <SelectItem value="second_degree">Диплом 2 степени</SelectItem>
+                  <SelectItem value="third_degree">Диплом 3 степени</SelectItem>
+                  <SelectItem value="laureate_1">Лауреат 1 степени</SelectItem>
+                  <SelectItem value="laureate_2">Лауреат 2 степени</SelectItem>
+                  <SelectItem value="laureate_3">Лауреат 3 степени</SelectItem>
+                  <SelectItem value="participant">Участник</SelectItem>
                 </SelectContent>
               </Select>
             </div>

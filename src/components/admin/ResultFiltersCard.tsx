@@ -58,6 +58,9 @@ const ResultFiltersCard = ({ resultFilters, setResultFilters }: ResultFiltersCar
               <SelectItem value="first_degree">🥇 Диплом 1 степени</SelectItem>
               <SelectItem value="second_degree">🥈 Диплом 2 степени</SelectItem>
               <SelectItem value="third_degree">🥉 Диплом 3 степени</SelectItem>
+              <SelectItem value="laureate_1">🥇 Лауреат 1 степени</SelectItem>
+              <SelectItem value="laureate_2">🥈 Лауреат 2 степени</SelectItem>
+              <SelectItem value="laureate_3">🥉 Лауреат 3 степени</SelectItem>
               <SelectItem value="participant">✨ Участник</SelectItem>
             </SelectContent>
           </Select>

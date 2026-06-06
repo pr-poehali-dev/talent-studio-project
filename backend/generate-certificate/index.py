@@ -22,6 +22,9 @@ RESULT_LABELS = {
     'first_degree': 'Диплом I степени',
     'second_degree': 'Диплом II степени',
     'third_degree': 'Диплом III степени',
+    'laureate_1': 'Лауреат I степени',
+    'laureate_2': 'Лауреат II степени',
+    'laureate_3': 'Лауреат III степени',
     'participant': 'Участник',
 }
 
@@ -39,6 +42,9 @@ RESULT_COLORS = {
     'first_degree': HexColor('#d4a017'),
     'second_degree': HexColor('#9e9e9e'),
     'third_degree': HexColor('#cd7f32'),
+    'laureate_1': HexColor('#d4a017'),
+    'laureate_2': HexColor('#9e9e9e'),
+    'laureate_3': HexColor('#cd7f32'),
     'participant': HexColor('#4a90d9'),
 }
 

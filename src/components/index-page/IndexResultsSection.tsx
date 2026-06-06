@@ -187,19 +187,19 @@ const IndexResultsSection = ({
                     <span className="md:hidden font-semibold text-muted-foreground">Результат: </span>
                     <span className={`inline-block px-3 py-1 rounded-md font-semibold text-xs ${
                       result.result === 'grand_prix'
-                        ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white'
+                        ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-black'
                         : result.result === 'first_degree'
-                        ? 'bg-gradient-to-r from-yellow-300 to-yellow-500 text-white'
+                        ? 'bg-gradient-to-r from-yellow-300 to-yellow-500 text-black'
                         : result.result === 'second_degree'
-                        ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-white'
+                        ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-black'
                         : result.result === 'third_degree'
-                        ? 'bg-gradient-to-r from-orange-300 to-orange-400 text-white'
+                        ? 'bg-gradient-to-r from-orange-300 to-orange-400 text-black'
                         : result.result === 'laureate_1'
-                        ? 'bg-gradient-to-r from-yellow-300 to-yellow-500 text-white'
+                        ? 'bg-gradient-to-r from-yellow-300 to-yellow-500 text-black'
                         : result.result === 'laureate_2'
-                        ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-white'
+                        ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-black'
                         : result.result === 'laureate_3'
-                        ? 'bg-gradient-to-r from-orange-300 to-orange-400 text-white'
+                        ? 'bg-gradient-to-r from-orange-300 to-orange-400 text-black'
                         : 'bg-blue-100 text-blue-800'
                     }`}>
                       {result.result === 'grand_prix' && 'Гран-При'}

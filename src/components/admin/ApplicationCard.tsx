@@ -15,7 +15,7 @@ interface Application {
   work_file_url: string;
   extra_files: string[];
   status: 'new' | 'viewed' | 'sent';
-  result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'participant' | null;
+  result: 'grand_prix' | 'first_degree' | 'second_degree' | 'third_degree' | 'laureate_1' | 'laureate_2' | 'laureate_3' | 'participant' | null;
   gallery_consent: boolean;
   diploma_issued_at: string | null;
   is_featured: boolean;
@@ -59,6 +59,9 @@ const resultLabel = (result: Application['result']) => {
   if (result === 'first_degree') return '🥇 Диплом 1 степени';
   if (result === 'second_degree') return '🥈 Диплом 2 степени';
   if (result === 'third_degree') return '🥉 Диплом 3 степени';
+  if (result === 'laureate_1') return '🥇 Лауреат 1 степени';
+  if (result === 'laureate_2') return '🥈 Лауреат 2 степени';
+  if (result === 'laureate_3') return '🥉 Лауреат 3 степени';
   if (result === 'participant') return '✨ Участник';
   return '—';
 };

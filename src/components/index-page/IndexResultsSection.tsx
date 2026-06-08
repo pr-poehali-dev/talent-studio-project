@@ -151,7 +151,7 @@ const IndexResultsSection = ({
                 <SmartPagination current={resultsPage} total={Math.ceil(filteredResults.length / RESULTS_PER_PAGE)} onChange={setResultsPage} />
               </div>
             )}
-            <div className="hidden md:grid gap-4 p-4 bg-gray-50 border-b font-semibold text-sm" style={{gridTemplateColumns: '120px 2fr 60px 2fr 1.5fr 1.5fr 2.5fr 140px'}}>
+            <div className="hidden md:grid gap-4 p-4 bg-gray-50 border-b font-semibold text-sm" style={{gridTemplateColumns: '120px 2fr 100px 2fr 1.5fr 1.5fr 2.5fr 140px'}}>
               <div>Дата вручения</div>
               <div>ФИО участника</div>
               <div>Возраст/год обучения</div>
@@ -166,7 +166,7 @@ const IndexResultsSection = ({
               {filteredResults.slice((resultsPage - 1) * RESULTS_PER_PAGE, resultsPage * RESULTS_PER_PAGE).map((result) => {
                 const isOlympiad = result.contest_name?.toLowerCase().includes('олимпиада');
                 return (
-                <div key={result.id} className={`grid gap-4 p-4 transition-colors md:grid-cols-[120px_2fr_60px_2fr_1.5fr_1.5fr_2.5fr_140px] ${isOlympiad ? 'bg-amber-50 hover:bg-amber-100 border-l-2 border-amber-300' : 'hover:bg-gray-50'}`}>
+                <div key={result.id} className={`grid gap-4 p-4 transition-colors md:grid-cols-[120px_2fr_100px_2fr_1.5fr_1.5fr_2.5fr_140px] ${isOlympiad ? 'bg-amber-50 hover:bg-amber-100 border-l-2 border-amber-300' : 'hover:bg-gray-50'}`}>
                   <div className="text-sm">
                     <span className="md:hidden font-semibold text-muted-foreground">Дата вручения: </span>
                     {result.diploma_issued_at ? new Date(result.diploma_issued_at).toLocaleDateString('ru-RU') : '—'}
@@ -175,7 +175,7 @@ const IndexResultsSection = ({
                     <span className="md:hidden font-semibold text-muted-foreground">ФИО: </span>
                     {result.full_name}
                   </div>
-                  <div className="text-sm">
+                  <div className="text-sm break-words">
                     <span className="md:hidden font-semibold text-muted-foreground">Возраст/Год обучения: </span>
                     {result.age || '—'}
                   </div>

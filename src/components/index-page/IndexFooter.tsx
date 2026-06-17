@@ -12,7 +12,7 @@ const IndexFooter = ({ setActiveSection }: IndexFooterProps) => {
           <div className="md:col-span-1">
             <div className="mb-6">
               <img
-                src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/2aa89901-38a4-48dd-b954-f55aec2d1508.png"
+                src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/cb267483-96ab-40f3-ae87-4f18740f3e6e.png"
                 alt="Мечтай, твори, дерзай!"
                 className="h-32 w-auto object-contain"
               />

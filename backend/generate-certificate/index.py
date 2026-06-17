@@ -48,8 +48,9 @@ RESULT_COLORS = {
     'participant': HexColor('#4a90d9'),
 }
 
-LOGO_URL      = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/2aa89901-38a4-48dd-b954-f55aec2d1508.png'
+LOGO_URL      = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/cb267483-96ab-40f3-ae87-4f18740f3e6e.png'
 SIGN_STAMP_URL = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/57089395-3617-4837-8eb4-5a611478b79f.png'
+QR_URL         = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/8181733f-ca36-47a4-851c-ce1c2412ef81.png'
 
 _img_cache: dict = {}
 
@@ -264,6 +265,14 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
         f'Документ сформирован автоматически • ID результата: {result_id}',
         footer_style
     ))
+
+    story.append(Spacer(1, 6*mm))
+    try:
+        qr_img = Image(fetch_image(QR_URL), width=usable_width, height=30*mm, kind='proportional')
+        qr_img.hAlign = 'LEFT'
+        story.append(qr_img)
+    except Exception:
+        pass
 
     doc.build(story)
     return buffer.getvalue()

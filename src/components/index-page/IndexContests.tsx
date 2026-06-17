@@ -94,7 +94,7 @@ const IndexContests = ({
                     <Icon name={getCategoryIcon(contest.categoryId)} className="text-primary" size={80} />
                   </div>
                   <div className="transition-all duration-300 absolute inset-0 flex items-center justify-center opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100">
-                    <img src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/b1debbdb-7197-41f7-93f1-a0cb0845bacf.png" alt="" className="w-full h-full object-contain p-2" />
+                    <img src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/f018cb31-dc18-4c2a-b8d1-72a9db61c3d4.png" alt="" className="w-full h-full object-contain p-2" />
                   </div>
                 </div>
                 <CardContent className="p-6 flex-[0.6] flex flex-col justify-between">

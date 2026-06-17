@@ -14,7 +14,7 @@ const IndexFooter = ({ setActiveSection }: IndexFooterProps) => {
               <img
                 src="https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/cb267483-96ab-40f3-ae87-4f18740f3e6e.png"
                 alt="Мечтай, твори, дерзай!"
-                className="h-32 w-auto object-contain"
+                className="w-full h-auto object-contain"
               />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">

@@ -158,17 +158,17 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
         logo_img = Image(fetch_image(LOGO_URL), width=45*mm, height=45*mm, kind='proportional')
         logo_img.hAlign = 'CENTER'
         story.append(logo_img)
-        story.append(Spacer(1, 3*mm))
+        story.append(Spacer(1, 2*mm))
     except Exception:
         pass
 
     story.append(Paragraph('СПРАВКА-ПОДТВЕРЖДЕНИЕ', title_style))
     story.append(Paragraph('об участии в конкурсе', subtitle_style))
     story.append(Spacer(1, 3*mm))
-    story.append(HRFlowable(width=usable_width, thickness=2, color=COLORS['accent'], spaceAfter=4*mm))
+    story.append(HRFlowable(width=usable_width, thickness=2, color=COLORS['accent'], spaceAfter=3*mm))
 
     story.append(Paragraph(f'№ {display_num} от {issued_str}', docnum_style))
-    story.append(Spacer(1, 4*mm))
+    story.append(Spacer(1, 2*mm))
 
     story.append(Paragraph(
         'Настоящая справка подтверждает, что нижеуказанный участник<br/>'
@@ -176,15 +176,15 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
         intro_style
     ))
 
-    result_table = Table([[Paragraph(result_label, result_style)]], colWidths=[usable_width], rowHeights=[14*mm])
+    result_table = Table([[Paragraph(result_label, result_style)]], colWidths=[usable_width], rowHeights=[12*mm])
     result_table.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,-1), result_color),
         ('VALIGN',     (0,0), (-1,-1), 'MIDDLE'),
-        ('TOPPADDING', (0,0), (-1,-1), 3*mm),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3*mm),
+        ('TOPPADDING', (0,0), (-1,-1), 2*mm),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2*mm),
     ]))
     story.append(result_table)
-    story.append(Spacer(1, 6*mm))
+    story.append(Spacer(1, 4*mm))
 
     def row(label, value):
         return [Paragraph(label, label_style), Paragraph(str(value), value_style)]
@@ -215,8 +215,8 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
     ]))
     story.append(info_table)
 
-    story.append(Spacer(1, 6*mm))
-    story.append(HRFlowable(width=usable_width, thickness=1, color=COLORS['mid_gray'], spaceAfter=4*mm))
+    story.append(Spacer(1, 3*mm))
+    story.append(HRFlowable(width=usable_width, thickness=1, color=COLORS['mid_gray'], spaceAfter=3*mm))
 
     # --- Подвал: подпись и печать ---
     sign_label_style = S('SL', fontSize=9, textColor=COLORS['text_muted'], fontName=F, spaceAfter=0)
@@ -258,7 +258,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
     ]))
     story.append(sign_table)
 
-    story.append(Spacer(1, 4*mm))
+    story.append(Spacer(1, 2*mm))
     story.append(HRFlowable(width=usable_width, thickness=0.5, color=COLORS['mid_gray'], spaceAfter=2*mm))
     story.append(Paragraph(
         'Справка выдана для предъявления по месту требования. '
@@ -266,10 +266,10 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
         footer_style
     ))
 
-    story.append(Spacer(1, 6*mm))
+    story.append(Spacer(1, 3*mm))
     try:
-        qr_img = Image(fetch_image(QR_URL), width=usable_width, height=30*mm, kind='proportional')
-        qr_img.hAlign = 'LEFT'
+        qr_img = Image(fetch_image(QR_URL), width=usable_width, height=25*mm, kind='proportional')
+        qr_img.hAlign = 'CENTER'
         story.append(qr_img)
     except Exception:
         pass

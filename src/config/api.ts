@@ -4,7 +4,6 @@ export const API_URLS = {
   survey: funcUrls.survey,
   products: funcUrls.products,
   orders: funcUrls.orders,
-  syncCatalog: funcUrls['sync-catalog'],
   pageBuilder: funcUrls['page-builder'],
   surveySubmitStage: funcUrls['survey-submit-stage']
 };

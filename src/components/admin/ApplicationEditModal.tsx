@@ -112,19 +112,6 @@ function isImageUrl(url: string) {
   return /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(url);
 }
 
-const ROTATE_IMAGE_URL = 'https://functions.poehali.dev/20ea1763-98a0-497b-bf31-731b5d6bbad4';
-
-async function rotateImageOnServer(imageUrl: string): Promise<string> {
-  const resp = await fetch(ROTATE_IMAGE_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image_url: imageUrl }),
-  });
-  const data = await resp.json();
-  if (!resp.ok || !data.url) throw new Error(data.error || 'Ошибка поворота');
-  return data.url;
-}
-
 const ApplicationEditModal = ({
   isOpen,
   setIsOpen,
@@ -145,7 +132,6 @@ const ApplicationEditModal = ({
   const [workFileUploadProgress, setWorkFileUploadProgress] = useState(0);
   const [primaryFileUrl, setPrimaryFileUrl] = useState<string | null>(null);
   const [allFiles, setAllFiles] = useState<string[]>([]);
-  const [rotatingUrl, setRotatingUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (editingApplication && isOpen) {
@@ -202,20 +188,6 @@ const ApplicationEditModal = ({
       }
       return next;
     });
-  };
-
-  const handleRotate = async (url: string) => {
-    setRotatingUrl(url);
-    setWorkFileError(null);
-    try {
-      const newUrl = await rotateImageOnServer(url);
-      setAllFiles(prev => prev.map(f => f === url ? newUrl : f));
-      if (primaryFileUrl === url) setPrimaryFileUrl(newUrl);
-    } catch {
-      setWorkFileError('Не удалось повернуть изображение. Попробуйте снова.');
-    } finally {
-      setRotatingUrl(null);
-    }
   };
 
   return (
@@ -436,20 +408,6 @@ const ApplicationEditModal = ({
                               className="text-xs text-primary border border-primary/40 rounded-lg px-2 py-1 hover:bg-primary hover:text-white transition-colors"
                             >
                               Сделать основным
-                            </button>
-                          )}
-                          {isImageUrl(url) && (
-                            <button
-                              type="button"
-                              onClick={() => handleRotate(url)}
-                              disabled={rotatingUrl === url}
-                              className="text-muted-foreground hover:text-amber-500 transition-colors disabled:opacity-50"
-                              title="Повернуть на 90°"
-                            >
-                              {rotatingUrl === url
-                                ? <Icon name="Loader2" size={16} className="animate-spin" />
-                                : <Icon name="RotateCw" size={16} />
-                              }
                             </button>
                           )}
                           <button

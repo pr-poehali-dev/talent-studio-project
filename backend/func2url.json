@@ -1,5 +1,4 @@
 {
-  "rotate-image": "https://functions.poehali.dev/20ea1763-98a0-497b-bf31-731b5d6bbad4",
   "participants-emails": "https://functions.poehali.dev/83f003ed-4126-42c8-985e-e3450580651a",
   "clients": "https://functions.poehali.dev/3d4ea862-5163-4df4-b64f-391a88c8cdf7",
   "generate-olympiad-report": "https://functions.poehali.dev/05b86dce-b0ed-493e-9260-00ca25fd4059",
@@ -8,8 +7,6 @@
   "olympiad-tasks": "https://functions.poehali.dev/c7eb02a5-bcf1-4ece-91de-d49b4c1e8466",
   "olympiad-applications": "https://functions.poehali.dev/64be6370-4826-4077-bfeb-ce5e443733b7",
   "submit-olympiad-application": "https://functions.poehali.dev/3048f1a8-4577-48d9-a0d8-5b51b0f33573",
-  "recover-payments": "https://functions.poehali.dev/23b49545-361e-43d0-9764-97f4e7f38947",
-  "sync-catalog": "https://functions.poehali.dev/bdd9ab47-bb31-4879-ab3d-84d225683906",
   "orders": "https://functions.poehali.dev/da5207db-b340-41fa-bb94-63a37a6f09f8",
   "survey-submit-stage": "https://functions.poehali.dev/7e9452f6-4a08-4da1-93f7-b8569752755b",
   "survey": "https://functions.poehali.dev/f3a67a9d-75ef-48ee-851e-cddce35891d0",

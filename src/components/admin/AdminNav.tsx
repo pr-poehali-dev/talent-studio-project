@@ -112,13 +112,11 @@ export default function AdminNav({
         >
           <Icon name="GraduationCap" className="mr-2" />
           Олимпиады
-          {olympiadNoResultCount > 0 && (
-            <span>
-              {' ('}
-              <span className="text-red-500 font-bold">{olympiadNoResultCount}</span>
-              {')'}
-            </span>
-          )}
+          <span>
+            {' ('}
+            <span className={olympiadNoResultCount > 0 ? "text-red-500 font-bold" : ""}>{olympiadNoResultCount}</span>
+            {')'}
+          </span>
         </Button>
         <Button
           variant={activeTab === 'participants' ? 'default' : 'ghost'}

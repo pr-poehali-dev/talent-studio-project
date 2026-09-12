@@ -205,6 +205,33 @@ const IndexSimpleSections = ({
 
         <div className="max-w-5xl mx-auto mb-10">
           <h3 className="text-xl font-heading font-semibold mb-3 flex items-center gap-2">
+            <Icon name="Archive" size={20} className="text-secondary" />
+            Реестры сведений об участниках и результатах
+          </h3>
+          <Card className="rounded-2xl p-6">
+            {registries.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Реестры ещё не опубликованы</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {registries.map((r) => (
+                  <a
+                    key={`${r.year}-${r.month}`}
+                    href={r.pdf_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm bg-secondary/10 border-secondary/40 hover:bg-secondary/20 transition-colors"
+                  >
+                    <Icon name="FileDown" size={14} />
+                    {MONTHS_RU[r.month - 1]} {r.year}
+                  </a>
+                ))}
+              </div>
+            )}
+          </Card>
+        </div>
+
+        <div className="max-w-5xl mx-auto">
+          <h3 className="text-xl font-heading font-semibold mb-3 flex items-center gap-2">
             <Icon name="FileText" size={20} className="text-primary" />
             Положения конкурсов
           </h3>
@@ -258,33 +285,6 @@ const IndexSimpleSections = ({
                 )}
               </TableBody>
             </Table>
-          </Card>
-        </div>
-
-        <div className="max-w-5xl mx-auto">
-          <h3 className="text-xl font-heading font-semibold mb-3 flex items-center gap-2">
-            <Icon name="Archive" size={20} className="text-secondary" />
-            Реестры сведений об участниках и результатах
-          </h3>
-          <Card className="rounded-2xl p-6">
-            {registries.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Реестры ещё не опубликованы</p>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {registries.map((r) => (
-                  <a
-                    key={`${r.year}-${r.month}`}
-                    href={r.pdf_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm bg-secondary/10 border-secondary/40 hover:bg-secondary/20 transition-colors"
-                  >
-                    <Icon name="FileDown" size={14} />
-                    {MONTHS_RU[r.month - 1]} {r.year}
-                  </a>
-                ))}
-              </div>
-            )}
           </Card>
         </div>
       </div>

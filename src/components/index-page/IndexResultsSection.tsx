@@ -72,11 +72,12 @@ const IndexResultsSection = ({
   selectedMonth,
   setSelectedMonth,
 }: IndexResultsSectionProps) => {
-  const [registryMonth, setRegistryMonth] = useState(String(new Date().getMonth() + 1));
   const [registryLoading, setRegistryLoading] = useState(false);
   const { toast } = useToast();
 
   const handleDownloadRegistry = async () => {
+    if (selectedMonth === null) return;
+    const registryMonth = String(selectedMonth + 1);
     setRegistryLoading(true);
     try {
       const res = await fetch(`${GENERATE_REGISTRY_URL}?month=${registryMonth}&year=${CURRENT_YEAR}`);
@@ -99,30 +100,6 @@ const IndexResultsSection = ({
     <div className="container mx-auto px-4 py-12">
       <h2 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">Итоги конкурсов и олимпиад за 2026 год</h2>
 
-      <div className="max-w-7xl mx-auto mb-4 flex justify-center">
-        <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
-          <button
-            type="button"
-            onClick={handleDownloadRegistry}
-            disabled={registryLoading}
-            className="text-black font-medium underline underline-offset-2 hover:text-black/70 disabled:opacity-60 inline-flex items-center gap-1.5"
-          >
-            <Icon name={registryLoading ? "Loader2" : "FileDown"} size={16} className={registryLoading ? "animate-spin" : ""} />
-            {registryLoading ? 'Формируется...' : 'Скачать реестр сведений об участниках и результатах за'}
-          </button>
-          <Select value={registryMonth} onValueChange={setRegistryMonth}>
-            <SelectTrigger className="w-auto h-8 rounded-full border-secondary/40 text-sm font-medium">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {MONTHS.map((m, i) => (
-                <SelectItem key={m} value={String(i + 1)}>{m}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto mb-4 flex flex-wrap justify-center gap-2">
         {MONTHS.map((month, index) => (
           <button
@@ -138,6 +115,20 @@ const IndexResultsSection = ({
             {month}
           </button>
         ))}
+      </div>
+
+      <div className="max-w-7xl mx-auto mb-4 flex justify-center">
+        <button
+          type="button"
+          onClick={handleDownloadRegistry}
+          disabled={selectedMonth === null || registryLoading}
+          className="text-black font-medium underline underline-offset-2 hover:text-black/70 disabled:opacity-40 disabled:no-underline disabled:cursor-not-allowed inline-flex items-center gap-1.5 text-sm"
+        >
+          <Icon name={registryLoading ? "Loader2" : "FileDown"} size={16} className={registryLoading ? "animate-spin" : ""} />
+          {registryLoading
+            ? 'Формируется...'
+            : `Скачать реестр сведений об участниках и результатах за${selectedMonth !== null ? ` ${MONTHS[selectedMonth].toLowerCase()}` : ''}`}
+        </button>
       </div>
 
       {selectedMonth !== null && (

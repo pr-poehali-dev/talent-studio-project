@@ -8,35 +8,12 @@ from io import BytesIO
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.units import mm
 from reportlab.lib.colors import HexColor, black, white
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, Flowable
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from datetime import date
-
-
-class SignatureWithLine(Flowable):
-    '''Картинка подписи+печати с чёрной линией строго под рукописной подписью
-    (подпись занимает левую часть исходного изображения, печать наложена правее/ниже).'''
-
-    def __init__(self, img_data: BytesIO, width: float, height: float,
-                 line_width_frac: float, line_y_frac_from_bottom: float):
-        super().__init__()
-        self.img = Image(img_data, width=width, height=height, kind='proportional')
-        self.width = width
-        self.height = height
-        self.line_width = width * line_width_frac
-        self.line_y = height * line_y_frac_from_bottom
-
-    def wrap(self, availWidth, availHeight):
-        return (self.width, self.height)
-
-    def draw(self):
-        self.img.drawOn(self.canv, 0, 0)
-        self.canv.setLineWidth(1)
-        self.canv.setStrokeColor(black)
-        self.canv.line(0, self.line_y, self.line_width, self.line_y)
 
 
 RESULT_LABELS = {
@@ -55,8 +32,7 @@ MONTHS_RU = [
     'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'
 ]
 
-LOGO_URL = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/cb267483-96ab-40f3-ae87-4f18740f3e6e.png'
-SIGN_STAMP_URL = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/57089395-3617-4837-8eb4-5a611478b79f.png'
+HEADER_IMAGE_URL = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/7a43c72f-0737-43bf-b5a5-6c0083309ac9.png'
 
 CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
@@ -119,10 +95,6 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
     def S(name, **kw):
         return ParagraphStyle(name, parent=styles['Normal'], **kw)
 
-    approve_label_style = S('AL', fontSize=16, fontName=FB, alignment=TA_CENTER, leading=20)
-    approve_text_style = S('AT', fontSize=12, fontName=F, alignment=TA_CENTER, leading=18)
-    approve_name_style = S('AN', fontSize=14, fontName=FB, alignment=TA_CENTER, leading=18)
-
     title_style = S('T', fontSize=22, fontName=FB, alignment=TA_CENTER, leading=27, spaceAfter=2 * mm)
     subtitle_style = S('ST', fontSize=14, fontName=F, alignment=TA_CENTER, spaceAfter=5 * mm)
 
@@ -132,46 +104,12 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
     story = []
 
     try:
-        logo_img = Image(fetch_image(LOGO_URL), width=65 * mm, height=65 * mm, kind='proportional')
+        header_data = fetch_image(HEADER_IMAGE_URL)
+        header_h = usable_width * (520 / 2000)
+        header_img = Image(header_data, width=usable_width, height=header_h, kind='proportional')
+        story.append(header_img)
     except Exception:
-        logo_img = Spacer(1, 65 * mm)
-
-    # Оригинал 622x532px — рукописная подпись занимает левую часть изображения
-    # (0–47% ширины, нижний край подписи на ~69% высоты от верха), печать наложена
-    # правее и ниже внахлест. Линию рисуем строго под подписью, не под печатью.
-    sign_w = 84 * mm
-    sign_h = sign_w * 532 / 622
-    line_width_frac = 294 / 622
-    line_y_frac_from_bottom = (532 - 366) / 532
-
-    try:
-        sign_flowable = SignatureWithLine(
-            fetch_image(SIGN_STAMP_URL), sign_w, sign_h,
-            line_width_frac, line_y_frac_from_bottom
-        )
-    except Exception:
-        sign_flowable = Spacer(1, sign_h)
-
-    approve_block = [
-        Paragraph('УТВЕРЖДАЮ', approve_label_style),
-        Paragraph('Руководитель Студии талантов<br/>«Мечтай, твори, дерзай!»', approve_text_style),
-        Spacer(1, 3 * mm),
-        Paragraph('Мозжерина Анна Владимировна', approve_name_style),
-        sign_flowable,
-    ]
-
-    header_table = Table(
-        [[logo_img, approve_block]],
-        colWidths=[usable_width * 0.6, usable_width * 0.4],
-    )
-    header_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-        ('ALIGN', (1, 0), (1, 0), 'CENTER'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-    ]))
-    story.append(header_table)
+        pass
     story.append(Spacer(1, 4 * mm))
 
     month_name = MONTHS_RU[month - 1]

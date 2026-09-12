@@ -108,7 +108,7 @@ const IndexResultsSection = ({
             className="text-black font-medium underline underline-offset-2 hover:text-black/70 disabled:opacity-60 inline-flex items-center gap-1.5"
           >
             <Icon name={registryLoading ? "Loader2" : "FileDown"} size={16} className={registryLoading ? "animate-spin" : ""} />
-            {registryLoading ? 'Формируется...' : 'Скачать реестр участников и результатов за'}
+            {registryLoading ? 'Формируется...' : 'Скачать реестр сведений об участниках и результатах за'}
           </button>
           <Select value={registryMonth} onValueChange={setRegistryMonth}>
             <SelectTrigger className="w-auto h-8 rounded-full border-secondary/40 text-sm font-medium">

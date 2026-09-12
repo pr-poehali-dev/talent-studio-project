@@ -80,3 +80,4 @@ export const REVIEWS_API_URL = "https://functions.poehali.dev/3daafc39-174c-4669
 export const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
 export const CERTIFICATES_LOG_URL = "https://functions.poehali.dev/15416f51-5386-4500-b770-4dea40b824e5";
 export const GENERATE_REGISTRY_URL = "https://functions.poehali.dev/89c6513a-6206-485c-88b5-f1b02e85a195";
+export const OLYMPIAD_APPLICATIONS_URL = "https://functions.poehali.dev/64be6370-4826-4077-bfeb-ce5e443733b7";

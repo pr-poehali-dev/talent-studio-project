@@ -15,6 +15,7 @@ interface AdminNavProps {
   certificatesLogLength: number;
   setCertificatesLog: (data: {id: number; result_id: number; full_name: string; contest_name: string; issued_at: string}[]) => void;
   setCertLoading: (v: boolean) => void;
+  olympiadNoResultCount: number;
 }
 
 export default function AdminNav({
@@ -28,6 +29,7 @@ export default function AdminNav({
   certificatesLogLength,
   setCertificatesLog,
   setCertLoading,
+  olympiadNoResultCount,
 }: AdminNavProps) {
   const handleCertificatesClick = () => {
     setActiveTab('certificates');
@@ -110,6 +112,13 @@ export default function AdminNav({
         >
           <Icon name="GraduationCap" className="mr-2" />
           Олимпиады
+          {olympiadNoResultCount > 0 && (
+            <span>
+              {' ('}
+              <span className="text-red-500 font-bold">{olympiadNoResultCount}</span>
+              {')'}
+            </span>
+          )}
         </Button>
         <Button
           variant={activeTab === 'participants' ? 'default' : 'ghost'}

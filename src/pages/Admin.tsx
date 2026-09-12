@@ -24,6 +24,7 @@ import {
   REVIEWS_API_URL,
   SETTINGS_API_URL,
   CERTIFICATES_LOG_URL,
+  OLYMPIAD_APPLICATIONS_URL,
 } from "@/components/admin/AdminTypes";
 
 type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue' | 'olympiads' | 'participants';
@@ -91,6 +92,7 @@ const Admin = () => {
   const [manualContestName, setManualContestName] = useState("");
   const [submittingManualApp, setSubmittingManualApp] = useState(false);
   const [manualAppUploadProgress, setManualAppUploadProgress] = useState(0);
+  const [olympiadNoResultCount, setOlympiadNoResultCount] = useState(0);
   const { toast } = useToast();
 
   // Подавляем предупреждение о неиспользуемой переменной
@@ -161,6 +163,20 @@ const Admin = () => {
     }
   };
 
+  const loadOlympiadNoResultCount = async () => {
+    try {
+      const types = ['izo', 'palette', 'dpi', 'grani'];
+      const results = await Promise.all(
+        types.map((t) => fetch(`${OLYMPIAD_APPLICATIONS_URL}?type=${t}`).then((r) => r.json()))
+      );
+      const merged = results.filter(Array.isArray).flat();
+      const noResult = merged.filter((a: { place: string | null }) => !a.place).length;
+      setOlympiadNoResultCount(noResult);
+    } catch {
+      console.error('Не удалось загрузить заявки олимпиад');
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       loadContests();
@@ -169,6 +185,7 @@ const Admin = () => {
       loadResults();
       loadReviews();
       loadSettings();
+      loadOlympiadNoResultCount();
     }
   }, [isAuthenticated]);
 
@@ -524,6 +541,7 @@ const Admin = () => {
         certificatesLogLength={certificatesLog.length}
         setCertificatesLog={setCertificatesLog}
         setCertLoading={setCertLoading}
+        olympiadNoResultCount={olympiadNoResultCount}
       />
 
       <div className="container mx-auto px-4 py-12">

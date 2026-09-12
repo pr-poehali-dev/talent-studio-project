@@ -320,7 +320,7 @@ def handler(event: dict, context) -> dict:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 'SELECT id, full_name, age, teacher, institution, work_title, '
-                'contest_name, result, diploma_issued_at, created_at '
+                'contest_name, result, diploma_issued_at, created_at, registry_number '
                 'FROM results WHERE id = %s',
                 (result_id,)
             )
@@ -346,7 +346,7 @@ def handler(event: dict, context) -> dict:
             cert_id = log_cur.fetchone()[0]
             conn.commit()
 
-        pdf_bytes = build_pdf(dict(result), cert_id=cert_id)
+        pdf_bytes = build_pdf(dict(result), cert_id=result.get('registry_number'))
         pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
 
         full_name_safe = (result.get('full_name') or 'certificate').replace(' ', '_')

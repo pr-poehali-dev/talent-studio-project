@@ -1,0 +1,1 @@
+ALTER TABLE results ADD COLUMN IF NOT EXISTS registry_number INTEGER NULL;

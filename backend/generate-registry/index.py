@@ -269,7 +269,7 @@ def handler(event: dict, context) -> dict:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
-                    "SELECT full_name, age, teacher, institution, contest_name, result, diploma_issued_at "
+                    "SELECT id, full_name, age, teacher, institution, contest_name, result, diploma_issued_at "
                     "FROM results "
                     "WHERE diploma_issued_at IS NOT NULL "
                     "AND EXTRACT(MONTH FROM diploma_issued_at) = %s "
@@ -282,6 +282,16 @@ def handler(event: dict, context) -> dict:
             for r in rows:
                 if r.get('diploma_issued_at'):
                     r['diploma_issued_at'] = r['diploma_issued_at'].isoformat()
+
+            if rows:
+                values_sql = ','.join(f'({r["id"]},{i})' for i, r in enumerate(rows, start=1))
+                with conn.cursor() as num_cur:
+                    num_cur.execute(
+                        f'UPDATE results AS r SET registry_number = v.rn '
+                        f'FROM (VALUES {values_sql}) AS v(id, rn) '
+                        f'WHERE r.id = v.id'
+                    )
+                conn.commit()
 
             pdf_bytes = build_pdf(rows, month, year)
 

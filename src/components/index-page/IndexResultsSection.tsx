@@ -305,7 +305,7 @@ const IndexResultsSection = ({
                         className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline font-medium"
                       >
                         <Icon name="FileText" size={14} />
-                        Скачать справку
+                        Скачать выписку из реестра результатов
                       </a>
                     )}
                   </div>

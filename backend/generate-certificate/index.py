@@ -162,8 +162,8 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
     except Exception:
         pass
 
-    story.append(Paragraph('СПРАВКА-ПОДТВЕРЖДЕНИЕ', title_style))
-    story.append(Paragraph('об участии в конкурсе', subtitle_style))
+    story.append(Paragraph('ВЫПИСКА ИЗ РЕЕСТРА', title_style))
+    story.append(Paragraph('сведений об участниках и результатах', subtitle_style))
     story.append(Spacer(1, 3*mm))
     story.append(HRFlowable(width=usable_width, thickness=2, color=COLORS['accent'], spaceAfter=3*mm))
 
@@ -171,7 +171,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
     story.append(Spacer(1, 2*mm))
 
     story.append(Paragraph(
-        'Настоящая справка подтверждает, что нижеуказанный участник<br/>'
+        'Настоящая выписка подтверждает, что нижеуказанный участник<br/>'
         'принял(а) участие в конкурсе и был(а) отмечен(а) следующим образом:',
         intro_style
     ))
@@ -199,7 +199,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
         row('Педагог / Руководитель',    teacher),
         row('Организация / Учреждение', institution),
         row('Дата участия',             participation_date),
-        row('Дата выдачи справки',      issued_str),
+        row('Дата выдачи выписки',      issued_str),
     ]
 
     info_table = Table(data, colWidths=[55*mm, usable_width - 55*mm])
@@ -261,7 +261,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
     story.append(Spacer(1, 2*mm))
     story.append(HRFlowable(width=usable_width, thickness=0.5, color=COLORS['mid_gray'], spaceAfter=2*mm))
     story.append(Paragraph(
-        'Справка выдана для предъявления по месту требования. '
+        'Выписка выдана для предъявления по месту требования. '
         f'Документ сформирован автоматически • ID результата: {result_id}',
         footer_style
     ))

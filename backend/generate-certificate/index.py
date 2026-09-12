@@ -346,7 +346,7 @@ def handler(event: dict, context) -> dict:
             cert_id = log_cur.fetchone()[0]
             conn.commit()
 
-        pdf_bytes = build_pdf(dict(result), cert_id=result.get('registry_number'))
+        pdf_bytes = build_pdf(dict(result), cert_id=cert_id)
         pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
 
         full_name_safe = (result.get('full_name') or 'certificate').replace(' ', '_')

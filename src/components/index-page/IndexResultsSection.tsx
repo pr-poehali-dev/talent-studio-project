@@ -120,15 +120,15 @@ const IndexResultsSection = ({
       </div>
 
       <div className="max-w-7xl mx-auto mb-4 flex justify-start">
-        <button
+        <Button
           type="button"
           onClick={handleDownloadRegistry}
           disabled={selectedMonth === null || registryLoading}
-          className="text-black font-bold underline underline-offset-2 hover:text-black/70 disabled:opacity-40 disabled:no-underline disabled:cursor-not-allowed inline-flex items-center gap-1.5 text-lg"
+          className="font-bold text-base h-auto py-3 px-5 rounded-xl"
         >
           <Icon name={registryLoading ? "Loader2" : "FileDown"} size={20} className={registryLoading ? "animate-spin" : ""} />
           {`Скачать реестр сведений об участниках и результатах за${selectedMonth !== null ? ` ${MONTHS[selectedMonth].toLowerCase()}` : ''}`}
-        </button>
+        </Button>
       </div>
 
       {selectedMonth !== null && (

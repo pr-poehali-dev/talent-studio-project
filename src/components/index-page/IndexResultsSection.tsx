@@ -79,10 +79,10 @@ const IndexResultsSection = ({
             key={month}
             type="button"
             onClick={() => setSelectedMonth(selectedMonth === index ? null : index)}
-            className={`px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors ${
+            className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
               selectedMonth === index
                 ? 'bg-secondary text-white border-secondary'
-                : 'bg-secondary/10 text-black border-black hover:bg-secondary/20'
+                : 'bg-secondary/10 text-black border-secondary/40 hover:bg-secondary/20'
             }`}
           >
             {month}

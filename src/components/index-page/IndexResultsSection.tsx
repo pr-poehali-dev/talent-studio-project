@@ -127,7 +127,7 @@ const IndexResultsSection = ({
           className="font-bold text-base h-auto py-3 px-5 rounded-xl"
         >
           <Icon name={registryLoading ? "Loader2" : "FileDown"} size={20} className={registryLoading ? "animate-spin" : ""} />
-          {`Скачать реестр сведений об участниках и результатах за${selectedMonth !== null ? ` ${MONTHS[selectedMonth].toLowerCase()}` : ''}`}
+          {`Скачать реестр сведений об участниках и результатах за${selectedMonth !== null ? ` ${MONTHS[selectedMonth].toLowerCase()}` : ''} (.pdf)`}
         </Button>
       </div>
 

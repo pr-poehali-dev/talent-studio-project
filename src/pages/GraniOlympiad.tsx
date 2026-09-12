@@ -4,6 +4,7 @@ import Icon from "@/components/ui/icon";
 import { useToast } from "@/components/ui/use-toast";
 import PdfModal from "@/components/index-page/modals/PdfModal";
 import ImageModal from "@/components/index-page/modals/ImageModal";
+import Seo from "@/components/Seo";
 
 const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
 const PAYMENT_API_URL = "https://functions.poehali.dev/f40bd7c6-a503-4165-8673-e8091832d07c";
@@ -161,6 +162,11 @@ export default function GraniOlympiad() {
   if (SHOW_STUB) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white flex flex-col items-center justify-center px-4">
+        <Seo
+          title="Олимпиада «Грани мастерства» по ДПИ — Студия талантов «Мечтай, твори, дерзай»"
+          description="Всероссийская интерактивная олимпиада по декоративно-прикладному искусству для учащихся 1–9 классов. Приём заявок скоро откроется."
+          path="/olympiad/grani"
+        />
         <div className="text-center max-w-md">
           <div className="text-6xl mb-6">🏆</div>
           <h1 className="text-3xl font-bold text-violet-700 mb-4">Грани мастерства</h1>
@@ -175,6 +181,11 @@ export default function GraniOlympiad() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white">
+      <Seo
+        title="Олимпиада «Грани мастерства» по ДПИ — Студия талантов «Мечтай, твори, дерзай»"
+        description="Всероссийская интерактивная олимпиада по декоративно-прикладному искусству для учащихся 1–9 классов. Участие онлайн, дипломы и благодарственные письма."
+        path="/olympiad/grani"
+      />
       {/* Hero-шапка */}
       <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #6D28D9 0%, #7C3AED 40%, #8B5CF6 100%)" }}>
         {[

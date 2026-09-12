@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Icon from "@/components/ui/icon";
+import Seo from "@/components/Seo";
 
 const COLORS = [
   "#E31E24", "#FF6B35", "#FFD700", "#4CAF50", "#2196F3",
@@ -152,6 +153,11 @@ export default function Coloring() {
 
   return (
     <div className="bg-gradient-to-b from-yellow-50 to-white py-5 px-4">
+      <Seo
+        title="Раскраска онлайн «Кот Ван Гог» — Студия талантов «Мечтай, твори, дерзай»"
+        description="Бесплатная онлайн-раскраска для детей — раскрась Кота Ван Гога прямо в браузере и скачай готовую картинку."
+        path="/coloring"
+      />
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-4">
           <h1 className="text-3xl font-heading font-bold text-primary mb-1">

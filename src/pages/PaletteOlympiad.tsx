@@ -4,6 +4,7 @@ import Icon from "@/components/ui/icon";
 import { useToast } from "@/components/ui/use-toast";
 import PdfModal from "@/components/index-page/modals/PdfModal";
 import ImageModal from "@/components/index-page/modals/ImageModal";
+import Seo from "@/components/Seo";
 
 const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
 const PAYMENT_API_URL = "https://functions.poehali.dev/f40bd7c6-a503-4165-8673-e8091832d07c";
@@ -160,6 +161,11 @@ export default function PaletteOlympiad() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
+      <Seo
+        title="Олимпиада «Палитра талантов» по ИЗО — Студия талантов «Мечтай, твори, дерзай»"
+        description="Всероссийская интерактивная олимпиада по изобразительному искусству для учащихся 1–9 классов. Участие онлайн, дипломы и благодарственные письма."
+        path="/olympiad/palette"
+      />
       {/* Hero-шапка */}
       <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #F97316 0%, #EA580C 40%, #FB923C 100%)" }}>
         {[

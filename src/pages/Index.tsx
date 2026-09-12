@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
+import Seo from "@/components/Seo";
 import IndexNav from "@/components/index-page/IndexNav";
 import IndexHome from "@/components/index-page/IndexHome";
 import IndexModals from "@/components/index-page/IndexModals";
@@ -22,7 +23,66 @@ import {
   REVIEWS_API_URL,
   SETTINGS_API_URL,
   GENERATE_REGISTRY_URL,
+  contestCategories,
 } from "@/components/index-page/IndexTypes";
+
+const SECTION_SEO: Record<string, { title: string; description: string; path: string }> = {
+  home: {
+    title: "Студия талантов «Мечтай, твори, дерзай» — творческие конкурсы для детей и взрослых",
+    description: "Всероссийские онлайн-конкурсы по изобразительному и декоративно-прикладному искусству для детей и взрослых. Дипломы, грамоты, галерея работ. Участвуйте и побеждайте!",
+    path: "/",
+  },
+  contests: {
+    title: "Все конкурсы — Студия талантов «Мечтай, твори, дерзай»",
+    description: "Каталог всероссийских конкурсов изобразительного и декоративно-прикладного искусства для детей и взрослых. Выберите конкурс и подайте заявку онлайн.",
+    path: "/contests",
+  },
+  results: {
+    title: "Итоги конкурсов и олимпиад — Студия талантов «Мечтай, твори, дерзай»",
+    description: "Результаты участников всероссийских конкурсов и олимпиад по изобразительному и декоративно-прикладному искусству за 2026 год.",
+    path: "/results",
+  },
+  gallery: {
+    title: "Галерея работ участников — Студия талантов «Мечтай, твори, дерзай»",
+    description: "Лучшие творческие работы участников всероссийских конкурсов изобразительного и декоративно-прикладного искусства.",
+    path: "/gallery",
+  },
+  documents: {
+    title: "Документы и положения конкурсов — Студия талантов «Мечтай, твори, дерзай»",
+    description: "Реестры сведений об участниках и результатах, положения конкурсов и листы заявок студии талантов «Мечтай, твори, дерзай».",
+    path: "/documents",
+  },
+  reviews: {
+    title: "Отзывы участников — Студия талантов «Мечтай, твори, дерзай»",
+    description: "Отзывы родителей, педагогов и участников о всероссийских конкурсах студии талантов «Мечтай, твори, дерзай».",
+    path: "/reviews",
+  },
+  about: {
+    title: "О нас — Студия талантов «Мечтай, твори, дерзай»",
+    description: "Студия талантов «Мечтай, твори, дерзай» — онлайн-платформа для юных художников и творцов. Конкурсы, дипломы, галерея работ.",
+    path: "/about",
+  },
+  shop: {
+    title: "Магазин наградной атрибутики — Студия талантов «Мечтай, твори, дерзай»",
+    description: "Кубки, медали, дипломы и другая наградная атрибутика для победителей конкурсов студии талантов «Мечтай, твори, дерзай».",
+    path: "/shop",
+  },
+  designer: {
+    title: "Услуги дизайнера — Студия талантов «Мечтай, твори, дерзай»",
+    description: "Разработка афиш, дипломов, грамот, благодарственных писем и фирменного стиля для конкурсов и мероприятий.",
+    path: "/designer",
+  },
+  jury: {
+    title: "Наша команда — Студия талантов «Мечтай, твори, дерзай»",
+    description: "Профессионалы в области искусства, педагогики и дизайна, которые развивают студию и оценивают работы участников конкурсов.",
+    path: "/?section=jury",
+  },
+  olympiads: {
+    title: "Интерактивные олимпиады — Студия талантов «Мечтай, твори, дерзай»",
+    description: "Всероссийские интерактивные олимпиады по ИЗО и ДПИ для школьников — выполняйте задания онлайн, без скачивания файлов.",
+    path: "/?section=olympiads",
+  },
+};
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -233,8 +293,18 @@ const Index = () => {
     'plants', 'holidays', 'thematic', 'literary', 'preschool', 'artists-masters'
   ];
 
+  const category = contestCategories.find(c => c.id === activeSection);
+  const seo = category
+    ? {
+        title: `${category.heading} — Студия талантов «Мечтай, твори, дерзай»`,
+        description: `${category.heading}: участвуйте во всероссийских творческих конкурсах для детей и взрослых. Дипломы, грамоты, участие онлайн.`,
+        path: `/?section=${category.id}`,
+      }
+    : SECTION_SEO[activeSection] || SECTION_SEO.home;
+
   return (
     <div className="min-h-screen bg-white">
+      <Seo title={seo.title} description={seo.description} path={seo.path} />
       <IndexNav
         activeSection={activeSection}
         setActiveSection={setActiveSection}

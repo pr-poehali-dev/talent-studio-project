@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import Seo from "@/components/Seo";
 
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
 const UPLOAD_FILE_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
@@ -196,6 +197,11 @@ export default function CollectiveApplication() {
 
   return (
     <div className="min-h-screen" style={{ background: "linear-gradient(to bottom, #FFFBDB, #FEFEFE)" }}>
+      <Seo
+        title="Коллективная заявка на конкурс — Студия талантов «Мечтай, твори, дерзай»"
+        description="Подайте коллективную заявку на участие в конкурсе для 5 и более участников по специальной цене 150 ₽ за человека."
+        path="/collective"
+      />
       {/* Шапка */}
       <div className="sticky top-0 z-10 backdrop-blur-md shadow-sm" style={{ background: "linear-gradient(to right, #FEFEFE, #FFFBDB)" }}>
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">

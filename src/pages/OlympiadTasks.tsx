@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { CheckCircle, BookOpen, ChevronLeft, ChevronRight, Send, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import Seo from '@/components/Seo';
 
 const TASKS_API_URL = "https://functions.poehali.dev/c7eb02a5-bcf1-4ece-91de-d49b4c1e8466";
 const ANSWERS_API_URL = "https://functions.poehali.dev/6e919c14-0327-44c1-827b-d524f0192c73";
@@ -1222,6 +1223,12 @@ const OlympiadTasks = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white py-8 px-4">
+      <Seo
+        title={`Задания олимпиады «${olympiadName}» — Студия талантов «Мечтай, твори, дерзай»`}
+        description="Выполнение заданий всероссийской интерактивной олимпиады онлайн."
+        path="/olympiad/tasks"
+        noindex
+      />
       <div className="max-w-2xl mx-auto space-y-5">
 
         {/* Шапка */}

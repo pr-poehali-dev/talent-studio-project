@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Trophy, CheckCircle } from "lucide-react";
+import Seo from "@/components/Seo";
 
 const WORD_SEARCH_API_URL = "https://functions.poehali.dev/68f0a840-3a59-44e0-b092-f6e6cc9d3633";
 
@@ -226,6 +227,12 @@ export default function WordSearchGame() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white py-6 px-3 select-none">
+      <Seo
+        title="Искалка слов — Студия талантов «Мечтай, твори, дерзай»"
+        description="Игровое задание олимпиады — найди все слова на игровом поле."
+        path="/olympiad/word-search"
+        noindex
+      />
       <div className="max-w-2xl mx-auto space-y-4">
 
         {/* Шапка */}

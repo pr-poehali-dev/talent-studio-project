@@ -34,7 +34,7 @@ MONTHS_RU = [
     'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'
 ]
 
-HEADER_IMAGE_URL = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/6c47a6eb-0823-41a4-bf2f-84f40ffefd95.jpg'
+HEADER_IMAGE_URL = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/008a5ac6-492c-47e6-8c78-552a63806f6c.jpg'
 
 CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',

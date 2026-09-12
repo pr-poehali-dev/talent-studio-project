@@ -79,10 +79,10 @@ const IndexResultsSection = ({
             key={month}
             type="button"
             onClick={() => setSelectedMonth(selectedMonth === index ? null : index)}
-            className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+            className={`px-4 py-2 rounded-full text-sm font-medium border-2 transition-colors ${
               selectedMonth === index
                 ? 'bg-secondary text-white border-secondary'
-                : 'bg-secondary/10 text-secondary border-secondary/40 hover:bg-secondary/20'
+                : 'bg-secondary/10 text-black border-black hover:bg-secondary/20'
             }`}
           >
             {month}
@@ -91,7 +91,7 @@ const IndexResultsSection = ({
       </div>
 
       {selectedMonth !== null && (
-        <h3 className="text-2xl font-heading font-semibold text-center mb-8 text-secondary">
+        <h3 className="text-2xl font-heading font-bold text-center mb-8 text-black">
           Результаты за {MONTHS[selectedMonth]}
         </h3>
       )}

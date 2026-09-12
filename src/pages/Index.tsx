@@ -16,10 +16,12 @@ import {
   PublicResult,
   GalleryWork,
   Review,
+  MonthlyRegistry,
   API_URL,
   GALLERY_API_URL,
   REVIEWS_API_URL,
   SETTINGS_API_URL,
+  GENERATE_REGISTRY_URL,
 } from "@/components/index-page/IndexTypes";
 
 const Index = () => {
@@ -53,6 +55,7 @@ const Index = () => {
   const [featuredWorks, setFeaturedWorks] = useState<GalleryWork[]>([]);
   const [featuredPage, setFeaturedPage] = useState(0);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [registries, setRegistries] = useState<MonthlyRegistry[]>([]);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [resultFilters, setResultFilters] = useState({
     contest: '',
@@ -145,6 +148,21 @@ const Index = () => {
     };
     if (activeSection === 'reviews') {
       loadReviews();
+    }
+  }, [activeSection]);
+
+  useEffect(() => {
+    const loadRegistries = async () => {
+      try {
+        const response = await fetch(`${GENERATE_REGISTRY_URL}?action=list`);
+        const data = await response.json();
+        setRegistries(data);
+      } catch (error) {
+        console.error('Ошибка загрузки реестров:', error);
+      }
+    };
+    if (activeSection === 'documents') {
+      loadRegistries();
     }
   }, [activeSection]);
 
@@ -294,6 +312,7 @@ const Index = () => {
           galleryVisible={galleryVisible}
           setGalleryVisible={setGalleryVisible}
           reviews={reviews}
+          registries={registries}
           applicationFormUrl={applicationFormUrl}
           setIsReviewModalOpen={setIsReviewModalOpen}
           setImagePreview={setImagePreview}

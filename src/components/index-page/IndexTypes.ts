@@ -40,6 +40,13 @@ export interface GalleryWork {
   created_at: string;
 }
 
+export interface MonthlyRegistry {
+  month: number;
+  year: number;
+  pdf_url: string;
+  generated_at: string;
+}
+
 export interface Review {
   id: number;
   author_name: string;

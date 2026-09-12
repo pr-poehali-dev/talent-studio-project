@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Icon from "@/components/ui/icon";
-import { Contest, GalleryWork, Review, getCategoryIcon } from "./IndexTypes";
+import { Contest, GalleryWork, Review, MonthlyRegistry, getCategoryIcon } from "./IndexTypes";
+
+const MONTHS_RU = [
+  'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+];
 
 interface IndexSimpleSectionsProps {
   activeSection: string;
@@ -10,6 +16,7 @@ interface IndexSimpleSectionsProps {
   galleryVisible: number;
   setGalleryVisible: (v: number | ((prev: number) => number)) => void;
   reviews: Review[];
+  registries: MonthlyRegistry[];
   applicationFormUrl: string | null;
   setIsReviewModalOpen: (v: boolean) => void;
   setImagePreview: (url: string) => void;
@@ -115,6 +122,7 @@ const IndexSimpleSections = ({
   galleryVisible,
   setGalleryVisible,
   reviews,
+  registries,
   applicationFormUrl,
   setIsReviewModalOpen,
   setImagePreview,
@@ -187,51 +195,97 @@ const IndexSimpleSections = ({
   }
 
   if (activeSection === "documents") {
+    const contestsWithRules = contests
+      .filter(c => c.rulesLink && c.rulesLink !== '#')
+      .sort((a, b) => a.title.localeCompare(b.title, 'ru'));
+
     return (
       <div className="container mx-auto px-4 py-12">
-        <h2 className="text-5xl font-heading font-bold text-center mb-12 text-primary">📄 Документы</h2>
-        <div className="max-w-3xl mx-auto space-y-4">
-          {applicationFormUrl && (
-            <a href={applicationFormUrl} download className="block">
-              <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-x-2 rounded-2xl cursor-pointer border-2 border-primary/30 bg-gradient-to-r from-primary/5 to-secondary/5 mb-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-                      <Icon name="ClipboardList" className="text-white" size={24} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-heading font-semibold">Лист подачи заявки</h3>
-                      <p className="text-sm text-muted-foreground">Бланк заявки для участия в конкурсе (скачать)</p>
-                    </div>
-                  </div>
-                  <Icon name="Download" className="text-primary" size={24} />
-                </div>
-              </Card>
-            </a>
-          )}
-          {contests
-            .filter(c => c.rulesLink && c.rulesLink !== '#')
-            .sort((a, b) => a.title.localeCompare(b.title, 'ru'))
-            .map((contest, index) => (
-            <Card
-              key={index}
-              className="p-6 hover:shadow-xl transition-all duration-300 hover:-translate-x-2 rounded-2xl cursor-pointer"
-              onClick={() => {
-                setPdfUrl(contest.rulesLink);
-                setIsPdfModalOpen(true);
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-info to-success rounded-xl flex items-center justify-center">
-                    <Icon name="FileText" className="text-white" size={24} />
-                  </div>
-                  <h3 className="text-xl font-heading font-semibold">{contest.title} - положение</h3>
-                </div>
-                <Icon name="ExternalLink" className="text-info" size={24} />
+        <h2 className="text-4xl font-heading font-bold text-center mb-10 text-primary">📄 Документы</h2>
+
+        <div className="max-w-5xl mx-auto mb-10">
+          <h3 className="text-xl font-heading font-semibold mb-3 flex items-center gap-2">
+            <Icon name="FileText" size={20} className="text-primary" />
+            Положения конкурсов
+          </h3>
+          <Card className="rounded-2xl overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Конкурс / олимпиада</TableHead>
+                  <TableHead className="w-40 text-right">Положение</TableHead>
+                  <TableHead className="w-40 text-right">Лист заявки</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {contestsWithRules.map((contest) => (
+                  <TableRow key={contest.id}>
+                    <TableCell className="font-medium">{contest.title}</TableCell>
+                    <TableCell className="text-right">
+                      <button
+                        onClick={() => {
+                          setPdfUrl(contest.rulesLink);
+                          setIsPdfModalOpen(true);
+                        }}
+                        className="inline-flex items-center gap-1 text-sm text-info hover:underline font-medium"
+                      >
+                        Открыть
+                        <Icon name="ExternalLink" size={14} />
+                      </button>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {applicationFormUrl ? (
+                        <a
+                          href={applicationFormUrl}
+                          download
+                          className="inline-flex items-center gap-1 text-sm text-primary hover:underline font-medium"
+                        >
+                          Скачать
+                          <Icon name="Download" size={14} />
+                        </a>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {contestsWithRules.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                      Положения конкурсов пока не добавлены
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Card>
+        </div>
+
+        <div className="max-w-5xl mx-auto">
+          <h3 className="text-xl font-heading font-semibold mb-3 flex items-center gap-2">
+            <Icon name="Archive" size={20} className="text-secondary" />
+            Реестры сведений об участниках и результатах
+          </h3>
+          <Card className="rounded-2xl p-6">
+            {registries.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Реестры ещё не опубликованы</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {registries.map((r) => (
+                  <a
+                    key={`${r.year}-${r.month}`}
+                    href={r.pdf_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm bg-secondary/10 border-secondary/40 hover:bg-secondary/20 transition-colors"
+                  >
+                    <Icon name="FileDown" size={14} />
+                    {MONTHS_RU[r.month - 1]} {r.year}
+                  </a>
+                ))}
               </div>
-            </Card>
-          ))}
+            )}
+          </Card>
         </div>
       </div>
     );

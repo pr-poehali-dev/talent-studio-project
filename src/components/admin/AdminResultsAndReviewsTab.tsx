@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import Icon from "@/components/ui/icon";
 import ResultFiltersCard from "./ResultFiltersCard";
+import RegistryGeneratorCard from "./RegistryGeneratorCard";
 import ResultCard from "./ResultCard";
 import ReviewCard from "./ReviewCard";
 import ResultEditModal from "./ResultEditModal";
@@ -87,6 +88,8 @@ const AdminResultsAndReviewsTab = ({
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-heading font-bold text-primary">Результаты конкурсов</h2>
           </div>
+
+          <RegistryGeneratorCard />
 
           <ResultFiltersCard resultFilters={resultFilters} setResultFilters={setResultFilters} />
 

@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "Missing parameters",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {"error": "Parameters month and year are required"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Invalid month",
+      "method": "GET",
+      "path": "/?month=13&year=2026",
+      "expectedStatus": 400,
+      "expectedBody": {"error": "Invalid month or year"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

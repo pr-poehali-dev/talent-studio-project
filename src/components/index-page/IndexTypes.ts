@@ -58,6 +58,7 @@ export const REVIEWS_API_URL = "https://functions.poehali.dev/3daafc39-174c-4669
 export const PAYMENT_API_URL = "https://functions.poehali.dev/f40bd7c6-a503-4165-8673-e8091832d07c";
 export const SETTINGS_API_URL = "https://functions.poehali.dev/d316ce9a-d93a-4032-adc2-28e6d615a17b";
 export const UPLOAD_PRESIGNED_URL = "https://functions.poehali.dev/be7b31ca-63ff-4082-9667-d4ab8c4c7f94";
+export const GENERATE_REGISTRY_URL = "https://functions.poehali.dev/89c6513a-6206-485c-88b5-f1b02e85a195";
 
 export const contestCategories = [
   { id: "visual-arts", label: "Конкурсы изобразительного искусства", icon: "Palette", heading: "Конкурсы изобразительного искусства" },

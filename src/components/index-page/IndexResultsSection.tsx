@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -7,7 +8,8 @@ import { Calendar } from "@/components/ui/calendar";
 import Icon from "@/components/ui/icon";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { PublicResult } from "./IndexTypes";
+import { useToast } from "@/hooks/use-toast";
+import { PublicResult, GENERATE_REGISTRY_URL } from "./IndexTypes";
 
 interface ResultFilters {
   contest: string;
@@ -32,6 +34,7 @@ const MONTHS = [
 ];
 
 const RESULTS_PER_PAGE = 20;
+const CURRENT_YEAR = new Date().getFullYear();
 
 function getPageNumbers(current: number, total: number): (number | '...')[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
@@ -69,6 +72,29 @@ const IndexResultsSection = ({
   selectedMonth,
   setSelectedMonth,
 }: IndexResultsSectionProps) => {
+  const [registryMonth, setRegistryMonth] = useState(String(new Date().getMonth() + 1));
+  const [registryLoading, setRegistryLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleDownloadRegistry = async () => {
+    setRegistryLoading(true);
+    try {
+      const res = await fetch(`${GENERATE_REGISTRY_URL}?month=${registryMonth}&year=${CURRENT_YEAR}`);
+      if (!res.ok) throw new Error('Ошибка генерации');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `reestr_${registryMonth.padStart(2, '0')}_${CURRENT_YEAR}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast({ title: 'Ошибка', description: 'Не удалось скачать реестр за этот месяц', variant: 'destructive' });
+    } finally {
+      setRegistryLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-12">
       <h2 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">Итоги конкурсов и олимпиад за 2026 год</h2>
@@ -88,6 +114,30 @@ const IndexResultsSection = ({
             {month}
           </button>
         ))}
+      </div>
+
+      <div className="max-w-7xl mx-auto mb-8 flex justify-center">
+        <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
+          <button
+            type="button"
+            onClick={handleDownloadRegistry}
+            disabled={registryLoading}
+            className="text-secondary font-medium underline underline-offset-2 hover:text-secondary/80 disabled:opacity-60 inline-flex items-center gap-1.5"
+          >
+            <Icon name={registryLoading ? "Loader2" : "FileDown"} size={16} className={registryLoading ? "animate-spin" : ""} />
+            {registryLoading ? 'Формируется...' : 'Скачать реестр участников и результатов за'}
+          </button>
+          <Select value={registryMonth} onValueChange={setRegistryMonth}>
+            <SelectTrigger className="w-auto h-8 rounded-full border-secondary/40 text-sm font-medium">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {MONTHS.map((m, i) => (
+                <SelectItem key={m} value={String(i + 1)}>{m}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {selectedMonth !== null && (

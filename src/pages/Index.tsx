@@ -199,6 +199,12 @@ const Index = () => {
       });
     }
 
+    filtered.sort((a, b) => {
+      const dateA = a.diploma_issued_at ? new Date(a.diploma_issued_at).getTime() : 0;
+      const dateB = b.diploma_issued_at ? new Date(b.diploma_issued_at).getTime() : 0;
+      return dateA - dateB;
+    });
+
     setFilteredResults(filtered);
     setResultsPage(1);
   }, [results, resultFilters, selectedMonth]);

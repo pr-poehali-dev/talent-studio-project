@@ -73,7 +73,7 @@ const IndexResultsSection = ({
     <div className="container mx-auto px-4 py-12">
       <h2 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">Итоги конкурсов и олимпиад за 2026 год</h2>
 
-      <div className="max-w-7xl mx-auto mb-8 flex flex-wrap justify-center gap-2">
+      <div className="max-w-7xl mx-auto mb-4 flex flex-wrap justify-center gap-2">
         {MONTHS.map((month, index) => (
           <button
             key={month}
@@ -82,13 +82,19 @@ const IndexResultsSection = ({
             className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
               selectedMonth === index
                 ? 'bg-secondary text-white border-secondary'
-                : 'bg-white text-secondary border-secondary/30 hover:bg-secondary/10'
+                : 'bg-secondary/10 text-secondary border-secondary/40 hover:bg-secondary/20'
             }`}
           >
             {month}
           </button>
         ))}
       </div>
+
+      {selectedMonth !== null && (
+        <h3 className="text-2xl font-heading font-semibold text-center mb-8 text-secondary">
+          Результаты за {MONTHS[selectedMonth]}
+        </h3>
+      )}
 
       <div className="max-w-7xl mx-auto mb-8 bg-white rounded-lg shadow-sm border p-6">
         <div className="grid md:grid-cols-4 gap-4 mb-4">

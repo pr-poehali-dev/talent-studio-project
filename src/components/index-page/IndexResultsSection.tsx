@@ -22,7 +22,14 @@ interface IndexResultsSectionProps {
   setResultFilters: (f: ResultFilters) => void;
   resultsPage: number;
   setResultsPage: (p: number) => void;
+  selectedMonth: number | null;
+  setSelectedMonth: (m: number | null) => void;
 }
+
+const MONTHS = [
+  'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+];
 
 const RESULTS_PER_PAGE = 20;
 
@@ -59,10 +66,29 @@ const IndexResultsSection = ({
   setResultFilters,
   resultsPage,
   setResultsPage,
+  selectedMonth,
+  setSelectedMonth,
 }: IndexResultsSectionProps) => {
   return (
     <div className="container mx-auto px-4 py-12">
       <h2 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">Итоги конкурсов и олимпиад за 2026 год</h2>
+
+      <div className="max-w-7xl mx-auto mb-8 flex flex-wrap justify-center gap-2">
+        {MONTHS.map((month, index) => (
+          <button
+            key={month}
+            type="button"
+            onClick={() => setSelectedMonth(selectedMonth === index ? null : index)}
+            className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+              selectedMonth === index
+                ? 'bg-secondary text-white border-secondary'
+                : 'bg-white text-secondary border-secondary/30 hover:bg-secondary/10'
+            }`}
+          >
+            {month}
+          </button>
+        ))}
+      </div>
 
       <div className="max-w-7xl mx-auto mb-8 bg-white rounded-lg shadow-sm border p-6">
         <div className="grid md:grid-cols-4 gap-4 mb-4">
@@ -129,7 +155,10 @@ const IndexResultsSection = ({
         <div className="flex justify-end">
           <Button
             variant="outline"
-            onClick={() => setResultFilters({ contest: '', fullName: '', result: 'all', date: undefined })}
+            onClick={() => {
+              setResultFilters({ contest: '', fullName: '', result: 'all', date: undefined });
+              setSelectedMonth(null);
+            }}
           >
             Сбросить фильтр
           </Button>

@@ -60,6 +60,7 @@ const Index = () => {
     result: 'all',
     date: undefined as Date | undefined
   });
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [resultsPage, setResultsPage] = useState(1);
   const RESULTS_PER_PAGE = 20;
 
@@ -166,6 +167,13 @@ const Index = () => {
   useEffect(() => {
     let filtered = [...results];
 
+    if (selectedMonth !== null) {
+      filtered = filtered.filter(r => {
+        if (!r.diploma_issued_at) return false;
+        return new Date(r.diploma_issued_at).getMonth() === selectedMonth;
+      });
+    }
+
     if (resultFilters.contest) {
       filtered = filtered.filter(r =>
         r.contest_name.toLowerCase().includes(resultFilters.contest.toLowerCase())
@@ -193,7 +201,7 @@ const Index = () => {
 
     setFilteredResults(filtered);
     setResultsPage(1);
-  }, [results, resultFilters]);
+  }, [results, resultFilters, selectedMonth]);
 
   const simpleSections = [
     'gallery', 'documents', 'shop', 'reviews', 'about',
@@ -256,6 +264,8 @@ const Index = () => {
           setResultFilters={setResultFilters}
           resultsPage={resultsPage}
           setResultsPage={setResultsPage}
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
         />
       )}
 

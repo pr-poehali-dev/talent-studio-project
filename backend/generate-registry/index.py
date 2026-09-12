@@ -1,7 +1,9 @@
 import json
 import os
 import base64
+import uuid
 import urllib.request
+import boto3
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from io import BytesIO
@@ -36,10 +38,12 @@ HEADER_IMAGE_URL = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66
 
 CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400',
 }
+
+JSON_HEADERS = {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
 
 _img_cache: dict = {}
 
@@ -169,76 +173,157 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
     return buffer.getvalue()
 
 
-def handler(event: dict, context) -> dict:
-    '''Генерация PDF-реестра сведений об участниках и результатах за выбранный месяц и год'''
-    method = event.get('httpMethod', 'GET')
-
-    if method == 'OPTIONS':
-        return {'statusCode': 200, 'headers': CORS_HEADERS, 'body': ''}
-
-    if method != 'GET':
-        return {
-            'statusCode': 405,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'}),
-        }
-
-    params = event.get('queryStringParameters') or {}
+def parse_month_year(params: dict):
     month_raw = params.get('month')
     year_raw = params.get('year')
-
     if not month_raw or not year_raw:
-        return {
+        return None, None, {
             'statusCode': 400,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'headers': JSON_HEADERS,
             'body': json.dumps({'error': 'Parameters month and year are required'}),
         }
-
     try:
         month = int(month_raw)
         year = int(year_raw)
         if month < 1 or month > 12:
             raise ValueError
     except ValueError:
-        return {
+        return None, None, {
             'statusCode': 400,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'headers': JSON_HEADERS,
             'body': json.dumps({'error': 'Invalid month or year'}),
         }
+    return month, year, None
+
+
+def handler(event: dict, context) -> dict:
+    '''Управление PDF-реестрами сведений об участниках и результатах по месяцам:
+    формирование и сохранение реестра администратором (POST), получение списка
+    сохранённых реестров (GET action=list) и получение ссылки на готовый реестр
+    за конкретный месяц (GET month/year).'''
+    method = event.get('httpMethod', 'GET')
+
+    if method == 'OPTIONS':
+        return {'statusCode': 200, 'headers': CORS_HEADERS, 'body': ''}
 
     dsn = os.environ.get('DATABASE_URL')
-    conn = psycopg2.connect(dsn)
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                "SELECT full_name, age, teacher, institution, contest_name, result, diploma_issued_at "
-                "FROM results "
-                "WHERE diploma_issued_at IS NOT NULL "
-                "AND EXTRACT(MONTH FROM diploma_issued_at) = %s "
-                "AND EXTRACT(YEAR FROM diploma_issued_at) = %s "
-                "ORDER BY diploma_issued_at ASC",
-                (month, year)
+
+    if method == 'GET':
+        params = event.get('queryStringParameters') or {}
+
+        if params.get('action') == 'list':
+            conn = psycopg2.connect(dsn)
+            try:
+                with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                    cur.execute(
+                        'SELECT month, year, pdf_url, generated_at FROM monthly_registries '
+                        'ORDER BY year DESC, month DESC'
+                    )
+                    rows = [dict(r) for r in cur.fetchall()]
+            finally:
+                conn.close()
+            for r in rows:
+                if r.get('generated_at'):
+                    r['generated_at'] = r['generated_at'].isoformat()
+            return {
+                'statusCode': 200,
+                'headers': JSON_HEADERS,
+                'body': json.dumps(rows),
+            }
+
+        month, year, err = parse_month_year(params)
+        if err:
+            return err
+
+        conn = psycopg2.connect(dsn)
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    'SELECT pdf_url FROM monthly_registries WHERE month = %s AND year = %s',
+                    (month, year)
+                )
+                row = cur.fetchone()
+        finally:
+            conn.close()
+
+        if not row:
+            return {
+                'statusCode': 404,
+                'headers': JSON_HEADERS,
+                'body': json.dumps({'error': 'Registry not found'}),
+            }
+
+        return {
+            'statusCode': 200,
+            'headers': JSON_HEADERS,
+            'body': json.dumps({'pdf_url': row['pdf_url']}),
+        }
+
+    if method == 'POST':
+        body = json.loads(event.get('body', '{}'))
+        month, year, err = parse_month_year(body)
+        if err:
+            return err
+
+        conn = psycopg2.connect(dsn)
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    "SELECT full_name, age, teacher, institution, contest_name, result, diploma_issued_at "
+                    "FROM results "
+                    "WHERE diploma_issued_at IS NOT NULL "
+                    "AND EXTRACT(MONTH FROM diploma_issued_at) = %s "
+                    "AND EXTRACT(YEAR FROM diploma_issued_at) = %s "
+                    "ORDER BY diploma_issued_at ASC",
+                    (month, year)
+                )
+                rows = [dict(r) for r in cur.fetchall()]
+
+            for r in rows:
+                if r.get('diploma_issued_at'):
+                    r['diploma_issued_at'] = r['diploma_issued_at'].isoformat()
+
+            pdf_bytes = build_pdf(rows, month, year)
+
+            s3 = boto3.client(
+                's3',
+                endpoint_url='https://bucket.poehali.dev',
+                aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
             )
-            rows = [dict(r) for r in cur.fetchall()]
-    finally:
-        conn.close()
+            file_key = f'registries/reestr_{year}_{month:02d}.pdf'
+            s3.put_object(
+                Bucket='files',
+                Key=file_key,
+                Body=pdf_bytes,
+                ContentType='application/pdf',
+            )
+            pdf_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{file_key}?v={uuid.uuid4().hex[:8]}"
 
-    for r in rows:
-        if r.get('diploma_issued_at'):
-            r['diploma_issued_at'] = r['diploma_issued_at'].isoformat()
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    'INSERT INTO monthly_registries (month, year, pdf_url, generated_at) '
+                    'VALUES (%s, %s, %s, CURRENT_TIMESTAMP) '
+                    'ON CONFLICT (month, year) DO UPDATE SET '
+                    'pdf_url = EXCLUDED.pdf_url, generated_at = CURRENT_TIMESTAMP '
+                    'RETURNING month, year, pdf_url, generated_at',
+                    (month, year, pdf_url)
+                )
+                result = dict(cur.fetchone())
+                conn.commit()
+        finally:
+            conn.close()
 
-    pdf_bytes = build_pdf(rows, month, year)
-    pdf_b64 = base64.b64encode(pdf_bytes).decode('utf-8')
+        result['generated_at'] = result['generated_at'].isoformat()
 
-    filename = f'reestr_{month:02d}_{year}.pdf'
+        return {
+            'statusCode': 200,
+            'headers': JSON_HEADERS,
+            'body': json.dumps(result),
+        }
 
     return {
-        'statusCode': 200,
-        'headers': {
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': f'attachment; filename="{filename}"',
-            'Access-Control-Allow-Origin': '*',
-        },
-        'body': pdf_b64,
-        'isBase64Encoded': True,
+        'statusCode': 405,
+        'headers': JSON_HEADERS,
+        'body': json.dumps({'error': 'Method not allowed'}),
     }

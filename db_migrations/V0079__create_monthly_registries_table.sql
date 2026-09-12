@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS monthly_registries (
+    id SERIAL PRIMARY KEY,
+    month INTEGER NOT NULL CHECK (month BETWEEN 1 AND 12),
+    year INTEGER NOT NULL,
+    pdf_url TEXT NOT NULL,
+    generated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (month, year)
+);

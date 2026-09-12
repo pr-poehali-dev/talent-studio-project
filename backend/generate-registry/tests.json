@@ -17,6 +17,20 @@
       "bodyMatcher": "partial"
     },
     {
+      "name": "Registry not found",
+      "method": "GET",
+      "path": "/?month=1&year=1999",
+      "expectedStatus": 404,
+      "expectedBody": {"error": "Registry not found"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "List registries",
+      "method": "GET",
+      "path": "/?action=list",
+      "expectedStatus": 200
+    },
+    {
       "name": "OPTIONS preflight",
       "method": "OPTIONS",
       "path": "/",

@@ -81,14 +81,16 @@ const IndexResultsSection = ({
     setRegistryLoading(true);
     try {
       const res = await fetch(`${GENERATE_REGISTRY_URL}?month=${registryMonth}&year=${CURRENT_YEAR}`);
-      if (!res.ok) throw new Error('Ошибка генерации');
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `reestr_${registryMonth.padStart(2, '0')}_${CURRENT_YEAR}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+      if (res.status === 404) {
+        toast({
+          title: 'Реестр ещё не готов',
+          description: 'Реестр за текущий месяц публикуется 1–2 числа следующего месяца.',
+        });
+        return;
+      }
+      if (!res.ok) throw new Error('Ошибка получения реестра');
+      const data = await res.json();
+      window.open(data.pdf_url, '_blank');
     } catch {
       toast({ title: 'Ошибка', description: 'Не удалось скачать реестр за этот месяц', variant: 'destructive' });
     } finally {

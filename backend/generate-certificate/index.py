@@ -149,6 +149,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
     contest_name= result.get('contest_name') or '—'
     work_title  = result.get('work_title') or '—'
     result_id   = result.get('id', '')
+    registry_number = result.get('registry_number') or result_id
     display_num = cert_id if cert_id else result_id
 
     story = []
@@ -262,7 +263,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
     story.append(HRFlowable(width=usable_width, thickness=0.5, color=COLORS['mid_gray'], spaceAfter=2*mm))
     story.append(Paragraph(
         'Выписка выдана для предъявления по месту требования. '
-        f'Документ сформирован автоматически • ID результата: {result_id}',
+        f'Документ сформирован автоматически • ID результата: {registry_number}',
         footer_style
     ))
 

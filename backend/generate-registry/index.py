@@ -96,33 +96,34 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
     def S(name, **kw):
         return ParagraphStyle(name, parent=styles['Normal'], **kw)
 
-    approve_label_style = S('AL', fontSize=9, fontName=FB, alignment=TA_CENTER)
-    approve_text_style = S('AT', fontSize=8, fontName=F, alignment=TA_CENTER, leading=11)
-    approve_name_style = S('AN', fontSize=9, fontName=FB, alignment=TA_CENTER, spaceBefore=1 * mm)
+    approve_label_style = S('AL', fontSize=14, fontName=FB, alignment=TA_CENTER)
+    approve_text_style = S('AT', fontSize=10, fontName=F, alignment=TA_CENTER, leading=13)
+    approve_name_style = S('AN', fontSize=12, fontName=FB, alignment=TA_CENTER)
 
-    title_style = S('T', fontSize=16, fontName=FB, alignment=TA_CENTER, leading=20, spaceAfter=2 * mm)
-    subtitle_style = S('ST', fontSize=11, fontName=F, alignment=TA_CENTER, spaceAfter=5 * mm)
+    title_style = S('T', fontSize=22, fontName=FB, alignment=TA_CENTER, leading=27, spaceAfter=2 * mm)
+    subtitle_style = S('ST', fontSize=14, fontName=F, alignment=TA_CENTER, spaceAfter=5 * mm)
 
-    cell_style = S('C', fontSize=8, fontName=F, leading=10)
-    header_cell_style = S('HC', fontSize=8, fontName=FB, alignment=TA_CENTER, leading=10, textColor=white)
+    cell_style = S('C', fontSize=9, fontName=F, leading=11)
+    header_cell_style = S('HC', fontSize=9, fontName=FB, alignment=TA_CENTER, leading=11, textColor=white)
 
     story = []
 
     try:
-        logo_img = Image(fetch_image(LOGO_URL), width=26 * mm, height=26 * mm, kind='proportional')
+        logo_img = Image(fetch_image(LOGO_URL), width=95 * mm, height=95 * mm, kind='proportional')
     except Exception:
-        logo_img = Spacer(1, 26 * mm)
+        logo_img = Spacer(1, 95 * mm)
 
     try:
-        sign_img = Image(fetch_image(SIGN_STAMP_URL), width=28 * mm, height=28 * mm, kind='proportional')
+        sign_img = Image(fetch_image(SIGN_STAMP_URL), width=32 * mm, height=32 * mm, kind='proportional')
     except Exception:
-        sign_img = Spacer(1, 28 * mm)
+        sign_img = Spacer(1, 32 * mm)
 
     approve_block = [
         Paragraph('УТВЕРЖДАЮ', approve_label_style),
         Paragraph('Руководитель Студии талантов<br/>«Мечтай, твори, дерзай!»', approve_text_style),
-        sign_img,
+        Spacer(1, 2 * mm),
         Paragraph('Мозжерина Анна Владимировна', approve_name_style),
+        sign_img,
     ]
 
     header_table = Table(
@@ -175,10 +176,9 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
             Paragraph(r.get('institution') or '—', cell_style),
         ])
 
-    col_widths = [
-        8 * mm, 20 * mm, 38 * mm, 15 * mm, 38 * mm, 28 * mm, 38 * mm,
-        usable_width - (8 + 20 + 38 + 15 + 38 + 28 + 38) * mm
-    ]
+    fixed_widths_mm = [10, 24, 40, 22, 45, 32, 45]
+    col_widths = [w * mm for w in fixed_widths_mm]
+    col_widths.append(usable_width - sum(col_widths))
 
     table = Table(data, colWidths=col_widths, repeatRows=1)
     table.setStyle(TableStyle([

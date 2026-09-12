@@ -62,7 +62,7 @@ const IndexResultsSection = ({
 }: IndexResultsSectionProps) => {
   return (
     <div className="container mx-auto px-4 py-12">
-      <h2 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">Итоги конкурсов и олимпиад</h2>
+      <h2 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">Итоги конкурсов и олимпиад за 2026 год</h2>
 
       <div className="max-w-7xl mx-auto mb-8 bg-white rounded-lg shadow-sm border p-6">
         <div className="grid md:grid-cols-4 gap-4 mb-4">

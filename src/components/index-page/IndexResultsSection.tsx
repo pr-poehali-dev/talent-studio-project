@@ -127,9 +127,7 @@ const IndexResultsSection = ({
           className="text-black font-medium underline underline-offset-2 hover:text-black/70 disabled:opacity-40 disabled:no-underline disabled:cursor-not-allowed inline-flex items-center gap-1.5 text-sm"
         >
           <Icon name={registryLoading ? "Loader2" : "FileDown"} size={16} className={registryLoading ? "animate-spin" : ""} />
-          {registryLoading
-            ? 'Формируется...'
-            : `Скачать реестр сведений об участниках и результатах за${selectedMonth !== null ? ` ${MONTHS[selectedMonth].toLowerCase()}` : ''}`}
+          {`Скачать реестр сведений об участниках и результатах за${selectedMonth !== null ? ` ${MONTHS[selectedMonth].toLowerCase()}` : ''}`}
         </button>
       </div>
 

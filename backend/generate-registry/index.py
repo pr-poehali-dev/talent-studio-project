@@ -8,12 +8,35 @@ from io import BytesIO
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.units import mm
 from reportlab.lib.colors import HexColor, black, white
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, HRFlowable
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, Flowable
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from datetime import date
+
+
+class SignatureWithLine(Flowable):
+    '''Картинка подписи+печати с чёрной линией строго под рукописной подписью
+    (подпись занимает левую часть исходного изображения, печать наложена правее/ниже).'''
+
+    def __init__(self, img_data: BytesIO, width: float, height: float,
+                 line_width_frac: float, line_y_frac_from_bottom: float):
+        super().__init__()
+        self.img = Image(img_data, width=width, height=height, kind='proportional')
+        self.width = width
+        self.height = height
+        self.line_width = width * line_width_frac
+        self.line_y = height * line_y_frac_from_bottom
+
+    def wrap(self, availWidth, availHeight):
+        return (self.width, self.height)
+
+    def draw(self):
+        self.img.drawOn(self.canv, 0, 0)
+        self.canv.setLineWidth(1)
+        self.canv.setStrokeColor(black)
+        self.canv.line(0, self.line_y, self.line_width, self.line_y)
 
 
 RESULT_LABELS = {
@@ -113,18 +136,28 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
     except Exception:
         logo_img = Spacer(1, 65 * mm)
 
+    # Оригинал 622x532px — рукописная подпись занимает левую часть изображения
+    # (0–47% ширины, нижний край подписи на ~69% высоты от верха), печать наложена
+    # правее и ниже внахлест. Линию рисуем строго под подписью, не под печатью.
+    sign_w = 84 * mm
+    sign_h = sign_w * 532 / 622
+    line_width_frac = 294 / 622
+    line_y_frac_from_bottom = (532 - 366) / 532
+
     try:
-        sign_img = Image(fetch_image(SIGN_STAMP_URL), width=32 * mm, height=32 * mm, kind='proportional')
+        sign_flowable = SignatureWithLine(
+            fetch_image(SIGN_STAMP_URL), sign_w, sign_h,
+            line_width_frac, line_y_frac_from_bottom
+        )
     except Exception:
-        sign_img = Spacer(1, 32 * mm)
+        sign_flowable = Spacer(1, sign_h)
 
     approve_block = [
         Paragraph('УТВЕРЖДАЮ', approve_label_style),
         Paragraph('Руководитель Студии талантов<br/>«Мечтай, твори, дерзай!»', approve_text_style),
         Spacer(1, 3 * mm),
         Paragraph('Мозжерина Анна Владимировна', approve_name_style),
-        sign_img,
-        HRFlowable(width=45 * mm, thickness=1, color=black, hAlign='CENTER', spaceBefore=1 * mm),
+        sign_flowable,
     ]
 
     header_table = Table(

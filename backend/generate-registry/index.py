@@ -8,7 +8,7 @@ from io import BytesIO
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.units import mm
 from reportlab.lib.colors import HexColor, black, white
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, HRFlowable
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER
 from reportlab.pdfbase import pdfmetrics
@@ -96,22 +96,22 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
     def S(name, **kw):
         return ParagraphStyle(name, parent=styles['Normal'], **kw)
 
-    approve_label_style = S('AL', fontSize=14, fontName=FB, alignment=TA_CENTER)
-    approve_text_style = S('AT', fontSize=10, fontName=F, alignment=TA_CENTER, leading=13)
-    approve_name_style = S('AN', fontSize=12, fontName=FB, alignment=TA_CENTER)
+    approve_label_style = S('AL', fontSize=16, fontName=FB, alignment=TA_CENTER, leading=20)
+    approve_text_style = S('AT', fontSize=12, fontName=F, alignment=TA_CENTER, leading=18)
+    approve_name_style = S('AN', fontSize=14, fontName=FB, alignment=TA_CENTER, leading=18)
 
     title_style = S('T', fontSize=22, fontName=FB, alignment=TA_CENTER, leading=27, spaceAfter=2 * mm)
     subtitle_style = S('ST', fontSize=14, fontName=F, alignment=TA_CENTER, spaceAfter=5 * mm)
 
     cell_style = S('C', fontSize=9, fontName=F, leading=11)
-    header_cell_style = S('HC', fontSize=9, fontName=FB, alignment=TA_CENTER, leading=11, textColor=white)
+    header_cell_style = S('HC', fontSize=9, fontName=FB, alignment=TA_CENTER, leading=11, textColor=black)
 
     story = []
 
     try:
-        logo_img = Image(fetch_image(LOGO_URL), width=95 * mm, height=95 * mm, kind='proportional')
+        logo_img = Image(fetch_image(LOGO_URL), width=65 * mm, height=65 * mm, kind='proportional')
     except Exception:
-        logo_img = Spacer(1, 95 * mm)
+        logo_img = Spacer(1, 65 * mm)
 
     try:
         sign_img = Image(fetch_image(SIGN_STAMP_URL), width=32 * mm, height=32 * mm, kind='proportional')
@@ -121,9 +121,10 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
     approve_block = [
         Paragraph('УТВЕРЖДАЮ', approve_label_style),
         Paragraph('Руководитель Студии талантов<br/>«Мечтай, твори, дерзай!»', approve_text_style),
-        Spacer(1, 2 * mm),
+        Spacer(1, 3 * mm),
         Paragraph('Мозжерина Анна Владимировна', approve_name_style),
         sign_img,
+        HRFlowable(width=45 * mm, thickness=1, color=black, hAlign='CENTER', spaceBefore=1 * mm),
     ]
 
     header_table = Table(
@@ -182,7 +183,7 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
 
     table = Table(data, colWidths=col_widths, repeatRows=1)
     table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), HexColor('#1a1a2e')),
+        ('BACKGROUND', (0, 0), (-1, 0), HexColor('#e5e5e5')),
         ('GRID', (0, 0), (-1, -1), 0.5, black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 2 * mm),

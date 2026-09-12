@@ -99,30 +99,13 @@ const IndexResultsSection = ({
     <div className="container mx-auto px-4 py-12">
       <h2 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">Итоги конкурсов и олимпиад за 2026 год</h2>
 
-      <div className="max-w-7xl mx-auto mb-4 flex flex-wrap justify-center gap-2">
-        {MONTHS.map((month, index) => (
-          <button
-            key={month}
-            type="button"
-            onClick={() => setSelectedMonth(selectedMonth === index ? null : index)}
-            className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
-              selectedMonth === index
-                ? 'bg-secondary text-white border-secondary'
-                : 'bg-secondary/10 text-black border-secondary/40 hover:bg-secondary/20'
-            }`}
-          >
-            {month}
-          </button>
-        ))}
-      </div>
-
-      <div className="max-w-7xl mx-auto mb-8 flex justify-center">
+      <div className="max-w-7xl mx-auto mb-4 flex justify-center">
         <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
           <button
             type="button"
             onClick={handleDownloadRegistry}
             disabled={registryLoading}
-            className="text-secondary font-medium underline underline-offset-2 hover:text-secondary/80 disabled:opacity-60 inline-flex items-center gap-1.5"
+            className="text-black font-medium underline underline-offset-2 hover:text-black/70 disabled:opacity-60 inline-flex items-center gap-1.5"
           >
             <Icon name={registryLoading ? "Loader2" : "FileDown"} size={16} className={registryLoading ? "animate-spin" : ""} />
             {registryLoading ? 'Формируется...' : 'Скачать реестр участников и результатов за'}
@@ -138,6 +121,23 @@ const IndexResultsSection = ({
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto mb-4 flex flex-wrap justify-center gap-2">
+        {MONTHS.map((month, index) => (
+          <button
+            key={month}
+            type="button"
+            onClick={() => setSelectedMonth(selectedMonth === index ? null : index)}
+            className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+              selectedMonth === index
+                ? 'bg-secondary text-white border-secondary'
+                : 'bg-secondary/10 text-black border-secondary/40 hover:bg-secondary/20'
+            }`}
+          >
+            {month}
+          </button>
+        ))}
       </div>
 
       {selectedMonth !== null && (

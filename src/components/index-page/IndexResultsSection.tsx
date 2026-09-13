@@ -133,7 +133,7 @@ const IndexResultsSection = ({
 
       {selectedMonth !== null && (
         <h3 className="text-2xl font-heading font-bold text-center mb-8 text-black">
-          Результаты за {MONTHS[selectedMonth]}
+          Результаты за {MONTHS[selectedMonth].toLowerCase()}
         </h3>
       )}
 

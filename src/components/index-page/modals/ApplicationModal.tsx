@@ -285,7 +285,7 @@ const ApplicationModal = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="studyYear" className="text-base font-semibold">Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
+            <Label htmlFor="studyYear" className="text-base font-semibold">Год обучения (для учащихся ДШИ, ДХШ, ДДТ, ЦДТ и т.п.)</Label>
             <Input id="studyYear" name="studyYear" type="text" placeholder="Например: 3ий год обучения" className="rounded-xl border-2 focus:border-primary" />
           </div>
 

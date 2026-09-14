@@ -144,6 +144,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
 
     full_name   = result.get('full_name') or '—'
     age         = result.get('age')
+    study_year  = result.get('study_year')
     teacher     = result.get('teacher') or '—'
     institution = result.get('institution') or '—'
     contest_name= result.get('contest_name') or '—'
@@ -191,10 +192,12 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
         return [Paragraph(label, label_style), Paragraph(str(value), value_style)]
 
     age_str = str(age) if age else '—'
+    study_year_str = str(study_year) if study_year else '—'
 
     data = [
         row('ФИО участника',            full_name),
         row('Возраст',                  age_str),
+        row('Год обучения',             study_year_str),
         row('Конкурс',                  contest_name),
         row('Номинация / Работа',       work_title),
         row('Педагог / Руководитель',    teacher),
@@ -320,7 +323,7 @@ def handler(event: dict, context) -> dict:
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
-                'SELECT id, full_name, age, teacher, institution, work_title, '
+                'SELECT id, full_name, age, study_year, teacher, institution, work_title, '
                 'contest_name, result, diploma_issued_at, created_at, registry_number '
                 'FROM results WHERE id = %s',
                 (result_id,)

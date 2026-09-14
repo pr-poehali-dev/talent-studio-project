@@ -6,7 +6,7 @@ interface Result {
   id: number;
   application_id: number | null;
   full_name: string;
-  age: number | null;
+  age: string | null;
   study_year: string | null;
   teacher: string | null;
   institution: string | null;
@@ -44,7 +44,7 @@ const ResultCard = ({ result, handleDeleteResult, handleEditResult }: ResultCard
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Возраст</p>
-              <p className="font-semibold text-sm">{result.age} лет</p>
+              <p className="font-semibold text-sm">{result.age || '—'}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Год обучения</p>

@@ -9,7 +9,7 @@ interface Result {
   id: number;
   application_id: number | null;
   full_name: string;
-  age: number | null;
+  age: string | null;
   study_year: string | null;
   teacher: string | null;
   institution: string | null;
@@ -68,9 +68,10 @@ const ResultEditModal = ({
             <div className="space-y-2">
               <Label>Возраст</Label>
               <Input
-                type="number"
+                type="text"
                 value={editingResult.age || ''}
-                onChange={(e) => setEditingResult({...editingResult, age: parseInt(e.target.value) || null})}
+                onChange={(e) => setEditingResult({...editingResult, age: e.target.value || null})}
+                placeholder="Например: 12 лет"
                 className="rounded-xl"
               />
             </div>

@@ -10,7 +10,7 @@ interface Result {
   id: number;
   application_id: number | null;
   full_name: string;
-  age: number | null;
+  age: string | null;
   study_year: string | null;
   teacher: string | null;
   institution: string | null;

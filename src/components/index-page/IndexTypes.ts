@@ -16,7 +16,7 @@ export interface Contest {
 export interface PublicResult {
   id: number;
   full_name: string;
-  age: number | null;
+  age: string | null;
   study_year: string | null;
   teacher: string | null;
   institution: string | null;

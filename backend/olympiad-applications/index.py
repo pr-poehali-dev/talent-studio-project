@@ -203,7 +203,7 @@ def handler(event: dict, context) -> dict:
             diploma_issued_at = body.get('diploma_issued_at')
             # Получаем данные заявки
             cursor.execute("""
-                SELECT full_name, age, teacher, institution, work_title, email, olympiad_type, place
+                SELECT full_name, age, teacher, institution, work_title, email, olympiad_type, place, study_year
                 FROM olympiad_applications WHERE id = %s
             """, (app_id,))
             app_row = cursor.fetchone()
@@ -229,10 +229,14 @@ def handler(event: dict, context) -> dict:
             }
             contest_name = olympiad_names.get(app_row[6], 'Олимпиада')
 
+            study_year_val = app_row[8]
+            study_year_str = f'{study_year_val}-й год обучения' if study_year_val else None
+
             results_url = 'https://functions.poehali.dev/e1f9698c-ec8a-4b24-89c2-72bb579d7f9b'
             payload = json.dumps({
                 'full_name': app_row[0],
                 'age': app_row[1],
+                'study_year': study_year_str,
                 'teacher': app_row[2],
                 'institution': app_row[3],
                 'work_title': app_row[4],

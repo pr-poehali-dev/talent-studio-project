@@ -26,6 +26,7 @@ import {
   CERTIFICATES_LOG_URL,
   OLYMPIAD_APPLICATIONS_URL,
 } from "@/components/admin/AdminTypes";
+import { STUDY_YEAR_NONE } from "@/lib/studyYearOptions";
 
 type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue' | 'olympiads' | 'participants';
 
@@ -484,7 +485,7 @@ const Admin = () => {
         body: JSON.stringify({
           full_name: fd.get('manualFullName'),
           age: parseInt(fd.get('manualAge') as string),
-          study_year: fd.get('manualStudyYear') || null,
+          study_year: fd.get('manualStudyYear') === STUDY_YEAR_NONE ? null : fd.get('manualStudyYear'),
           teacher: fd.get('manualTeacher') || null,
           institution: fd.get('manualInstitution') || null,
           work_title: fd.get('manualWorkTitle'),

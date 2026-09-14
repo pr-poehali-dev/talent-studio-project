@@ -9,7 +9,7 @@ import Icon from "@/components/ui/icon";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import Seo from "@/components/Seo";
-import { STUDY_YEAR_OPTIONS } from "@/lib/studyYearOptions";
+import { STUDY_YEAR_OPTIONS, STUDY_YEAR_NONE } from "@/lib/studyYearOptions";
 
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
 const UPLOAD_FILE_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
@@ -44,7 +44,7 @@ function makeParticipant(): Participant {
     id: crypto.randomUUID(),
     fullName: "",
     age: "",
-    studyYear: "",
+    studyYear: STUDY_YEAR_NONE,
     contestId: "",
     workTitle: "",
     file: null,
@@ -165,7 +165,7 @@ export default function CollectiveApplication() {
       const participantsData = participants.map((p) => ({
         full_name: p.fullName,
         age: p.age,
-        study_year: p.studyYear || null,
+        study_year: p.studyYear === STUDY_YEAR_NONE ? null : p.studyYear,
         contest_id: Number(p.contestId),
         contest_name: contests.find((c) => String(c.id) === p.contestId)?.title || "",
         work_title: p.workTitle,
@@ -277,7 +277,7 @@ export default function CollectiveApplication() {
                     <Label>Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
                     <Select value={p.studyYear} onValueChange={(v) => updateParticipant(p.id, { studyYear: v })}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Не указано" />
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {STUDY_YEAR_OPTIONS.map((opt) => (

@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { Contest, PAYMENT_API_URL } from "../IndexTypes";
-import { STUDY_YEAR_OPTIONS } from "@/lib/studyYearOptions";
+import { STUDY_YEAR_OPTIONS, STUDY_YEAR_NONE } from "@/lib/studyYearOptions";
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
 const CHUNK_SIZE = 2 * 1024 * 1024;
@@ -97,7 +97,7 @@ const ApplicationModal = ({
   const [fileItems, setFileItems] = useState<UploadedFileItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitProgress, setSubmitProgress] = useState(0);
-  const [studyYear, setStudyYear] = useState<string>("");
+  const [studyYear, setStudyYear] = useState<string>(STUDY_YEAR_NONE);
 
   const handleClose = (open: boolean) => {
     setIsModalOpen(open);
@@ -108,7 +108,7 @@ const ApplicationModal = ({
       setUploadedFile(null);
       setUploadProgress(0);
       setIsUploading(false);
-      setStudyYear("");
+      setStudyYear(STUDY_YEAR_NONE);
     }
   };
 
@@ -229,7 +229,7 @@ const ApplicationModal = ({
               const applicationData = {
                 full_name: formData.get('fullName'),
                 age: formData.get('age'),
-                study_year: studyYear || null,
+                study_year: studyYear === STUDY_YEAR_NONE ? null : studyYear,
                 teacher: formData.get('teacher') || null,
                 institution: formData.get('institution') || null,
                 work_title: formData.get('workTitle'),
@@ -292,7 +292,7 @@ const ApplicationModal = ({
             <Label htmlFor="studyYear" className="text-base font-semibold">Год обучения (для учащихся ДШИ, ДХШ, ДДТ, ЦДТ и т.п.)</Label>
             <Select value={studyYear} onValueChange={setStudyYear}>
               <SelectTrigger id="studyYear" className="rounded-xl border-2 focus:border-primary">
-                <SelectValue placeholder="Не указано" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {STUDY_YEAR_OPTIONS.map((opt) => (

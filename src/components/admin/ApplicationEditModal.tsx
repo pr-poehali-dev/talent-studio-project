@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import Icon from "@/components/ui/icon";
-import { STUDY_YEAR_OPTIONS } from "@/lib/studyYearOptions";
+import { STUDY_YEAR_OPTIONS, STUDY_YEAR_NONE } from "@/lib/studyYearOptions";
 
 interface Application {
   id: number;
@@ -134,7 +134,7 @@ const ApplicationEditModal = ({
   const [workFileUploadProgress, setWorkFileUploadProgress] = useState(0);
   const [primaryFileUrl, setPrimaryFileUrl] = useState<string | null>(null);
   const [allFiles, setAllFiles] = useState<string[]>([]);
-  const [studyYear, setStudyYear] = useState<string>('');
+  const [studyYear, setStudyYear] = useState<string>(STUDY_YEAR_NONE);
 
   useEffect(() => {
     if (editingApplication && isOpen) {
@@ -144,7 +144,7 @@ const ApplicationEditModal = ({
       setPrimaryFileUrl(editingApplication.work_file_url);
       setSelectedContestId(editingApplication.contest_id ? String(editingApplication.contest_id) : 'none');
       setIsPreferential(editingApplication.is_preferential ?? false);
-      setStudyYear(editingApplication.study_year || '');
+      setStudyYear(editingApplication.study_year || STUDY_YEAR_NONE);
     }
   }, [editingApplication?.id, isOpen]);
 
@@ -219,7 +219,7 @@ const ApplicationEditModal = ({
                   id: editingApplication.id,
                   full_name: formData.get('fullName') as string,
                   age: formData.get('age') as string,
-                  study_year: studyYear || null,
+                  study_year: studyYear === STUDY_YEAR_NONE ? null : studyYear,
                   teacher: formData.get('teacher') as string || null,
                   institution: formData.get('institution') as string || null,
                   work_title: formData.get('workTitle') as string,
@@ -266,7 +266,7 @@ const ApplicationEditModal = ({
               <Label htmlFor="studyYear" className="text-base font-semibold">Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
               <Select value={studyYear} onValueChange={setStudyYear}>
                 <SelectTrigger id="studyYear" className="rounded-xl border-2 focus:border-primary">
-                  <SelectValue placeholder="Не указано" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {STUDY_YEAR_OPTIONS.map((opt) => (

@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import Icon from "@/components/ui/icon";
-import { STUDY_YEAR_OPTIONS } from "@/lib/studyYearOptions";
+import { STUDY_YEAR_OPTIONS, STUDY_YEAR_NONE } from "@/lib/studyYearOptions";
 
 interface Contest {
   id?: number;
@@ -40,10 +40,10 @@ const ApplicationManualModal = ({
   handleManualAppSubmit,
   toast,
 }: ApplicationManualModalProps) => {
-  const [manualStudyYear, setManualStudyYear] = useState("");
+  const [manualStudyYear, setManualStudyYear] = useState(STUDY_YEAR_NONE);
 
   useEffect(() => {
-    if (!isOpen) setManualStudyYear("");
+    if (!isOpen) setManualStudyYear(STUDY_YEAR_NONE);
   }, [isOpen]);
 
   return (
@@ -71,7 +71,7 @@ const ApplicationManualModal = ({
             <input type="hidden" name="manualStudyYear" value={manualStudyYear} />
             <Select value={manualStudyYear} onValueChange={setManualStudyYear}>
               <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Не указано" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {STUDY_YEAR_OPTIONS.map((opt) => (

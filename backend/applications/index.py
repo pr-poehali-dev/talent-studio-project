@@ -33,7 +33,7 @@ def handler(event: dict, context) -> dict:
                     SELECT id, full_name, age, teacher, institution, work_title, 
                            email, contest_id, contest_name, work_file_url, 
                            status, result, gallery_consent, created_at, updated_at, deleted_at,
-                           diploma_issued_at, is_featured, is_collective, extra_files, is_preferential
+                           diploma_issued_at, is_featured, is_collective, extra_files, is_preferential, study_year
                     FROM applications
                     WHERE deleted_at IS NOT NULL
                     ORDER BY deleted_at DESC
@@ -43,7 +43,7 @@ def handler(event: dict, context) -> dict:
                     SELECT id, full_name, age, teacher, institution, work_title, 
                            email, contest_id, contest_name, work_file_url, 
                            status, result, gallery_consent, created_at, updated_at, deleted_at,
-                           diploma_issued_at, is_featured, is_collective, extra_files, is_preferential
+                           diploma_issued_at, is_featured, is_collective, extra_files, is_preferential, study_year
                     FROM applications
                     WHERE deleted_at IS NULL
                     ORDER BY created_at DESC
@@ -74,7 +74,8 @@ def handler(event: dict, context) -> dict:
                     'is_featured': row[17] if row[17] is not None else False,
                     'is_collective': row[18] if row[18] is not None else False,
                     'extra_files': list(row[19]) if row[19] else [],
-                    'is_preferential': row[20] if row[20] is not None else False
+                    'is_preferential': row[20] if row[20] is not None else False,
+                    'study_year': row[21]
                 }
                 applications.append(app_data)
             
@@ -118,19 +119,20 @@ def handler(event: dict, context) -> dict:
 
             contest_name = body.get('contest_name', None)
             is_preferential = body.get('is_preferential', False)
+            study_year = body.get('study_year', None)
 
             if body.get('work_file_url'):
                 if extra_files is not None:
                     cursor.execute("""
                         UPDATE applications 
-                        SET full_name = %s, age = %s, teacher = %s, institution = %s,
+                        SET full_name = %s, age = %s, study_year = %s, teacher = %s, institution = %s,
                             work_title = %s, email = %s, status = %s, result = %s,
                             diploma_issued_at = %s, is_featured = %s, work_file_url = %s,
                             extra_files = %s, contest_id = %s, contest_name = %s,
                             is_preferential = %s, updated_at = CURRENT_TIMESTAMP
                         WHERE id = %s
                     """, (
-                        body.get('full_name'), body.get('age'), body.get('teacher'),
+                        body.get('full_name'), body.get('age'), study_year, body.get('teacher'),
                         body.get('institution'), body.get('work_title'), body.get('email'),
                         body.get('status'), body.get('result'), body.get('diploma_issued_at'),
                         body.get('is_featured', False), body.get('work_file_url'),
@@ -139,14 +141,14 @@ def handler(event: dict, context) -> dict:
                 else:
                     cursor.execute("""
                         UPDATE applications 
-                        SET full_name = %s, age = %s, teacher = %s, institution = %s,
+                        SET full_name = %s, age = %s, study_year = %s, teacher = %s, institution = %s,
                             work_title = %s, email = %s, status = %s, result = %s,
                             diploma_issued_at = %s, is_featured = %s, work_file_url = %s,
                             contest_id = %s, contest_name = %s,
                             is_preferential = %s, updated_at = CURRENT_TIMESTAMP
                         WHERE id = %s
                     """, (
-                        body.get('full_name'), body.get('age'), body.get('teacher'),
+                        body.get('full_name'), body.get('age'), study_year, body.get('teacher'),
                         body.get('institution'), body.get('work_title'), body.get('email'),
                         body.get('status'), body.get('result'), body.get('diploma_issued_at'),
                         body.get('is_featured', False), body.get('work_file_url'),
@@ -156,14 +158,14 @@ def handler(event: dict, context) -> dict:
                 if extra_files is not None:
                     cursor.execute("""
                         UPDATE applications 
-                        SET full_name = %s, age = %s, teacher = %s, institution = %s,
+                        SET full_name = %s, age = %s, study_year = %s, teacher = %s, institution = %s,
                             work_title = %s, email = %s, status = %s, result = %s,
                             diploma_issued_at = %s, is_featured = %s,
                             extra_files = %s, contest_id = %s, contest_name = %s,
                             is_preferential = %s, updated_at = CURRENT_TIMESTAMP
                         WHERE id = %s
                     """, (
-                        body.get('full_name'), body.get('age'), body.get('teacher'),
+                        body.get('full_name'), body.get('age'), study_year, body.get('teacher'),
                         body.get('institution'), body.get('work_title'), body.get('email'),
                         body.get('status'), body.get('result'), body.get('diploma_issued_at'),
                         body.get('is_featured', False), extra_files_sql,
@@ -172,14 +174,14 @@ def handler(event: dict, context) -> dict:
                 else:
                     cursor.execute("""
                         UPDATE applications 
-                        SET full_name = %s, age = %s, teacher = %s, institution = %s,
+                        SET full_name = %s, age = %s, study_year = %s, teacher = %s, institution = %s,
                             work_title = %s, email = %s, status = %s, result = %s,
                             diploma_issued_at = %s, is_featured = %s,
                             contest_id = %s, contest_name = %s,
                             is_preferential = %s, updated_at = CURRENT_TIMESTAMP
                         WHERE id = %s
                     """, (
-                        body.get('full_name'), body.get('age'), body.get('teacher'),
+                        body.get('full_name'), body.get('age'), study_year, body.get('teacher'),
                         body.get('institution'), body.get('work_title'), body.get('email'),
                         body.get('status'), body.get('result'), body.get('diploma_issued_at'),
                         body.get('is_featured', False), contest_id, contest_name,

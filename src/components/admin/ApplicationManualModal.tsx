@@ -59,6 +59,11 @@ const ApplicationManualModal = ({
           </div>
 
           <div className="space-y-2">
+            <Label>Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
+            <Input name="manualStudyYear" placeholder="Например: 5-й класс" className="rounded-xl" />
+          </div>
+
+          <div className="space-y-2">
             <Label>Педагог</Label>
             <Input name="manualTeacher" placeholder="ФИО педагога (если есть)" className="rounded-xl" />
           </div>

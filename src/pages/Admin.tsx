@@ -483,6 +483,7 @@ const Admin = () => {
         body: JSON.stringify({
           full_name: fd.get('manualFullName'),
           age: parseInt(fd.get('manualAge') as string),
+          study_year: fd.get('manualStudyYear') || null,
           teacher: fd.get('manualTeacher') || null,
           institution: fd.get('manualInstitution') || null,
           work_title: fd.get('manualWorkTitle'),

@@ -29,6 +29,7 @@ interface Participant {
   id: string;
   fullName: string;
   age: string;
+  studyYear: string;
   contestId: string;
   workTitle: string;
   file: File | null;
@@ -42,6 +43,7 @@ function makeParticipant(): Participant {
     id: crypto.randomUUID(),
     fullName: "",
     age: "",
+    studyYear: "",
     contestId: "",
     workTitle: "",
     file: null,
@@ -162,6 +164,7 @@ export default function CollectiveApplication() {
       const participantsData = participants.map((p) => ({
         full_name: p.fullName,
         age: p.age,
+        study_year: p.studyYear || null,
         contest_id: Number(p.contestId),
         contest_name: contests.find((c) => String(c.id) === p.contestId)?.title || "",
         work_title: p.workTitle,
@@ -264,9 +267,14 @@ export default function CollectiveApplication() {
                       <Input value={p.fullName} onChange={(e) => updateParticipant(p.id, { fullName: e.target.value })} placeholder="Фамилия Имя Отчество" />
                     </div>
                     <div className="space-y-1">
-                      <Label>Возраст, год обучения *</Label>
-                      <Input value={p.age} onChange={(e) => updateParticipant(p.id, { age: e.target.value })} placeholder="Возраст, год обучения" />
+                      <Label>Возраст *</Label>
+                      <Input value={p.age} onChange={(e) => updateParticipant(p.id, { age: e.target.value })} placeholder="Возраст" />
                     </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label>Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
+                    <Input value={p.studyYear} onChange={(e) => updateParticipant(p.id, { studyYear: e.target.value })} placeholder="Например: 5-й класс" />
                   </div>
 
                   <div className="space-y-1">

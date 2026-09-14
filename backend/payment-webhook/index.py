@@ -163,13 +163,14 @@ def handler(event: dict, context) -> dict:
                     
                     cur.execute(
                         '''INSERT INTO applications 
-                           (full_name, age, teacher, institution, work_title, email, contest_name,
+                           (full_name, age, study_year, teacher, institution, work_title, email, contest_name,
                             contest_id, gallery_consent, payment_status, work_file_url, is_collective, created_at)
-                           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
                            RETURNING id''',
                         (
                             participant.get('full_name'),
                             age,
+                            participant.get('study_year'),
                             participant.get('teacher'),
                             participant.get('institution'),
                             participant.get('work_title'),
@@ -201,13 +202,14 @@ def handler(event: dict, context) -> dict:
             extra_files_sql = '{' + ','.join('"' + f.replace('"', '\\"') + '"' for f in extra_files) + '}' if extra_files else '{}'
             cur.execute(
                 '''INSERT INTO applications 
-                   (full_name, age, teacher, institution, work_title, email, contest_name,
+                   (full_name, age, study_year, teacher, institution, work_title, email, contest_name,
                     file_name, file_type, gallery_consent, payment_status, work_file_url, extra_files, created_at)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
                    RETURNING id''',
                 (
                     app_data.get('full_name'),
                     app_data.get('age'),
+                    app_data.get('study_year'),
                     app_data.get('teacher'),
                     app_data.get('institution'),
                     app_data.get('work_title'),

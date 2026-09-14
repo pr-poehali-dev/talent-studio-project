@@ -6,6 +6,7 @@ interface Application {
   id: number;
   full_name: string;
   age: number;
+  study_year: string | null;
   teacher: string | null;
   institution: string | null;
   work_title: string;
@@ -82,6 +83,10 @@ const ApplicationCard = (props: ApplicationCardProps) => {
               <div>
                 <p className="text-xs text-muted-foreground">Возраст</p>
                 <p className="font-semibold text-sm">{app.age}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Год обучения</p>
+                <p className="font-semibold text-sm">{app.study_year || '—'}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Название работы</p>
@@ -228,6 +233,10 @@ const ApplicationCard = (props: ApplicationCardProps) => {
               <div>
                 <p className="text-xs text-muted-foreground">Возраст</p>
                 <p className="font-semibold text-sm">{app.age}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Год обучения</p>
+                <p className="font-semibold text-sm">{app.study_year || '—'}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Название работы</p>

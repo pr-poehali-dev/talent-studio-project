@@ -225,6 +225,7 @@ const ApplicationModal = ({
               const applicationData = {
                 full_name: formData.get('fullName'),
                 age: formData.get('age'),
+                study_year: formData.get('studyYear') || null,
                 teacher: formData.get('teacher') || null,
                 institution: formData.get('institution') || null,
                 work_title: formData.get('workTitle'),
@@ -279,8 +280,13 @@ const ApplicationModal = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="age" className="text-base font-semibold">Возраст, год обучения *</Label>
-            <Input id="age" name="age" type="text" placeholder="Например: 12 лет, 5-й класс" required className="rounded-xl border-2 focus:border-primary" />
+            <Label htmlFor="age" className="text-base font-semibold">Возраст *</Label>
+            <Input id="age" name="age" type="text" placeholder="Например: 12 лет" required className="rounded-xl border-2 focus:border-primary" />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="studyYear" className="text-base font-semibold">Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
+            <Input id="studyYear" name="studyYear" type="text" placeholder="Например: 5-й класс" className="rounded-xl border-2 focus:border-primary" />
           </div>
 
           <div className="space-y-2">

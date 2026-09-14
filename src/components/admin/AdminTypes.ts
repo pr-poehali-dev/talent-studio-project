@@ -16,6 +16,7 @@ export interface Application {
   id: number;
   full_name: string;
   age: number;
+  study_year: string | null;
   teacher: string | null;
   institution: string | null;
   work_title: string;

@@ -11,6 +11,7 @@ interface Application {
   id: number;
   full_name: string;
   age: number;
+  study_year: string | null;
   teacher: string | null;
   institution: string | null;
   work_title: string;
@@ -215,6 +216,7 @@ const ApplicationEditModal = ({
                   id: editingApplication.id,
                   full_name: formData.get('fullName') as string,
                   age: formData.get('age') as string,
+                  study_year: formData.get('studyYear') as string || null,
                   teacher: formData.get('teacher') as string || null,
                   institution: formData.get('institution') as string || null,
                   work_title: formData.get('workTitle') as string,
@@ -255,6 +257,11 @@ const ApplicationEditModal = ({
             <div className="space-y-2">
               <Label htmlFor="age" className="text-base font-semibold">Возраст *</Label>
               <Input id="age" name="age" type="text" defaultValue={editingApplication.age} required className="rounded-xl border-2 focus:border-primary" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="studyYear" className="text-base font-semibold">Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
+              <Input id="studyYear" name="studyYear" type="text" defaultValue={editingApplication.study_year || ''} className="rounded-xl border-2 focus:border-primary" />
             </div>
 
             <div className="space-y-2">

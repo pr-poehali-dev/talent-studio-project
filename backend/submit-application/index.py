@@ -28,6 +28,7 @@ def handler(event: dict, context) -> dict:
             
             full_name = body.get('full_name')
             age = body.get('age')
+            study_year = body.get('study_year')
             teacher = body.get('teacher')
             institution = body.get('institution')
             work_title = body.get('work_title')
@@ -53,10 +54,10 @@ def handler(event: dict, context) -> dict:
             
             cursor.execute("""
                 INSERT INTO applications 
-                (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, status, gallery_consent, payment_status, extra_files, is_preferential)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'new', %s, 'paid', %s, %s)
+                (full_name, age, study_year, teacher, institution, work_title, email, contest_name, work_file_url, status, gallery_consent, payment_status, extra_files, is_preferential)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'new', %s, 'paid', %s, %s)
                 RETURNING id
-            """, (full_name, age, teacher, institution, work_title, email, contest_name, work_file_url, gallery_consent, extra_files_sql, is_preferential))
+            """, (full_name, age, study_year, teacher, institution, work_title, email, contest_name, work_file_url, gallery_consent, extra_files_sql, is_preferential))
             
             app_id = cursor.fetchone()[0]
             conn.commit()

@@ -29,9 +29,10 @@ interface Result {
 interface ResultCardProps {
   result: Result;
   handleDeleteResult: (id: number) => void;
+  handleEditResult: (result: Result) => void;
 }
 
-const ResultCard = ({ result, handleDeleteResult }: ResultCardProps) => {
+const ResultCard = ({ result, handleDeleteResult, handleEditResult }: ResultCardProps) => {
   return (
     <Card className="rounded-2xl shadow-md">
       <CardContent className="p-4">
@@ -119,6 +120,14 @@ const ResultCard = ({ result, handleDeleteResult }: ResultCardProps) => {
             )}
           </div>
           <div className="flex gap-2 ml-4">
+            <Button
+              onClick={() => handleEditResult(result)}
+              variant="outline"
+              size="sm"
+              className="rounded-xl"
+            >
+              <Icon name="Pencil" size={16} />
+            </Button>
             <Button
               onClick={() => handleDeleteResult(result.id)}
               variant="destructive"

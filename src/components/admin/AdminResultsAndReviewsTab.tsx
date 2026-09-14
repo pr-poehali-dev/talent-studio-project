@@ -11,6 +11,7 @@ interface Result {
   application_id: number | null;
   full_name: string;
   age: number | null;
+  study_year: string | null;
   teacher: string | null;
   institution: string | null;
   work_title: string | null;
@@ -59,6 +60,7 @@ interface AdminResultsTabProps {
   setEditingResult: (v: Result | null) => void;
   handleSaveResult: (e: React.FormEvent) => void;
   handleDeleteResult: (id: number) => void;
+  handleEditResult: (result: Result) => void;
   reviews: Review[];
   loadReviews: () => void;
   REVIEWS_API_URL: string;
@@ -76,6 +78,7 @@ const AdminResultsAndReviewsTab = ({
   setEditingResult,
   handleSaveResult,
   handleDeleteResult,
+  handleEditResult,
   reviews,
   loadReviews,
   REVIEWS_API_URL,
@@ -101,7 +104,7 @@ const AdminResultsAndReviewsTab = ({
               </Card>
             ) : (
               filteredResults.map((result) => (
-                <ResultCard key={result.id} result={result} handleDeleteResult={handleDeleteResult} />
+                <ResultCard key={result.id} result={result} handleDeleteResult={handleDeleteResult} handleEditResult={handleEditResult} />
               ))
             )}
           </div>

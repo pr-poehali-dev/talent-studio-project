@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { STUDY_YEAR_OPTIONS } from "@/lib/studyYearOptions";
 
 interface Result {
   id: number;
@@ -78,12 +79,20 @@ const ResultEditModal = ({
 
             <div className="space-y-2">
               <Label>Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
-              <Input
-                value={editingResult.study_year || ''}
-                onChange={(e) => setEditingResult({...editingResult, study_year: e.target.value || null})}
-                placeholder="Например: 3ий год обучения"
-                className="rounded-xl"
-              />
+              <Select
+                value={editingResult.study_year || 'none'}
+                onValueChange={(value) => setEditingResult({...editingResult, study_year: value === 'none' ? null : value})}
+              >
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="Не указано" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Не указано</SelectItem>
+                  {STUDY_YEAR_OPTIONS.map((opt) => (
+                    <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

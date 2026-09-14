@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -5,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import Icon from "@/components/ui/icon";
+import { STUDY_YEAR_OPTIONS } from "@/lib/studyYearOptions";
 
 interface Contest {
   id?: number;
@@ -38,6 +40,12 @@ const ApplicationManualModal = ({
   handleManualAppSubmit,
   toast,
 }: ApplicationManualModalProps) => {
+  const [manualStudyYear, setManualStudyYear] = useState("");
+
+  useEffect(() => {
+    if (!isOpen) setManualStudyYear("");
+  }, [isOpen]);
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl">
@@ -60,7 +68,17 @@ const ApplicationManualModal = ({
 
           <div className="space-y-2">
             <Label>Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
-            <Input name="manualStudyYear" placeholder="Например: 3ий год обучения" className="rounded-xl" />
+            <input type="hidden" name="manualStudyYear" value={manualStudyYear} />
+            <Select value={manualStudyYear} onValueChange={setManualStudyYear}>
+              <SelectTrigger className="rounded-xl">
+                <SelectValue placeholder="Не указано" />
+              </SelectTrigger>
+              <SelectContent>
+                {STUDY_YEAR_OPTIONS.map((opt) => (
+                  <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

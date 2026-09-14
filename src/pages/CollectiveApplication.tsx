@@ -9,6 +9,7 @@ import Icon from "@/components/ui/icon";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import Seo from "@/components/Seo";
+import { STUDY_YEAR_OPTIONS } from "@/lib/studyYearOptions";
 
 const API_URL = "https://functions.poehali.dev/616d5c66-54ec-4217-a20e-710cd89e2c87";
 const UPLOAD_FILE_URL = "https://functions.poehali.dev/33fdaaa7-5f20-43ee-aebd-ece943eb314b";
@@ -274,7 +275,16 @@ export default function CollectiveApplication() {
 
                   <div className="space-y-1">
                     <Label>Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
-                    <Input value={p.studyYear} onChange={(e) => updateParticipant(p.id, { studyYear: e.target.value })} placeholder="Например: 3ий год обучения" />
+                    <Select value={p.studyYear} onValueChange={(v) => updateParticipant(p.id, { studyYear: v })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Не указано" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {STUDY_YEAR_OPTIONS.map((opt) => (
+                          <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div className="space-y-1">

@@ -397,6 +397,7 @@ const Admin = () => {
           application_id: app.id,
           full_name: app.full_name,
           age: app.age,
+          study_year: app.study_year,
           teacher: app.teacher,
           institution: app.institution,
           work_title: app.work_title,

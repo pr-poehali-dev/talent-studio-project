@@ -42,6 +42,7 @@ export interface Result {
   application_id: number | null;
   full_name: string;
   age: number | null;
+  study_year: string | null;
   teacher: string | null;
   institution: string | null;
   work_title: string | null;

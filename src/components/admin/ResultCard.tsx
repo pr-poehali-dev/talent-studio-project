@@ -7,6 +7,7 @@ interface Result {
   application_id: number | null;
   full_name: string;
   age: number | null;
+  study_year: string | null;
   teacher: string | null;
   institution: string | null;
   work_title: string | null;
@@ -43,6 +44,10 @@ const ResultCard = ({ result, handleDeleteResult }: ResultCardProps) => {
             <div>
               <p className="text-xs text-muted-foreground">Возраст</p>
               <p className="font-semibold text-sm">{result.age} лет</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Год обучения</p>
+              <p className="font-semibold text-sm">{result.study_year || '—'}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Название работы</p>

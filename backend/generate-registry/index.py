@@ -128,6 +128,7 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
         Paragraph('Дата<br/>вручения', header_cell_style),
         Paragraph('ФИО участника', header_cell_style),
         Paragraph('Возраст', header_cell_style),
+        Paragraph('Год<br/>обучения', header_cell_style),
         Paragraph('Конкурс / олимпиада', header_cell_style),
         Paragraph('Результат', header_cell_style),
         Paragraph('Педагог', header_cell_style),
@@ -146,13 +147,14 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
             Paragraph(issued_str, cell_style),
             Paragraph(r.get('full_name') or '—', cell_style),
             Paragraph(str(r.get('age') or '—'), cell_style),
+            Paragraph(r.get('study_year') or '—', cell_style),
             Paragraph(r.get('contest_name') or '—', cell_style),
             Paragraph(RESULT_LABELS.get(r.get('result'), r.get('result') or '—'), cell_style),
             Paragraph(r.get('teacher') or '—', cell_style),
             Paragraph(r.get('institution') or '—', cell_style),
         ])
 
-    fixed_widths_mm = [10, 24, 40, 22, 45, 32, 45]
+    fixed_widths_mm = [9, 20, 34, 16, 20, 38, 28, 38]
     col_widths = [w * mm for w in fixed_widths_mm]
     col_widths.append(usable_width - sum(col_widths))
 
@@ -269,7 +271,7 @@ def handler(event: dict, context) -> dict:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
-                    "SELECT id, full_name, age, teacher, institution, contest_name, result, diploma_issued_at "
+                    "SELECT id, full_name, age, study_year, teacher, institution, contest_name, result, diploma_issued_at "
                     "FROM results "
                     "WHERE diploma_issued_at IS NOT NULL "
                     "AND EXTRACT(MONTH FROM diploma_issued_at) = %s "

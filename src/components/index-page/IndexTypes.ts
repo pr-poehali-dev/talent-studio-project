@@ -17,6 +17,7 @@ export interface PublicResult {
   id: number;
   full_name: string;
   age: number | null;
+  study_year: string | null;
   teacher: string | null;
   institution: string | null;
   work_title: string;

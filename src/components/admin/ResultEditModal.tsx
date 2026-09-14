@@ -10,6 +10,7 @@ interface Result {
   application_id: number | null;
   full_name: string;
   age: number | null;
+  study_year: string | null;
   teacher: string | null;
   institution: string | null;
   work_title: string | null;
@@ -70,6 +71,16 @@ const ResultEditModal = ({
                 type="number"
                 value={editingResult.age || ''}
                 onChange={(e) => setEditingResult({...editingResult, age: parseInt(e.target.value) || null})}
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
+              <Input
+                value={editingResult.study_year || ''}
+                onChange={(e) => setEditingResult({...editingResult, study_year: e.target.value || null})}
+                placeholder="Например: 3ий год обучения"
                 className="rounded-xl"
               />
             </div>

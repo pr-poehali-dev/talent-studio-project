@@ -60,7 +60,7 @@ const ApplicationManualModal = ({
 
           <div className="space-y-2">
             <Label>Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
-            <Input name="manualStudyYear" placeholder="Например: 5-й класс" className="rounded-xl" />
+            <Input name="manualStudyYear" placeholder="Например: 3ий год обучения" className="rounded-xl" />
           </div>
 
           <div className="space-y-2">

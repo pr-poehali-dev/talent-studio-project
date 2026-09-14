@@ -34,7 +34,7 @@ def handler(event: dict, context) -> dict:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute('''
                 SELECT 
-                    id, full_name, age, teacher, institution,
+                    id, full_name, age, study_year, teacher, institution,
                     work_title, contest_name, contest_id, result,
                     diploma_issued_at, created_at, updated_at
                 FROM results

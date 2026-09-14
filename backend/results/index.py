@@ -117,15 +117,16 @@ def handler(event: dict, context) -> dict:
             
             cur.execute('''
                 INSERT INTO results (
-                    application_id, full_name, age, teacher, institution,
+                    application_id, full_name, age, study_year, teacher, institution,
                     work_title, email, contest_id, contest_name, work_file_url,
                     result, place, score, diploma_url, notes, gallery_consent, diploma_issued_at
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
             ''', (
                 application_id,
                 data.get('full_name'),
                 data.get('age'),
+                data.get('study_year'),
                 data.get('teacher'),
                 data.get('institution'),
                 data.get('work_title'),
@@ -173,7 +174,7 @@ def handler(event: dict, context) -> dict:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute('''
                 UPDATE results SET
-                    full_name = %s, age = %s, teacher = %s, institution = %s,
+                    full_name = %s, age = %s, study_year = %s, teacher = %s, institution = %s,
                     work_title = %s, email = %s, contest_id = %s, contest_name = %s,
                     work_file_url = %s, result = %s, place = %s, score = %s,
                     diploma_url = %s, notes = %s, gallery_consent = %s,
@@ -183,6 +184,7 @@ def handler(event: dict, context) -> dict:
             ''', (
                 data.get('full_name'),
                 data.get('age'),
+                data.get('study_year'),
                 data.get('teacher'),
                 data.get('institution'),
                 data.get('work_title'),

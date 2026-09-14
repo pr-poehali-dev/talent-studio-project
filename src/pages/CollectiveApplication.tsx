@@ -274,7 +274,7 @@ export default function CollectiveApplication() {
 
                   <div className="space-y-1">
                     <Label>Год обучения (для учащихся ДШИ, ДДТ, ЦДТ и т.п.)</Label>
-                    <Input value={p.studyYear} onChange={(e) => updateParticipant(p.id, { studyYear: e.target.value })} placeholder="Например: 5-й класс" />
+                    <Input value={p.studyYear} onChange={(e) => updateParticipant(p.id, { studyYear: e.target.value })} placeholder="Например: 3ий год обучения" />
                   </div>
 
                   <div className="space-y-1">

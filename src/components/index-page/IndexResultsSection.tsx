@@ -253,7 +253,7 @@ const IndexResultsSection = ({
                   </div>
                   <div className="text-sm break-words">
                     <span className="md:hidden font-semibold text-muted-foreground">Возраст/Год обучения: </span>
-                    {result.age || '—'}
+                    {[result.age, result.study_year].filter(Boolean).join(', ') || '—'}
                   </div>
                   <div className="text-sm">
                     <span className="md:hidden font-semibold text-muted-foreground">Конкурс / олимпиада: </span>

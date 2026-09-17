@@ -28,7 +28,7 @@ def handler(event: dict, context) -> dict:
 
             if featured_only:
                 cur.execute("""
-                    SELECT id, full_name, age, work_title, contest_name, work_file_url, result, created_at
+                    SELECT id, full_name, age, study_year, work_title, contest_name, work_file_url, result, created_at
                     FROM applications
                     WHERE is_featured = true
                         AND gallery_consent = true
@@ -39,7 +39,7 @@ def handler(event: dict, context) -> dict:
                 """)
             else:
                 cur.execute("""
-                    SELECT id, full_name, age, work_title, contest_name, work_file_url, result, created_at
+                    SELECT id, full_name, age, study_year, work_title, contest_name, work_file_url, result, created_at
                     FROM applications
                     WHERE gallery_consent = true
                         AND result IS NOT NULL
@@ -55,11 +55,12 @@ def handler(event: dict, context) -> dict:
                     'id': row[0],
                     'full_name': row[1],
                     'age': row[2],
-                    'work_title': row[3],
-                    'contest_name': row[4],
-                    'work_file_url': row[5],
-                    'result': row[6],
-                    'created_at': row[7].isoformat() if row[7] else None
+                    'study_year': row[3],
+                    'work_title': row[4],
+                    'contest_name': row[5],
+                    'work_file_url': row[6],
+                    'result': row[7],
+                    'created_at': row[8].isoformat() if row[8] else None
                 })
 
             cur.close()

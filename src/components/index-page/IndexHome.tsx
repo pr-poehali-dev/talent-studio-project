@@ -322,7 +322,10 @@ const IndexHome = ({
                 </div>
                 <CardContent className="p-4">
                   <h4 className="text-base font-heading font-bold mb-1">{work.work_title}</h4>
-                  <p className="text-xs text-muted-foreground mb-1">👤 {work.full_name}{work.age ? `, ${work.age} лет` : ''}</p>
+                  <p className="text-xs text-muted-foreground mb-1">👤 {work.full_name}{work.age ? `, ${work.age}` : ''}</p>
+                  {work.study_year && (
+                    <p className="text-xs text-muted-foreground mb-1">📚 {work.study_year}</p>
+                  )}
                   <p className="text-xs text-muted-foreground">🏆 {work.contest_name}</p>
                 </CardContent>
               </Card>

@@ -33,7 +33,8 @@ export interface PublicResult {
 export interface GalleryWork {
   id: number;
   full_name: string;
-  age: number | null;
+  age: string | null;
+  study_year: string | null;
   work_title: string;
   contest_name: string;
   work_file_url: string;

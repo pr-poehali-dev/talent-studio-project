@@ -267,6 +267,13 @@ export default function CollectiveFree() {
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-3xl">
+        <div className="flex items-center gap-3 p-4 rounded-2xl border-2 border-green-300 bg-green-50 shadow-sm mb-6">
+          <Icon name="CheckCircle2" size={28} className="text-green-600 flex-shrink-0" />
+          <p className="text-green-800 font-semibold text-base">
+            Разрешено представлять одну работу в рамках нескольких конкурсов
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Данные педагога */}
           <Card>

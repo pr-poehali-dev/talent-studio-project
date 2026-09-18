@@ -195,6 +195,13 @@ const ApplicationModal = ({
           </DialogDescription>
         </DialogHeader>
 
+        <div className="flex items-center gap-3 p-3 rounded-2xl border-2 border-green-300 bg-green-50 shadow-sm mb-1">
+          <Icon name="CheckCircle2" size={24} className="text-green-600 flex-shrink-0" />
+          <p className="text-green-800 font-semibold text-sm">
+            Разрешено представлять одну работу в рамках нескольких конкурсов
+          </p>
+        </div>
+
         <form
           className="space-y-5 mt-4"
           onSubmit={async (e) => {

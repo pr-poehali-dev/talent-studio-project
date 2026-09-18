@@ -44,6 +44,13 @@ const IndexContests = ({
     <div className="container mx-auto px-4 py-12">
       <h2 className="text-5xl font-heading font-bold text-center mb-8 text-primary">🏆 Все конкурсы</h2>
 
+      <div className="max-w-3xl mx-auto mb-8 flex items-center gap-3 p-4 rounded-2xl border-2 border-green-300 bg-green-50 shadow-sm">
+        <Icon name="CheckCircle2" size={28} className="text-green-600 flex-shrink-0" />
+        <p className="text-green-800 font-semibold text-base">
+          Разрешено представлять одну работу в рамках нескольких конкурсов
+        </p>
+      </div>
+
       <div className="max-w-5xl mx-auto mb-8">
         <div className="flex flex-wrap gap-3 justify-center">
           <Button

@@ -129,6 +129,7 @@ const ApplicationEditModal = ({
 }: ApplicationEditModalProps) => {
   const [selectedContestId, setSelectedContestId] = useState<string>('');
   const [isPreferential, setIsPreferential] = useState(false);
+  const [galleryConsent, setGalleryConsent] = useState(false);
   const [uploadingWorkFile, setUploadingWorkFile] = useState(false);
   const [workFileError, setWorkFileError] = useState<string | null>(null);
   const [workFileUploadProgress, setWorkFileUploadProgress] = useState(0);
@@ -144,6 +145,7 @@ const ApplicationEditModal = ({
       setPrimaryFileUrl(editingApplication.work_file_url);
       setSelectedContestId(editingApplication.contest_id ? String(editingApplication.contest_id) : 'none');
       setIsPreferential(editingApplication.is_preferential ?? false);
+      setGalleryConsent(editingApplication.gallery_consent ?? false);
       setStudyYear(editingApplication.study_year || STUDY_YEAR_NONE);
     }
   }, [editingApplication?.id, isOpen]);
@@ -232,6 +234,7 @@ const ApplicationEditModal = ({
                   diploma_issued_at: diplomaDate || null,
                   is_featured: formData.get('isFeatured') === 'on',
                   is_preferential: isPreferential,
+                  gallery_consent: galleryConsent,
                   work_file_url: mainUrl,
                   extra_files: extraUrls
                 };
@@ -363,6 +366,21 @@ const ApplicationEditModal = ({
                   Льготное участие
                 </Label>
                 <p className="text-xs text-muted-foreground mt-0.5">Заявка не учитывается в расчёте доходности</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-4 rounded-xl border-2 border-green-200 bg-green-50">
+              <Checkbox
+                id="galleryConsent"
+                checked={galleryConsent}
+                onCheckedChange={(v) => setGalleryConsent(Boolean(v))}
+              />
+              <div>
+                <Label htmlFor="galleryConsent" className="text-base font-semibold cursor-pointer flex items-center gap-2">
+                  <Icon name="Image" size={16} className="text-green-600" />
+                  Согласие на публикацию в галерее
+                </Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Работа сможет отображаться в общей галерее сайта</p>
               </div>
             </div>
 

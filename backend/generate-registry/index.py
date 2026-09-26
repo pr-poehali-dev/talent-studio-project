@@ -90,31 +90,31 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
     pagesize = landscape(A4)
     doc = SimpleDocTemplate(
         buffer, pagesize=pagesize,
-        leftMargin=12 * mm, rightMargin=12 * mm, topMargin=10 * mm, bottomMargin=10 * mm,
+        leftMargin=10 * mm, rightMargin=10 * mm, topMargin=6 * mm, bottomMargin=6 * mm,
     )
     width, _ = pagesize
-    usable_width = width - 24 * mm
+    usable_width = width - 20 * mm
     styles = getSampleStyleSheet()
 
     def S(name, **kw):
         return ParagraphStyle(name, parent=styles['Normal'], **kw)
 
-    title_style = S('T', fontSize=22, fontName=FB, alignment=TA_CENTER, leading=27, spaceAfter=2 * mm)
-    subtitle_style = S('ST', fontSize=14, fontName=F, alignment=TA_CENTER, spaceAfter=5 * mm)
+    title_style = S('T', fontSize=18, fontName=FB, alignment=TA_CENTER, leading=21, spaceAfter=1 * mm)
+    subtitle_style = S('ST', fontSize=12, fontName=F, alignment=TA_CENTER, spaceAfter=2 * mm)
 
-    cell_style = S('C', fontSize=9, fontName=F, leading=11)
-    header_cell_style = S('HC', fontSize=9, fontName=FB, alignment=TA_CENTER, leading=11, textColor=black)
+    cell_style = S('C', fontSize=8, fontName=F, leading=9.5)
+    header_cell_style = S('HC', fontSize=8, fontName=FB, alignment=TA_CENTER, leading=9.5, textColor=black)
 
     story = []
 
     try:
         header_data = fetch_image(HEADER_IMAGE_URL)
-        header_h = usable_width * (520 / 2000)
+        header_h = usable_width * (520 / 2000) * 0.6
         header_img = Image(header_data, width=usable_width, height=header_h, kind='proportional')
         story.append(header_img)
     except Exception:
         pass
-    story.append(Spacer(1, 4 * mm))
+    story.append(Spacer(1, 2 * mm))
 
     month_name = MONTHS_RU[month - 1]
     story.append(Paragraph('РЕЕСТР', title_style))
@@ -163,10 +163,10 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
         ('BACKGROUND', (0, 0), (-1, 0), HexColor('#e5e5e5')),
         ('GRID', (0, 0), (-1, -1), 0.5, black),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 2 * mm),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 2 * mm),
-        ('TOPPADDING', (0, 0), (-1, -1), 1.5 * mm),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 1.5 * mm),
+        ('LEFTPADDING', (0, 0), (-1, -1), 1.2 * mm),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 1.2 * mm),
+        ('TOPPADDING', (0, 0), (-1, -1), 0.8 * mm),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0.8 * mm),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [white, HexColor('#f5f5f5')]),
     ]))
     story.append(table)

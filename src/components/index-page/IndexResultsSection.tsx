@@ -302,17 +302,15 @@ const IndexResultsSection = ({
                     {result.institution || '—'}
                   </div>
                   <div className="text-sm">
-                    {!isOlympiad && (
-                      <a
-                        href={`https://functions.poehali.dev/7ea2c01d-bd1a-4567-b4f0-21aab3b96774?id=${result.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline font-medium"
-                      >
-                        <Icon name="FileText" size={14} />
-                        Скачать выписку из реестра результатов
-                      </a>
-                    )}
+                    <a
+                      href={`https://functions.poehali.dev/7ea2c01d-bd1a-4567-b4f0-21aab3b96774?id=${result.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                    >
+                      <Icon name="FileText" size={14} />
+                      Скачать выписку из реестра результатов
+                    </a>
                   </div>
                 </div>
                 );

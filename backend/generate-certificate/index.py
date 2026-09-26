@@ -174,7 +174,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
 
     story.append(Paragraph(
         'Настоящая выписка подтверждает, что нижеуказанный участник<br/>'
-        'принял(а) участие в конкурсе и был(а) отмечен(а) следующим образом:',
+        'принял(а) участие в конкурсе/олимпиаде и был(а) отмечен(а) следующим образом:',
         intro_style
     ))
 
@@ -198,7 +198,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
         row('ФИО участника',            full_name),
         row('Возраст',                  age_str),
         row('Год обучения',             study_year_str),
-        row('Конкурс',                  contest_name),
+        row('Конкурс / олимпиада',      contest_name),
         row('Номинация / Работа',       work_title),
         row('Педагог / Руководитель',    teacher),
         row('Организация / Учреждение', institution),

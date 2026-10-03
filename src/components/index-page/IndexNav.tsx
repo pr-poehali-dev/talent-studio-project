@@ -176,16 +176,16 @@ const IndexNav = ({
                           setShowContestsDropdown(false);
                         }
                       }}
-                      className={`flex items-center gap-1 px-3 py-2 rounded-xl font-semibold transition-all text-sm ${
+                      className={`flex items-center gap-1 whitespace-nowrap px-1.5 py-2 rounded-xl font-semibold transition-all text-[13px] ${
                         activeSection === item.id || (item.id === "teacher" && teacherSubItems.some(sub => sub.id === activeSection))
                           ? "bg-primary text-primary-foreground shadow-lg scale-105"
                           : "text-foreground hover:bg-accent hover:scale-105"
                       }`}
                     >
-                      <Icon name={item.icon} size={18} />
+                      <Icon name={item.icon} size={16} className="hidden 2xl:block" />
                       {item.label}
                       {item.hasDropdown && (
-                        <Icon name="ChevronDown" size={16} className={`transition-transform ${(item.id === "teacher" ? showTeacherDropdown : showContestsDropdown) ? 'rotate-180' : ''}`} />
+                        <Icon name="ChevronDown" size={14} className={`transition-transform ${(item.id === "teacher" ? showTeacherDropdown : showContestsDropdown) ? 'rotate-180' : ''}`} />
                       )}
                     </a>
                     {item.id === "teacher" && showTeacherDropdown && (

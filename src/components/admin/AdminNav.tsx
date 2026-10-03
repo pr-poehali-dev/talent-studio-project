@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import Icon from "@/components/ui/icon";
 import { CERTIFICATES_LOG_URL } from "./AdminTypes";
 
-type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue' | 'olympiads' | 'participants';
+type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue' | 'olympiads' | 'participants' | 'jury';
 
 interface AdminNavProps {
   activeTab: Tab;
@@ -125,6 +125,14 @@ export default function AdminNav({
         >
           <Icon name="AtSign" className="mr-2" />
           Адреса участников
+        </Button>
+        <Button
+          variant={activeTab === 'jury' ? 'default' : 'ghost'}
+          onClick={() => setActiveTab('jury')}
+          className="rounded-t-xl rounded-b-none"
+        >
+          <Icon name="Gavel" className="mr-2" />
+          Заявки на жюри
         </Button>
         <Button
           variant={activeTab === 'settings' ? 'default' : 'ghost'}

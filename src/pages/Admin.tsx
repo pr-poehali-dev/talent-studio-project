@@ -11,6 +11,7 @@ import AdminNav from "@/components/admin/AdminNav";
 import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
 import AdminOlympiadsTab from "@/components/admin/AdminOlympiadsTab";
 import AdminParticipantsTab from "@/components/admin/AdminParticipantsTab";
+import AdminJuryTab from "@/components/admin/AdminJuryTab";
 import {
   Contest,
   Application,
@@ -28,7 +29,7 @@ import {
 } from "@/components/admin/AdminTypes";
 import { STUDY_YEAR_NONE } from "@/lib/studyYearOptions";
 
-type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue' | 'olympiads' | 'participants';
+type Tab = 'contests' | 'applications' | 'results' | 'reviews' | 'certificates' | 'settings' | 'revenue' | 'olympiads' | 'participants' | 'jury';
 
 const Admin = () => {
   useEffect(() => {
@@ -711,6 +712,8 @@ const Admin = () => {
         {activeTab === 'olympiads' && <AdminOlympiadsTab />}
 
         {activeTab === 'participants' && <AdminParticipantsTab />}
+
+        {activeTab === 'jury' && <AdminJuryTab />}
 
         {activeTab === 'settings' && (
           <AdminSettingsTab

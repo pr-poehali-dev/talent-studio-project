@@ -1,7 +1,233 @@
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Icon from "@/components/ui/icon";
+import { useToast } from "@/components/ui/use-toast";
+import func2url from "../../../backend/func2url.json";
+
+const JURY_API_URL = func2url["jury-applications"];
+
+const PLACES = [
+  { value: "grand_prix", label: "Гран-при" },
+  { value: "first_degree", label: "Диплом 1 степени" },
+  { value: "second_degree", label: "Диплом 2 степени" },
+  { value: "third_degree", label: "Диплом 3 степени" },
+];
+
+interface ContestOption {
+  id: number;
+  title: string;
+}
+
+interface Work {
+  id: number;
+  image_url: string;
+  age: string;
+  study_year: string | null;
+}
+
 const IndexJuryApplySection = () => {
+  const { toast } = useToast();
+  const [contests, setContests] = useState<ContestOption[]>([]);
+  const [contestId, setContestId] = useState("");
+  const [works, setWorks] = useState<Work[]>([]);
+  const [worksLoading, setWorksLoading] = useState(false);
+  const [places, setPlaces] = useState<Record<number, string>>({});
+  const [price, setPrice] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    full_name: "",
+    position: "",
+    institution: "",
+    location: "",
+    email: "",
+  });
+
+  useEffect(() => {
+    fetch(`${JURY_API_URL}?action=contests`)
+      .then((r) => r.json())
+      .then((data) => setContests(Array.isArray(data) ? data : []))
+      .catch(() => setContests([]));
+    fetch(`${JURY_API_URL}?action=price`)
+      .then((r) => r.json())
+      .then((data) => setPrice(data.price ?? null))
+      .catch(() => setPrice(null));
+  }, []);
+
+  const handleContestChange = (value: string) => {
+    setContestId(value);
+    setWorks([]);
+    setPlaces({});
+    if (!value) return;
+    setWorksLoading(true);
+    fetch(`${JURY_API_URL}?action=works&contest_id=${value}`)
+      .then((r) => r.json())
+      .then((data) => setWorks(Array.isArray(data) ? data : []))
+      .catch(() => setWorks([]))
+      .finally(() => setWorksLoading(false));
+  };
+
+  const allRated = works.length === 5 && works.every((w) => places[w.id]);
+
+  const isFormValid = Object.values(form).every((v) => v.trim().length > 0);
+
+  const handleSubmit = async () => {
+    if (!allRated || !isFormValid || submitting) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch(JURY_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          contest_id: Number(contestId),
+          ratings: works.map((w) => ({ work_id: w.id, place: places[w.id] })),
+          return_url: `${window.location.origin}/?section=sostav`,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.confirmation_url) {
+        window.location.href = data.confirmation_url;
+      } else {
+        toast({
+          title: "Не удалось создать оплату",
+          description: data.error || "Попробуйте ещё раз",
+          variant: "destructive",
+        });
+      }
+    } catch {
+      toast({ title: "Ошибка соединения", description: "Попробуйте ещё раз", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const setField = (key: keyof typeof form, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h2 className="text-5xl font-heading font-bold text-center mb-8 text-primary">Войти в состав жюри</h2>
+    <div className="container mx-auto px-4 py-12 max-w-4xl">
+      <h2 className="text-5xl font-heading font-bold text-center mb-4 text-primary">Войти в состав жюри</h2>
+      <p className="text-center text-muted-foreground mb-10">
+        Выберите конкурс, оцените пять работ из нашего архива и оформите заявку.
+      </p>
+
+      <div className="mb-10">
+        <Label htmlFor="jury-contest" className="text-base font-semibold mb-2 block">
+          1. Выберите конкурс
+        </Label>
+        <select
+          id="jury-contest"
+          value={contestId}
+          onChange={(e) => handleContestChange(e.target.value)}
+          className="w-full h-12 rounded-xl border-2 border-input bg-background px-4 text-base"
+        >
+          <option value="">— Выберите конкурс —</option>
+          {contests.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.title}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {worksLoading && (
+        <div className="flex justify-center py-10">
+          <Icon name="Loader2" size={36} className="animate-spin text-primary" />
+        </div>
+      )}
+
+      {works.length > 0 && (
+        <div className="mb-10">
+          <h3 className="text-base font-semibold mb-4">2. Оцените работы и выберите место для каждой</h3>
+          <div className="flex flex-col gap-4">
+            {works.map((work, index) => (
+              <div
+                key={work.id}
+                className="flex flex-col sm:flex-row gap-4 p-4 rounded-2xl border-2 border-gray-100 bg-white shadow-sm"
+              >
+                <img
+                  src={work.image_url}
+                  alt={`Работа ${index + 1}`}
+                  className="w-full sm:w-64 h-56 object-contain rounded-xl bg-gray-50"
+                />
+                <div className="flex-1 flex flex-col justify-center gap-3">
+                  <p className="font-heading font-bold text-lg">Работа {index + 1}</p>
+                  <div className="text-sm text-muted-foreground">
+                    <p>Возраст участника: {work.age || "—"}</p>
+                    <p>Год обучения: {work.study_year || "—"}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {PLACES.map((place) => (
+                      <button
+                        key={place.value}
+                        type="button"
+                        onClick={() => setPlaces((prev) => ({ ...prev, [work.id]: place.value }))}
+                        className={`px-3 py-2 rounded-xl text-sm font-semibold border-2 transition-all ${
+                          places[work.id] === place.value
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-white text-foreground border-gray-200 hover:border-primary"
+                        }`}
+                      >
+                        {place.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {allRated && (
+        <div className="p-6 rounded-2xl border-2 border-gray-100 bg-white shadow-sm">
+          <h3 className="text-base font-semibold mb-4">3. Данные педагога</h3>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <Label htmlFor="jury-name">ФИО педагога</Label>
+              <Input id="jury-name" value={form.full_name} onChange={(e) => setField("full_name", e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="jury-position">Должность</Label>
+              <Input id="jury-position" value={form.position} onChange={(e) => setField("position", e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="jury-institution">Учреждение</Label>
+              <Input
+                id="jury-institution"
+                value={form.institution}
+                onChange={(e) => setField("institution", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="jury-location">Страна / населённый пункт</Label>
+              <Input id="jury-location" value={form.location} onChange={(e) => setField("location", e.target.value)} />
+            </div>
+            <div>
+              <Label htmlFor="jury-email">Электронная почта</Label>
+              <Input
+                id="jury-email"
+                type="email"
+                value={form.email}
+                onChange={(e) => setField("email", e.target.value)}
+              />
+            </div>
+          </div>
+          <Button
+            onClick={handleSubmit}
+            disabled={!isFormValid || submitting}
+            className="w-full mt-6 h-12 text-base font-bold rounded-xl"
+          >
+            {submitting ? (
+              <Icon name="Loader2" size={20} className="animate-spin mr-2" />
+            ) : (
+              <Icon name="CreditCard" size={20} className="mr-2" />
+            )}
+            Оплатить{price !== null ? ` ${price} ₽` : ""}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

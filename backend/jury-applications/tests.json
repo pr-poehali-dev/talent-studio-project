@@ -1,0 +1,7 @@
+{
+  "tests": [
+    {"name": "OPTIONS preflight", "method": "OPTIONS", "path": "/", "expectedStatus": 200},
+    {"name": "Get price", "method": "GET", "path": "/?action=price", "expectedStatus": 200, "expectedBody": {"price": 200}, "bodyMatcher": "partial"},
+    {"name": "Create without fields", "method": "POST", "path": "/", "body": {}, "expectedStatus": 400, "expectedBody": {"error": "string"}, "bodyMatcher": "partial"}
+  ]
+}

@@ -88,6 +88,41 @@ def handler(event: dict, context) -> dict:
         application_ids = []
         failed_participants = []
         
+        jury_app = app_data.get('jury_application')
+        if app_data.get('type') == 'jury' and jury_app:
+            conn = psycopg2.connect(dsn)
+            cur = conn.cursor()
+            payment_id = payment_obj.get('id')
+            cur.execute(
+                """INSERT INTO jury_applications
+                   (full_name, position, institution, location, email, contest_id, contest_name,
+                    ratings, price, payment_status, payment_id)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s, 'paid', %s)
+                   RETURNING id""",
+                (
+                    jury_app.get('full_name'),
+                    jury_app.get('position'),
+                    jury_app.get('institution'),
+                    jury_app.get('location'),
+                    jury_app.get('email'),
+                    jury_app.get('contest_id'),
+                    jury_app.get('contest_name'),
+                    json.dumps(jury_app.get('ratings', []), ensure_ascii=False),
+                    jury_app.get('price', 0),
+                    payment_id,
+                )
+            )
+            jury_id = cur.fetchone()[0]
+            conn.commit()
+            cur.close()
+            conn.close()
+            print(f'[DONE] Jury application saved, id={jury_id}, payment_id={payment_id}')
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'status': 'success', 'jury_application_id': jury_id, 'payment_status': 'paid'})
+            }
+
         olympiad_type = app_data.get('olympiad_type')
 
         if olympiad_type:

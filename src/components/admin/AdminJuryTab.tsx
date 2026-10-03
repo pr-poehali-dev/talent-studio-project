@@ -34,7 +34,7 @@ interface JuryApplication {
   is_viewed: boolean;
 }
 
-export default function AdminJuryTab() {
+export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: (n: number) => void }) {
   const { toast } = useToast();
   const [items, setItems] = useState<JuryApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,6 +61,10 @@ export default function AdminJuryTab() {
   };
 
   const newCount = items.filter((i) => !i.is_viewed).length;
+
+  useEffect(() => {
+    if (!loading) onNewCountChange?.(newCount);
+  }, [newCount, loading]);
 
   const savePrice = async () => {
     setSaving(true);

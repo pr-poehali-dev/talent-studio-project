@@ -16,6 +16,7 @@ interface AdminNavProps {
   setCertificatesLog: (data: {id: number; result_id: number; full_name: string; contest_name: string; issued_at: string}[]) => void;
   setCertLoading: (v: boolean) => void;
   olympiadNoResultCount: number;
+  juryNewCount: number;
 }
 
 export default function AdminNav({
@@ -30,6 +31,7 @@ export default function AdminNav({
   setCertificatesLog,
   setCertLoading,
   olympiadNoResultCount,
+  juryNewCount,
 }: AdminNavProps) {
   const handleCertificatesClick = () => {
     setActiveTab('certificates');
@@ -133,6 +135,11 @@ export default function AdminNav({
         >
           <Icon name="Gavel" className="mr-2" />
           Заявки на жюри
+          <span>
+            {' ('}
+            <span className={juryNewCount > 0 ? "text-red-500 font-bold" : ""}>{juryNewCount}</span>
+            {')'}
+          </span>
         </Button>
         <Button
           variant={activeTab === 'settings' ? 'default' : 'ghost'}

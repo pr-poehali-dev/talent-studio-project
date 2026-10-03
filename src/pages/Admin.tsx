@@ -12,6 +12,7 @@ import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
 import AdminOlympiadsTab from "@/components/admin/AdminOlympiadsTab";
 import AdminParticipantsTab from "@/components/admin/AdminParticipantsTab";
 import AdminJuryTab from "@/components/admin/AdminJuryTab";
+import func2url from "../../backend/func2url.json";
 import {
   Contest,
   Application,
@@ -95,6 +96,7 @@ const Admin = () => {
   const [submittingManualApp, setSubmittingManualApp] = useState(false);
   const [manualAppUploadProgress, setManualAppUploadProgress] = useState(0);
   const [olympiadNoResultCount, setOlympiadNoResultCount] = useState(0);
+  const [juryNewCount, setJuryNewCount] = useState(0);
   const { toast } = useToast();
 
   // Подавляем предупреждение о неиспользуемой переменной
@@ -179,8 +181,18 @@ const Admin = () => {
     }
   };
 
+  const loadJuryNewCount = async () => {
+    try {
+      const data = await fetch(`${func2url["jury-applications"]}?action=list`).then((r) => r.json());
+      if (Array.isArray(data)) setJuryNewCount(data.filter((a: { is_viewed: boolean }) => !a.is_viewed).length);
+    } catch {
+      console.error('Не удалось загрузить заявки на жюри');
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
+      loadJuryNewCount();
       loadContests();
       loadApplications();
       loadDeletedApplications();
@@ -546,6 +558,7 @@ const Admin = () => {
         setCertificatesLog={setCertificatesLog}
         setCertLoading={setCertLoading}
         olympiadNoResultCount={olympiadNoResultCount}
+        juryNewCount={juryNewCount}
       />
 
       <div className="container mx-auto px-4 py-12">
@@ -713,7 +726,7 @@ const Admin = () => {
 
         {activeTab === 'participants' && <AdminParticipantsTab />}
 
-        {activeTab === 'jury' && <AdminJuryTab />}
+        {activeTab === 'jury' && <AdminJuryTab onNewCountChange={setJuryNewCount} />}
 
         {activeTab === 'settings' && (
           <AdminSettingsTab

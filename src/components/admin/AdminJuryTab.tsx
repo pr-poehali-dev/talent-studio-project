@@ -29,6 +29,7 @@ interface JuryApplication {
   payment_status: string;
   payment_id: string | null;
   created_at: string;
+  participation_date: string | null;
 }
 
 export default function AdminJuryTab() {
@@ -101,13 +102,17 @@ export default function AdminJuryTab() {
               <p><span className="text-muted-foreground">Учреждение:</span> {item.institution}</p>
               <p><span className="text-muted-foreground">Страна / населённый пункт:</span> {item.location}</p>
               <p><span className="text-muted-foreground">Email:</span> {item.email}</p>
+              <p>
+                <span className="text-muted-foreground">Дата участия в жюри:</span>{" "}
+                {item.participation_date ? new Date(item.participation_date).toLocaleDateString("ru-RU") : "—"}
+              </p>
               <p><span className="text-muted-foreground">Конкурс:</span> {item.contest_name}</p>
               <p>
                 <span className="text-muted-foreground">Оплата:</span> {item.price} ₽,{" "}
                 {item.payment_status === "paid" ? "оплачено" : item.payment_status}
               </p>
             </div>
-            <div className="grid gap-3 grid-cols-2 sm:grid-cols-5">
+            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3">
               {item.ratings.map((r, i) => (
                 <div key={r.work_id} className="rounded-xl border border-gray-200 p-2 text-xs">
                   <a href={r.image_url} target="_blank" rel="noopener noreferrer">

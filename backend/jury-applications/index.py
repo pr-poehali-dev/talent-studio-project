@@ -72,19 +72,21 @@ def handler(event: dict, context) -> dict:
         if action == 'contests':
             cur.execute(
                 """
-                SELECT c.id, c.title, COUNT(a.id) AS cnt
+                SELECT c.id, c.title, COUNT(a.id) AS cnt,
+                       COALESCE(cc.name, 'Другие конкурсы') AS category_name
                 FROM contests c
                 JOIN applications a ON a.contest_id = c.id
+                LEFT JOIN contest_categories cc ON cc.category_id = c.category_id
                 WHERE a.deleted_at IS NULL AND a.work_file_url ~* %s
-                GROUP BY c.id, c.title
-                HAVING COUNT(a.id) >= 5
-                ORDER BY c.title
+                GROUP BY c.id, c.title, cc.name
+                HAVING COUNT(a.id) >= 3
+                ORDER BY COALESCE(cc.name, 'Другие конкурсы'), c.title
                 """,
                 (IMAGE_REGEX,),
             )
             rows = cur.fetchall()
             conn.close()
-            return resp(200, [{'id': r[0], 'title': r[1], 'works_count': r[2]} for r in rows])
+            return resp(200, [{'id': r[0], 'title': r[1], 'works_count': r[2], 'category_name': r[3]} for r in rows])
 
         if action == 'works':
             try:
@@ -98,7 +100,7 @@ def handler(event: dict, context) -> dict:
                 FROM applications
                 WHERE contest_id = %s AND deleted_at IS NULL AND work_file_url ~* %s
                 ORDER BY random()
-                LIMIT 5
+                LIMIT 3
                 """,
                 (contest_id, IMAGE_REGEX),
             )
@@ -111,13 +113,13 @@ def handler(event: dict, context) -> dict:
         cur.execute(
             """
             SELECT id, full_name, position, institution, location, email, contest_id,
-                   contest_name, ratings, price, payment_status, payment_id, created_at
+                   contest_name, ratings, price, payment_status, payment_id, created_at, participation_date
             FROM jury_applications
             ORDER BY created_at DESC
             """
         )
         cols = ['id', 'full_name', 'position', 'institution', 'location', 'email', 'contest_id',
-                'contest_name', 'ratings', 'price', 'payment_status', 'payment_id', 'created_at']
+                'contest_name', 'ratings', 'price', 'payment_status', 'payment_id', 'created_at', 'participation_date']
         items = [dict(zip(cols, r)) for r in cur.fetchall()]
         conn.close()
         return resp(200, items)
@@ -150,15 +152,16 @@ def handler(event: dict, context) -> dict:
         location = (body.get('location') or '').strip()
         email = (body.get('email') or '').strip()
         contest_id = body.get('contest_id')
+        participation_date = (body.get('participation_date') or '').strip()
         ratings_in = body.get('ratings') or []
 
-        if not all([full_name, position, institution, location, email, contest_id]):
+        if not all([full_name, position, institution, location, email, contest_id, participation_date]):
             conn.close()
             return resp(400, {'error': 'Заполните все поля заявки'})
 
-        if not isinstance(ratings_in, list) or len(ratings_in) != 5:
+        if not isinstance(ratings_in, list) or len(ratings_in) != 3:
             conn.close()
-            return resp(400, {'error': 'Нужно оценить 5 работ'})
+            return resp(400, {'error': 'Нужно оценить 3 работы'})
 
         cur.execute("SELECT title FROM contests WHERE id = %s", (int(contest_id),))
         contest_row = cur.fetchone()
@@ -209,6 +212,7 @@ def handler(event: dict, context) -> dict:
                 'email': email,
                 'contest_id': int(contest_id),
                 'contest_name': contest_name,
+                'participation_date': participation_date,
                 'ratings': ratings,
                 'price': price,
             },

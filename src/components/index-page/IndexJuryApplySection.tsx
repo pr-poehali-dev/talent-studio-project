@@ -18,6 +18,7 @@ const PLACES = [
 interface ContestOption {
   id: number;
   title: string;
+  category_name: string;
 }
 
 interface Work {
@@ -42,6 +43,7 @@ const IndexJuryApplySection = () => {
     institution: "",
     location: "",
     email: "",
+    participation_date: "",
   });
 
   useEffect(() => {
@@ -68,7 +70,14 @@ const IndexJuryApplySection = () => {
       .finally(() => setWorksLoading(false));
   };
 
-  const allRated = works.length === 5 && works.every((w) => places[w.id]);
+  const categoryGroups = contests.reduce<{ name: string; items: ContestOption[] }[]>((acc, c) => {
+    const group = acc.find((g) => g.name === c.category_name);
+    if (group) group.items.push(c);
+    else acc.push({ name: c.category_name, items: [c] });
+    return acc;
+  }, []);
+
+  const allRated = works.length === 3 && works.every((w) => places[w.id]);
 
   const isFormValid = Object.values(form).every((v) => v.trim().length > 0);
 
@@ -109,7 +118,7 @@ const IndexJuryApplySection = () => {
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <h2 className="text-5xl font-heading font-bold text-center mb-4 text-primary">Войти в состав жюри</h2>
       <p className="text-center text-muted-foreground mb-10">
-        Выберите конкурс, оцените пять работ из нашего архива и оформите заявку.
+        Выберите конкурс, оцените три работы из нашего архива и оформите заявку.
       </p>
 
       <div className="mb-10">
@@ -123,10 +132,14 @@ const IndexJuryApplySection = () => {
           className="w-full h-12 rounded-xl border-2 border-input bg-background px-4 text-base"
         >
           <option value="">— Выберите конкурс —</option>
-          {contests.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.title}
-            </option>
+          {categoryGroups.map((group) => (
+            <optgroup key={group.name} label={group.name}>
+              {group.items.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </div>
@@ -204,6 +217,15 @@ const IndexJuryApplySection = () => {
               <Label htmlFor="jury-location">Страна / населённый пункт</Label>
               <Input id="jury-location" value={form.location} onChange={(e) => setField("location", e.target.value)} />
             </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="jury-date">Дата участия в составе жюри</Label>
+              <Input
+                id="jury-date"
+                type="date"
+                value={form.participation_date}
+                onChange={(e) => setField("participation_date", e.target.value)}
+              />
+            </div>
             <div>
               <Label htmlFor="jury-email">Электронная почта</Label>
               <Input
@@ -224,7 +246,7 @@ const IndexJuryApplySection = () => {
             ) : (
               <Icon name="CreditCard" size={20} className="mr-2" />
             )}
-            Оплатить{price !== null ? ` ${price} ₽` : ""}
+            Оплатить{price !== null ? ` — ${price} ₽` : ""}
           </Button>
         </div>
       )}

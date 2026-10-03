@@ -96,8 +96,8 @@ def handler(event: dict, context) -> dict:
             cur.execute(
                 """INSERT INTO jury_applications
                    (full_name, position, institution, location, email, contest_id, contest_name,
-                    ratings, price, payment_status, payment_id)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s, 'paid', %s)
+                    ratings, price, payment_status, payment_id, participation_date)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s, 'paid', %s, %s)
                    RETURNING id""",
                 (
                     jury_app.get('full_name'),
@@ -110,6 +110,7 @@ def handler(event: dict, context) -> dict:
                     json.dumps(jury_app.get('ratings', []), ensure_ascii=False),
                     jury_app.get('price', 0),
                     payment_id,
+                    jury_app.get('participation_date') or None,
                 )
             )
             jury_id = cur.fetchone()[0]

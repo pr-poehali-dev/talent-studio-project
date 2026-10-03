@@ -20,7 +20,7 @@ interface IndexNavProps {
 const navItems: { id: string; label: string; icon: string; hasDropdown?: boolean }[] = [
   { id: "home", label: "Главная", icon: "Home" },
   { id: "contests", label: "Конкурсы", icon: "Trophy", hasDropdown: true },
-  { id: "teacher", label: "Для педагога", icon: "GraduationCap", hasDropdown: true },
+  { id: "teacher", label: "Педагогам", icon: "GraduationCap", hasDropdown: true },
   { id: "gallery", label: "Галерея", icon: "Image" },
   { id: "documents", label: "Документы", icon: "FileText" },
   { id: "results", label: "Итоги", icon: "Award" },

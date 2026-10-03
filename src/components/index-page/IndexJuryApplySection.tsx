@@ -146,7 +146,7 @@ const IndexJuryApplySection = () => {
         </ol>
         <p className="mt-4 text-sm">
           Сертификат члена жюри будет доступен на сайте в разделе{" "}
-          <a href="/?section=jury" className="text-primary font-semibold underline">
+          <a href="/?section=jury#invited-jury" className="text-primary font-semibold underline">
             «Наша команда»
           </a>{" "}
           , а также отправлен на Вашу электронную почту в течение 1–2 дней.

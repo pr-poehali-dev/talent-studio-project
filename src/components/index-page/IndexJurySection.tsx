@@ -200,6 +200,14 @@ const IndexJurySection = () => {
   const [invited, setInvited] = useState<InvitedJuror[]>([]);
 
   useEffect(() => {
+    if (window.location.hash !== "#invited-jury") return;
+    const timer = setTimeout(() => {
+      document.getElementById("invited-jury")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [invited]);
+
+  useEffect(() => {
     fetch(`${func2url["jury-applications"]}?action=published`)
       .then((r) => r.json())
       .then((data) => setInvited(Array.isArray(data) ? data : []))
@@ -251,7 +259,7 @@ const IndexJurySection = () => {
             ))}
           </div>
 
-          <h3 className="text-2xl font-bold text-gray-800 mt-14 mb-6">Члены жюри из числа приглашённых</h3>
+          <h3 id="invited-jury" className="text-2xl font-bold text-gray-800 mt-14 mb-6 scroll-mt-24">Члены жюри из числа приглашённых</h3>
           {invited.length === 0 ? (
             <p className="text-gray-500 text-sm">Список приглашённых членов жюри скоро появится</p>
           ) : (

@@ -14,7 +14,7 @@ PLACES = {
     'third_degree': 'Диплом 3 степени',
 }
 
-IMAGE_REGEX = r'\.(jpe?g|png|webp|gif)(\?.*)?$'
+IMAGE_REGEX = r'\.(jpe?g|jfif|png|webp|gif)(\?.*)?$'
 DEFAULT_PRICE = 200
 DEFAULT_RETURN_URL = 'https://preview--talent-studio-project.poehali.dev/?section=sostav'
 
@@ -75,7 +75,7 @@ def handler(event: dict, context) -> dict:
                 SELECT c.id, c.title, COUNT(a.id) AS cnt,
                        COALESCE(cc.name, 'Другие конкурсы') AS category_name
                 FROM contests c
-                JOIN applications a ON a.contest_id = c.id
+                JOIN applications a ON (a.contest_id = c.id OR (a.contest_id IS NULL AND a.contest_name = c.title))
                 LEFT JOIN contest_categories cc ON cc.category_id = c.category_id
                 WHERE a.deleted_at IS NULL AND a.work_file_url ~* %s
                 GROUP BY c.id, c.title, cc.name
@@ -98,11 +98,12 @@ def handler(event: dict, context) -> dict:
                 """
                 SELECT id, work_file_url, age, study_year
                 FROM applications
-                WHERE contest_id = %s AND deleted_at IS NULL AND work_file_url ~* %s
+                WHERE (contest_id = %s OR (contest_id IS NULL AND contest_name = (SELECT title FROM contests WHERE id = %s)))
+                  AND deleted_at IS NULL AND work_file_url ~* %s
                 ORDER BY random()
                 LIMIT 3
                 """,
-                (contest_id, IMAGE_REGEX),
+                (contest_id, contest_id, IMAGE_REGEX),
             )
             rows = cur.fetchall()
             conn.close()
@@ -177,8 +178,9 @@ def handler(event: dict, context) -> dict:
                 conn.close()
                 return resp(400, {'error': 'Выберите место для каждой работы'})
             cur.execute(
-                "SELECT id, work_file_url, age, study_year FROM applications WHERE id = %s AND contest_id = %s",
-                (int(item.get('work_id')), int(contest_id)),
+                "SELECT id, work_file_url, age, study_year FROM applications "
+                "WHERE id = %s AND (contest_id = %s OR (contest_id IS NULL AND contest_name = %s))",
+                (int(item.get('work_id')), int(contest_id), contest_name),
             )
             w = cur.fetchone()
             if not w:

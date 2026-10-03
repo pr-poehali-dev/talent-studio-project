@@ -100,7 +100,7 @@ const IndexResultsSection = ({
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <h2 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">Итоги конкурсов и олимпиад за 2026 год</h2>
+      <h2 className="text-4xl font-heading font-bold text-center mb-8 text-primary">Итоги конкурсов и олимпиад за 2026 год</h2>
 
       <div className="max-w-7xl mx-auto mb-4 flex flex-wrap justify-center gap-2">
         {MONTHS.map((month, index) => (

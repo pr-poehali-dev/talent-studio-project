@@ -58,7 +58,7 @@ export default function AdminNav({
         </div>
       </nav>
 
-      <div className="flex gap-4 mb-8 border-b">
+      <div className="flex flex-wrap gap-x-4 gap-y-2 mb-8 border-b">
         <Button
           variant={activeTab === 'contests' ? 'default' : 'ghost'}
           onClick={() => setActiveTab('contests')}

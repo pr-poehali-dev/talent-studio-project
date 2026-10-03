@@ -9,9 +9,9 @@ import requests
 
 PLACES = {
     'grand_prix': 'Гран-при',
-    'first_degree': 'Диплом 1 степени',
-    'second_degree': 'Диплом 2 степени',
-    'third_degree': 'Диплом 3 степени',
+    'first_degree': 'Лауреат 1 степени',
+    'second_degree': 'Лауреат 2 степени',
+    'third_degree': 'Лауреат 3 степени',
 }
 
 IMAGE_REGEX = r'\.(jpe?g|jfif|png|webp|gif)(\?.*)?$'

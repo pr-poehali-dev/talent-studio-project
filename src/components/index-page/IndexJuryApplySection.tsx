@@ -8,12 +8,13 @@ import { useToast } from "@/components/ui/use-toast";
 import func2url from "../../../backend/func2url.json";
 
 const JURY_API_URL = func2url["jury-applications"];
+const SETTINGS_URL = func2url["site-settings"];
 
 const PLACES = [
   { value: "grand_prix", label: "Гран-при" },
-  { value: "first_degree", label: "Диплом 1 степени" },
-  { value: "second_degree", label: "Диплом 2 степени" },
-  { value: "third_degree", label: "Диплом 3 степени" },
+  { value: "first_degree", label: "Лауреат 1 степени" },
+  { value: "second_degree", label: "Лауреат 2 степени" },
+  { value: "third_degree", label: "Лауреат 3 степени" },
 ];
 
 interface ContestOption {
@@ -40,6 +41,8 @@ const IndexJuryApplySection = () => {
   const [price, setPrice] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [zoomWork, setZoomWork] = useState<Work | null>(null);
+  const [sampleUrl, setSampleUrl] = useState("");
+  const [sampleZoom, setSampleZoom] = useState(false);
   const isPaid = new URLSearchParams(window.location.search).get("paid") === "1";
   const [form, setForm] = useState({
     full_name: "",
@@ -55,6 +58,10 @@ const IndexJuryApplySection = () => {
       .then((r) => r.json())
       .then((data) => setContests(Array.isArray(data) ? data : []))
       .catch(() => setContests([]));
+    fetch(SETTINGS_URL)
+      .then((r) => r.json())
+      .then((data) => setSampleUrl(data.jury_certificate_sample_url || ""))
+      .catch(() => setSampleUrl(""));
     fetch(`${JURY_API_URL}?action=price`)
       .then((r) => r.json())
       .then((data) => setPrice(data.price ?? null))
@@ -129,9 +136,54 @@ const IndexJuryApplySection = () => {
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <h2 className="text-5xl font-heading font-bold text-center mb-4 text-primary">Войти в состав жюри</h2>
-      <p className="text-center text-muted-foreground mb-10">
-        Выберите конкурс, оцените три работы из нашего архива и оформите заявку.
-      </p>
+      <div className="mb-10 p-6 rounded-2xl border-2 border-orange-100 bg-orange-50/50">
+        <h3 className="text-lg font-heading font-bold mb-3">Как подать заявку</h3>
+        <ol className="list-decimal pl-5 space-y-1.5 text-sm text-foreground">
+          <li>Выберите конкурс, в жюри которого хотите войти.</li>
+          <li>Оцените три работы из нашего архива: для каждой выберите место.</li>
+          <li>Заполните данные педагога: ФИО, должность, учреждение, страну или населённый пункт, e-mail и дату участия.</li>
+          <li>Оплатите участие и дождитесь подтверждения.</li>
+        </ol>
+        <p className="mt-4 text-sm">
+          Сертификат члена жюри будет доступен на сайте в разделе{" "}
+          <a href="/?section=jury" className="text-primary font-semibold underline">
+            «Наша команда»
+          </a>{" "}
+          , а также отправлен на Вашу электронную почту в течение 1–2 дней.
+        </p>
+        {sampleUrl && (
+          <div className="mt-5">
+            <p className="text-sm font-semibold mb-2">Образец сертификата</p>
+            {/\.pdf(\?.*)?$/i.test(sampleUrl) ? (
+              <a
+                href={sampleUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-primary font-semibold underline text-sm"
+              >
+                <Icon name="FileText" size={16} />
+                Открыть образец сертификата
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setSampleZoom(true)}
+                className="block max-w-sm cursor-zoom-in"
+                aria-label="Увеличить образец сертификата"
+              >
+                <img src={sampleUrl} alt="Образец сертификата" className="w-full rounded-xl border border-gray-200 bg-white" />
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      <Dialog open={sampleZoom} onOpenChange={setSampleZoom}>
+        <DialogContent className="max-w-5xl w-[95vw] p-2">
+          <DialogTitle className="sr-only">Образец сертификата</DialogTitle>
+          <img src={sampleUrl} alt="Образец сертификата" className="w-full max-h-[85vh] object-contain" />
+        </DialogContent>
+      </Dialog>
 
       <div className="mb-10">
         <Label htmlFor="jury-contest" className="text-base font-semibold mb-2 block">

@@ -7,6 +7,14 @@ import func2url from "../../../backend/func2url.json";
 
 const URL = func2url["jury-applications"];
 const UPLOAD_URL = func2url["upload-file"];
+const SETTINGS_URL = func2url["site-settings"];
+
+const PLACE_LABELS: Record<string, string> = {
+  grand_prix: "Гран-при",
+  first_degree: "Лауреат 1 степени",
+  second_degree: "Лауреат 2 степени",
+  third_degree: "Лауреат 3 степени",
+};
 
 interface Rating {
   work_id: number;
@@ -68,6 +76,64 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
   };
 
   const [uploadingId, setUploadingId] = useState<number | null>(null);
+  const [sampleUrl, setSampleUrl] = useState("");
+  const [sampleUploading, setSampleUploading] = useState(false);
+
+  useEffect(() => {
+    fetch(SETTINGS_URL)
+      .then((r) => r.json())
+      .then((data) => setSampleUrl(data.jury_certificate_sample_url || ""))
+      .catch(() => setSampleUrl(""));
+  }, []);
+
+  const saveSample = async (url: string) => {
+    const res = await fetch(SETTINGS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: "jury_certificate_sample_url", value: url }),
+    });
+    if (res.ok) {
+      setSampleUrl(url);
+      toast({ title: url ? "Образец сертификата сохранён" : "Образец удалён" });
+    } else {
+      toast({ title: "Не удалось сохранить", variant: "destructive" });
+    }
+  };
+
+  const uploadSample = (file: File) => {
+    setSampleUploading(true);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const base64 = reader.result?.toString().split(",")[1];
+        const res = await fetch(UPLOAD_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chunk: base64,
+            chunkIndex: 0,
+            totalChunks: 1,
+            uploadId: crypto.randomUUID(),
+            fileName: file.name,
+            fileType: file.type || "application/octet-stream",
+            folder: "jury-certificates",
+          }),
+        });
+        const data = await res.json();
+        if (data.url) await saveSample(data.url);
+        else toast({ title: data.error || "Не удалось загрузить файл", variant: "destructive" });
+      } catch {
+        toast({ title: "Ошибка соединения", variant: "destructive" });
+      } finally {
+        setSampleUploading(false);
+      }
+    };
+    reader.onerror = () => {
+      toast({ title: "Не удалось прочитать файл", variant: "destructive" });
+      setSampleUploading(false);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const savePublish = async (id: number, is_published: boolean, certificate_url: string | null) => {
     const res = await fetch(`${URL}?action=publish`, {
@@ -169,6 +235,34 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
           <Icon name="Save" className="mr-2" size={16} />
           Сохранить
         </Button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 mb-8 p-4 rounded-2xl border-2 border-gray-100 bg-white">
+        <label className="text-sm font-semibold">Образец сертификата для страницы заявки:</label>
+        <Input
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png,.webp"
+          disabled={sampleUploading}
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) uploadSample(f);
+            e.target.value = "";
+          }}
+          className="w-64 h-10"
+        />
+        {sampleUploading && <Icon name="Loader2" className="animate-spin" size={16} />}
+        {sampleUrl && (
+          <>
+            <a href={sampleUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1">
+              <Icon name="ExternalLink" size={14} />
+              Открыть образец
+            </a>
+            <Button variant="ghost" size="sm" onClick={() => saveSample("")}>
+              <Icon name="Trash2" size={14} className="mr-1" />
+              Удалить
+            </Button>
+          </>
+        )}
       </div>
 
       <h2 className="text-2xl font-heading font-bold mb-4">Заявки на жюри ({items.length}){newCount > 0 && <span className="ml-3 text-red-500">новых: {newCount}</span>}</h2>
@@ -306,7 +400,7 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
                   <a href={r.image_url} target="_blank" rel="noopener noreferrer">
                     <img src={r.image_url} alt={`Работа ${i + 1}`} className="w-full h-28 object-contain bg-gray-50 rounded-lg" />
                   </a>
-                  <p className="mt-2 font-bold text-sm">{r.place_label}</p>
+                  <p className="mt-2 font-bold text-sm">{PLACE_LABELS[r.place] || r.place_label}</p>
                   {r.work_title && <p className="text-muted-foreground">Название: {r.work_title}</p>}
                   <p className="text-muted-foreground">Возраст: {r.age || "—"}</p>
                   <p className="text-muted-foreground">Год обучения: {r.study_year || "—"}</p>

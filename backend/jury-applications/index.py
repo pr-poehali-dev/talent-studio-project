@@ -114,13 +114,13 @@ def handler(event: dict, context) -> dict:
         cur.execute(
             """
             SELECT id, full_name, position, institution, location, email, contest_id,
-                   contest_name, ratings, price, payment_status, payment_id, created_at, participation_date
+                   contest_name, ratings, price, payment_status, payment_id, created_at, participation_date, is_viewed
             FROM jury_applications
             ORDER BY created_at DESC
             """
         )
         cols = ['id', 'full_name', 'position', 'institution', 'location', 'email', 'contest_id',
-                'contest_name', 'ratings', 'price', 'payment_status', 'payment_id', 'created_at', 'participation_date']
+                'contest_name', 'ratings', 'price', 'payment_status', 'payment_id', 'created_at', 'participation_date', 'is_viewed']
         items = [dict(zip(cols, r)) for r in cur.fetchall()]
         conn.close()
         return resp(200, items)
@@ -128,6 +128,17 @@ def handler(event: dict, context) -> dict:
     if method == 'POST':
         raw = event.get('body') or '{}'
         body = json.loads(raw) if raw.strip() else {}
+
+        if action == 'view':
+            try:
+                app_id = int(body.get('id'))
+            except (ValueError, TypeError):
+                conn.close()
+                return resp(400, {'error': 'id is required'})
+            cur.execute("UPDATE jury_applications SET is_viewed = true WHERE id = %s", (app_id,))
+            conn.commit()
+            conn.close()
+            return resp(200, {'ok': True})
 
         if action == 'price':
             try:

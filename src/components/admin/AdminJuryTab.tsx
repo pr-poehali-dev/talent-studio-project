@@ -31,6 +31,7 @@ interface JuryApplication {
   payment_id: string | null;
   created_at: string;
   participation_date: string | null;
+  is_viewed: boolean;
 }
 
 export default function AdminJuryTab() {
@@ -49,6 +50,17 @@ export default function AdminJuryTab() {
       .then((r) => r.json())
       .then((data) => setPrice(String(data.price ?? "")));
   }, []);
+
+  const markViewed = async (id: number) => {
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, is_viewed: true } : i)));
+    await fetch(`${URL}?action=view`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+  };
+
+  const newCount = items.filter((i) => !i.is_viewed).length;
 
   const savePrice = async () => {
     setSaving(true);
@@ -84,16 +96,27 @@ export default function AdminJuryTab() {
         </Button>
       </div>
 
-      <h2 className="text-2xl font-heading font-bold mb-4">Заявки на жюри ({items.length})</h2>
+      <h2 className="text-2xl font-heading font-bold mb-4">Заявки на жюри ({items.length}){newCount > 0 && <span className="ml-3 text-red-500">новых: {newCount}</span>}</h2>
 
       {loading && <Icon name="Loader2" size={32} className="animate-spin text-primary" />}
       {!loading && items.length === 0 && <p className="text-muted-foreground">Заявок пока нет</p>}
 
       <div className="flex flex-col gap-4">
         {items.map((item) => (
-          <div key={item.id} className="p-5 rounded-2xl border-2 border-gray-100 bg-white shadow-sm">
+          <div key={item.id} className={`p-5 rounded-2xl border-2 bg-white shadow-sm ${item.is_viewed ? "border-gray-100" : "border-red-300"}`}>
             <div className="flex flex-wrap justify-between gap-2 mb-3">
-              <p className="font-heading font-bold text-lg">{item.full_name}</p>
+              <div className="flex items-center gap-3">
+                <p className="font-heading font-bold text-lg">{item.full_name}</p>
+                {!item.is_viewed && (
+                  <>
+                    <span className="px-2 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold">Новая</span>
+                    <Button size="sm" variant="outline" onClick={() => markViewed(item.id)}>
+                      <Icon name="Check" size={14} className="mr-1" />
+                      Просмотрена
+                    </Button>
+                  </>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">
                 {new Date(item.created_at).toLocaleString("ru-RU")}
               </p>

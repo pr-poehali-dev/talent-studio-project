@@ -12,6 +12,7 @@ interface Rating {
   image_url: string;
   age: string;
   study_year: string | null;
+  work_title?: string | null;
   place: string;
   place_label: string;
 }
@@ -119,6 +120,7 @@ export default function AdminJuryTab() {
                     <img src={r.image_url} alt={`Работа ${i + 1}`} className="w-full h-28 object-contain bg-gray-50 rounded-lg" />
                   </a>
                   <p className="mt-2 font-bold text-sm">{r.place_label}</p>
+                  {r.work_title && <p className="text-muted-foreground">Название: {r.work_title}</p>}
                   <p className="text-muted-foreground">Возраст: {r.age || "—"}</p>
                   <p className="text-muted-foreground">Год обучения: {r.study_year || "—"}</p>
                 </div>

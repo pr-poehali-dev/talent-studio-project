@@ -96,7 +96,7 @@ def handler(event: dict, context) -> dict:
                 return resp(400, {'error': 'contest_id is required'})
             cur.execute(
                 """
-                SELECT id, work_file_url, age, study_year
+                SELECT id, work_file_url, age, study_year, work_title
                 FROM applications
                 WHERE (contest_id = %s OR (contest_id IS NULL AND contest_name = (SELECT title FROM contests WHERE id = %s)))
                   AND deleted_at IS NULL AND work_file_url ~* %s
@@ -108,7 +108,7 @@ def handler(event: dict, context) -> dict:
             rows = cur.fetchall()
             conn.close()
             return resp(200, [
-                {'id': r[0], 'image_url': r[1], 'age': r[2], 'study_year': r[3]} for r in rows
+                {'id': r[0], 'image_url': r[1], 'age': r[2], 'study_year': r[3], 'work_title': r[4]} for r in rows
             ])
 
         cur.execute(
@@ -178,7 +178,7 @@ def handler(event: dict, context) -> dict:
                 conn.close()
                 return resp(400, {'error': 'Выберите место для каждой работы'})
             cur.execute(
-                "SELECT id, work_file_url, age, study_year FROM applications "
+                "SELECT id, work_file_url, age, study_year, work_title FROM applications "
                 "WHERE id = %s AND (contest_id = %s OR (contest_id IS NULL AND contest_name = %s))",
                 (int(item.get('work_id')), int(contest_id), contest_name),
             )
@@ -191,6 +191,7 @@ def handler(event: dict, context) -> dict:
                 'image_url': w[1],
                 'age': w[2],
                 'study_year': w[3],
+                'work_title': w[4],
                 'place': place,
                 'place_label': PLACES[place],
             })

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Icon from "@/components/ui/icon";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import func2url from "../../../backend/func2url.json";
 
@@ -26,6 +27,7 @@ interface Work {
   image_url: string;
   age: string;
   study_year: string | null;
+  work_title: string | null;
 }
 
 const IndexJuryApplySection = () => {
@@ -37,6 +39,7 @@ const IndexJuryApplySection = () => {
   const [places, setPlaces] = useState<Record<number, string>>({});
   const [price, setPrice] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [zoomWork, setZoomWork] = useState<Work | null>(null);
   const [form, setForm] = useState({
     full_name: "",
     position: "",
@@ -159,14 +162,25 @@ const IndexJuryApplySection = () => {
                 key={work.id}
                 className="flex flex-col sm:flex-row gap-4 p-4 rounded-2xl border-2 border-gray-100 bg-white shadow-sm"
               >
-                <img
-                  src={work.image_url}
-                  alt={`Работа ${index + 1}`}
-                  className="w-full sm:w-64 h-56 object-contain rounded-xl bg-gray-50"
-                />
+                <button
+                  type="button"
+                  onClick={() => setZoomWork(work)}
+                  className="relative w-full sm:w-64 shrink-0 cursor-zoom-in"
+                  aria-label="Увеличить работу"
+                >
+                  <img
+                    src={work.image_url}
+                    alt={`Работа ${index + 1}`}
+                    className="w-full h-56 object-contain rounded-xl bg-gray-50"
+                  />
+                  <span className="absolute bottom-2 right-2 bg-black/60 text-white rounded-full p-1.5">
+                    <Icon name="ZoomIn" size={16} />
+                  </span>
+                </button>
                 <div className="flex-1 flex flex-col justify-center gap-3">
                   <p className="font-heading font-bold text-lg">Работа {index + 1}</p>
                   <div className="text-sm text-muted-foreground">
+                    <p>Название работы: {work.work_title || "—"}</p>
                     <p>Возраст участника: {work.age || "—"}</p>
                     <p>Год обучения: {work.study_year || "—"}</p>
                   </div>
@@ -192,6 +206,19 @@ const IndexJuryApplySection = () => {
           </div>
         </div>
       )}
+
+      <Dialog open={!!zoomWork} onOpenChange={(open) => !open && setZoomWork(null)}>
+        <DialogContent className="max-w-5xl w-[95vw] p-2">
+          <DialogTitle className="sr-only">Просмотр работы</DialogTitle>
+          {zoomWork && (
+            <img
+              src={zoomWork.image_url}
+              alt={zoomWork.work_title || "Работа"}
+              className="w-full max-h-[85vh] object-contain"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {allRated && (
         <div className="p-6 rounded-2xl border-2 border-gray-100 bg-white shadow-sm">

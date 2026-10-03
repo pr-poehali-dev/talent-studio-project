@@ -139,7 +139,7 @@ const IndexJuryApplySection = () => {
       <div className="mb-10 p-6 rounded-2xl border-2 border-orange-100 bg-orange-50/50">
         <h3 className="text-lg font-heading font-bold mb-3">Как войти в состав приглашённого жюри</h3>
         <ol className="list-decimal pl-5 space-y-1.5 text-sm text-foreground">
-          <li>Выберите конкурс, для участия в составе жюри.</li>
+          <li>Выберите конкурс для участия в составе жюри.</li>
           <li>Оцените три работы наших участников: для каждой выберите место.</li>
           <li>Заполните анкету: укажите ФИО, должность, учреждение, страну или населённый пункт, адрес электронной почты и дату участия.</li>
           <li>Оплатите участие и ожидайте подтверждения.</li>

@@ -95,7 +95,7 @@ const Index = () => {
   const initialSection = searchParams.get('section') || 'home';
   const categoryParam = searchParams.get('category');
   const [activeSection, setActiveSection] = useState(initialSection);
-  const [showCatWelcome, setShowCatWelcome] = useState(true);
+  const [showCatWelcome, setShowCatWelcome] = useState(initialSection === "home" && window.location.pathname === "/");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileOpenSubmenu, setMobileOpenSubmenu] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

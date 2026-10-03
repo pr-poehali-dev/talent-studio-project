@@ -2,44 +2,7 @@ import json
 import os
 import psycopg2
 import boto3
-import smtplib
-from email.mime.text import MIMEText
 from botocore.exceptions import ClientError
-
-def notify_jury(jury_id: int, jury_app: dict) -> None:
-    smtp_user = os.environ.get('SMTP_USER')
-    smtp_password = os.environ.get('SMTP_PASSWORD')
-    notify_to = os.environ.get('JURY_NOTIFY_EMAIL') or smtp_user
-    if not smtp_user or not smtp_password or not notify_to:
-        print('[WARN] SMTP not configured, jury notification skipped')
-        return
-    ratings = '\n'.join(
-        f"  {i + 1}. {r.get('work_title') or 'без названия'} — {r.get('place_label')}"
-        for i, r in enumerate(jury_app.get('ratings', []))
-    )
-    text = (
-        f"Новая оплаченная заявка на вхождение в состав жюри №{jury_id}\n\n"
-        f"ФИО: {jury_app.get('full_name')}\n"
-        f"Должность: {jury_app.get('position')}\n"
-        f"Учреждение: {jury_app.get('institution')}\n"
-        f"Страна / населённый пункт: {jury_app.get('location')}\n"
-        f"Email: {jury_app.get('email')}\n"
-        f"Дата участия в жюри: {jury_app.get('participation_date')}\n"
-        f"Конкурс: {jury_app.get('contest_name')}\n"
-        f"Сумма: {jury_app.get('price')} руб.\n\n"
-        f"Выбранные места:\n{ratings}\n"
-    )
-    msg = MIMEText(text, 'plain', 'utf-8')
-    msg['Subject'] = f"Новая заявка на жюри: {jury_app.get('full_name')}"
-    msg['From'] = smtp_user
-    msg['To'] = notify_to
-    try:
-        with smtplib.SMTP_SSL('smtp.yandex.ru', 465, timeout=4) as server:
-            server.login(smtp_user, smtp_password)
-            server.send_message(msg)
-    except Exception as e:
-        print(f'[ERROR] Jury notification failed: {e}')
-
 
 def handler(event: dict, context) -> dict:
     '''Обработка webhook от ЮКассы. При успешной оплате создаёт заявку(и) в БД из временных данных в S3.
@@ -155,7 +118,6 @@ def handler(event: dict, context) -> dict:
             cur.close()
             conn.close()
             print(f'[DONE] Jury application saved, id={jury_id}, payment_id={payment_id}')
-            notify_jury(jury_id, jury_app)
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},

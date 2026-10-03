@@ -109,8 +109,8 @@ def build_pdf(rows: list, month: int, year: int) -> bytes:
 
     try:
         header_data = fetch_image(HEADER_IMAGE_URL)
-        header_h = usable_width * (520 / 2000) * 0.6
-        header_img = Image(header_data, width=usable_width, height=header_h, kind='proportional')
+        header_h = usable_width * (519 / 2000)
+        header_img = Image(header_data, width=usable_width, height=header_h)
         story.append(header_img)
     except Exception:
         pass

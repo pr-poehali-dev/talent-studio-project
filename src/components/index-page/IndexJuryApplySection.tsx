@@ -40,6 +40,7 @@ const IndexJuryApplySection = () => {
   const [price, setPrice] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [zoomWork, setZoomWork] = useState<Work | null>(null);
+  const isPaid = new URLSearchParams(window.location.search).get("paid") === "1";
   const [form, setForm] = useState({
     full_name: "",
     position: "",
@@ -95,7 +96,7 @@ const IndexJuryApplySection = () => {
           ...form,
           contest_id: Number(contestId),
           ratings: works.map((w) => ({ work_id: w.id, place: places[w.id] })),
-          return_url: `${window.location.origin}/?section=sostav`,
+          return_url: `${window.location.origin}/?section=sostav&paid=1`,
         }),
       });
       const data = await res.json();
@@ -116,6 +117,23 @@ const IndexJuryApplySection = () => {
   };
 
   const setField = (key: keyof typeof form, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
+
+  if (isPaid) {
+    return (
+      <div className="container mx-auto px-4 py-16 max-w-2xl text-center">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+          <Icon name="CheckCircle2" size={48} className="text-green-600" />
+        </div>
+        <h2 className="text-4xl font-heading font-bold mb-4 text-primary">Спасибо, заявка принята!</h2>
+        <p className="text-lg text-muted-foreground mb-8">
+          Мы получили вашу заявку на вхождение в состав жюри и свяжемся с вами по указанной электронной почте.
+        </p>
+        <Button asChild className="h-12 px-8 text-base font-bold rounded-xl">
+          <a href="/">На главную</a>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">

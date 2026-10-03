@@ -40,6 +40,9 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
   const [loading, setLoading] = useState(true);
   const [price, setPrice] = useState("");
   const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
+  const [contestFilter, setContestFilter] = useState("");
+  const [onlyNew, setOnlyNew] = useState(false);
 
   useEffect(() => {
     fetch(`${URL}?action=list`)
@@ -59,6 +62,15 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
       body: JSON.stringify({ id }),
     });
   };
+
+  const contestNames = Array.from(new Set(items.map((i) => i.contest_name))).sort();
+
+  const filteredItems = items.filter((i) => {
+    if (search.trim() && !i.full_name.toLowerCase().includes(search.trim().toLowerCase())) return false;
+    if (contestFilter && i.contest_name !== contestFilter) return false;
+    if (onlyNew && i.is_viewed) return false;
+    return true;
+  });
 
   const newCount = items.filter((i) => !i.is_viewed).length;
 
@@ -102,11 +114,53 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
 
       <h2 className="text-2xl font-heading font-bold mb-4">Заявки на жюри ({items.length}){newCount > 0 && <span className="ml-3 text-red-500">новых: {newCount}</span>}</h2>
 
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <Input
+          placeholder="Поиск по ФИО"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-64"
+        />
+        <select
+          value={contestFilter}
+          onChange={(e) => setContestFilter(e.target.value)}
+          className="h-10 rounded-md border border-input bg-background px-3 text-sm max-w-xs"
+        >
+          <option value="">Все конкурсы</option>
+          {contestNames.map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+        <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+          <input type="checkbox" checked={onlyNew} onChange={(e) => setOnlyNew(e.target.checked)} />
+          Только новые
+        </label>
+        {(search || contestFilter || onlyNew) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setSearch("");
+              setContestFilter("");
+              setOnlyNew(false);
+            }}
+          >
+            <Icon name="X" size={14} className="mr-1" />
+            Сбросить
+          </Button>
+        )}
+      </div>
+
       {loading && <Icon name="Loader2" size={32} className="animate-spin text-primary" />}
       {!loading && items.length === 0 && <p className="text-muted-foreground">Заявок пока нет</p>}
+      {!loading && items.length > 0 && filteredItems.length === 0 && (
+        <p className="text-muted-foreground">По выбранным условиям заявок нет</p>
+      )}
 
       <div className="flex flex-col gap-4">
-        {items.map((item) => (
+        {filteredItems.map((item) => (
           <div key={item.id} className={`p-5 rounded-2xl border-2 bg-white shadow-sm ${item.is_viewed ? "border-gray-100" : "border-red-300"}`}>
             <div className="flex flex-wrap justify-between gap-2 mb-3">
               <div className="flex items-center gap-3">

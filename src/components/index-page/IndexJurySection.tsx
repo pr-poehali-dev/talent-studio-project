@@ -1,5 +1,16 @@
 import { useRef, useEffect, useState } from "react";
 import Icon from "@/components/ui/icon";
+import func2url from "../../../backend/func2url.json";
+
+interface InvitedJuror {
+  number: number;
+  full_name: string;
+  institution: string;
+  location: string;
+  participation_date: string | null;
+  contest_name: string;
+  certificate_url: string;
+}
 
 interface TeamMember {
   name: string;
@@ -186,6 +197,15 @@ const SectionDivider = ({ label }: { label: string }) => (
 );
 
 const IndexJurySection = () => {
+  const [invited, setInvited] = useState<InvitedJuror[]>([]);
+
+  useEffect(() => {
+    fetch(`${func2url["jury-applications"]}?action=published`)
+      .then((r) => r.json())
+      .then((data) => setInvited(Array.isArray(data) ? data : []))
+      .catch(() => setInvited([]));
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 to-white">
       {/* Hero */}
@@ -224,11 +244,58 @@ const IndexJurySection = () => {
         {/* Члены жюри */}
         <div>
           <SectionDivider label="Члены жюри" />
+          <h3 className="text-2xl font-bold text-gray-800 mb-6">Постоянное жюри</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {juryMembers.map((member, index) => (
               <MemberCard key={member.name} member={member} index={index} />
             ))}
           </div>
+
+          <h3 className="text-2xl font-bold text-gray-800 mt-14 mb-6">Члены жюри из числа приглашённых</h3>
+          {invited.length === 0 ? (
+            <p className="text-gray-500 text-sm">Список приглашённых членов жюри скоро появится</p>
+          ) : (
+            <div className="bg-white rounded-2xl shadow-md border border-orange-100 overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-orange-50 text-gray-700">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">№</th>
+                    <th className="px-4 py-3 font-semibold">ФИО</th>
+                    <th className="px-4 py-3 font-semibold">Учреждение</th>
+                    <th className="px-4 py-3 font-semibold">Страна / населённый пункт</th>
+                    <th className="px-4 py-3 font-semibold">Дата участия в составе жюри</th>
+                    <th className="px-4 py-3 font-semibold">Конкурс</th>
+                    <th className="px-4 py-3 font-semibold">Сертификат</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invited.map((j) => (
+                    <tr key={j.number} className="border-t border-orange-50 text-gray-800">
+                      <td className="px-4 py-3 font-bold">{j.number}</td>
+                      <td className="px-4 py-3">{j.full_name}</td>
+                      <td className="px-4 py-3">{j.institution}</td>
+                      <td className="px-4 py-3">{j.location}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {j.participation_date ? new Date(j.participation_date).toLocaleDateString("ru-RU") : "—"}
+                      </td>
+                      <td className="px-4 py-3">{j.contest_name}</td>
+                      <td className="px-4 py-3">
+                        <a
+                          href={j.certificate_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-orange-600 font-medium hover:underline"
+                        >
+                          <Icon name="Download" size={16} />
+                          Скачать
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Bottom accent */}

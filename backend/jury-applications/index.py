@@ -111,16 +111,32 @@ def handler(event: dict, context) -> dict:
                 {'id': r[0], 'image_url': r[1], 'age': r[2], 'study_year': r[3], 'work_title': r[4]} for r in rows
             ])
 
+        if action == 'published':
+            cur.execute(
+                """
+                SELECT number, full_name, institution, location, participation_date, contest_name, certificate_url
+                FROM jury_applications
+                WHERE is_published = true AND certificate_url IS NOT NULL AND certificate_url <> ''
+                ORDER BY number
+                """
+            )
+            pub_cols = ['number', 'full_name', 'institution', 'location', 'participation_date', 'contest_name', 'certificate_url']
+            items = [dict(zip(pub_cols, r)) for r in cur.fetchall()]
+            conn.close()
+            return resp(200, items)
+
         cur.execute(
             """
             SELECT id, full_name, position, institution, location, email, contest_id,
-                   contest_name, ratings, price, payment_status, payment_id, created_at, participation_date, is_viewed
+                   contest_name, ratings, price, payment_status, payment_id, created_at, participation_date, is_viewed,
+                   number, is_published, certificate_url
             FROM jury_applications
             ORDER BY created_at DESC
             """
         )
         cols = ['id', 'full_name', 'position', 'institution', 'location', 'email', 'contest_id',
-                'contest_name', 'ratings', 'price', 'payment_status', 'payment_id', 'created_at', 'participation_date', 'is_viewed']
+                'contest_name', 'ratings', 'price', 'payment_status', 'payment_id', 'created_at', 'participation_date', 'is_viewed',
+                'number', 'is_published', 'certificate_url']
         items = [dict(zip(cols, r)) for r in cur.fetchall()]
         conn.close()
         return resp(200, items)
@@ -136,6 +152,25 @@ def handler(event: dict, context) -> dict:
                 conn.close()
                 return resp(400, {'error': 'id is required'})
             cur.execute("UPDATE jury_applications SET is_viewed = true WHERE id = %s", (app_id,))
+            conn.commit()
+            conn.close()
+            return resp(200, {'ok': True})
+
+        if action == 'publish':
+            try:
+                app_id = int(body.get('id'))
+            except (ValueError, TypeError):
+                conn.close()
+                return resp(400, {'error': 'id is required'})
+            is_published = bool(body.get('is_published'))
+            certificate_url = (body.get('certificate_url') or '').strip() or None
+            if is_published and not certificate_url:
+                conn.close()
+                return resp(400, {'error': 'Прикрепите файл сертификата перед публикацией'})
+            cur.execute(
+                "UPDATE jury_applications SET is_published = %s, certificate_url = %s WHERE id = %s",
+                (is_published, certificate_url, app_id),
+            )
             conn.commit()
             conn.close()
             return resp(200, {'ok': True})

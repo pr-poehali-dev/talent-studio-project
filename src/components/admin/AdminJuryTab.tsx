@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import func2url from "../../../backend/func2url.json";
 
 const URL = func2url["jury-applications"];
+const UPLOAD_URL = func2url["upload-file"];
 
 interface Rating {
   work_id: number;
@@ -32,6 +33,9 @@ interface JuryApplication {
   created_at: string;
   participation_date: string | null;
   is_viewed: boolean;
+  number: number | null;
+  is_published: boolean;
+  certificate_url: string | null;
 }
 
 export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: (n: number) => void }) {
@@ -61,6 +65,61 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     });
+  };
+
+  const [uploadingId, setUploadingId] = useState<number | null>(null);
+
+  const savePublish = async (id: number, is_published: boolean, certificate_url: string | null) => {
+    const res = await fetch(`${URL}?action=publish`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, is_published, certificate_url }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      toast({ title: data.error || "Не удалось сохранить", variant: "destructive" });
+      return false;
+    }
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, is_published, certificate_url } : i)));
+    return true;
+  };
+
+  const uploadCertificate = (item: JuryApplication, file: File) => {
+    setUploadingId(item.id);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const base64 = reader.result?.toString().split(",")[1];
+        const res = await fetch(UPLOAD_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chunk: base64,
+            chunkIndex: 0,
+            totalChunks: 1,
+            uploadId: crypto.randomUUID(),
+            fileName: file.name,
+            fileType: file.type || "application/octet-stream",
+            folder: "jury-certificates",
+          }),
+        });
+        const data = await res.json();
+        if (data.url) {
+          if (await savePublish(item.id, item.is_published, data.url)) toast({ title: "Сертификат загружен" });
+        } else {
+          toast({ title: data.error || "Не удалось загрузить файл", variant: "destructive" });
+        }
+      } catch {
+        toast({ title: "Ошибка соединения", variant: "destructive" });
+      } finally {
+        setUploadingId(null);
+      }
+    };
+    reader.onerror = () => {
+      toast({ title: "Не удалось прочитать файл", variant: "destructive" });
+      setUploadingId(null);
+    };
+    reader.readAsDataURL(file);
   };
 
   const contestNames = Array.from(new Set(items.map((i) => i.contest_name))).sort();
@@ -164,7 +223,11 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
           <div key={item.id} className={`p-5 rounded-2xl border-2 bg-white shadow-sm ${item.is_viewed ? "border-gray-100" : "border-red-300"}`}>
             <div className="flex flex-wrap justify-between gap-2 mb-3">
               <div className="flex items-center gap-3">
+                <span className="px-2.5 py-0.5 rounded-lg bg-gray-900 text-white text-sm font-bold">№ {item.number}</span>
                 <p className="font-heading font-bold text-lg">{item.full_name}</p>
+                {item.is_published && (
+                  <span className="px-2 py-0.5 rounded-full bg-green-600 text-white text-xs font-bold">Опубликовано</span>
+                )}
                 {!item.is_viewed && (
                   <>
                     <span className="px-2 py-0.5 rounded-full bg-red-500 text-white text-xs font-bold">Новая</span>
@@ -193,6 +256,49 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
                 <span className="text-muted-foreground">Оплата:</span> {item.price} ₽,{" "}
                 {item.payment_status === "paid" ? "оплачено" : item.payment_status}
               </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 mb-4 p-3 rounded-xl bg-gray-50 border border-gray-200">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-semibold">Сертификат:</label>
+                <Input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  disabled={uploadingId === item.id}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) uploadCertificate(item, f);
+                    e.target.value = "";
+                  }}
+                  className="w-64 h-10"
+                />
+                {uploadingId === item.id && <Icon name="Loader2" className="animate-spin" size={16} />}
+              </div>
+              {item.certificate_url && (
+                <a href={item.certificate_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1">
+                  <Icon name="ExternalLink" size={14} />
+                  Открыть файл
+                </a>
+              )}
+              <div className="flex items-center gap-2 ml-auto">
+                <label className="text-sm font-semibold">Статус:</label>
+                <select
+                  value={item.is_published ? "published" : "draft"}
+                  onChange={async (e) => {
+                    const publish = e.target.value === "published";
+                    if (publish && !item.certificate_url) {
+                      toast({ title: "Сначала прикрепите файл сертификата", variant: "destructive" });
+                      return;
+                    }
+                    if (await savePublish(item.id, publish, item.certificate_url)) {
+                      toast({ title: publish ? "Опубликовано на сайте" : "Снято с публикации" });
+                    }
+                  }}
+                  className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="draft">Не опубликовано</option>
+                  <option value="published">Опубликовано</option>
+                </select>
+              </div>
             </div>
             <div className="grid gap-3 grid-cols-2 sm:grid-cols-3">
               {item.ratings.map((r, i) => (

@@ -12,6 +12,7 @@ import IndexDesignerSection from "@/components/index-page/IndexDesignerSection";
 import IndexFooter from "@/components/index-page/IndexFooter";
 import IndexJurySection from "@/components/index-page/IndexJurySection";
 import IndexOlympiadsSection from "@/components/index-page/IndexOlympiadsSection";
+import IndexJuryApplySection from "@/components/index-page/IndexJuryApplySection";
 import {
   Contest,
   PublicResult,
@@ -81,6 +82,11 @@ const SECTION_SEO: Record<string, { title: string; description: string; path: st
     title: "Интерактивные олимпиады — Студия талантов «Мечтай, твори, дерзай»",
     description: "Всероссийские интерактивные олимпиады по ИЗО и ДПИ для школьников — выполняйте задания онлайн, без скачивания файлов.",
     path: "/?section=olympiads",
+  },
+  sostav: {
+    title: "Войти в состав жюри — Студия талантов «Мечтай, твори, дерзай»",
+    description: "Приглашаем педагогов войти в состав жюри конкурсов студии талантов «Мечтай, твори, дерзай».",
+    path: "/?section=sostav",
   },
 };
 
@@ -366,6 +372,8 @@ const Index = () => {
       {activeSection === "jury" && <IndexJurySection />}
 
       {activeSection === "olympiads" && <IndexOlympiadsSection />}
+
+      {activeSection === "sostav" && <IndexJuryApplySection />}
 
       {activeSection === "designer" && (
         <IndexDesignerSection

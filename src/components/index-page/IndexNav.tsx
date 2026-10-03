@@ -1,6 +1,6 @@
 import Icon from "@/components/ui/icon";
 import { contestCategories } from "./IndexTypes";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 interface IndexNavProps {
   activeSection: string;
@@ -25,8 +25,13 @@ const navItems: { id: string; label: string; icon: string; hasDropdown?: boolean
   { id: "results", label: "Итоги", icon: "Award" },
   { id: "jury", label: "Наша команда", icon: "Users" },
   { id: "designer", label: "Услуги дизайнера", icon: "PenTool" },
+  { id: "teacher", label: "Для педагога", icon: "GraduationCap", hasDropdown: true },
   { id: "reviews", label: "Отзывы", icon: "MessageSquare" },
   { id: "about", label: "О нас", icon: "Users" },
+];
+
+const teacherSubItems: { id: string; label: string; icon: string }[] = [
+  { id: "sostav", label: "Войти в состав жюри", icon: "Gavel" },
 ];
 
 const IndexNav = ({
@@ -44,6 +49,22 @@ const IndexNav = ({
   setIsColoringModalOpen,
 }: IndexNavProps) => {
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const teacherTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showTeacherDropdown, setShowTeacherDropdown] = useState(false);
+
+  const handleTeacherEnter = () => {
+    if (teacherTimeoutRef.current) {
+      clearTimeout(teacherTimeoutRef.current);
+      teacherTimeoutRef.current = null;
+    }
+    setShowTeacherDropdown(true);
+  };
+
+  const handleTeacherLeave = () => {
+    teacherTimeoutRef.current = setTimeout(() => {
+      setShowTeacherDropdown(false);
+    }, 150);
+  };
 
   const handleMouseEnter = () => {
     if (closeTimeoutRef.current) {
@@ -140,20 +161,23 @@ const IndexNav = ({
                   <div
                     key={item.id}
                     className="relative"
-                    onMouseEnter={() => item.hasDropdown && handleMouseEnter()}
-                    onMouseLeave={() => item.hasDropdown && handleMouseLeave()}
+                    onMouseEnter={() => item.hasDropdown && (item.id === "teacher" ? handleTeacherEnter() : handleMouseEnter())}
+                    onMouseLeave={() => item.hasDropdown && (item.id === "teacher" ? handleTeacherLeave() : handleMouseLeave())}
                   >
                     <a
                       href={item.id === "home" ? "/" : `/?section=${item.id}`}
                       onClick={(e) => {
-                        if (!item.hasDropdown) {
+                        if (item.id === "teacher") {
+                          e.preventDefault();
+                          setShowTeacherDropdown(true);
+                        } else if (!item.hasDropdown) {
                           e.preventDefault();
                           setActiveSection(item.id);
                           setShowContestsDropdown(false);
                         }
                       }}
                       className={`flex items-center gap-1 px-3 py-2 rounded-xl font-semibold transition-all text-sm ${
-                        activeSection === item.id
+                        activeSection === item.id || (item.id === "teacher" && teacherSubItems.some(sub => sub.id === activeSection))
                           ? "bg-primary text-primary-foreground shadow-lg scale-105"
                           : "text-foreground hover:bg-accent hover:scale-105"
                       }`}
@@ -161,10 +185,35 @@ const IndexNav = ({
                       <Icon name={item.icon} size={18} />
                       {item.label}
                       {item.hasDropdown && (
-                        <Icon name="ChevronDown" size={16} className={`transition-transform ${showContestsDropdown ? 'rotate-180' : ''}`} />
+                        <Icon name="ChevronDown" size={16} className={`transition-transform ${(item.id === "teacher" ? showTeacherDropdown : showContestsDropdown) ? 'rotate-180' : ''}`} />
                       )}
                     </a>
-                    {item.hasDropdown && showContestsDropdown && (
+                    {item.id === "teacher" && showTeacherDropdown && (
+                      <div
+                        className="absolute top-full mt-0 pt-2 bg-transparent z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                        onMouseEnter={handleTeacherEnter}
+                        onMouseLeave={handleTeacherLeave}
+                      >
+                        <div className="bg-white rounded-xl shadow-xl border-2 border-gray-100 min-w-[260px] py-2">
+                          {teacherSubItems.map((sub) => (
+                            <a
+                              key={sub.id}
+                              href={`/?section=${sub.id}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setActiveSection(sub.id);
+                                setShowTeacherDropdown(false);
+                              }}
+                              className="block w-full text-left px-4 py-3 hover:bg-accent transition-colors flex items-center gap-2"
+                            >
+                              <Icon name={sub.icon} size={18} className="text-primary" />
+                              {sub.label}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {item.id === "contests" && showContestsDropdown && (
                       <div
                         className="absolute top-full mt-0 pt-2 bg-transparent z-50 animate-in fade-in slide-in-from-top-2 duration-200"
                         onMouseEnter={handleMouseEnter}
@@ -274,7 +323,7 @@ const IndexNav = ({
                     }
                   }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-left ${
-                    activeSection === item.id
+                    activeSection === item.id || (item.id === "teacher" && teacherSubItems.some(sub => sub.id === activeSection))
                       ? "bg-primary text-primary-foreground"
                       : "text-foreground hover:bg-accent"
                   }`}
@@ -285,7 +334,25 @@ const IndexNav = ({
                     <Icon name="ChevronDown" size={16} className={`ml-auto transition-transform ${mobileOpenSubmenu === item.id ? 'rotate-180' : ''}`} />
                   )}
                 </a>
-                {item.hasDropdown && mobileOpenSubmenu === item.id && (
+                {item.id === "teacher" && mobileOpenSubmenu === item.id && (
+                  <div className="pl-4 flex flex-col gap-1 pb-2">
+                    {teacherSubItems.map((sub) => (
+                      <button
+                        key={sub.id}
+                        onClick={() => {
+                          setActiveSection(sub.id);
+                          setIsMobileMenuOpen(false);
+                          setMobileOpenSubmenu(null);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm hover:bg-accent transition-colors text-left"
+                      >
+                        <Icon name={sub.icon} size={16} className="text-primary" />
+                        {sub.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {item.id === "contests" && mobileOpenSubmenu === item.id && (
                   <div className="pl-4 flex flex-col gap-1 pb-2">
                     {contestCategories.map((category) => (
                       <button

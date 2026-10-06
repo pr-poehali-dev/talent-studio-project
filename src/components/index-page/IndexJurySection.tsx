@@ -198,6 +198,18 @@ const SectionDivider = ({ label }: { label: string }) => (
 
 const IndexJurySection = () => {
   const [invited, setInvited] = useState<InvitedJuror[]>([]);
+  const [loadingNum, setLoadingNum] = useState<number | null>(null);
+
+  const downloadConfirmation = async (number: number) => {
+    setLoadingNum(number);
+    try {
+      const r = await fetch(`${func2url["jury-applications"]}?action=confirmation&number=${number}`);
+      const data = await r.json();
+      if (data.url) window.open(data.url, "_blank", "noopener,noreferrer");
+    } finally {
+      setLoadingNum(null);
+    }
+  };
 
   useEffect(() => {
     if (window.location.hash !== "#invited-jury") return;
@@ -274,6 +286,7 @@ const IndexJurySection = () => {
                     <th className="px-4 py-3 font-semibold">Дата участия в составе жюри</th>
                     <th className="px-4 py-3 font-semibold">Конкурс</th>
                     <th className="px-4 py-3 font-semibold">Сертификат</th>
+                    <th className="px-4 py-3 font-semibold">Справка-подтверждение</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -297,6 +310,16 @@ const IndexJurySection = () => {
                           <Icon name="Download" size={16} />
                           Скачать
                         </a>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => downloadConfirmation(j.number)}
+                          disabled={loadingNum === j.number}
+                          className="inline-flex items-center gap-1 text-orange-600 font-medium hover:underline disabled:opacity-50"
+                        >
+                          <Icon name={loadingNum === j.number ? "Loader" : "Download"} size={16} />
+                          {loadingNum === j.number ? "Формируем..." : "Скачать"}
+                        </button>
                       </td>
                     </tr>
                   ))}

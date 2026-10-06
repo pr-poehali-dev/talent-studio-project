@@ -1,0 +1,1 @@
+ALTER TABLE jury_applications ADD COLUMN IF NOT EXISTS confirmation_url TEXT NULL;

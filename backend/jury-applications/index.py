@@ -7,6 +7,8 @@ import boto3
 import psycopg2
 import requests
 
+from confirmation_pdf import build_confirmation_pdf
+
 PLACES = {
     'grand_prix': 'Гран-при',
     'first_degree': 'Лауреат 1 степени',
@@ -110,6 +112,43 @@ def handler(event: dict, context) -> dict:
             return resp(200, [
                 {'id': r[0], 'image_url': r[1], 'age': r[2], 'study_year': r[3], 'work_title': r[4]} for r in rows
             ])
+
+        if action == 'confirmation':
+            try:
+                number = int(params.get('number', ''))
+            except ValueError:
+                conn.close()
+                return resp(400, {'error': 'number is required'})
+            cur.execute(
+                """
+                SELECT id, number, full_name, position, institution, location, participation_date, contest_name, confirmation_url
+                FROM jury_applications
+                WHERE number = %s AND is_published = true
+                """,
+                (number,),
+            )
+            row = cur.fetchone()
+            if not row:
+                conn.close()
+                return resp(404, {'error': 'Заявка не найдена'})
+            if row[8]:
+                conn.close()
+                return resp(200, {'url': row[8]})
+            item = dict(zip(['id', 'number', 'full_name', 'position', 'institution', 'location', 'participation_date', 'contest_name'], row[:8]))
+            pdf_bytes = build_confirmation_pdf(item)
+            key = f"jury-confirmations/{item['number']}-{uuid.uuid4().hex[:8]}.pdf"
+            s3 = boto3.client(
+                's3',
+                endpoint_url='https://bucket.poehali.dev',
+                aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+            )
+            s3.put_object(Bucket='files', Key=key, Body=pdf_bytes, ContentType='application/pdf')
+            url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
+            cur.execute("UPDATE jury_applications SET confirmation_url = %s WHERE id = %s AND confirmation_url IS NULL", (url, item['id']))
+            conn.commit()
+            conn.close()
+            return resp(200, {'url': url})
 
         if action == 'published':
             cur.execute(

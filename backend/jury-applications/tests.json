@@ -42,6 +42,12 @@
         "error": "string"
       },
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Confirmation not found",
+      "method": "GET",
+      "path": "/?action=confirmation&number=999999",
+      "expectedStatus": 404
     }
   ]
 }

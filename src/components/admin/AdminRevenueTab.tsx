@@ -74,6 +74,7 @@ interface ChartPoint {
   dayOfWeek: string;
   single: number;
   collective: number;
+  jury: number;
   total: number;
 }
 
@@ -113,7 +114,7 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
     const from = dateFrom ? new Date(dateFrom) : null;
     const to = dateTo ? new Date(dateTo + 'T23:59:59') : null;
     return juryItems.filter(j => {
-      if (j.payment_status !== 'paid' || !j.created_at) return false;
+      if (j.payment_status !== 'paid' || Number(j.price) <= 10 || !j.created_at) return false;
       const d = new Date(j.created_at);
       if (from && d < from) return false;
       if (to && d > to) return false;
@@ -198,6 +199,7 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
         dayOfWeek: dow,
         single: dayApps.filter(a => !a.is_collective).length,
         collective: dayApps.filter(a => a.is_collective).length,
+        jury: juryFiltered.filter(j => j.created_at.slice(0, 10) === key).length,
         total: dayApps.length,
       });
 
@@ -205,7 +207,7 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
     }
 
     return points;
-  }, [filtered, dateFrom, dateTo]);
+  }, [filtered, juryFiltered, dateFrom, dateTo]);
 
   // Группировка по конкурсам
   const byContest = useMemo(() => {
@@ -355,7 +357,7 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
         </CardContent>
       </Card>
 
-      {totalCount === 0 ? (
+      {totalCount === 0 && juryCount === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
           <Icon name="BarChart2" size={48} className="mx-auto mb-4 opacity-30" />
           <p>За выбранный период заявок нет</p>
@@ -390,17 +392,18 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
                   />
                   <Tooltip
                     formatter={(value: number, name: string) =>
-                      [value, name === 'single' ? 'Одиночные' : 'Коллективные']
+                      [value, name === 'single' ? 'Одиночные' : name === 'jury' ? 'Жюри' : 'Коллективные']
                     }
                     labelFormatter={(label) => `📅 ${label}`}
                     contentStyle={{ borderRadius: 12, fontSize: 13 }}
                   />
                   <Legend
-                    formatter={(value) => value === 'single' ? 'Одиночные' : 'Коллективные'}
+                    formatter={(value) => value === 'single' ? 'Одиночные' : value === 'jury' ? 'Жюри' : 'Коллективные'}
                     wrapperStyle={{ fontSize: 13 }}
                   />
                   <Bar dataKey="single" stackId="a" fill="#7c3aed" radius={[0, 0, 0, 0]} name="single" />
-                  <Bar dataKey="collective" stackId="a" fill="#a78bfa" radius={[4, 4, 0, 0]} name="collective" />
+                  <Bar dataKey="collective" stackId="a" fill="#a78bfa" radius={[0, 0, 0, 0]} name="collective" />
+                  <Bar dataKey="jury" stackId="a" fill="#f59e0b" radius={[4, 4, 0, 0]} name="jury" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>

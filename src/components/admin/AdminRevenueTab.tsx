@@ -66,6 +66,7 @@ interface RevenueGroup {
   collectiveCount: number;
   singleCount: number;
   revenue: number;
+  juryCount?: number;
 }
 
 interface ChartPoint {
@@ -159,17 +160,29 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
       if (!map[day]) map[day] = [];
       map[day].push(a);
     }
-    const result: RevenueGroup[] = Object.entries(map)
-      .sort(([a], [b]) => b.localeCompare(a))
-      .map(([day, apps]) => ({
-        label: new Date(day).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-        count: apps.length,
-        collectiveCount: apps.filter(a => a.is_collective).length,
-        singleCount: apps.filter(a => !a.is_collective).length,
-        revenue: calcRevenue(apps),
-      }));
+    const juryMap: Record<string, JuryItem[]> = {};
+    for (const j of juryFiltered) {
+      const day = j.created_at.slice(0, 10);
+      if (!juryMap[day]) juryMap[day] = [];
+      juryMap[day].push(j);
+    }
+    const days = Array.from(new Set([...Object.keys(map), ...Object.keys(juryMap)]));
+    const result: RevenueGroup[] = days
+      .sort((a, b) => b.localeCompare(a))
+      .map((day) => {
+        const apps = map[day] || [];
+        const jury = juryMap[day] || [];
+        return {
+          label: new Date(day).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+          count: apps.length,
+          collectiveCount: apps.filter(a => a.is_collective).length,
+          singleCount: apps.filter(a => !a.is_collective).length,
+          juryCount: jury.length,
+          revenue: calcRevenue(apps) + jury.reduce((sum, j) => sum + Number(j.price || 0), 0),
+        };
+      });
     return result;
-  }, [filtered]);
+  }, [filtered, juryFiltered]);
 
   // Данные для графика — все дни периода (включая нули)
   const chartData = useMemo((): ChartPoint[] => {
@@ -437,6 +450,9 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
                             {row.collectiveCount > 0 && (
                               <span className="ml-1 text-xs text-blue-500">({row.collectiveCount} колл.)</span>
                             )}
+                            {!!row.juryCount && (
+                              <span className="ml-1 text-xs font-semibold text-amber-600">+{row.juryCount} жюри</span>
+                            )}
                           </td>
                           <td className="px-4 py-2 text-right font-semibold text-primary">{formatMoney(row.revenue)}</td>
                         </tr>
@@ -445,7 +461,10 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
                     <tfoot className="border-t-2 border-primary/20 bg-primary/5">
                       <tr>
                         <td className="px-4 py-2 font-bold">Итого</td>
-                        <td className="px-3 py-2 text-center font-bold">{totalCount}</td>
+                        <td className="px-3 py-2 text-center font-bold">
+                          {totalCount}
+                          {juryCount > 0 && <span className="ml-1 text-xs font-semibold text-amber-600">+{juryCount} жюри</span>}
+                        </td>
                         <td className="px-4 py-2 text-right font-bold text-primary">{formatMoney(totalRevenue)}</td>
                       </tr>
                     </tfoot>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import func2url from "../../../backend/func2url.json";
 
 interface Application {
   id: number;
@@ -23,6 +24,12 @@ interface Application {
   is_preferential: boolean;
   created_at: string;
   deleted_at: string | null;
+}
+
+interface JuryItem {
+  price: number;
+  payment_status: string;
+  created_at: string;
 }
 
 interface AdminRevenueTabProps {
@@ -79,6 +86,15 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
   const [dateFrom, setDateFrom] = useState<string>(firstOfMonth.toISOString().slice(0, 10));
   const [dateTo, setDateTo] = useState<string>(today.toISOString().slice(0, 10));
 
+  const [juryItems, setJuryItems] = useState<JuryItem[]>([]);
+
+  useEffect(() => {
+    fetch(`${func2url["jury-applications"]}?action=list`)
+      .then((r) => r.json())
+      .then((data) => setJuryItems(Array.isArray(data) ? data : []))
+      .catch(() => setJuryItems([]));
+  }, []);
+
   const activeApps = useMemo(() => applications.filter(a => !a.deleted_at && !a.is_preferential), [applications]);
 
   const filtered = useMemo(() => {
@@ -93,7 +109,22 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
     });
   }, [activeApps, dateFrom, dateTo]);
 
-  const totalRevenue = useMemo(() => calcRevenue(filtered), [filtered]);
+  const juryFiltered = useMemo(() => {
+    const from = dateFrom ? new Date(dateFrom) : null;
+    const to = dateTo ? new Date(dateTo + 'T23:59:59') : null;
+    return juryItems.filter(j => {
+      if (j.payment_status !== 'paid' || !j.created_at) return false;
+      const d = new Date(j.created_at);
+      if (from && d < from) return false;
+      if (to && d > to) return false;
+      return true;
+    });
+  }, [juryItems, dateFrom, dateTo]);
+
+  const juryCount = juryFiltered.length;
+  const juryRevenue = juryFiltered.reduce((sum, j) => sum + Number(j.price || 0), 0);
+  const contestsRevenue = useMemo(() => calcRevenue(filtered), [filtered]);
+  const totalRevenue = contestsRevenue + juryRevenue;
   const totalCount = filtered.length;
   const collectiveApps = filtered.filter(a => a.is_collective);
   const collectiveCount = collectiveApps.length;
@@ -249,6 +280,11 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
               <span className="text-sm text-muted-foreground font-medium">Доход за период</span>
             </div>
             <p className="text-2xl font-heading font-bold text-primary">{formatMoney(totalRevenue)}</p>
+            {juryCount > 0 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                конкурсы {formatMoney(contestsRevenue)} + жюри {formatMoney(juryRevenue)}
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -300,6 +336,24 @@ const AdminRevenueTab = ({ applications }: AdminRevenueTabProps) => {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="rounded-2xl mb-8 border-2 border-dashed border-amber-300 bg-amber-50">
+        <CardContent className="pt-6 flex flex-wrap items-center gap-6">
+          <div className="flex items-center gap-2">
+            <Icon name="Gavel" size={20} className="text-amber-600" />
+            <span className="font-semibold">Заявки на жюри (оплаченные)</span>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Количество</p>
+            <p className="text-2xl font-heading font-bold">{juryCount}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Доход</p>
+            <p className="text-2xl font-heading font-bold">{formatMoney(juryRevenue)}</p>
+          </div>
+          <p className="text-xs text-muted-foreground">Включено в доход за период, но не входит в «Всего заявок»</p>
+        </CardContent>
+      </Card>
 
       {totalCount === 0 ? (
         <div className="text-center py-16 text-muted-foreground">

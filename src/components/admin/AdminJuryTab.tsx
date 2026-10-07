@@ -44,6 +44,7 @@ interface JuryApplication {
   number: number | null;
   is_published: boolean;
   certificate_url: string | null;
+  gender: string | null;
 }
 
 export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: (n: number) => void }) {
@@ -148,6 +149,20 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
     }
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, is_published, certificate_url } : i)));
     return true;
+  };
+
+  const saveGender = async (id: number, gender: string) => {
+    const res = await fetch(`${URL}?action=gender`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, gender }),
+    });
+    if (!res.ok) {
+      toast({ title: "Не удалось сохранить пол", variant: "destructive" });
+      return;
+    }
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, gender } : i)));
+    toast({ title: "Пол сохранён" });
   };
 
   const uploadCertificate = (item: JuryApplication, file: File) => {
@@ -337,6 +352,18 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
               </p>
             </div>
             <div className="grid gap-1 text-sm mb-4 sm:grid-cols-2">
+              <p className="flex items-center gap-2">
+                <span className="text-muted-foreground">Пол:</span>
+                <select
+                  value={item.gender || ""}
+                  onChange={(e) => e.target.value && saveGender(item.id, e.target.value)}
+                  className="h-8 rounded-md border border-input bg-background px-2 text-sm"
+                >
+                  <option value="">не указан</option>
+                  <option value="M">М</option>
+                  <option value="F">Ж</option>
+                </select>
+              </p>
               <p><span className="text-muted-foreground">Должность:</span> {item.position}</p>
               <p><span className="text-muted-foreground">Учреждение:</span> {item.institution}</p>
               <p><span className="text-muted-foreground">Страна / населённый пункт:</span> {item.location}</p>

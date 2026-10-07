@@ -121,7 +121,7 @@ def handler(event: dict, context) -> dict:
                 return resp(400, {'error': 'number is required'})
             cur.execute(
                 """
-                SELECT id, number, full_name, position, institution, location, participation_date, contest_name, confirmation_url
+                SELECT id, number, full_name, position, institution, location, participation_date, contest_name, confirmation_url, gender
                 FROM jury_applications
                 WHERE number = %s AND is_published = true
                 """,
@@ -135,6 +135,7 @@ def handler(event: dict, context) -> dict:
                 conn.close()
                 return resp(200, {'url': row[8]})
             item = dict(zip(['id', 'number', 'full_name', 'position', 'institution', 'location', 'participation_date', 'contest_name'], row[:8]))
+            item['gender'] = row[9]
             pdf_bytes = build_confirmation_pdf(item)
             key = f"jury-confirmations/{item['number']}-{uuid.uuid4().hex[:8]}.pdf"
             s3 = boto3.client(
@@ -168,14 +169,14 @@ def handler(event: dict, context) -> dict:
             """
             SELECT id, full_name, position, institution, location, email, contest_id,
                    contest_name, ratings, price, payment_status, payment_id, created_at, participation_date, is_viewed,
-                   number, is_published, certificate_url
+                   number, is_published, certificate_url, gender
             FROM jury_applications
             ORDER BY created_at DESC
             """
         )
         cols = ['id', 'full_name', 'position', 'institution', 'location', 'email', 'contest_id',
                 'contest_name', 'ratings', 'price', 'payment_status', 'payment_id', 'created_at', 'participation_date', 'is_viewed',
-                'number', 'is_published', 'certificate_url']
+                'number', 'is_published', 'certificate_url', 'gender']
         items = [dict(zip(cols, r)) for r in cur.fetchall()]
         conn.close()
         return resp(200, items)
@@ -191,6 +192,21 @@ def handler(event: dict, context) -> dict:
                 conn.close()
                 return resp(400, {'error': 'id is required'})
             cur.execute("UPDATE jury_applications SET is_viewed = true WHERE id = %s", (app_id,))
+            conn.commit()
+            conn.close()
+            return resp(200, {'ok': True})
+
+        if action == 'gender':
+            try:
+                app_id = int(body.get('id'))
+            except (ValueError, TypeError):
+                conn.close()
+                return resp(400, {'error': 'id is required'})
+            gender = body.get('gender')
+            if gender not in ('M', 'F'):
+                conn.close()
+                return resp(400, {'error': 'gender must be M or F'})
+            cur.execute("UPDATE jury_applications SET gender = %s, confirmation_url = NULL WHERE id = %s", (gender, app_id))
             conn.commit()
             conn.close()
             return resp(200, {'ok': True})

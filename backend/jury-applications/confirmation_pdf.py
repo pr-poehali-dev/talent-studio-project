@@ -23,7 +23,8 @@ FONT_CANDIDATES = [
     ('/usr/share/fonts/truetype/freefont/FreeSans.ttf', '/usr/share/fonts/truetype/freefont/FreeSansBold.ttf'),
 ]
 
-ACCENT = HexColor('#f97316')
+ACCENT = HexColor('#e94560')
+PRIMARY = HexColor('#1a1a2e')
 DARK = HexColor('#333333')
 MUTED = HexColor('#666666')
 
@@ -55,13 +56,18 @@ def build_confirmation_pdf(item: dict) -> bytes:
         kw.setdefault('textColor', DARK)
         return ParagraphStyle(name, parent=base, **kw)
 
-    org = S('org', fontSize=12, alignment=TA_CENTER, fontName='CF-Bold', leading=16)
-    sub = S('sub', fontSize=9, alignment=TA_CENTER, textColor=MUTED, leading=12)
-    num = S('num', fontSize=10, alignment=TA_RIGHT, textColor=MUTED)
-    title = S('title', fontSize=18, alignment=TA_CENTER, fontName='CF-Bold', leading=24)
+    sub = S('sub', fontSize=11, alignment=TA_CENTER, textColor=MUTED, spaceAfter=1 * mm)
+    num = S('num', fontSize=8, alignment=TA_RIGHT, textColor=MUTED)
+    title = S('title', fontSize=22, alignment=TA_CENTER, fontName='CF-Bold', textColor=PRIMARY, leading=28, spaceAfter=2 * mm)
     body = S('body', fontSize=12, alignment=TA_JUSTIFY, leading=20, firstLineIndent=10 * mm)
     left = S('left', fontSize=11, alignment=TA_LEFT, leading=15)
     right = S('right', fontSize=11, alignment=TA_RIGHT, leading=15)
+
+    female = item.get('gender') == 'F'
+    male = item.get('gender') == 'M'
+    took = 'приняла' if female else ('принял' if male else 'принял(а)')
+    held = 'провела' if female else ('провёл' if male else 'провёл(а)')
+    analyzed = 'проанализировала' if female else ('проанализировал' if male else 'проанализировал(а)')
 
     pdate = item.get('participation_date')
     issued = pdate.strftime('%d.%m.%Y') if hasattr(pdate, 'strftime') else (str(pdate) if pdate else date.today().strftime('%d.%m.%Y'))
@@ -71,32 +77,32 @@ def build_confirmation_pdf(item: dict) -> bytes:
     try:
         req = urllib.request.Request(LOGO_URL, headers={'User-Agent': 'Mozilla/5.0'})
         with urllib.request.urlopen(req, timeout=10) as r:
-            logo = Image(BytesIO(r.read()), width=30 * mm, height=30 * mm, kind='proportional')
+            logo = Image(BytesIO(r.read()), width=45 * mm, height=45 * mm, kind='proportional')
         logo.hAlign = 'CENTER'
         story.append(logo)
         story.append(Spacer(1, 2 * mm))
     except Exception:
         pass
 
-    story.append(Paragraph('Студия «Мечтай, твори, дерзай!»', org))
-    story.append(Paragraph('Международные творческие конкурсы и олимпиады', sub))
-    story.append(Spacer(1, 3 * mm))
-    story.append(HRFlowable(width=usable, thickness=2, color=ACCENT, spaceAfter=4 * mm))
-    story.append(Paragraph(f"№ {item['number']} от {issued}", num))
-    story.append(Spacer(1, 12 * mm))
     story.append(Paragraph('СПРАВКА-ПОДТВЕРЖДЕНИЕ', title))
-    story.append(Spacer(1, 10 * mm))
+    story.append(Paragraph('участия в составе жюри', sub))
+    story.append(Spacer(1, 3 * mm))
+    story.append(HRFlowable(width=usable, thickness=2, color=ACCENT, spaceAfter=3 * mm))
+    story.append(Paragraph(f"№ {item['number']} от {issued}", num))
+    story.append(Spacer(1, 8 * mm))
 
     text = (
         f"Настоящая справка подтверждает, что <b>{item['full_name']}</b>, "
         f"{item['position']}, {item['institution']} ({item['location']}), "
-        f"принял(а) участие в составе жюри из числа приглашённых экспертов "
-        f"конкурса «{item['contest_name']}» {pdate_str} и провёл(а) оценку конкурсных работ участников."
+        f"{took} участие в составе жюри из числа приглашённых экспертов "
+        f"Всероссийского конкурса декоративно-прикладного искусства «{item['contest_name']}» {pdate_str} "
+        f"и {held} экспертную оценку конкурсных работ — {analyzed} художественные решения, "
+        f"технику исполнения и соответствие заявленной тематике."
     )
     story.append(Paragraph(text, body))
     story.append(Spacer(1, 6 * mm))
     story.append(Paragraph('Справка выдана для предоставления по месту требования.', body))
-    story.append(Spacer(1, 25 * mm))
+    story.append(Spacer(1, 20 * mm))
 
     try:
         req = urllib.request.Request(SIGN_STAMP_URL, headers={'User-Agent': 'Mozilla/5.0'})

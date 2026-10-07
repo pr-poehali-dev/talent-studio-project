@@ -1,0 +1,1 @@
+UPDATE jury_applications SET confirmation_url = NULL WHERE confirmation_url IS NOT NULL;

@@ -121,9 +121,10 @@ def handler(event: dict, context) -> dict:
                 return resp(400, {'error': 'number is required'})
             cur.execute(
                 """
-                SELECT id, number, full_name, position, institution, location, participation_date, contest_name, confirmation_url, gender
-                FROM jury_applications
-                WHERE number = %s AND is_published = true
+                SELECT j.id, j.number, j.full_name, j.position, j.institution, j.location, j.participation_date, j.contest_name, j.confirmation_url, j.gender,
+                       (SELECT c.category_id FROM contests c WHERE c.id = j.contest_id)
+                FROM jury_applications j
+                WHERE j.number = %s AND j.is_published = true
                 """,
                 (number,),
             )
@@ -136,6 +137,7 @@ def handler(event: dict, context) -> dict:
                 return resp(200, {'url': row[8]})
             item = dict(zip(['id', 'number', 'full_name', 'position', 'institution', 'location', 'participation_date', 'contest_name'], row[:8]))
             item['gender'] = row[9]
+            item['category_id'] = row[10]
             pdf_bytes = build_confirmation_pdf(item)
             key = f"jury-confirmations/{item['number']}-{uuid.uuid4().hex[:8]}.pdf"
             s3 = boto3.client(

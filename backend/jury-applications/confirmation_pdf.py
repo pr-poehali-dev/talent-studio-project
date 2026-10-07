@@ -12,6 +12,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import HRFlowable, Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
+SIGN_STAMP_URL = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/57089395-3617-4837-8eb4-5a611478b79f.png'
 LOGO_URL = 'https://cdn.poehali.dev/projects/117fa0d8-5c6b-45ca-a517-e66143c3f4b1/bucket/cb267483-96ab-40f3-ae87-4f18740f3e6e.png'
 
 FONT_CANDIDATES = [
@@ -62,9 +63,9 @@ def build_confirmation_pdf(item: dict) -> bytes:
     left = S('left', fontSize=11, alignment=TA_LEFT, leading=15)
     right = S('right', fontSize=11, alignment=TA_RIGHT, leading=15)
 
-    issued = date.today().strftime('%d.%m.%Y')
     pdate = item.get('participation_date')
-    pdate_str = pdate.strftime('%d.%m.%Y') if hasattr(pdate, 'strftime') else (str(pdate) if pdate else issued)
+    issued = pdate.strftime('%d.%m.%Y') if hasattr(pdate, 'strftime') else (str(pdate) if pdate else date.today().strftime('%d.%m.%Y'))
+    pdate_str = issued
 
     story = []
     try:
@@ -95,20 +96,24 @@ def build_confirmation_pdf(item: dict) -> bytes:
     story.append(Paragraph(text, body))
     story.append(Spacer(1, 6 * mm))
     story.append(Paragraph('Справка выдана для предоставления по месту требования.', body))
-    story.append(Spacer(1, 40 * mm))
+    story.append(Spacer(1, 25 * mm))
+
+    try:
+        req = urllib.request.Request(SIGN_STAMP_URL, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            stamp = Image(BytesIO(r.read()), width=55 * mm, height=55 * mm, kind='proportional')
+    except Exception:
+        stamp = Spacer(1, 40 * mm)
 
     sign = Table(
         [[
-            Paragraph('Руководитель студии', left),
-            Paragraph('______________', S('line', fontSize=11, alignment=TA_CENTER)),
-            Paragraph('А.В. Мозжерина', right),
+            [Paragraph('Руководитель студии', left), Spacer(1, 2 * mm), Paragraph('А.В. Мозжерина', left), Spacer(1, 2 * mm), Paragraph(f'Дата: {issued}', left)],
+            stamp,
         ]],
-        colWidths=[usable * 0.38, usable * 0.28, usable * 0.34],
+        colWidths=[usable * 0.5, usable * 0.5],
     )
-    sign.setStyle(TableStyle([('VALIGN', (0, 0), (-1, -1), 'BOTTOM')]))
+    sign.setStyle(TableStyle([('VALIGN', (0, 0), (-1, -1), 'MIDDLE'), ('ALIGN', (1, 0), (1, 0), 'RIGHT')]))
     story.append(sign)
-    story.append(Spacer(1, 4 * mm))
-    story.append(Paragraph(f'Дата выдачи: {issued}', left))
 
     doc.build(story)
     return buffer.getvalue()

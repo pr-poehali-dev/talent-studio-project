@@ -122,7 +122,7 @@ def handler(event: dict, context) -> dict:
             cur.execute(
                 """
                 SELECT j.id, j.number, j.full_name, j.position, j.institution, j.location, j.participation_date, j.contest_name, j.confirmation_url, j.gender,
-                       (SELECT c.category_id FROM contests c WHERE c.id = j.contest_id)
+                       j.contest_type
                 FROM jury_applications j
                 WHERE j.number = %s AND j.is_published = true
                 """,
@@ -137,7 +137,7 @@ def handler(event: dict, context) -> dict:
                 return resp(200, {'url': row[8]})
             item = dict(zip(['id', 'number', 'full_name', 'position', 'institution', 'location', 'participation_date', 'contest_name'], row[:8]))
             item['gender'] = row[9]
-            item['category_id'] = row[10]
+            item['contest_type'] = row[10]
             pdf_bytes = build_confirmation_pdf(item)
             key = f"jury-confirmations/{item['number']}-{uuid.uuid4().hex[:8]}.pdf"
             s3 = boto3.client(
@@ -171,14 +171,14 @@ def handler(event: dict, context) -> dict:
             """
             SELECT id, full_name, position, institution, location, email, contest_id,
                    contest_name, ratings, price, payment_status, payment_id, created_at, participation_date, is_viewed,
-                   number, is_published, certificate_url, gender
+                   number, is_published, certificate_url, gender, contest_type
             FROM jury_applications
             ORDER BY created_at DESC
             """
         )
         cols = ['id', 'full_name', 'position', 'institution', 'location', 'email', 'contest_id',
                 'contest_name', 'ratings', 'price', 'payment_status', 'payment_id', 'created_at', 'participation_date', 'is_viewed',
-                'number', 'is_published', 'certificate_url', 'gender']
+                'number', 'is_published', 'certificate_url', 'gender', 'contest_type']
         items = [dict(zip(cols, r)) for r in cur.fetchall()]
         conn.close()
         return resp(200, items)
@@ -204,14 +204,14 @@ def handler(event: dict, context) -> dict:
             except (ValueError, TypeError):
                 conn.close()
                 return resp(400, {'error': 'id is required'})
-            vals = {k: str(body.get(k) or '').strip() for k in ('full_name', 'position', 'institution', 'email', 'contest_name')}
+            vals = {k: str(body.get(k) or '').strip() for k in ('full_name', 'position', 'institution', 'email', 'contest_name', 'contest_type')}
             if not vals['full_name']:
                 conn.close()
                 return resp(400, {'error': 'ФИО обязательно'})
             pdate = str(body.get('participation_date') or '').strip() or None
             cur.execute(
-                "UPDATE jury_applications SET full_name = %s, position = %s, institution = %s, email = %s, contest_name = %s, participation_date = %s, confirmation_url = NULL WHERE id = %s",
-                (vals['full_name'], vals['position'], vals['institution'], vals['email'], vals['contest_name'], pdate, app_id),
+                "UPDATE jury_applications SET full_name = %s, position = %s, institution = %s, email = %s, contest_name = %s, contest_type = %s, participation_date = %s, confirmation_url = NULL WHERE id = %s",
+                (vals['full_name'], vals['position'], vals['institution'], vals['email'], vals['contest_name'], vals['contest_type'], pdate, app_id),
             )
             conn.commit()
             conn.close()

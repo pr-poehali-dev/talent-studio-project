@@ -8,6 +8,7 @@ export interface JuryEditValues {
   position: string;
   institution: string;
   email: string;
+  contest_type: string;
   contest_name: string;
   participation_date: string;
 }
@@ -23,7 +24,8 @@ const FIELDS: { key: keyof JuryEditValues; label: string; type?: string }[] = [
   { key: "position", label: "Должность" },
   { key: "institution", label: "Учреждение, страна, населённый пункт" },
   { key: "email", label: "Email", type: "email" },
-  { key: "contest_name", label: "Конкурс" },
+  { key: "contest_type", label: "Тип конкурса (в родительном падеже, напр. «Всероссийского конкурса изобразительного искусства»)" },
+  { key: "contest_name", label: "Название конкурса" },
   { key: "participation_date", label: "Дата участия в жюри", type: "date" },
 ];
 

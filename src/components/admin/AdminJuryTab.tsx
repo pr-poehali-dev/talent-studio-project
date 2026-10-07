@@ -46,6 +46,7 @@ interface JuryApplication {
   is_published: boolean;
   certificate_url: string | null;
   gender: string | null;
+  contest_type: string;
 }
 
 export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: (n: number) => void }) {
@@ -381,6 +382,7 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
                   position: item.position,
                   institution: item.institution,
                   email: item.email,
+                  contest_type: item.contest_type || "",
                   contest_name: item.contest_name,
                   participation_date: item.participation_date ? item.participation_date.slice(0, 10) : "",
                 }}
@@ -413,6 +415,7 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
                 <span className="text-muted-foreground">Дата участия в жюри:</span>{" "}
                 {item.participation_date ? new Date(item.participation_date).toLocaleDateString("ru-RU") : "—"}
               </p>
+              <p><span className="text-muted-foreground">Тип конкурса:</span> {item.contest_type || "—"}</p>
               <p><span className="text-muted-foreground">Конкурс:</span> {item.contest_name}</p>
               <p>
                 <span className="text-muted-foreground">Оплата:</span> {item.price} ₽,{" "}

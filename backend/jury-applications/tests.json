@@ -58,6 +58,16 @@
         "gender": "X"
       },
       "expectedStatus": 400
+    },
+    {
+      "name": "Update without name",
+      "method": "POST",
+      "path": "/?action=update",
+      "body": {
+        "id": 1,
+        "full_name": ""
+      },
+      "expectedStatus": 400
     }
   ]
 }

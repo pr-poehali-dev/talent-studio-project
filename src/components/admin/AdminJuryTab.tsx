@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/components/ui/use-toast";
+import JuryEditForm, { JuryEditValues } from "./JuryEditForm";
 import func2url from "../../../backend/func2url.json";
 
 const URL = func2url["jury-applications"];
@@ -163,6 +164,28 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
     }
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, gender } : i)));
     toast({ title: "Пол сохранён" });
+  };
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  const saveEdit = async (id: number, values: JuryEditValues) => {
+    const res = await fetch(`${URL}?action=update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, ...values }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      toast({ title: data.error || "Не удалось сохранить", variant: "destructive" });
+      return false;
+    }
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === id ? { ...i, ...values, participation_date: values.participation_date || null } : i
+      )
+    );
+    toast({ title: "Заявка обновлена" });
+    return true;
   };
 
   const uploadCertificate = (item: JuryApplication, file: File) => {
@@ -351,6 +374,26 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
                 {new Date(item.created_at).toLocaleString("ru-RU")}
               </p>
             </div>
+            {editingId === item.id ? (
+              <JuryEditForm
+                initial={{
+                  full_name: item.full_name,
+                  position: item.position,
+                  institution: item.institution,
+                  location: item.location,
+                  email: item.email,
+                  contest_name: item.contest_name,
+                  participation_date: item.participation_date ? item.participation_date.slice(0, 10) : "",
+                }}
+                onSave={(v) => saveEdit(item.id, v)}
+                onCancel={() => setEditingId(null)}
+              />
+            ) : (
+              <Button size="sm" variant="outline" className="mb-3" onClick={() => setEditingId(item.id)}>
+                <Icon name="Pencil" size={14} className="mr-1" />
+                Редактировать
+              </Button>
+            )}
             <div className="grid gap-1 text-sm mb-4 sm:grid-cols-2">
               <p className="flex items-center gap-2">
                 <span className="text-muted-foreground">Пол:</span>

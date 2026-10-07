@@ -92,10 +92,10 @@ def build_confirmation_pdf(item: dict) -> bytes:
     story.append(Spacer(1, 8 * mm))
 
     text = (
-        f"Настоящая справка подтверждает, что <b>{item['full_name']}</b>, "
-        f"{item['position']}, {item['institution']} ({item['location']}), "
-        f"{took} участие в составе жюри из числа приглашённых экспертов "
-        f"Всероссийского конкурса декоративно-прикладного искусства «{item['contest_name']}» {pdate_str} "
+        f"Настоящая справка подтверждает, что <b>{item['full_name']}</b> — "
+        f"{item['position']}, {item['institution']} ({item['location']}) "
+        f"{pdate_str} {took} участие в составе жюри из числа приглашённых экспертов "
+        f"Всероссийского конкурса декоративно-прикладного искусства «{item['contest_name']}» "
         f"и {held} экспертную оценку конкурсных работ — {analyzed} художественные решения, "
         f"технику исполнения и соответствие заявленной тематике."
     )

@@ -50,7 +50,9 @@ def build_confirmation_pdf(item: dict) -> bytes:
     base = getSampleStyleSheet()['Normal']
 
     def S(name, **kw):
-        return ParagraphStyle(name, parent=base, fontName='CF', textColor=DARK, **kw)
+        kw.setdefault('fontName', 'CF')
+        kw.setdefault('textColor', DARK)
+        return ParagraphStyle(name, parent=base, **kw)
 
     org = S('org', fontSize=12, alignment=TA_CENTER, fontName='CF-Bold', leading=16)
     sub = S('sub', fontSize=9, alignment=TA_CENTER, textColor=MUTED, leading=12)

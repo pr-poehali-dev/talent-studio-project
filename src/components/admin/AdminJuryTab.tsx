@@ -406,6 +406,10 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
                   value={item.is_published ? "published" : "draft"}
                   onChange={async (e) => {
                     const publish = e.target.value === "published";
+                    if (publish && !item.gender) {
+                      toast({ title: "Сначала укажите пол", variant: "destructive" });
+                      return;
+                    }
                     if (publish && !item.certificate_url) {
                       toast({ title: "Сначала прикрепите файл сертификата", variant: "destructive" });
                       return;

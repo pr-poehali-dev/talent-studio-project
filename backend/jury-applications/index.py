@@ -222,6 +222,12 @@ def handler(event: dict, context) -> dict:
             if is_published and not certificate_url:
                 conn.close()
                 return resp(400, {'error': 'Прикрепите файл сертификата перед публикацией'})
+            if is_published:
+                cur.execute("SELECT gender FROM jury_applications WHERE id = %s", (app_id,))
+                g = cur.fetchone()
+                if not g or g[0] not in ('M', 'F'):
+                    conn.close()
+                    return resp(400, {'error': 'Сначала укажите пол'})
             cur.execute(
                 "UPDATE jury_applications SET is_published = %s, certificate_url = %s WHERE id = %s",
                 (is_published, certificate_url, app_id),

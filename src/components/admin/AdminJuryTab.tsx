@@ -380,7 +380,6 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
                   full_name: item.full_name,
                   position: item.position,
                   institution: item.institution,
-                  location: item.location,
                   email: item.email,
                   contest_name: item.contest_name,
                   participation_date: item.participation_date ? item.participation_date.slice(0, 10) : "",
@@ -408,8 +407,7 @@ export default function AdminJuryTab({ onNewCountChange }: { onNewCountChange?: 
                 </select>
               </p>
               <p><span className="text-muted-foreground">Должность:</span> {item.position}</p>
-              <p><span className="text-muted-foreground">Учреждение:</span> {item.institution}</p>
-              <p><span className="text-muted-foreground">Страна / населённый пункт:</span> {item.location}</p>
+              <p><span className="text-muted-foreground">Учреждение, страна, населённый пункт:</span> {item.institution}</p>
               <p><span className="text-muted-foreground">Email:</span> {item.email}</p>
               <p>
                 <span className="text-muted-foreground">Дата участия в жюри:</span>{" "}

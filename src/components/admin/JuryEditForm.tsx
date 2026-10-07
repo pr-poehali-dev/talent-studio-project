@@ -7,7 +7,6 @@ export interface JuryEditValues {
   full_name: string;
   position: string;
   institution: string;
-  location: string;
   email: string;
   contest_name: string;
   participation_date: string;
@@ -22,8 +21,7 @@ interface Props {
 const FIELDS: { key: keyof JuryEditValues; label: string; type?: string }[] = [
   { key: "full_name", label: "ФИО" },
   { key: "position", label: "Должность" },
-  { key: "institution", label: "Учреждение" },
-  { key: "location", label: "Страна / населённый пункт" },
+  { key: "institution", label: "Учреждение, страна, населённый пункт" },
   { key: "email", label: "Email", type: "email" },
   { key: "contest_name", label: "Конкурс" },
   { key: "participation_date", label: "Дата участия в жюри", type: "date" },

@@ -202,14 +202,14 @@ def handler(event: dict, context) -> dict:
             except (ValueError, TypeError):
                 conn.close()
                 return resp(400, {'error': 'id is required'})
-            vals = {k: str(body.get(k) or '').strip() for k in ('full_name', 'position', 'institution', 'location', 'email', 'contest_name')}
+            vals = {k: str(body.get(k) or '').strip() for k in ('full_name', 'position', 'institution', 'email', 'contest_name')}
             if not vals['full_name']:
                 conn.close()
                 return resp(400, {'error': 'ФИО обязательно'})
             pdate = str(body.get('participation_date') or '').strip() or None
             cur.execute(
-                "UPDATE jury_applications SET full_name = %s, position = %s, institution = %s, location = %s, email = %s, contest_name = %s, participation_date = %s, confirmation_url = NULL WHERE id = %s",
-                (vals['full_name'], vals['position'], vals['institution'], vals['location'], vals['email'], vals['contest_name'], pdate, app_id),
+                "UPDATE jury_applications SET full_name = %s, position = %s, institution = %s, email = %s, contest_name = %s, participation_date = %s, confirmation_url = NULL WHERE id = %s",
+                (vals['full_name'], vals['position'], vals['institution'], vals['email'], vals['contest_name'], pdate, app_id),
             )
             conn.commit()
             conn.close()
@@ -276,13 +276,13 @@ def handler(event: dict, context) -> dict:
         full_name = (body.get('full_name') or '').strip()
         position = (body.get('position') or '').strip()
         institution = (body.get('institution') or '').strip()
-        location = (body.get('location') or '').strip()
+        location = ''
         email = (body.get('email') or '').strip()
         contest_id = body.get('contest_id')
         participation_date = (body.get('participation_date') or '').strip()
         ratings_in = body.get('ratings') or []
 
-        if not all([full_name, position, institution, location, email, contest_id, participation_date]):
+        if not all([full_name, position, institution, email, contest_id, participation_date]):
             conn.close()
             return resp(400, {'error': 'Заполните все поля заявки'})
 

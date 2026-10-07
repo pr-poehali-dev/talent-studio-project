@@ -281,8 +281,7 @@ const IndexJurySection = () => {
                   <tr>
                     <th className="px-4 py-3 font-semibold">№</th>
                     <th className="px-4 py-3 font-semibold">ФИО</th>
-                    <th className="px-4 py-3 font-semibold">Учреждение</th>
-                    <th className="px-4 py-3 font-semibold">Страна / населённый пункт</th>
+                    <th className="px-4 py-3 font-semibold">Учреждение, страна, населённый пункт</th>
                     <th className="px-4 py-3 font-semibold">Дата участия в составе жюри</th>
                     <th className="px-4 py-3 font-semibold">Конкурс</th>
                     <th className="px-4 py-3 font-semibold">Сертификат</th>
@@ -295,7 +294,6 @@ const IndexJurySection = () => {
                       <td className="px-4 py-3 font-bold">{j.number}</td>
                       <td className="px-4 py-3">{j.full_name}</td>
                       <td className="px-4 py-3">{j.institution}</td>
-                      <td className="px-4 py-3">{j.location}</td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         {j.participation_date ? new Date(j.participation_date).toLocaleDateString("ru-RU") : "—"}
                       </td>

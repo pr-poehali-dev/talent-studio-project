@@ -93,7 +93,7 @@ def build_confirmation_pdf(item: dict) -> bytes:
 
     text = (
         f"Настоящая справка подтверждает, что <b>{item['full_name']}</b> — "
-        f"{item['position']}, {item['institution']} ({item['location']}) "
+        f"{item['position']}, {item['institution']} "
         f"{pdate_str} {took} участие в составе жюри из числа приглашённых экспертов "
         f"Всероссийского конкурса декоративно-прикладного искусства «{item['contest_name']}» "
         f"и {held} экспертную оценку конкурсных работ — {analyzed} художественные решения, "

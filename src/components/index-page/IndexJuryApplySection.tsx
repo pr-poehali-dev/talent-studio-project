@@ -294,16 +294,12 @@ const IndexJuryApplySection = () => {
               <Input id="jury-position" value={form.position} onChange={(e) => setField("position", e.target.value)} />
             </div>
             <div>
-              <Label htmlFor="jury-institution">Учреждение</Label>
+              <Label htmlFor="jury-institution">Учреждение, страна, населённый пункт</Label>
               <Input
                 id="jury-institution"
                 value={form.institution}
                 onChange={(e) => setField("institution", e.target.value)}
               />
-            </div>
-            <div>
-              <Label htmlFor="jury-location">Страна / населённый пункт</Label>
-              <Input id="jury-location" value={form.location} onChange={(e) => setField("location", e.target.value)} />
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor="jury-date">Дата участия в составе жюри</Label>

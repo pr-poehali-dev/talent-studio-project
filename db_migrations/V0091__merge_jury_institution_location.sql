@@ -1,0 +1,2 @@
+UPDATE jury_applications SET institution = institution || ', ' || location, location = '' WHERE location IS NOT NULL AND location <> '';
+UPDATE jury_applications SET confirmation_url = NULL WHERE confirmation_url IS NOT NULL;

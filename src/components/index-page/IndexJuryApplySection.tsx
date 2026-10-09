@@ -90,7 +90,7 @@ const IndexJuryApplySection = () => {
 
   const allRated = works.length === 3 && works.every((w) => places[w.id]);
 
-  const isFormValid = Object.values(form).every((v) => v.trim().length > 0);
+  const isFormValid = Object.entries(form).every(([key, v]) => key === "location" || v.trim().length > 0);
 
   const handleSubmit = async () => {
     if (!allRated || !isFormValid || submitting) return;

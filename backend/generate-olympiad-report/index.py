@@ -43,14 +43,8 @@ def study_year_matches(study_years, participant_year):
 
 
 def get_font_paths():
-    """Берём DejaVuSans из пакета matplotlib — он всегда там есть"""
-    import matplotlib
-    mpl_data = matplotlib.get_data_path()
-    regular = os.path.join(mpl_data, 'fonts', 'ttf', 'DejaVuSans.ttf')
-    bold = os.path.join(mpl_data, 'fonts', 'ttf', 'DejaVuSans-Bold.ttf')
-    print(f'[FONT] regular={regular} exists={os.path.exists(regular)}')
-    print(f'[FONT] bold={bold} exists={os.path.exists(bold)}')
-    return regular, bold
+    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
+    return os.path.join(base, 'DejaVuSans.ttf'), os.path.join(base, 'DejaVuSans-Bold.ttf')
 
 def handler(event: dict, context) -> dict:
     """Генерирует PDF-отчёт по заявке олимпиады с ответами участника"""

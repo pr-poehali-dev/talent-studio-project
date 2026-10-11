@@ -43,8 +43,8 @@ def study_year_matches(study_years, participant_year):
 
 
 def get_font_paths():
-    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
-    return os.path.join(base, 'DejaVuSans.ttf'), os.path.join(base, 'DejaVuSans-Bold.ttf')
+    from fonts_data import write_fonts
+    return write_fonts()
 
 def handler(event: dict, context) -> dict:
     """Генерирует PDF-отчёт по заявке олимпиады с ответами участника"""

@@ -92,6 +92,13 @@ def ensure_fonts():
             _fonts_registered = True
             return
 
+    from fonts_data import write_fonts
+    regular_path, bold_path = write_fonts()
+    pdfmetrics.registerFont(TTFont('DejaVu', regular_path))
+    pdfmetrics.registerFont(TTFont('DejaVu-Bold', bold_path))
+    _fonts_registered = True
+    return
+
     raise RuntimeError(
         'No suitable Cyrillic TTF font found. Searched: ' +
         str([r for r, b in SYSTEM_FONT_CANDIDATES])

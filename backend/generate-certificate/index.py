@@ -117,8 +117,8 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
         pagesize=A4,
         leftMargin=20*mm,
         rightMargin=20*mm,
-        topMargin=15*mm,
-        bottomMargin=15*mm,
+        topMargin=10*mm,
+        bottomMargin=8*mm,
     )
 
     width, _ = A4
@@ -128,14 +128,14 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
     def S(name, **kw):
         return ParagraphStyle(name, parent=styles['Normal'], **kw)
 
-    title_style   = S('T',  fontSize=22, textColor=COLORS['primary'],  alignment=TA_CENTER, spaceAfter=2*mm,  leading=28, fontName=FB)
+    title_style   = S('T',  fontSize=20, textColor=COLORS['primary'],  alignment=TA_CENTER, spaceAfter=1*mm,  leading=24, fontName=FB)
     subtitle_style= S('ST', fontSize=11, textColor=COLORS['text_muted'],alignment=TA_CENTER, spaceAfter=1*mm,  fontName=F)
     label_style   = S('L',  fontSize=9,  textColor=COLORS['text_muted'],fontName=F,          spaceAfter=0.5*mm)
-    value_style   = S('V',  fontSize=12, textColor=COLORS['text_dark'], fontName=FB,          spaceAfter=3*mm,  leading=16)
+    value_style   = S('V',  fontSize=11, textColor=COLORS['text_dark'], fontName=FB,          spaceAfter=1.5*mm,  leading=14)
     footer_style  = S('F',  fontSize=8,  textColor=COLORS['text_muted'],alignment=TA_CENTER, fontName=F)
     result_style  = S('R',  fontSize=16, textColor=white,               alignment=TA_CENTER, fontName=FB,      leading=20)
     docnum_style  = S('D',  fontSize=8,  textColor=COLORS['text_muted'],alignment=TA_RIGHT,  fontName=F)
-    intro_style   = S('I',  fontSize=11, textColor=COLORS['text_dark'], alignment=TA_CENTER, fontName=F,       spaceAfter=5*mm, leading=16)
+    intro_style   = S('I',  fontSize=11, textColor=COLORS['text_dark'], alignment=TA_CENTER, fontName=F,       spaceAfter=3*mm, leading=14)
 
     result_value = result.get('result', 'participant')
     result_label = RESULT_LABELS.get(result_value, result_value)
@@ -164,7 +164,7 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
 
     # --- Шапка: логотип по центру ---
     try:
-        logo_img = Image(fetch_image(LOGO_URL), width=45*mm, height=45*mm, kind='proportional')
+        logo_img = Image(fetch_image(LOGO_URL), width=30*mm, height=30*mm, kind='proportional')
         logo_img.hAlign = 'CENTER'
         story.append(logo_img)
         story.append(Spacer(1, 2*mm))
@@ -249,10 +249,10 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
     # Правая колонка — единая картинка подписи+печати
     right_col = []
     try:
-        sign_stamp_img = Image(fetch_image(SIGN_STAMP_URL), width=55*mm, height=55*mm, kind='proportional')
+        sign_stamp_img = Image(fetch_image(SIGN_STAMP_URL), width=38*mm, height=38*mm, kind='proportional')
         right_col.append(sign_stamp_img)
     except Exception:
-        right_col.append(Spacer(1, 55*mm))
+        right_col.append(Spacer(1, 38*mm))
 
     sign_table = Table(
         [[left_col, right_col]],
@@ -277,9 +277,9 @@ def build_pdf(result: dict, cert_id: int = None) -> bytes:
         footer_style
     ))
 
-    story.append(Spacer(1, 3*mm))
+    story.append(Spacer(1, 1*mm))
     try:
-        qr_img = Image(fetch_image(QR_URL), width=usable_width, height=25*mm, kind='proportional')
+        qr_img = Image(fetch_image(QR_URL), width=usable_width, height=20*mm, kind='proportional')
         qr_img.hAlign = 'CENTER'
         story.append(qr_img)
     except Exception:

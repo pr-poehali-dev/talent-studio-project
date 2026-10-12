@@ -205,7 +205,14 @@ const IndexJurySection = () => {
     try {
       const r = await fetch(`${func2url["jury-applications"]}?action=confirmation&number=${number}`);
       const data = await r.json();
-      if (data.url) window.open(data.url, "_blank", "noopener,noreferrer");
+      if (data.url) {
+        const w = window.open(data.url, "_blank");
+        if (!w) window.location.href = data.url;
+      } else {
+        alert("Не удалось сформировать справку. Попробуйте позже.");
+      }
+    } catch {
+      alert("Не удалось сформировать справку. Попробуйте позже.");
     } finally {
       setLoadingNum(null);
     }

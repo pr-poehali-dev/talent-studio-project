@@ -41,7 +41,11 @@ def ensure_fonts():
             pdfmetrics.registerFont(TTFont('CF-Bold', bold))
             _fonts_ready = True
             return
-    raise RuntimeError('No Cyrillic font found')
+    from fonts_data import write_fonts
+    regular, bold = write_fonts()
+    pdfmetrics.registerFont(TTFont('CF', regular))
+    pdfmetrics.registerFont(TTFont('CF-Bold', bold))
+    _fonts_ready = True
 
 
 def build_confirmation_pdf(item: dict) -> bytes:

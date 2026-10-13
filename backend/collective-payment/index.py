@@ -111,7 +111,7 @@ def handler(event: dict, context) -> dict:
             "return_url": "https://preview--talent-studio-project.poehali.dev/?section=home",
         },
         "capture": True,
-        "description": description,
+        "description": str(description)[:128],
         "metadata": {
             "pending_id": pending_id,
             "type": "collective",

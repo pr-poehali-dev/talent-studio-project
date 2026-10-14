@@ -186,6 +186,37 @@ const ApplicationEditModal = ({
     }
   };
 
+  const [rotatingUrl, setRotatingUrl] = useState<string | null>(null);
+
+  const rotateFile = async (url: string, clockwise: boolean) => {
+    setRotatingUrl(url);
+    setWorkFileError(null);
+    try {
+      const res = await fetch(url, { cache: 'no-cache' });
+      const bitmap = await createImageBitmap(await res.blob());
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.height;
+      canvas.height = bitmap.width;
+      const ctx = canvas.getContext('2d')!;
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((clockwise ? 90 : -90) * Math.PI / 180);
+      ctx.drawImage(bitmap, -bitmap.width / 2, -bitmap.height / 2);
+      const isPng = /\.png(\?|$)/i.test(url);
+      const mime = isPng ? 'image/png' : 'image/jpeg';
+      const blob: Blob = await new Promise((resolve, reject) =>
+        canvas.toBlob(b => (b ? resolve(b) : reject(new Error('toBlob'))), mime, 0.92)
+      );
+      const file = new File([blob], `rotated.${isPng ? 'png' : 'jpg'}`, { type: mime });
+      const newUrl = await uploadFileInChunks(file, UPLOAD_URL, () => {});
+      setAllFiles(prev => prev.map(f => (f === url ? newUrl : f)));
+      if (primaryFileUrl === url) setPrimaryFileUrl(newUrl);
+    } catch {
+      setWorkFileError('Не удалось повернуть изображение. Попробуйте ещё раз.');
+    } finally {
+      setRotatingUrl(null);
+    }
+  };
+
   const removeFile = (url: string) => {
     setAllFiles(prev => {
       const next = prev.filter(f => f !== url);
@@ -447,6 +478,28 @@ const ApplicationEditModal = ({
                               Сделать основным
                             </button>
                           )}
+                          {isImageUrl(url) && (
+                            <>
+                              <button
+                                type="button"
+                                disabled={rotatingUrl !== null}
+                                onClick={() => rotateFile(url, false)}
+                                className="text-muted-foreground hover:text-primary transition-colors disabled:opacity-40"
+                                title="Повернуть влево"
+                              >
+                                <Icon name={rotatingUrl === url ? 'Loader2' : 'RotateCcw'} size={16} className={rotatingUrl === url ? 'animate-spin' : ''} />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={rotatingUrl !== null}
+                                onClick={() => rotateFile(url, true)}
+                                className="text-muted-foreground hover:text-primary transition-colors disabled:opacity-40"
+                                title="Повернуть вправо"
+                              >
+                                <Icon name="RotateCw" size={16} />
+                              </button>
+                            </>
+                          )}
                           <button
                             type="button"
                             onClick={() => onPreview(allFiles, index)}
@@ -495,7 +548,7 @@ const ApplicationEditModal = ({
 
             <Button
               type="submit"
-              disabled={uploadingWorkFile}
+              disabled={uploadingWorkFile || rotatingUrl !== null}
               className="w-full rounded-xl bg-primary hover:bg-primary/90"
             >
               Сохранить изменения

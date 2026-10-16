@@ -18,7 +18,7 @@ const IndexFooter = ({ setActiveSection }: IndexFooterProps) => {
               />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Студия талантов для юных художников и творцов
+              Новые горизонты искусства и творчества
             </p>
           </div>
 

@@ -292,7 +292,7 @@ const IndexJurySection = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {invited.map((j) => (
+                  {[...invited].reverse().map((j) => (
                     <tr key={j.number} className="border-t border-orange-50 text-gray-800">
                       <td className="px-4 py-3 font-bold">{j.number}</td>
                       <td className="px-4 py-3">{j.full_name}</td>

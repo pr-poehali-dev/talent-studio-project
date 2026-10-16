@@ -1,3 +1,4 @@
+import GalleryWorkCard from "./GalleryWorkCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -303,32 +304,16 @@ const IndexHome = ({
       <section className="mb-20">
         <h3 className="text-4xl font-heading font-bold text-center mb-8 text-secondary">🎨 Галерея лучших работ</h3>
         <div className="relative">
-          <div className="grid md:grid-cols-4 gap-6 min-h-[560px] content-start">
+          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6 min-h-[560px] content-start">
             {featuredWorks.slice(featuredPage * FEATURED_PER_PAGE, (featuredPage + 1) * FEATURED_PER_PAGE).map((work) => (
-              <Card
+              <GalleryWorkCard
                 key={work.id}
-                className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 rounded-3xl cursor-pointer"
-                onClick={() => {
-                  setImagePreview(work.work_file_url);
+                work={work}
+                onOpen={(url) => {
+                  setImagePreview(url);
                   setIsImageModalOpen(true);
                 }}
-              >
-                <div className="h-48 overflow-hidden">
-                  <img
-                    src={work.work_file_url}
-                    alt={work.work_title}
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                  />
-                </div>
-                <CardContent className="p-4">
-                  <h4 className="text-base font-heading font-bold mb-1">{work.work_title}</h4>
-                  <p className="text-xs text-muted-foreground mb-1">👤 {work.full_name}{work.age && work.age !== '—' ? `, ${work.age}` : ''}</p>
-                  {work.study_year && (
-                    <p className="text-xs text-muted-foreground mb-1">📚 {work.study_year}</p>
-                  )}
-                  <p className="text-xs text-muted-foreground">🏆 {work.contest_name}</p>
-                </CardContent>
-              </Card>
+              />
             ))}
           </div>
           {featuredWorks.length > FEATURED_PER_PAGE && (
